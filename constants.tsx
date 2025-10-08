@@ -91,7 +91,7 @@ export const SPRAYABLE_ICONS = ['tree-pine', 'leaf', 'feather', 'flower', 'grass
 // ---------------------------------------------------------------------------------
 // Icon Spray Mask Generation
 // ---------------------------------------------------------------------------------
-export const MASK_RESOLUTION = 9;
+export const MASK_RESOLUTION = 5;
 const createMask = (filter: (x: number, y: number) => boolean): number[] => {
     const mask: number[] = [];
     for (let y = 0; y < MASK_RESOLUTION; y++) {
@@ -102,7 +102,7 @@ const createMask = (filter: (x: number, y: number) => boolean): number[] => {
     return mask;
 };
 const center = Math.floor(MASK_RESOLUTION / 2);
-export const centerMask = createMask((x, y) => Math.sqrt(Math.pow(x - center, 2) + Math.pow(y - center, 2)) < center * 0.6);
+export const centerMask = createMask((x, y) => Math.abs(x - center) <= 1 && Math.abs(y - center) <= 1);
 export const edgeMask = createMask((x, y) => Math.sqrt(Math.pow(x - center, 2) + Math.pow(y - center, 2)) > center * 0.7);
 export const flowMask = createMask((x, y) => Math.abs(y - center) <= 1);
 export const uniformMask = createMask(() => true);
@@ -113,14 +113,10 @@ export const DEFAULT_SPRAY_SETTINGS: SpraySettings = {
   density: 3,
   sizeMin: 7,
   sizeMax: 9,
-  opacity: 0.7,
-  rotationJitter: 30,
-  tintVariance: 0.1,
+  opacityMin: 0.6,
+  opacityMax: 0.8,
+  color: '#221f21',
   placementMask: uniformMask,
-  clusterFactor: 0.2,
-  collisionAvoidance: true,
-  minSpacing: 2,
-  seed: 'auto',
 };
 
 /**
@@ -131,15 +127,15 @@ export const DEFAULT_TILE_SETS: TileSet = {
   terrain: [
     { id: 'marsh', label: 'Marsh', icon: 'droplet', color: TERRAIN_COLORS.marsh, sprayIcons: ['droplet', 'feather', 'waves'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 3, sizeMin: 7, sizeMax: 9, placementMask: uniformMask } },
     { id: 'heath', label: 'Heath', icon: 'leaf', color: TERRAIN_COLORS.heath, sprayIcons: ['leaf', 'wind', 'flower'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 3, sizeMin: 7, sizeMax: 9, placementMask: uniformMask } },
-    { id: 'crags', label: 'Crags', icon: 'triangle', color: TERRAIN_COLORS.crags, sprayIcons: ['triangle', 'mountain', 'rock'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 4, sizeMin: 8, sizeMax: 10, placementMask: edgeMask, clusterFactor: 0.8 } },
+    { id: 'crags', label: 'Crags', icon: 'triangle', color: TERRAIN_COLORS.crags, sprayIcons: ['triangle', 'mountain', 'rock'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 4, sizeMin: 8, sizeMax: 10, placementMask: edgeMask } },
     { id: 'peaks', label: 'Peaks', icon: 'mountains', color: TERRAIN_COLORS.peaks, sprayIcons: ['triangle', 'flag', 'snowflake'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 3, sizeMin: 9, sizeMax: 11, placementMask: edgeMask } },
     { id: 'forest', label: 'Forest', icon: 'trees', color: TERRAIN_COLORS.forest, sprayIcons: ['tree-pine', 'leaf', 'branch'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 4, sizeMin: 7, sizeMax: 9, placementMask: uniformMask } },
     { id: 'valley', label: 'Valley', icon: 'curve', color: TERRAIN_COLORS.valley, sprayIcons: ['river', 'path', 'leaf'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 3, sizeMin: 7, sizeMax: 9, placementMask: flowMask } },
     { id: 'hills', label: 'Hills', icon: 'hill', color: TERRAIN_COLORS.hills, sprayIcons: ['wave-sine', 'chevron-up', 'rock'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 3, sizeMin: 7, sizeMax: 9, placementMask: uniformMask } },
-    { id: 'meadow', label: 'Meadow', icon: 'flower', color: TERRAIN_COLORS.meadow, sprayIcons: ['flower', 'sun', 'cloud'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 3, sizeMin: 7, sizeMax: 9, placementMask: uniformMask, collisionAvoidance: true, minSpacing: 8 } },
-    { id: 'bog', label: 'Bog', icon: 'droplets', color: TERRAIN_COLORS.bog, sprayIcons: ['droplet', 'skull', 'feather'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 3, sizeMin: 7, sizeMax: 9, placementMask: edgeMask, clusterFactor: 0.7 } },
+    { id: 'meadow', label: 'Meadow', icon: 'flower', color: TERRAIN_COLORS.meadow, sprayIcons: ['flower', 'sun', 'cloud'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 3, sizeMin: 7, sizeMax: 9, placementMask: uniformMask } },
+    { id: 'bog', label: 'Bog', icon: 'droplets', color: TERRAIN_COLORS.bog, sprayIcons: ['droplet', 'skull', 'feather'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 3, sizeMin: 7, sizeMax: 9, placementMask: edgeMask } },
     { id: 'lakes', label: 'Lakes', icon: 'waves', color: TERRAIN_COLORS.lakes, sprayIcons: ['waves', 'droplet', 'fish'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 3, sizeMin: 8, sizeMax: 10, placementMask: centerMask } },
-    { id: 'glades', label: 'Glades', icon: 'sun', color: TERRAIN_COLORS.glades, sprayIcons: ['tree-deciduous', 'sparkles', 'sun'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 3, sizeMin: 7, sizeMax: 9, placementMask: centerMask, clusterFactor: 0.6 } },
+    { id: 'glades', label: 'Glades', icon: 'sun', color: TERRAIN_COLORS.glades, sprayIcons: ['tree-deciduous', 'sparkles', 'sun'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 3, sizeMin: 7, sizeMax: 9, placementMask: centerMask } },
     { id: 'plain', label: 'Plain', icon: 'wind', color: TERRAIN_COLORS.plain, sprayIcons: ['wind', 'cloud', 'sun'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 2, sizeMin: 6, sizeMax: 8, placementMask: centerMask } },
   ],
   holding: [

@@ -270,6 +270,11 @@ export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexCli
   return (
     <div ref={containerRef} className="w-full h-full overflow-hidden bg-[#18272e] relative" onWheel={onWheel} style={{ cursor: getCursor() }}>
       <svg ref={svgRef} id="hex-grid-svg" className="w-full h-full" viewBox={viewbox} onMouseDown={isPickingTile ? undefined : onMouseDown} onMouseUp={handleMouseUp} onMouseLeave={() => { handleMouseUp(); setHoveredBarrier(null); }}>
+        <defs>
+          <clipPath id="hex-clip-path">
+            <polygon points={hexCorners.map(p => `${p.x},${p.y}`).join(' ')} />
+          </clipPath>
+        </defs>
         {/* Layer 1: Hex Fills, Spray Icons, and Grid Lines */}
         <g>
           {displayHexes.map(hex => {
@@ -287,10 +292,10 @@ export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexCli
                     const iconsToRender = generateSprayIcons(hex, terrainTile, viewOptions.hexSize);
 
                     return (
-                        <g style={{ pointerEvents: 'none' }}>
+                        <g style={{ pointerEvents: 'none', clipPath: 'url(#hex-clip-path)' }}>
                             {iconsToRender.map((icon, i) => (
                                 <g key={i} transform={`translate(${icon.x}, ${icon.y}) rotate(${icon.rotation})`}>
-                                    <Icon name={icon.name} className="text-[#221f21]" style={{ opacity: icon.opacity }} width={icon.size} height={icon.size} strokeWidth={2.5}/>
+                                    <Icon name={icon.name} style={{ opacity: icon.opacity, color: icon.color }} width={icon.size} height={icon.size} x={-icon.size / 2} y={-icon.size / 2} strokeWidth={2.5}/>
                                 </g>
                             ))}
                         </g>

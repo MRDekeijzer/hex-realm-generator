@@ -25,12 +25,13 @@ interface TerrainPainterProps {
   onResetTerrainColor: (id: string) => void;
   onStartPicking: () => void;
   isPickingTile: boolean;
+  onOpenSpraySettings: (id: string) => void;
 }
 
 /**
  * The sidebar component for the terrain painting tool.
  */
-export function TerrainPainter({ paintTerrain, setPaintTerrain, onClose, tileSets, terrainColors, onAddTerrain, onRemoveTerrain, onUpdateTerrainColor, onResetTerrainColor, onStartPicking, isPickingTile }: TerrainPainterProps) {
+export function TerrainPainter({ paintTerrain, setPaintTerrain, onClose, tileSets, terrainColors, onAddTerrain, onRemoveTerrain, onUpdateTerrainColor, onResetTerrainColor, onStartPicking, isPickingTile, onOpenSpraySettings }: TerrainPainterProps) {
   const [newTerrainName, setNewTerrainName] = useState('');
   const [newTerrainColor, setNewTerrainColor] = useState('#cccccc');
   const colorInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -80,7 +81,7 @@ export function TerrainPainter({ paintTerrain, setPaintTerrain, onClose, tileSet
             </div>
         )}
         <p className="text-sm text-[#a7a984] mb-4">Select a terrain to paint. Click a color swatch to customize.</p>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="space-y-2">
           {tileSets.terrain.map(terrain => {
             const color = terrainColors[terrain.id] || '#ccc';
             const isSelected = paintTerrain === terrain.id;
@@ -89,30 +90,47 @@ export function TerrainPainter({ paintTerrain, setPaintTerrain, onClose, tileSet
             const isCustomColor = isDefault && defaultColor ? defaultColor !== color : false;
 
             return (
-              <div key={terrain.id} className="relative group/item">
-                <button
-                  onClick={() => setPaintTerrain(terrain.id)}
-                  className={`w-full flex items-center gap-2 p-2 rounded-md transition-all duration-150 border-2 text-left ${isSelected ? 'bg-[#736b23]/20 border-[#736b23] text-[#eaebec]' : 'bg-[#18272e] border-[#41403f] hover:border-[#a7a984] text-[#a7a984]'}`}
-                  title={`Paint ${terrain.label}`}
-                >
-                  <button
-                    onClick={(e) => { e.stopPropagation(); isCustomColor ? onResetTerrainColor(terrain.id) : colorInputRefs.current[terrain.id]?.click(); }}
-                    className="w-7 h-7 rounded-md flex-shrink-0 border border-black/20 relative group"
-                    style={{ backgroundColor: color }}
-                    title={isCustomColor ? 'Reset color to default' : 'Edit color'}
-                  >
-                    <input ref={el => { if(el) colorInputRefs.current[terrain.id] = el; }} type="color" value={color} onChange={e => { e.stopPropagation(); onUpdateTerrainColor(terrain.id, e.target.value); }} onClick={e => e.stopPropagation()} className="opacity-0 w-0 h-0 absolute pointer-events-none" />
-                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <Icon name={isCustomColor ? "reset" : "pipette"} className="w-4 h-4 text-white" />
-                    </div>
-                  </button>
-                  <span className="font-medium text-sm truncate pr-4">{terrain.label}</span>
-                </button>
+              <div
+                key={terrain.id}
+                onClick={() => setPaintTerrain(terrain.id)}
+                className={`relative group/item p-2 rounded-md transition-all duration-150 border-2 flex items-center gap-2 cursor-pointer
+                ${isSelected ? 'bg-[#736b23]/20 border-[#736b23]' : 'bg-[#18272e] border-[#41403f] hover:border-[#a7a984]'}`}
+                title={`Paint ${terrain.label}`}
+              >
+                <span className={`font-medium text-sm truncate flex-grow ${isSelected ? 'text-[#eaebec]' : 'text-[#a7a984]'}`}>
+                    {terrain.label}
+                </span>
+                
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <button
+                        onClick={(e) => { e.stopPropagation(); isCustomColor ? onResetTerrainColor(terrain.id) : colorInputRefs.current[terrain.id]?.click(); }}
+                        className="w-7 h-7 rounded-md flex-shrink-0 border border-black/20 relative group"
+                        style={{ backgroundColor: color }}
+                        title={isCustomColor ? 'Reset color to default' : 'Edit color'}
+                    >
+                        <input ref={el => { if(el) colorInputRefs.current[terrain.id] = el; }} type="color" value={color} onChange={e => { e.stopPropagation(); onUpdateTerrainColor(terrain.id, e.target.value); }} onClick={e => e.stopPropagation()} className="opacity-0 w-0 h-0 absolute pointer-events-none" />
+                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <Icon name={isCustomColor ? "reset" : "pipette"} className="w-4 h-4 text-white" />
+                        </div>
+                    </button>
+
+                    <button
+                        onClick={(e) => { e.stopPropagation(); onOpenSpraySettings(terrain.id); }}
+                        className="w-7 h-7 rounded-md flex-shrink-0 border border-black/20 bg-[#eaebec] flex items-center justify-center hover:bg-[#c5d2cb] transition-colors"
+                        title={`Edit ${terrain.label} spray settings`}
+                    >
+                        <Icon name="spray-can" className="w-5 h-5 text-[#221f21]" />
+                    </button>
+                </div>
 
                 {!isDefault && (
-                  <button onClick={(e) => { e.stopPropagation(); onRemoveTerrain(terrain.id); }} className="absolute top-1.5 right-1.5 p-1 text-[#eaebec] bg-[#60131b]/80 rounded-full hover:bg-[#60131b] opacity-0 group-hover/item:opacity-100 transition-opacity duration-150 z-10" title={`Remove ${terrain.label}`}>
-                    <Icon name="close" className="w-3 h-3" />
-                  </button>
+                    <button
+                        onClick={(e) => { e.stopPropagation(); onRemoveTerrain(terrain.id); }}
+                        className="absolute -top-1.5 -right-1.5 p-1 text-[#eaebec] bg-[#60131b] rounded-full hover:bg-[#8a2a34] opacity-0 group-hover/item:opacity-100 transition-opacity z-10"
+                        title={`Remove ${terrain.label}`}
+                    >
+                        <Icon name="close" className="w-3.5 h-3.5" />
+                    </button>
                 )}
               </div>
             );

@@ -2,7 +2,7 @@
  * @file A modal component for displaying all application settings.
  */
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import type { GenerationOptions, TileSet } from '../../types';
 import { Icon } from '../Icon';
 import { SettingsTabButton } from '../ui/SettingsTabButton';
@@ -16,6 +16,7 @@ import { TerrainSettings } from './TerrainSettings';
 interface SettingsModalProps {
     isOpen: boolean;
     onClose: () => void;
+    settingsView: { tab: 'general' | 'generation' | 'terrain'; focusId: string | null; };
     // Props for GeneralSettings
     realmShape: 'hex' | 'square';
     setRealmShape: React.Dispatch<React.SetStateAction<'hex' | 'square'>>;
@@ -43,10 +44,17 @@ interface SettingsModalProps {
 export const SettingsModal = ({
     isOpen,
     onClose,
+    settingsView,
     ...props
 }: SettingsModalProps) => {
     const backdropRef = useRef<HTMLDivElement>(null);
-    const [activeTab, setActiveTab] = useState<'general' | 'generation' | 'terrain'>('general');
+    const [activeTab, setActiveTab] = useState<'general' | 'generation' | 'terrain'>(settingsView.tab);
+    
+    useEffect(() => {
+        if (isOpen) {
+            setActiveTab(settingsView.tab);
+        }
+    }, [isOpen, settingsView.tab]);
 
     const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
         if (event.target === backdropRef.current) {
@@ -113,6 +121,7 @@ export const SettingsModal = ({
                             <TerrainSettings
                                 tileSets={props.tileSets}
                                 setTileSets={props.setTileSets}
+                                focusId={settingsView.focusId}
                             />
                         )}
                     </div>

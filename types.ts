@@ -98,22 +98,14 @@ export interface SpraySettings {
   sizeMin: number;
   /** The maximum size of a spray icon in pixels. */
   sizeMax: number;
-  /** The base opacity of spray icons (0.1 to 1.0). */
-  opacity: number;
-  /** The maximum random rotation to apply in degrees (e.g., 30 means ±30°). */
-  rotationJitter: number;
-  /** The random variation in opacity (0 to 0.2). */
-  tintVariance: number;
+  /** The minimum opacity of spray icons (0.1 to 1.0). */
+  opacityMin: number;
+  /** The maximum opacity of spray icons (0.1 to 1.0). */
+  opacityMax: number;
+  /** The base color of the spray icons. */
+  color: string;
   /** A grid mask defining where icons can be placed. */
   placementMask: number[];
-  /** How tightly icons clump together (0 is scattered, 1 is a single clump). */
-  clusterFactor: number;
-  /** Whether to prevent icons from overlapping. */
-  collisionAvoidance: boolean;
-  /** The minimum spacing between icons if collision avoidance is on. */
-  minSpacing: number;
-  /** A seed for the random number generator, or 'auto' for hex-based seeding. */
-  seed: number | 'auto';
 }
 
 

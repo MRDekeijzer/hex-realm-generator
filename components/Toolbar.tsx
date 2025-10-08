@@ -40,6 +40,8 @@ interface ToolbarProps {
   setTileSets: React.Dispatch<React.SetStateAction<TileSet>>;
   isSettingsOpen: boolean;
   setIsSettingsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  settingsView: { tab: 'general' | 'generation' | 'terrain'; focusId: string | null; };
+  setSettingsView: React.Dispatch<React.SetStateAction<{ tab: 'general' | 'generation' | 'terrain'; focusId: string | null; }>>;
 }
 
 /**
@@ -54,6 +56,8 @@ export function Toolbar({
     setViewOptions,
     isSettingsOpen,
     setIsSettingsOpen,
+    settingsView,
+    setSettingsView,
     ...settingsProps
 }: ToolbarProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -114,17 +118,23 @@ export function Toolbar({
             reader.readAsText(file);
         }
     };
+    
+    const handleOpenSettings = () => {
+        setSettingsView({ tab: 'general', focusId: null });
+        setIsSettingsOpen(true);
+    };
 
     return (
         <header className="flex items-center justify-between p-2 bg-[#191f29] border-b border-[#41403f] shadow-md z-10">
             <div className="flex items-center gap-2">
                 <h1 className="text-xl font-bold text-[#eaebec] mr-4">Hex Realm Generator</h1>
                 <ToolbarButton onClick={onGenerate} icon="sparkles" title="Generate New Realm">Generate</ToolbarButton>
-                <ToolbarButton onClick={() => setIsSettingsOpen(true)} icon="settings" title="Settings">Settings</ToolbarButton>
+                <ToolbarButton onClick={handleOpenSettings} icon="settings" title="Settings">Settings</ToolbarButton>
                 
                 <SettingsModal
                     isOpen={isSettingsOpen}
                     onClose={() => setIsSettingsOpen(false)}
+                    settingsView={settingsView}
                     {...settingsProps}
                 />
                 

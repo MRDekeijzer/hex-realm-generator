@@ -63,6 +63,8 @@ export default function App() {
   
   const [confirmation, setConfirmation] = useState<ConfirmationState | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  // FIX: Widen the type for the 'tab' property to allow for all possible values, resolving the assignment error.
+  const [settingsView, setSettingsView] = useState<{ tab: 'general' | 'generation' | 'terrain'; focusId: string | null; }>({ tab: 'general', focusId: null });
   const [isPickingTile, setIsPickingTile] = useState(false);
 
   // Initialize landmark counts for generation options.
@@ -486,6 +488,14 @@ export default function App() {
       setGenerationOptions(prev => JSON.stringify(prev.terrainClusteringMatrix) === JSON.stringify(newMatrix) ? prev : { ...prev, terrainClusteringMatrix: newMatrix });
   }, [generationOptions.terrainRoughness]);
 
+  /**
+   * Opens the settings modal and focuses on a specific terrain's spray settings.
+   */
+  const handleOpenSpraySettings = useCallback((terrainId: string) => {
+    setSettingsView({ tab: 'terrain', focusId: terrainId });
+    setIsSettingsOpen(true);
+  }, []);
+
 
   return (
     <div className="flex flex-col h-screen w-screen bg-[#191f2a] overflow-hidden">
@@ -514,6 +524,8 @@ export default function App() {
         setTileSets={setTileSets}
         isSettingsOpen={isSettingsOpen}
         setIsSettingsOpen={setIsSettingsOpen}
+        settingsView={settingsView}
+        setSettingsView={setSettingsView}
       />
       <div className="flex flex-1 overflow-hidden">
         <main className="flex-1 bg-[#18272e] relative">
@@ -547,7 +559,7 @@ export default function App() {
           )}
         </main>
         {activeTool === 'terrain' ? (
-          <TerrainPainter paintTerrain={paintTerrain} setPaintTerrain={setPaintTerrain} onClose={() => setActiveTool('select')} tileSets={tileSets} terrainColors={terrainColors} onAddTerrain={handleAddTerrain} onRemoveTerrain={handleRemoveTerrain} onUpdateTerrainColor={handleUpdateTerrainColor} onResetTerrainColor={handleResetTerrainColor} onStartPicking={handleStartPicking} isPickingTile={isPickingTile} />
+          <TerrainPainter paintTerrain={paintTerrain} setPaintTerrain={setPaintTerrain} onClose={() => setActiveTool('select')} tileSets={tileSets} terrainColors={terrainColors} onAddTerrain={handleAddTerrain} onRemoveTerrain={handleRemoveTerrain} onUpdateTerrainColor={handleUpdateTerrainColor} onResetTerrainColor={handleResetTerrainColor} onStartPicking={handleStartPicking} isPickingTile={isPickingTile} onOpenSpraySettings={handleOpenSpraySettings} />
         ) : activeTool === 'poi' ? (
           <PoiPainter paintPoi={paintPoi} setPaintPoi={setPaintPoi} onClose={() => setActiveTool('select')} onStartPicking={handleStartPicking} isPickingTile={isPickingTile} />
         ) : activeTool === 'barrier' ? (
