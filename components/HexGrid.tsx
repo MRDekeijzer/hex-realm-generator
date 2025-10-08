@@ -13,6 +13,7 @@ import { usePanAndZoom } from '../hooks/usePanAndZoom';
 import { DEFAULT_TILE_SETS as TILE_SETS, MYTH_COLOR, SELECTION_COLOR, SEAT_OF_POWER_COLOR, HOLDING_ICON_BORDER_COLOR, LANDMARK_ICON_BORDER_COLOR } from '../constants';
 import { ToolsPalette } from './ToolsPalette';
 import { Icon } from './Icon';
+import { ShortcutTips } from './ShortcutTips';
 
 /**
  * Props for the HexGrid component.
@@ -35,6 +36,8 @@ interface HexGridProps {
   terrainColors: { [key: string]: string };
   barrierColor: string;
   isSettingsOpen: boolean;
+  isPickingTile: boolean;
+  onTilePick: (hex: Hex) => void;
 }
 
 /**
@@ -47,7 +50,7 @@ const findTile = (type: string, category: 'terrain' | 'holding' | 'landmark'): T
 /**
  * The main interactive hex grid component.
  */
-export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexClick, activeTool, setActiveTool, paintTerrain, paintPoi, onAddMyth, onRemoveMyth, relocatingMythId, onRelocateMyth, onSetSeatOfPower, terrainColors, barrierColor, isSettingsOpen }: HexGridProps) {
+export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexClick, activeTool, setActiveTool, paintTerrain, paintPoi, onAddMyth, onRemoveMyth, relocatingMythId, onRelocateMyth, onSetSeatOfPower, terrainColors, barrierColor, isSettingsOpen, isPickingTile, onTilePick }: HexGridProps) {
   const { viewbox, containerRef, onMouseDown, onWheel, isPanning } = usePanAndZoom({
     initialWidth: 1000,
     initialHeight: 800,
@@ -151,6 +154,12 @@ export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexCli
   const handleHexMouseDown = useCallback((hex: Hex, e: React.MouseEvent) => {
     if (e.button !== 0) return;
 
+    if (isPickingTile) {
+      e.stopPropagation(); e.preventDefault();
+      onTilePick(hex);
+      return;
+    }
+
     if (relocatingMythId !== null) {
       e.stopPropagation(); e.preventDefault();
       const targetHex = realm.hexes.find(h => h.q === hex.q && h.r === hex.r);
@@ -202,7 +211,7 @@ export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexCli
       }
       handlePaint(hex, e);
     }
-  }, [activeTool, onHexClick, handlePaint, viewOptions.orientation, viewOptions.hexSize, hexCorners, realmHexesMap, paintedHexes, paintPoi, onUpdateHex, onAddMyth, onRemoveMyth, relocatingMythId, onRelocateMyth, realm.hexes, onSetSeatOfPower]);
+  }, [activeTool, onHexClick, handlePaint, viewOptions.orientation, viewOptions.hexSize, hexCorners, realmHexesMap, paintedHexes, paintPoi, onUpdateHex, onAddMyth, onRemoveMyth, relocatingMythId, onRelocateMyth, realm.hexes, onSetSeatOfPower, isPickingTile, onTilePick]);
 
   /**
    * Handles mouse up events to finalize a painting action.
@@ -227,7 +236,8 @@ export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexCli
     if (!svgRef.current) return;
     const center = axialToPixel(hex, viewOptions.orientation, viewOptions.hexSize);
     const svgPoint = svgRef.current.createSVGPoint();
-    svgPoint.x = e.clientX; svgPoint.y = e.clientY;
+    svgPoint.x = e.clientX;
+    svgPoint.y = e.clientY;
     const transformedPoint = svgPoint.matrixTransform(svgRef.current.getScreenCTM()?.inverse());
     const relativePoint = { x: transformedPoint.x - center.x, y: transformedPoint.y - center.y };
     const edgeIndex = findClosestEdge(relativePoint, hexCorners);
@@ -238,18 +248,27 @@ export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexCli
   }, [activeTool, isPainting, viewOptions.orientation, viewOptions.hexSize, hexCorners, hoveredBarrier]);
 
   const getCursor = () => {
+    if (isPickingTile) {
+      const pipetteSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><defs><filter id="cursor-shadow"><feDropShadow dx="1" dy="1" stdDeviation="1" flood-color="rgba(0,0,0,0.9)"/></filter></defs><g filter="url(#cursor-shadow)"><path d="m2 22 1-1h3l9-9M3 21v-3l9-9m9-9 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4c.9.9.9 2.5 0 3.4l-2.1 2.1c-.9.9-2.5.9-3.4 0L12 14l-4 4m4-11 2 2" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`;
+      return `url('data:image/svg+xml;utf8,${encodeURIComponent(pipetteSVG)}') 2 22, auto`;
+    }
     if (isSpacePanActive) return isPanning ? 'grabbing' : 'grab';
     if (relocatingMythId !== null) return 'move';
+
     switch(activeTool) {
       case 'select': return 'pointer';
-      case 'myth': case 'terrain': case 'barrier': case 'poi': return 'crosshair';
+      case 'terrain': {
+        const brushSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="rgba(234, 235, 236, 0.3)" stroke="#eaebec" stroke-width="2"/></svg>`;
+        return `url('data:image/svg+xml;utf8,${encodeURIComponent(brushSVG)}') 12 12, auto`;
+      }
+      case 'myth': case 'barrier': case 'poi': return 'crosshair';
       default: return 'default';
     }
   }
 
   return (
     <div ref={containerRef} className="w-full h-full overflow-hidden bg-[#18272e] relative" onWheel={onWheel} style={{ cursor: getCursor() }}>
-      <svg ref={svgRef} id="hex-grid-svg" className="w-full h-full" viewBox={viewbox} onMouseDown={onMouseDown} onMouseUp={handleMouseUp} onMouseLeave={() => { handleMouseUp(); setHoveredBarrier(null); }}>
+      <svg ref={svgRef} id="hex-grid-svg" className="w-full h-full" viewBox={viewbox} onMouseDown={isPickingTile ? undefined : onMouseDown} onMouseUp={handleMouseUp} onMouseLeave={() => { handleMouseUp(); setHoveredBarrier(null); }}>
         {/* Layer 1: Hex Fills and Grid Lines */}
         <g>
           {displayHexes.map(hex => {
@@ -259,7 +278,7 @@ export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexCli
             return (
               <g key={`hex-${hex.q}-${hex.r}`} transform={`translate(${center.x}, ${center.y})`} onMouseDown={(e) => handleHexMouseDown(hex, e)} onMouseEnter={(e) => isPainting && handlePaint(hex, e)} onMouseMove={(e) => handleHexMouseMove(hex, e)} className="group" style={{ pointerEvents: isSpacePanActive ? 'none' : 'auto' }}>
                 <polygon points={hexCorners.map(p => `${p.x},${p.y}`).join(' ')} fill={terrainColor} stroke={borderColor} strokeWidth={viewOptions.gridWidth} />
-                <polygon points={hexCornersInnerHighlight.map(p => `${p.x},${p.y}`).join(' ')} fill="none" stroke="rgba(115, 107, 35, 0.8)" strokeWidth="2.5" strokeLinejoin="round" className={`opacity-0 ${activeTool !== 'barrier' ? 'group-hover:opacity-100' : ''} transition-opacity duration-150`} style={{ pointerEvents: 'none' }} />
+                <polygon points={hexCornersInnerHighlight.map(p => `${p.x},${p.y}`).join(' ')} fill="none" stroke="rgba(115, 107, 35, 0.8)" strokeWidth="2.5" strokeLinejoin="round" className={`opacity-0 ${activeTool !== 'barrier' && activeTool !== 'terrain' && !isPickingTile ? 'group-hover:opacity-100' : ''} transition-opacity duration-150`} style={{ pointerEvents: 'none' }} />
               </g>
             );
           })}
@@ -334,6 +353,7 @@ export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexCli
         )}
       </svg>
       {!isSettingsOpen && <ToolsPalette activeTool={activeTool} setActiveTool={setActiveTool} />}
+      {!isSettingsOpen && <ShortcutTips />}
     </div>
   );
 }

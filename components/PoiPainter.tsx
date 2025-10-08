@@ -4,7 +4,7 @@
  * It allows the user to select a holding, landmark, or action to apply to hexes on the map.
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Icon } from './Icon';
 import { DEFAULT_TILE_SETS as TILE_SETS, SPECIAL_POI_ICONS } from '../constants';
 import type { Tile } from '../types';
@@ -19,6 +19,10 @@ interface PoiPainterProps {
   setPaintPoi: (poi: string) => void;
   /** Callback to close the sidebar. */
   onClose: () => void;
+  /** Callback to activate the tile picking mode. */
+  onStartPicking: () => void;
+  /** Whether the tile picking mode is currently active. */
+  isPickingTile: boolean;
 }
 
 /**
@@ -73,16 +77,41 @@ const PoiSection = ({ title, items, type, paintPoi, setPaintPoi }: {
 /**
  * The sidebar component for the POI painting tool.
  */
-export function PoiPainter({ paintPoi, setPaintPoi, onClose }: PoiPainterProps) {
+export function PoiPainter({ paintPoi, setPaintPoi, onClose, onStartPicking, isPickingTile }: PoiPainterProps) {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'i') {
+            e.preventDefault();
+            onStartPicking();
+        }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onStartPicking]);
+
   return (
     <aside className="w-80 bg-[#191f29] border-l border-[#41403f] p-4 flex flex-col">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Points of Interest</h2>
-        <button onClick={onClose} className="p-1 rounded-full hover:bg-[#435360]">
-          <Icon name="close" className="w-5 h-5" />
-        </button>
+        <div className="flex items-center gap-2">
+            <button
+                onClick={onStartPicking}
+                className={`p-2 rounded-md transition-colors ${isPickingTile ? 'bg-[#736b23] text-[#eaebec]' : 'text-[#a7a984] hover:bg-[#435360]'}`}
+                title="Pick POI from Map (Ctrl+I)"
+            >
+                <Icon name="pipette" className="w-5 h-5" />
+            </button>
+            <button onClick={onClose} className="p-1 rounded-full hover:bg-[#435360]">
+              <Icon name="close" className="w-5 h-5" />
+            </button>
+        </div>
       </div>
       <div className="flex-grow overflow-y-auto pr-2 space-y-6">
+        {isPickingTile && (
+            <div className="bg-[#435360]/50 text-center text-sm text-[#c5d2cb] p-2 rounded-md mb-4 animate-pulse">
+                Click on the map to pick a POI.
+            </div>
+        )}
         <p className="text-sm text-[#a7a984]">Select an item, then click a hex to place it.</p>
         <PoiSection title="Actions" items={SPECIAL_POI_ICONS} type="action" paintPoi={paintPoi} setPaintPoi={setPaintPoi} />
         <PoiSection title="Holdings" items={TILE_SETS.holding} type="holding" paintPoi={paintPoi} setPaintPoi={setPaintPoi} />

@@ -44,8 +44,10 @@ const renderSelect = (label: string, value: string, options: {id: string, label:
 export function Sidebar({ selectedHex, realm, onUpdateHex, onDeselect, onSetSeatOfPower, onAddMyth, onRemoveMyth, tileSets }: SidebarProps) {
   if (!selectedHex) {
     return (
-      <aside className="w-80 bg-[#191f29] border-l border-[#41403f] p-4 text-[#a7a984] flex items-center justify-center">
-        <p className="text-center">Select a hex to see details.</p>
+      <aside className="w-80 bg-[#191f29] border-l border-[#41403f] p-4 flex flex-col items-center justify-center text-center">
+        <Icon name="mouse-pointer-2" className="w-16 h-16 text-[#435360] mb-4" />
+        <h2 className="text-xl font-bold">Select a Hex</h2>
+        <p className="text-[#a7a984]">Click on any hex on the map to view and edit its details.</p>
       </aside>
     );
   }

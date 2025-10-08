@@ -6,6 +6,7 @@
  * toolbar, the hex grid canvas, and the various sidebars.
  */
 
+// FIX: Import useState, useCallback, and useEffect from React.
 import React, { useState, useCallback, useEffect } from 'react';
 import { HexGrid } from './components/HexGrid';
 import { Toolbar } from './components/Toolbar';
@@ -60,6 +61,7 @@ export default function App() {
   
   const [confirmation, setConfirmation] = useState<ConfirmationState | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isPickingTile, setIsPickingTile] = useState(false);
 
   // Initialize landmark counts for generation options.
   const initialLandmarkCounts = LANDMARK_TYPES.reduce((acc, type) => {
@@ -123,15 +125,22 @@ export default function App() {
      if (activeTool !== 'myth') {
       setRelocatingMythId(null);
     }
+    if (activeTool !== 'terrain' && activeTool !== 'poi') {
+        setIsPickingTile(false);
+    }
   }, [activeTool]);
 
   /**
-   * Effect to set up keyboard shortcuts for undo (Ctrl+Z) and redo (Ctrl+Y / Ctrl+Shift+Z).
+   * Effect to set up keyboard shortcuts for undo (Ctrl+Z), redo (Ctrl+Y), and canceling actions (Escape).
    */
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       const isCtrlOrCmd = event.ctrlKey || event.metaKey;
-      if (isCtrlOrCmd && event.key.toLowerCase() === 'z') {
+
+      if (event.key === 'Escape' && isPickingTile) {
+          event.preventDefault();
+          setIsPickingTile(false);
+      } else if (isCtrlOrCmd && event.key.toLowerCase() === 'z') {
         event.preventDefault();
         if (event.shiftKey) { // Redo
           if (canRedo) {
@@ -157,7 +166,7 @@ export default function App() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [canUndo, canRedo, handleUndo, handleRedo]);
+  }, [canUndo, canRedo, handleUndo, handleRedo, isPickingTile]);
 
 
   /**
@@ -432,6 +441,33 @@ export default function App() {
   const handleTerrainBiasChange = useCallback((terrainId: string, newBias: number) => setGenerationOptions(prev => ({ ...prev, terrainBiases: { ...prev.terrainBiases, [terrainId]: newBias } })), []);
     
   const handleApplyTemplate = useCallback((templateOptions: Partial<GenerationOptions>) => setGenerationOptions(prev => ({ ...prev, ...templateOptions })), []);
+
+  /**
+   * Handles the start of a tile picking action from a painter tool.
+   */
+  const handleStartPicking = useCallback(() => {
+    if (activeTool === 'terrain' || activeTool === 'poi') {
+        setIsPickingTile(true);
+    }
+  }, [activeTool]);
+
+  /**
+   * Handles the result of a tile pick action from the hex grid.
+   * @param hex The hex that was clicked during picking mode.
+   */
+  const handleTilePick = useCallback((hex: Hex) => {
+      if (!isPickingTile) return;
+
+      if (activeTool === 'terrain') {
+          setPaintTerrain(hex.terrain);
+      } else if (activeTool === 'poi') {
+          if (hex.holding) setPaintPoi(`holding:${hex.holding}`);
+          else if (hex.landmark) setPaintPoi(`landmark:${hex.landmark}`);
+          else if (hex.myth) setPaintPoi('action:myth');
+      }
+
+      setIsPickingTile(false);
+  }, [isPickingTile, activeTool]);
     
   /**
    * Effect to automatically adjust the terrain clustering matrix based on the "terrain roughness" setting.
@@ -501,6 +537,8 @@ export default function App() {
               terrainColors={terrainColors}
               barrierColor={barrierColor}
               isSettingsOpen={isSettingsOpen}
+              isPickingTile={isPickingTile}
+              onTilePick={handleTilePick}
             />
           ) : (
             <div className="flex items-center justify-center h-full text-[#a7a984]">
@@ -509,16 +547,16 @@ export default function App() {
           )}
         </main>
         {activeTool === 'terrain' ? (
-          <TerrainPainter paintTerrain={paintTerrain} setPaintTerrain={setPaintTerrain} onClose={() => setActiveTool('select')} tileSets={tileSets} terrainColors={terrainColors} onAddTerrain={handleAddTerrain} onRemoveTerrain={handleRemoveTerrain} onUpdateTerrainColor={handleUpdateTerrainColor} onResetTerrainColor={handleResetTerrainColor} />
+          <TerrainPainter paintTerrain={paintTerrain} setPaintTerrain={setPaintTerrain} onClose={() => setActiveTool('select')} tileSets={tileSets} terrainColors={terrainColors} onAddTerrain={handleAddTerrain} onRemoveTerrain={handleRemoveTerrain} onUpdateTerrainColor={handleUpdateTerrainColor} onResetTerrainColor={handleResetTerrainColor} onStartPicking={handleStartPicking} isPickingTile={isPickingTile} />
         ) : activeTool === 'poi' ? (
-          <PoiPainter paintPoi={paintPoi} setPaintPoi={setPaintPoi} onClose={() => setActiveTool('select')} />
+          <PoiPainter paintPoi={paintPoi} setPaintPoi={setPaintPoi} onClose={() => setActiveTool('select')} onStartPicking={handleStartPicking} isPickingTile={isPickingTile} />
         ) : activeTool === 'barrier' ? (
           <BarrierPainter onRemoveAllBarriers={handleRequestRemoveAllBarriers} onClose={() => setActiveTool('select')} barrierColor={barrierColor} onColorChange={setBarrierColor} />
         ) : activeTool === 'myth' && realm ? (
             <MythSidebar realm={realm} selectedHex={selectedHex} onSelectHex={setSelectedHex} onUpdateMyth={handleUpdateMyth} onRemoveMyth={handleRemoveMyth} relocatingMythId={relocatingMythId} onToggleRelocateMyth={handleToggleRelocateMyth} onClose={() => setActiveTool('select')} />
-        ) : (
+        ) : activeTool === 'select' ? (
           <Sidebar selectedHex={selectedHex} realm={realm} onUpdateHex={handleUpdateHex} onDeselect={() => setSelectedHex(null)} onSetSeatOfPower={handleSetSeatOfPower} onAddMyth={handleAddMyth} onRemoveMyth={handleRemoveMyth} tileSets={tileSets} />
-        )}
+        ) : null}
       </div>
       {confirmation?.isOpen && (
         <ConfirmationDialog isOpen={confirmation.isOpen} title={confirmation.title} message={confirmation.message} onConfirm={confirmation.onConfirm} onCancel={handleCancelConfirmation} />

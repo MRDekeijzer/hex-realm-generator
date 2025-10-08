@@ -5,7 +5,7 @@
  * custom terrain types.
  */
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Icon } from './Icon';
 import { TERRAIN_TYPES, TERRAIN_COLORS as DEFAULT_TERRAIN_COLORS } from '../constants';
 import type { TileSet } from '../types';
@@ -23,15 +23,29 @@ interface TerrainPainterProps {
   onRemoveTerrain: (id: string) => void;
   onUpdateTerrainColor: (id: string, color: string) => void;
   onResetTerrainColor: (id: string) => void;
+  onStartPicking: () => void;
+  isPickingTile: boolean;
 }
 
 /**
  * The sidebar component for the terrain painting tool.
  */
-export function TerrainPainter({ paintTerrain, setPaintTerrain, onClose, tileSets, terrainColors, onAddTerrain, onRemoveTerrain, onUpdateTerrainColor, onResetTerrainColor }: TerrainPainterProps) {
+export function TerrainPainter({ paintTerrain, setPaintTerrain, onClose, tileSets, terrainColors, onAddTerrain, onRemoveTerrain, onUpdateTerrainColor, onResetTerrainColor, onStartPicking, isPickingTile }: TerrainPainterProps) {
   const [newTerrainName, setNewTerrainName] = useState('');
   const [newTerrainColor, setNewTerrainColor] = useState('#cccccc');
   const colorInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'i') {
+            e.preventDefault();
+            onStartPicking();
+        }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onStartPicking]);
+
 
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,11 +60,25 @@ export function TerrainPainter({ paintTerrain, setPaintTerrain, onClose, tileSet
     <aside className="w-80 bg-[#191f29] border-l border-[#41403f] p-4 flex flex-col">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Terrain Painter</h2>
-        <button onClick={onClose} className="p-1 rounded-full hover:bg-[#435360]">
-          <Icon name="close" className="w-5 h-5" />
-        </button>
+        <div className="flex items-center gap-2">
+            <button
+                onClick={onStartPicking}
+                className={`p-2 rounded-md transition-colors ${isPickingTile ? 'bg-[#736b23] text-[#eaebec]' : 'text-[#a7a984] hover:bg-[#435360]'}`}
+                title="Pick Terrain from Map (Ctrl+I)"
+            >
+                <Icon name="pipette" className="w-5 h-5" />
+            </button>
+            <button onClick={onClose} className="p-1 rounded-full hover:bg-[#435360]">
+              <Icon name="close" className="w-5 h-5" />
+            </button>
+        </div>
       </div>
       <div className="flex-grow overflow-y-auto pr-2">
+        {isPickingTile && (
+            <div className="bg-[#435360]/50 text-center text-sm text-[#c5d2cb] p-2 rounded-md mb-4 animate-pulse">
+                Click on the map to pick a terrain.
+            </div>
+        )}
         <p className="text-sm text-[#a7a984] mb-4">Select a terrain to paint. Click a color swatch to customize.</p>
         <div className="grid grid-cols-2 gap-2">
           {tileSets.terrain.map(terrain => {
