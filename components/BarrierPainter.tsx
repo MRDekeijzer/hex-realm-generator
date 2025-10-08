@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { Icon } from './Icon';
 import { BARRIER_COLOR } from '../constants';
 
@@ -11,12 +11,11 @@ interface BarrierPainterProps {
 }
 
 export function BarrierPainter({ onRemoveAllBarriers, onClose, barrierColor, onColorChange }: BarrierPainterProps) {
+  const colorInputRef = useRef<HTMLInputElement>(null);
+  const isCustomColor = barrierColor !== BARRIER_COLOR;
+
   const handleRemoveClick = () => {
     onRemoveAllBarriers();
-  };
-  
-  const handleResetColor = () => {
-    onColorChange(BARRIER_COLOR);
   };
 
   return (
@@ -33,22 +32,30 @@ export function BarrierPainter({ onRemoveAllBarriers, onClose, barrierColor, onC
         <div className="mt-6 pt-4 border-t border-[#41403f]">
           <h3 className="text-lg font-bold mb-2">Barrier Color</h3>
           <div className="flex items-center gap-2">
-            <input
-              id="barrier-color"
-              type="color"
-              value={barrierColor}
-              onChange={(e) => onColorChange(e.target.value)}
-              className="h-10 p-1 bg-[#324446] border border-[#41403f] rounded-md cursor-pointer"
-              title="Select barrier color"
-            />
-            <span className="p-2 bg-[#324446] rounded-md text-sm font-mono flex-grow text-center">{barrierColor}</span>
             <button
-              onClick={handleResetColor}
-              className="p-2 text-[#a7a984] bg-[#324446] rounded-md hover:bg-[#435360] transition-colors"
-              title="Reset to default color"
+                onClick={() => {
+                    if (isCustomColor) {
+                        onColorChange(BARRIER_COLOR);
+                    } else {
+                        colorInputRef.current?.click();
+                    }
+                }}
+                className="w-10 h-10 rounded-md flex-shrink-0 border border-black/20 relative group"
+                style={{ backgroundColor: barrierColor }}
+                title={isCustomColor ? 'Reset to default color' : 'Edit color'}
             >
-              <Icon name="reset" className="w-5 h-5" />
+                <input
+                    ref={colorInputRef}
+                    type="color"
+                    value={barrierColor}
+                    onChange={e => onColorChange(e.target.value)}
+                    className="opacity-0 w-0 h-0 absolute pointer-events-none"
+                />
+                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <Icon name={isCustomColor ? "reset" : "pipette"} className="w-5 h-5 text-white" />
+                </div>
             </button>
+            <span className="p-2 bg-[#324446] rounded-md text-sm font-mono flex-grow text-center">{barrierColor.toUpperCase()}</span>
           </div>
         </div>
 

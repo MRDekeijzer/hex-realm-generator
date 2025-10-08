@@ -111,8 +111,8 @@ export function Sidebar({ selectedHex, realm, onUpdateHex, onDeselect, onSetSeat
         {selectedHex.holding && (
           <div className="mb-4">
             {isSeatOfPower ? (
-                <div className="flex items-center gap-2 p-2 bg-[#736b23]/30 border border-[#736b23] rounded-md text-[#9d8940] text-sm">
-                    <Icon name="star" className="w-4 h-4 text-[#736b23]" />
+                <div className="flex items-center justify-center gap-2 p-2 bg-[#736b23]/30 border border-[#736b23] rounded-md text-[#9d8940] text-sm">
+                    <Icon name="crown" className="w-4 h-4 text-[#736b23]" />
                     <span>This is the Seat of Power.</span>
                 </div>
             ) : (
@@ -120,7 +120,7 @@ export function Sidebar({ selectedHex, realm, onUpdateHex, onDeselect, onSetSeat
                     onClick={() => onSetSeatOfPower(selectedHex)}
                     className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-[#a7a984] bg-[#324446] rounded-md hover:bg-[#736b23] transition-colors"
                 >
-                    <Icon name="star" className="w-4 h-4" />
+                    <Icon name="crown" className="w-4 h-4" />
                     Make Seat of Power
                 </button>
             )}
@@ -141,7 +141,7 @@ export function Sidebar({ selectedHex, realm, onUpdateHex, onDeselect, onSetSeat
                 onClick={handleMythToggle}
                 className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-[#a7a984] bg-[#324446] rounded-md hover:bg-[#435360] transition-colors"
             >
-                <Icon name={selectedHex.myth ? "minus" : "sparkles"} className="w-4 h-4" />
+                <Icon name="sparkle" className="w-4 h-4" />
                 {selectedHex.myth ? `Remove Myth #${selectedHex.myth}` : 'Add Myth'}
             </button>
         </div>

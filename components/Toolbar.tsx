@@ -1,5 +1,4 @@
-
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useMemo } from 'react';
 // FIX: Import Myth type to handle backward compatibility for realm imports.
 import type { ViewOptions, Realm, GenerationOptions, Myth, TileSet } from '../types';
 import { Icon } from './Icon';
@@ -45,6 +44,31 @@ const ToolbarButton = React.forwardRef<HTMLButtonElement, ToolbarButtonProps>(
 ));
 ToolbarButton.displayName = 'ToolbarButton';
 
+const rgbaToHexOpacity = (rgba: string): { hex: string; opacity: number } => {
+    if (rgba.startsWith('#')) {
+        return { hex: rgba, opacity: 1 };
+    }
+    const match = rgba.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+    if (!match) return { hex: '#eaebec', opacity: 0.2 };
+
+    const toHex = (c: number) => ('0' + c.toString(16)).slice(-2);
+    const hex = `#${toHex(parseInt(match[1]))}${toHex(parseInt(match[2]))}${toHex(parseInt(match[3]))}`;
+    const opacity = match[4] !== undefined ? parseFloat(match[4]) : 1;
+
+    return { hex, opacity };
+};
+
+const hexToRgb = (hex: string): { r: number; g: number; b: number } | null => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+        ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16),
+        }
+        : null;
+};
+
 export function Toolbar({ 
     onGenerate, 
     onExportJson, 
@@ -75,6 +99,7 @@ export function Toolbar({
     const [isGridSettingsOpen, setIsGridSettingsOpen] = useState(false);
     const gridSettingsPopoverRef = useRef<HTMLDivElement>(null);
     const gridSettingsButtonRef = useRef<HTMLButtonElement>(null);
+    const gridColorInputRef = useRef<HTMLInputElement>(null);
 
 
     useEffect(() => {
@@ -186,13 +211,36 @@ export function Toolbar({
         }));
     };
     
+    const { hex: gridHexColor, opacity: gridOpacity } = useMemo(() => rgbaToHexOpacity(viewOptions.gridColor), [viewOptions.gridColor]);
+    const isCustomGridColor = viewOptions.gridColor !== DEFAULT_GRID_COLOR;
+
+    const handleGridColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newHex = e.target.value;
+        const rgb = hexToRgb(newHex);
+        if (rgb) {
+            const newRgba = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${gridOpacity})`;
+            setViewOptions(v => ({ ...v, gridColor: newRgba }));
+        }
+    };
+    
+    const handleGridOpacityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newOpacity = parseFloat(e.target.value);
+        const rgb = hexToRgb(gridHexColor);
+        if (rgb) {
+            const newRgba = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${newOpacity})`;
+            setViewOptions(v => ({ ...v, gridColor: newRgba }));
+        }
+    };
+    
     const handleResetGridSettings = () => {
         setViewOptions(v => ({
             ...v,
+            showGrid: true,
             gridColor: DEFAULT_GRID_COLOR,
             gridWidth: DEFAULT_GRID_WIDTH,
         }));
     };
+
 
     return (
         <header className="flex items-center justify-between p-2 bg-[#191f29] border-b border-[#41403f] shadow-md z-10">
@@ -347,49 +395,86 @@ export function Toolbar({
                         Grid
                     </ToolbarButton>
                      {isGridSettingsOpen && (
-                        <div ref={gridSettingsPopoverRef} className="absolute top-full mt-2 right-0 bg-[#18272e] border border-[#41403f] rounded-lg shadow-xl p-4 z-20 w-64 space-y-4">
-                            <label className="flex items-center justify-between gap-2 text-sm font-medium text-[#a7a984] cursor-pointer">
-                                <span>Show Grid</span>
-                                <div className="relative">
-                                    <input type="checkbox" checked={viewOptions.showGrid} onChange={() => setViewOptions(v => ({ ...v, showGrid: !v.showGrid }))} className="sr-only peer" />
-                                    <div className="w-11 h-6 bg-[#324446] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#736b23]"></div>
+                        <div ref={gridSettingsPopoverRef} className="absolute top-full mt-2 right-0 bg-[#18272e] border border-[#41403f] rounded-lg shadow-xl p-4 z-20 w-64">
+                            <div className="space-y-4">
+                                <label className="flex items-center justify-between gap-2 text-sm font-medium text-[#a7a984] cursor-pointer">
+                                    <span>Show Grid</span>
+                                    <div className="relative">
+                                        <input type="checkbox" checked={viewOptions.showGrid} onChange={() => setViewOptions(v => ({ ...v, showGrid: !v.showGrid }))} className="sr-only peer" />
+                                        <div className="w-11 h-6 bg-[#324446] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#736b23]"></div>
+                                    </div>
+                                </label>
+                                <hr className="border-[#41403f]" />
+                                <div>
+                                    <label htmlFor="grid-color-btn" className="block text-sm font-medium text-[#a7a984] mb-1">Grid Color</label>
+                                    <div className="flex items-center gap-2">
+                                         <button
+                                            id="grid-color-btn"
+                                            onClick={() => {
+                                                if (isCustomGridColor) {
+                                                    setViewOptions(v => ({ ...v, gridColor: DEFAULT_GRID_COLOR }));
+                                                } else {
+                                                    gridColorInputRef.current?.click();
+                                                }
+                                            }}
+                                            className="w-10 h-10 rounded-md flex-shrink-0 border border-black/20 relative group"
+                                            style={{ backgroundColor: gridHexColor }}
+                                            title={isCustomGridColor ? 'Reset color to default' : 'Edit color'}
+                                        >
+                                            <input
+                                                ref={gridColorInputRef}
+                                                type="color"
+                                                value={gridHexColor}
+                                                onChange={handleGridColorChange}
+                                                className="opacity-0 w-0 h-0 absolute pointer-events-none"
+                                            />
+                                            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                <Icon name={isCustomGridColor ? "reset" : "pipette"} className="w-5 h-5 text-white" />
+                                            </div>
+                                        </button>
+                                        <span className="p-2 bg-[#324446] rounded-md text-sm font-mono flex-grow text-center">{gridHexColor.toUpperCase()}</span>
+                                    </div>
                                 </div>
-                            </label>
-                            <hr className="border-[#41403f]" />
-                            <div>
-                                <label htmlFor="grid-color" className="block text-sm font-medium text-[#a7a984] mb-1">Grid Color</label>
-                                <div className="flex items-center gap-2">
+                                <div>
+                                    <label htmlFor="grid-opacity" className="block text-sm font-medium text-[#a7a984] mb-1">Opacity</label>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            id="grid-opacity"
+                                            type="range"
+                                            min="0"
+                                            max="1"
+                                            step="0.01"
+                                            value={gridOpacity}
+                                            onChange={handleGridOpacityChange}
+                                            className="w-full h-2 bg-[#324446] rounded-lg appearance-none cursor-pointer"
+                                            aria-label="Grid opacity"
+                                        />
+                                        <span className="p-1 bg-[#324446] rounded-md text-xs w-16 text-center">{Math.round(gridOpacity * 100)}%</span>
+                                    </div>
+                                </div>
+                                 <div>
+                                    <label htmlFor="grid-width" className="block text-sm font-medium text-[#a7a984] mb-1">Border Width</label>
                                     <input
-                                        id="grid-color"
-                                        type="color"
-                                        value={viewOptions.gridColor}
-                                        onChange={(e) => setViewOptions(v => ({ ...v, gridColor: e.target.value }))}
-                                        className="h-8 p-1 bg-[#324446] border border-[#41403f] rounded-md cursor-pointer"
-                                        title="Select grid color"
+                                        id="grid-width"
+                                        type="number"
+                                        value={viewOptions.gridWidth}
+                                        onChange={(e) => setViewOptions(v => ({...v, gridWidth: Math.max(0.1, parseFloat(e.target.value)) || 1}))}
+                                        min="0.1"
+                                        step="0.1"
+                                        className="w-full bg-[#324446] p-2 text-sm font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
+                                        aria-label="Grid border width"
                                     />
-                                    <span className="p-1 bg-[#324446] rounded-md text-xs font-mono flex-grow text-center">{viewOptions.gridColor}</span>
                                 </div>
                             </div>
-                             <div>
-                                <label htmlFor="grid-width" className="block text-sm font-medium text-[#a7a984] mb-1">Border Width</label>
-                                <input
-                                    id="grid-width"
-                                    type="number"
-                                    value={viewOptions.gridWidth}
-                                    onChange={(e) => setViewOptions(v => ({...v, gridWidth: Math.max(0.1, parseFloat(e.target.value)) || 1}))}
-                                    min="0.1"
-                                    step="0.1"
-                                    className="w-full bg-[#324446] p-2 text-sm font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
-                                    aria-label="Grid border width"
-                                />
+                            <div className="mt-4 pt-4 border-t border-[#41403f]">
+                                <button
+                                    onClick={handleResetGridSettings}
+                                    className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-[#a7a984] bg-[#324446] rounded-md hover:bg-[#435360] transition-colors"
+                                    >
+                                    <Icon name="reset" className="w-4 h-4" />
+                                    Reset All Grid Settings
+                                </button>
                             </div>
-                            <button
-                                onClick={handleResetGridSettings}
-                                className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-[#a7a984] bg-[#324446] rounded-md hover:bg-[#435360] transition-colors"
-                            >
-                                <Icon name="reset" className="w-4 h-4" />
-                                Reset to Default
-                            </button>
                         </div>
                     )}
                 </div>
