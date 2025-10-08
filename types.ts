@@ -71,4 +71,5 @@ export interface GenerationOptions {
   numMyths: number;
   mythMinDistance: number;
   landmarks: LandmarkGenerationOptions;
+  generateBarriers: boolean;
 }

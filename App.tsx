@@ -59,6 +59,7 @@ export default function App() {
     numMyths: 6,
     mythMinDistance: 3,
     landmarks: initialLandmarkCounts,
+    generateBarriers: false,
   });
 
 

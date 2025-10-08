@@ -454,7 +454,7 @@ export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexCli
                 {isGmView && hex.myth && (
                   <g>
                     <circle r={hexSize.x * 0.25} fill={MYTH_COLOR} />
-                    <text textAnchor="middle" dy=".3em" fill="#221f21" className="font-decorative">{hex.myth}</text>
+                    <text textAnchor="middle" dy=".3em" fill="#221f21" className="font-myth-number">{hex.myth}</text>
                   </g>
                 )}
               </g>

@@ -273,7 +273,9 @@ export function generateRealm(options: GenerateRealmOptions, genOptions: Generat
   
   generateTerrain(hexes);
   // Water features would go here. For simplicity, I'm skipping complex river/lake generation.
-  addBarriers(hexes);
+  if (genOptions.generateBarriers) {
+    addBarriers(hexes);
+  }
   const seatOfPower = placeHoldings(hexes, sizeForDensity, genOptions.numHoldings);
   placeLandmarks(hexes, genOptions.landmarks);
   

@@ -100,6 +100,7 @@ export function Toolbar({
     const gridSettingsPopoverRef = useRef<HTMLDivElement>(null);
     const gridSettingsButtonRef = useRef<HTMLButtonElement>(null);
     const gridColorInputRef = useRef<HTMLInputElement>(null);
+    const [activeSettingsTab, setActiveSettingsTab] = useState<'general' | 'mythics'>('general');
 
 
     useEffect(() => {
@@ -254,126 +255,167 @@ export function Toolbar({
                         Settings
                     </ToolbarButton>
                     {isSettingsOpen && (
-                        <div ref={settingsPopoverRef} className="absolute top-full mt-2 left-0 bg-[#18272e] border border-[#41403f] rounded-lg shadow-xl p-4 z-20 w-80">
-                            <div className="max-h-[70vh] overflow-y-auto pr-2 space-y-4">
-                                <div>
-                                    <label htmlFor="realm-shape" className="block text-sm font-medium text-[#a7a984] mb-1">Shape</label>
-                                    <select
-                                        id="realm-shape"
-                                        value={realmShape}
-                                        onChange={(e) => setRealmShape(e.target.value as 'hex' | 'square')}
-                                        className="w-full bg-[#324446] p-2 text-sm font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
-                                    >
-                                        <option value="hex">Hexagon</option>
-                                        <option value="square">Square</option>
-                                    </select>
-                                </div>
-
-                                {realmShape === 'hex' ? (
-                                    <div>
-                                        <label htmlFor="realm-radius" className="block text-sm font-medium text-[#a7a984] mb-1">Radius</label>
-                                        <input
-                                            id="realm-radius"
-                                            type="number"
-                                            value={realmRadius}
-                                            onChange={(e) => setRealmRadius(Math.max(3, parseInt(e.target.value, 10) || 1))}
-                                            min="3"
-                                            max="50"
-                                            className="w-full bg-[#324446] p-2 text-sm font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
-                                            aria-label="Realm radius"
-                                        />
-                                    </div>
-                                ) : (
-                                    <div className="grid grid-cols-2 gap-4">
+                        <div ref={settingsPopoverRef} className="absolute top-full mt-2 left-0 bg-[#18272e] border border-[#41403f] rounded-lg shadow-xl p-4 z-20 w-96">
+                            <div className="flex border-b border-[#41403f]">
+                                <button
+                                    onClick={() => setActiveSettingsTab('general')}
+                                    className={`flex-1 py-2 text-center text-sm font-medium border-b-2 transition-colors ${
+                                    activeSettingsTab === 'general'
+                                        ? 'border-[#736b23] text-[#eaebec]'
+                                        : 'border-transparent text-[#a7a984] hover:border-[#a7a984]/50'
+                                    }`}
+                                >
+                                    General
+                                </button>
+                                <button
+                                    onClick={() => setActiveSettingsTab('mythics')}
+                                    className={`flex-1 py-2 text-center text-sm font-medium border-b-2 transition-colors ${
+                                    activeSettingsTab === 'mythics'
+                                        ? 'border-[#736b23] text-[#eaebec]'
+                                        : 'border-transparent text-[#a7a984] hover:border-[#a7a984]/50'
+                                    }`}
+                                >
+                                    Mythics
+                                </button>
+                            </div>
+                            <div className="mt-4 max-h-[60vh] overflow-y-auto pr-2">
+                                {activeSettingsTab === 'general' && (
+                                    <div className="space-y-4">
                                         <div>
-                                            <label htmlFor="realm-width" className="block text-sm font-medium text-[#a7a984] mb-1">Width</label>
-                                            <input
-                                                id="realm-width"
-                                                type="number"
-                                                value={realmWidth}
-                                                onChange={(e) => setRealmWidth(Math.max(3, parseInt(e.target.value, 10) || 1))}
-                                                min="3"
-                                                max="50"
+                                            <label htmlFor="realm-shape" className="block text-sm font-medium text-[#a7a984] mb-1">Shape</label>
+                                            <select
+                                                id="realm-shape"
+                                                value={realmShape}
+                                                onChange={(e) => setRealmShape(e.target.value as 'hex' | 'square')}
                                                 className="w-full bg-[#324446] p-2 text-sm font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
-                                                aria-label="Realm width"
-                                            />
+                                            >
+                                                <option value="hex">Hexagon</option>
+                                                <option value="square">Square</option>
+                                            </select>
                                         </div>
-                                        <div>
-                                            <label htmlFor="realm-height" className="block text-sm font-medium text-[#a7a984] mb-1">Height</label>
-                                            <input
-                                                id="realm-height"
-                                                type="number"
-                                                value={realmHeight}
-                                                onChange={(e) => setRealmHeight(Math.max(3, parseInt(e.target.value, 10) || 1))}
-                                                min="3"
-                                                max="50"
-                                                className="w-full bg-[#324446] p-2 text-sm font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
-                                                aria-label="Realm height"
-                                            />
+
+                                        {realmShape === 'hex' ? (
+                                            <div>
+                                                <label htmlFor="realm-radius" className="block text-sm font-medium text-[#a7a984] mb-1">Radius</label>
+                                                <input
+                                                    id="realm-radius"
+                                                    type="number"
+                                                    value={realmRadius}
+                                                    onChange={(e) => setRealmRadius(Math.max(3, parseInt(e.target.value, 10) || 1))}
+                                                    min="3"
+                                                    max="50"
+                                                    className="w-full bg-[#324446] p-2 text-sm font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
+                                                    aria-label="Realm radius"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label htmlFor="realm-width" className="block text-sm font-medium text-[#a7a984] mb-1">Width</label>
+                                                    <input
+                                                        id="realm-width"
+                                                        type="number"
+                                                        value={realmWidth}
+                                                        onChange={(e) => setRealmWidth(Math.max(3, parseInt(e.target.value, 10) || 1))}
+                                                        min="3"
+                                                        max="50"
+                                                        className="w-full bg-[#324446] p-2 text-sm font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
+                                                        aria-label="Realm width"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label htmlFor="realm-height" className="block text-sm font-medium text-[#a7a984] mb-1">Height</label>
+                                                    <input
+                                                        id="realm-height"
+                                                        type="number"
+                                                        value={realmHeight}
+                                                        onChange={(e) => setRealmHeight(Math.max(3, parseInt(e.target.value, 10) || 1))}
+                                                        min="3"
+                                                        max="50"
+                                                        className="w-full bg-[#324446] p-2 text-sm font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
+                                                        aria-label="Realm height"
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+                                        <div className="space-y-2 pt-4 border-t border-[#41403f]">
+                                            <h3 className="text-md font-semibold text-[#eaebec] mb-2">Landmarks per Type</h3>
+                                            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                                                {tileSets.landmark.map(landmark => (
+                                                    <div key={landmark.id} className="flex justify-between items-center">
+                                                        <label htmlFor={`landmark-${landmark.id}`} className="text-sm text-[#a7a984]">{landmark.label}</label>
+                                                        <input
+                                                            id={`landmark-${landmark.id}`}
+                                                            type="number"
+                                                            value={generationOptions.landmarks[landmark.id] || 0}
+                                                            onChange={(e) => handleLandmarkChange(landmark.id, e.target.value)}
+                                                            min="0"
+                                                            className="w-20 bg-[#324446] p-1 text-sm text-center font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
+                                                            aria-label={`Number of ${landmark.label}`}
+                                                        />
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
                                     </div>
                                 )}
-                                <hr className="border-[#41403f]" />
-                                <div className="space-y-3">
-                                    <h3 className="text-md font-semibold text-[#eaebec]">Generation Options</h3>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label htmlFor="num-holdings" className="block text-sm font-medium text-[#a7a984] mb-1">Holdings</label>
-                                            <input
-                                                id="num-holdings"
-                                                type="number"
-                                                value={generationOptions.numHoldings}
-                                                onChange={(e) => handleGenerationOptionChange('numHoldings', e.target.value)}
-                                                min="0"
-                                                className="w-full bg-[#324446] p-2 text-sm font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
-                                                aria-label="Number of holdings"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label htmlFor="num-myths" className="block text-sm font-medium text-[#a7a984] mb-1">Myths</label>
-                                            <input
-                                                id="num-myths"
-                                                type="number"
-                                                value={generationOptions.numMyths}
-                                                onChange={(e) => handleGenerationOptionChange('numMyths', e.target.value)}
-                                                min="0"
-                                                className="w-full bg-[#324446] p-2 text-sm font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
-                                                aria-label="Number of myths"
-                                            />
-                                        </div>
-                                    </div>
-                                    
-                                    <div>
-                                        <label htmlFor="myth-min-distance" className="block text-sm font-medium text-[#a7a984] mb-1">Myth Min Distance</label>
-                                        <input
-                                            id="myth-min-distance"
-                                            type="number"
-                                            value={generationOptions.mythMinDistance}
-                                            onChange={(e) => handleGenerationOptionChange('mythMinDistance', e.target.value)}
-                                            min="0"
-                                            className="w-full bg-[#324446] p-2 text-sm font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
-                                            aria-label="Minimum distance between myths"
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2 pt-2">
-                                        <h4 className="text-sm font-semibold text-[#a7a984]">Landmarks per Type</h4>
-                                        {tileSets.landmark.map(landmark => (
-                                            <div key={landmark.id} className="flex justify-between items-center">
-                                                <label htmlFor={`landmark-${landmark.id}`} className="text-sm text-[#a7a984]">{landmark.label}</label>
+                                {activeSettingsTab === 'mythics' && (
+                                    <div className="space-y-4">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label htmlFor="num-holdings" className="block text-sm font-medium text-[#a7a984] mb-1">Holdings</label>
                                                 <input
-                                                    id={`landmark-${landmark.id}`}
+                                                    id="num-holdings"
                                                     type="number"
-                                                    value={generationOptions.landmarks[landmark.id] || 0}
-                                                    onChange={(e) => handleLandmarkChange(landmark.id, e.target.value)}
+                                                    value={generationOptions.numHoldings}
+                                                    onChange={(e) => handleGenerationOptionChange('numHoldings', e.target.value)}
                                                     min="0"
-                                                    className="w-20 bg-[#324446] p-1 text-sm text-center font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
-                                                    aria-label={`Number of ${landmark.label}`}
+                                                    className="w-full bg-[#324446] p-2 text-sm font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
+                                                    aria-label="Number of holdings"
                                                 />
                                             </div>
-                                        ))}
+                                            <div>
+                                                <label htmlFor="num-myths" className="block text-sm font-medium text-[#a7a984] mb-1">Myths</label>
+                                                <input
+                                                    id="num-myths"
+                                                    type="number"
+                                                    value={generationOptions.numMyths}
+                                                    onChange={(e) => handleGenerationOptionChange('numMyths', e.target.value)}
+                                                    min="0"
+                                                    className="w-full bg-[#324446] p-2 text-sm font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
+                                                    aria-label="Number of myths"
+                                                />
+                                            </div>
+                                        </div>
+                                        
+                                        <div>
+                                            <label htmlFor="myth-min-distance" className="block text-sm font-medium text-[#a7a984] mb-1">Myth Min Distance</label>
+                                            <input
+                                                id="myth-min-distance"
+                                                type="number"
+                                                value={generationOptions.mythMinDistance}
+                                                onChange={(e) => handleGenerationOptionChange('mythMinDistance', e.target.value)}
+                                                min="0"
+                                                className="w-full bg-[#324446] p-2 text-sm font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
+                                                aria-label="Minimum distance between myths"
+                                            />
+                                        </div>
+                                        
+                                        <label htmlFor="generate-barriers" className="flex items-center justify-between pt-2 border-t border-[#41403f] cursor-pointer">
+                                            <span className="text-sm font-medium text-[#a7a984]">Generate Barriers</span>
+                                            <div className="relative">
+                                                <input 
+                                                    id="generate-barriers"
+                                                    type="checkbox" 
+                                                    checked={generationOptions.generateBarriers} 
+                                                    onChange={(e) => setGenerationOptions(prev => ({ ...prev, generateBarriers: e.target.checked }))} 
+                                                    className="sr-only peer" 
+                                                />
+                                                <div className="w-11 h-6 bg-[#324446] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#736b23]"></div>
+                                            </div>
+                                        </label>
                                     </div>
-                                </div>
+                                )}
                             </div>
                         </div>
                     )}
