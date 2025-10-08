@@ -380,22 +380,13 @@ export function Toolbar({
                 </div>
 
                 <div className="h-6 w-px bg-[#41403f] mx-1"></div>
-                <ToolbarButton onClick={onUndo} icon="undo" disabled={!canUndo}>Undo</ToolbarButton>
-                <ToolbarButton onClick={onRedo} icon="redo" disabled={!canRedo}>Redo</ToolbarButton>
-            </div>
-            <div className="flex items-center gap-2">
-                <label className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-[#a7a984] bg-[#324446] rounded-md hover:bg-[#435360] transition-colors cursor-pointer">
-                    <Icon name="eye" className="w-4 h-4" />
-                    <input type="checkbox" checked={viewOptions.isGmView} onChange={() => setViewOptions(v => ({ ...v, isGmView: !v.isGmView }))} className="hidden" />
-                    <span>{viewOptions.isGmView ? 'Referee View' : 'Knight View'}</span>
-                </label>
-                
+
                 <div className="relative">
                     <ToolbarButton ref={gridSettingsButtonRef} onClick={() => setIsGridSettingsOpen(prev => !prev)} icon="grid">
                         Grid
                     </ToolbarButton>
                      {isGridSettingsOpen && (
-                        <div ref={gridSettingsPopoverRef} className="absolute top-full mt-2 right-0 bg-[#18272e] border border-[#41403f] rounded-lg shadow-xl p-4 z-20 w-64">
+                        <div ref={gridSettingsPopoverRef} className="absolute top-full mt-2 left-0 bg-[#18272e] border border-[#41403f] rounded-lg shadow-xl p-4 z-20 w-64">
                             <div className="space-y-4">
                                 <label className="flex items-center justify-between gap-2 text-sm font-medium text-[#a7a984] cursor-pointer">
                                     <span>Show Grid</span>
@@ -478,6 +469,17 @@ export function Toolbar({
                         </div>
                     )}
                 </div>
+
+                <div className="h-6 w-px bg-[#41403f] mx-1"></div>
+                <ToolbarButton onClick={onUndo} icon="undo" disabled={!canUndo}>Undo</ToolbarButton>
+                <ToolbarButton onClick={onRedo} icon="redo" disabled={!canRedo}>Redo</ToolbarButton>
+            </div>
+            <div className="flex items-center gap-2">
+                <label className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-[#a7a984] bg-[#324446] rounded-md hover:bg-[#435360] transition-colors cursor-pointer">
+                    <Icon name="eye" className="w-4 h-4" />
+                    <input type="checkbox" checked={viewOptions.isGmView} onChange={() => setViewOptions(v => ({ ...v, isGmView: !v.isGmView }))} className="hidden" />
+                    <span>{viewOptions.isGmView ? 'Referee View' : 'Knight View'}</span>
+                </label>
                 
                 <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".json" style={{ display: 'none' }}/>
                 <ToolbarButton onClick={handleImportClick} icon="upload">Import JSON</ToolbarButton>
