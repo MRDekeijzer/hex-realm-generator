@@ -1,9 +1,19 @@
+/**
+ * @file Sidebar.tsx
+ * This component displays the details of a selected hex and allows for editing its properties,
+ * such as terrain, holding, landmark, myths, and barriers. It appears when the 'select'
+ * tool is active and a hex has been clicked.
+ */
+
 import React from 'react';
 import type { Hex, Realm, TileSet } from '../types';
 import { BARRIER_COLOR } from '../constants';
 import { Icon } from './Icon';
 import { getHexCorners, getBarrierPath, getNeighbors } from '../utils/hexUtils';
 
+/**
+ * Props for the Sidebar component.
+ */
 interface SidebarProps {
   selectedHex: Hex | null;
   realm: Realm | null;
@@ -15,6 +25,9 @@ interface SidebarProps {
   tileSets: TileSet;
 }
 
+/**
+ * A reusable select input component for the sidebar.
+ */
 const renderSelect = (label: string, value: string, options: {id: string, label: string}[], onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void) => (
     <div className="mb-4">
         <label className="block text-sm font-medium text-[#a7a984] mb-1">{label}</label>
@@ -25,6 +38,9 @@ const renderSelect = (label: string, value: string, options: {id: string, label:
     </div>
 );
 
+/**
+ * The sidebar component for viewing and editing a selected hex.
+ */
 export function Sidebar({ selectedHex, realm, onUpdateHex, onDeselect, onSetSeatOfPower, onAddMyth, onRemoveMyth, tileSets }: SidebarProps) {
   if (!selectedHex) {
     return (
@@ -42,14 +58,8 @@ export function Sidebar({ selectedHex, realm, onUpdateHex, onDeselect, onSetSeat
     if (!selectedHex || !realm) return;
 
     const isAdding = !selectedHex.barrierEdges.includes(edge);
-    const newEdges = isAdding
-        ? [...selectedHex.barrierEdges, edge]
-        : selectedHex.barrierEdges.filter(e => e !== edge);
-    
-    const updatedSelectedHex = { 
-        ...selectedHex, 
-        barrierEdges: newEdges.sort((a, b) => a - b)
-    };
+    const newEdges = isAdding ? [...selectedHex.barrierEdges, edge] : selectedHex.barrierEdges.filter(e => e !== edge);
+    const updatedSelectedHex = { ...selectedHex, barrierEdges: newEdges.sort((a, b) => a - b) };
 
     const updates: Hex[] = [updatedSelectedHex];
 
@@ -58,35 +68,21 @@ export function Sidebar({ selectedHex, realm, onUpdateHex, onDeselect, onSetSeat
     
     if (neighborHex) {
         const oppositeEdge = (edge + 3) % 6;
-        const newNeighborEdges = isAdding
-            ? [...neighborHex.barrierEdges, oppositeEdge]
-            : neighborHex.barrierEdges.filter(e => e !== oppositeEdge);
-        
-        const uniqueNeighborEdges = [...new Set(newNeighborEdges)];
-        
-        const updatedNeighborHex = {
-            ...neighborHex,
-            barrierEdges: uniqueNeighborEdges.sort((a, b) => a - b)
-        };
+        const newNeighborEdges = isAdding ? [...neighborHex.barrierEdges, oppositeEdge] : neighborHex.barrierEdges.filter(e => e !== oppositeEdge);
+        const updatedNeighborHex = { ...neighborHex, barrierEdges: [...new Set(newNeighborEdges)].sort((a, b) => a - b) };
         updates.push(updatedNeighborHex);
     }
-    
     onUpdateHex(updates);
   };
   
   const handleMythToggle = () => {
     if (!selectedHex) return;
-
-    if (selectedHex.myth) {
-        onRemoveMyth(selectedHex);
-    } else {
-        onAddMyth(selectedHex);
-    }
+    if (selectedHex.myth) onRemoveMyth(selectedHex);
+    else onAddMyth(selectedHex);
   };
 
   const previewHexSize = { x: 45, y: 45 };
   const previewHexCorners = getHexCorners('pointy', previewHexSize);
-
   const isSeatOfPower = realm && selectedHex.q === realm.seatOfPower.q && selectedHex.r === realm.seatOfPower.r;
 
   return (
@@ -116,10 +112,7 @@ export function Sidebar({ selectedHex, realm, onUpdateHex, onDeselect, onSetSeat
                     <span>This is the Seat of Power.</span>
                 </div>
             ) : (
-                <button
-                    onClick={() => onSetSeatOfPower(selectedHex)}
-                    className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-[#a7a984] bg-[#324446] rounded-md hover:bg-[#736b23] transition-colors"
-                >
+                <button onClick={() => onSetSeatOfPower(selectedHex)} className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-[#a7a984] bg-[#324446] rounded-md hover:bg-[#736b23] transition-colors">
                     <Icon name="crown" className="w-4 h-4" />
                     Make Seat of Power
                 </button>
@@ -137,10 +130,7 @@ export function Sidebar({ selectedHex, realm, onUpdateHex, onDeselect, onSetSeat
         
         <div className="mb-4">
             <label className="block text-sm font-medium text-[#a7a984] mb-1">Myth</label>
-            <button
-                onClick={handleMythToggle}
-                className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-[#a7a984] bg-[#324446] rounded-md hover:bg-[#435360] transition-colors"
-            >
+            <button onClick={handleMythToggle} className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-[#a7a984] bg-[#324446] rounded-md hover:bg-[#435360] transition-colors">
                 <Icon name="sparkle" className="w-4 h-4" />
                 {selectedHex.myth ? `Remove Myth #${selectedHex.myth}` : 'Add Myth'}
             </button>
@@ -150,53 +140,15 @@ export function Sidebar({ selectedHex, realm, onUpdateHex, onDeselect, onSetSeat
             <label className="block text-sm font-medium text-[#a7a984] mb-2">Barriers (Click edge to toggle)</label>
             <div className="flex justify-center items-center p-2 bg-[#18272e] rounded-md">
                 <svg width="100" height="115" viewBox="-55 -55 110 110" role="group" aria-label="Interactive hex for toggling barriers">
-                    <polygon
-                        points={previewHexCorners.map(p => `${p.x},${p.y}`).join(' ')}
-                        fill="transparent"
-                        stroke="rgba(234, 235, 236, 0.3)"
-                        strokeWidth="2"
-                    />
-                    
-                    {/* Visible Barriers */}
-                    {selectedHex.barrierEdges.map(edgeIndex => (
-                        <path
-                            key={`barrier-visible-${edgeIndex}`}
-                            d={getBarrierPath(edgeIndex, previewHexCorners)}
-                            stroke={BARRIER_COLOR}
-                            strokeWidth="6"
-                            strokeLinecap="round"
-                            style={{ pointerEvents: 'none' }}
-                        />
+                    <polygon points={previewHexCorners.map(p => `${p.x},${p.y}`).join(' ')} fill="transparent" stroke="rgba(234, 235, 236, 0.3)" strokeWidth="2" />
+                    {selectedHex.barrierEdges.map(edgeIndex => (<path key={`barrier-visible-${edgeIndex}`} d={getBarrierPath(edgeIndex, previewHexCorners)} stroke={BARRIER_COLOR} strokeWidth="6" strokeLinecap="round" style={{ pointerEvents: 'none' }} />))}
+                    {[...Array(6).keys()].map(edgeIndex => (
+                        <g key={`barrier-interactive-${edgeIndex}`} onClick={() => handleBarrierToggle(edgeIndex)} className="cursor-pointer group">
+                            <title>{`Toggle barrier on edge ${edgeIndex + 1}`}</title>
+                            <path d={getBarrierPath(edgeIndex, previewHexCorners)} stroke="transparent" strokeWidth="15" strokeLinecap="round" />
+                            <path d={getBarrierPath(edgeIndex, previewHexCorners)} stroke={selectedHex.barrierEdges.includes(edgeIndex) ? '#736b23' : 'rgba(115, 107, 35, 0.6)'} strokeWidth="5" strokeLinecap="round" className="opacity-0 group-hover:opacity-100 transition-opacity duration-150" />
+                        </g>
                     ))}
-
-                    {/* Clickable Layer */}
-                    {[...Array(6).keys()].map(edgeIndex => {
-                        const isBarrierActive = selectedHex.barrierEdges.includes(edgeIndex);
-                        return (
-                            <g 
-                                key={`barrier-interactive-${edgeIndex}`} 
-                                onClick={() => handleBarrierToggle(edgeIndex)} 
-                                className="cursor-pointer group"
-                            >
-                                <title>{`Toggle barrier on edge ${edgeIndex + 1}`}</title>
-                                {/* Invisible wide path for easy clicking */}
-                                <path
-                                    d={getBarrierPath(edgeIndex, previewHexCorners)}
-                                    stroke="transparent"
-                                    strokeWidth="15"
-                                    strokeLinecap="round"
-                                />
-                                {/* Hover effect */}
-                                <path
-                                    d={getBarrierPath(edgeIndex, previewHexCorners)}
-                                    stroke={isBarrierActive ? '#736b23' : 'rgba(115, 107, 35, 0.6)'}
-                                    strokeWidth="5"
-                                    strokeLinecap="round"
-                                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-150"
-                                />
-                            </g>
-                        );
-                    })}
                 </svg>
             </div>
         </div>

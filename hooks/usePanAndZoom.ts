@@ -1,8 +1,13 @@
-
-
-// FIX: Import React namespace to use types like React.MouseEvent
+/**
+ * @file usePanAndZoom.ts
+ * This file contains a custom React hook for managing panning and zooming
+ * interactions on an SVG canvas.
+ */
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 
+/**
+ * Options for the usePanAndZoom hook.
+ */
 interface PanAndZoomOptions {
   initialWidth: number;
   initialHeight: number;
@@ -10,6 +15,12 @@ interface PanAndZoomOptions {
   maxZoom?: number;
 }
 
+/**
+ * A custom hook to manage the state and event handlers for panning and zooming an SVG viewbox.
+ * @param options - Configuration for the hook, including initial dimensions and zoom limits.
+ * @returns An object containing the viewbox string, a ref for the container element,
+ *          event handlers for mouse down and wheel events, and a boolean indicating if panning is active.
+ */
 export function usePanAndZoom({ initialWidth, initialHeight, minZoom = 0.1, maxZoom = 10 }: PanAndZoomOptions) {
   const [viewbox, setViewbox] = useState(`${-initialWidth/2} ${-initialHeight/2} ${initialWidth} ${initialHeight}`);
   const [zoom, setZoom] = useState(1);
@@ -66,15 +77,15 @@ export function usePanAndZoom({ initialWidth, initialHeight, minZoom = 0.1, maxZ
   }, [viewbox, zoom, minZoom, maxZoom]);
 
   useEffect(() => {
-    const currentContainer = containerRef.current;
-    if (currentContainer) {
-      window.addEventListener('mousemove', onMouseMove);
-      window.addEventListener('mouseup', onMouseUp);
-      return () => {
-        window.removeEventListener('mousemove', onMouseMove);
-        window.removeEventListener('mouseup', onMouseUp);
-      };
-    }
+    const handleMouseMove = (e: MouseEvent) => onMouseMove(e);
+    const handleMouseUp = () => onMouseUp();
+    
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
   }, [onMouseMove, onMouseUp]);
 
   return { viewbox, containerRef, onMouseDown, onWheel, isPanning };

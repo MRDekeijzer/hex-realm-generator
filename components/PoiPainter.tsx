@@ -1,16 +1,29 @@
+/**
+ * @file PoiPainter.tsx
+ * This component renders the sidebar for the "Points of Interest" painter tool.
+ * It allows the user to select a holding, landmark, or action to apply to hexes on the map.
+ */
 
 import React from 'react';
 import { Icon } from './Icon';
-// FIX: Rename imported `DEFAULT_TILE_SETS` to `TILE_SETS` as `TILE_SETS` is not an exported member of `constants`.
 import { DEFAULT_TILE_SETS as TILE_SETS, SPECIAL_POI_ICONS } from '../constants';
 import type { Tile } from '../types';
 
+/**
+ * Props for the PoiPainter component.
+ */
 interface PoiPainterProps {
+  /** The currently selected POI for painting, as a 'type:id' string. */
   paintPoi: string | null;
+  /** Callback to set the POI to be painted. */
   setPaintPoi: (poi: string) => void;
+  /** Callback to close the sidebar. */
   onClose: () => void;
 }
 
+/**
+ * A reusable button for selecting a POI to paint.
+ */
 const PoiButton = ({ item, isSelected, onClick }: { item: Tile; isSelected: boolean; onClick: () => void; }) => {
     return (
         <button
@@ -21,9 +34,7 @@ const PoiButton = ({ item, isSelected, onClick }: { item: Tile; isSelected: bool
             title={`Place ${item.label}`}
             aria-label={`Select ${item.label} for placement`}
         >
-            <div 
-              className="w-12 h-12 rounded-lg flex items-center justify-center bg-[#324446]"
-            >
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-[#324446]">
               <Icon name={item.icon} className="w-8 h-8 text-[#eaebec]" strokeWidth={2} />
             </div>
             <span className="text-xs font-medium">{item.label}</span>
@@ -31,6 +42,9 @@ const PoiButton = ({ item, isSelected, onClick }: { item: Tile; isSelected: bool
     );
 };
 
+/**
+ * A section within the POI painter, containing a grid of POI buttons.
+ */
 const PoiSection = ({ title, items, type, paintPoi, setPaintPoi }: {
     title: string;
     items: Tile[];
@@ -56,7 +70,9 @@ const PoiSection = ({ title, items, type, paintPoi, setPaintPoi }: {
     </div>
 );
 
-
+/**
+ * The sidebar component for the POI painting tool.
+ */
 export function PoiPainter({ paintPoi, setPaintPoi, onClose }: PoiPainterProps) {
   return (
     <aside className="w-80 bg-[#191f29] border-l border-[#41403f] p-4 flex flex-col">
@@ -68,31 +84,9 @@ export function PoiPainter({ paintPoi, setPaintPoi, onClose }: PoiPainterProps) 
       </div>
       <div className="flex-grow overflow-y-auto pr-2 space-y-6">
         <p className="text-sm text-[#a7a984]">Select an item, then click a hex to place it.</p>
-        
-        <PoiSection 
-            title="Actions"
-            items={SPECIAL_POI_ICONS}
-            type="action"
-            paintPoi={paintPoi}
-            setPaintPoi={setPaintPoi}
-        />
-        
-        <PoiSection 
-            title="Holdings"
-            items={TILE_SETS.holding}
-            type="holding"
-            paintPoi={paintPoi}
-            setPaintPoi={setPaintPoi}
-        />
-        
-        <PoiSection 
-            title="Landmarks"
-            items={TILE_SETS.landmark}
-            type="landmark"
-            paintPoi={paintPoi}
-            setPaintPoi={setPaintPoi}
-        />
-        
+        <PoiSection title="Actions" items={SPECIAL_POI_ICONS} type="action" paintPoi={paintPoi} setPaintPoi={setPaintPoi} />
+        <PoiSection title="Holdings" items={TILE_SETS.holding} type="holding" paintPoi={paintPoi} setPaintPoi={setPaintPoi} />
+        <PoiSection title="Landmarks" items={TILE_SETS.landmark} type="landmark" paintPoi={paintPoi} setPaintPoi={setPaintPoi} />
       </div>
     </aside>
   );

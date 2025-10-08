@@ -1,20 +1,34 @@
+/**
+ * @file perlin.ts
+ * This file contains a basic implementation of a 2D Perlin noise generator.
+ * It's used for creating natural-looking, pseudo-random patterns for terrain generation.
+ */
 
+/**
+ * A class for generating 2D Perlin noise.
+ * This implementation is based on the classic algorithm and can be seeded
+ * for deterministic output.
+ */
 export class PerlinNoise {
   private p: number[] = [];
+
+  /**
+   * Initializes the Perlin noise generator with a seed.
+   * @param seed - A number used to seed the permutation table, ensuring reproducible noise.
+   */
   constructor(seed: number = 1) {
-    // This is a seeded PRNG, so the same seed will produce the same permutation table.
+    // A simple seeded pseudo-random number generator
     let random = () => {
         var x = Math.sin(seed++) * 10000;
         return x - Math.floor(x);
     };
-    const pTable: number[] = [];
-    for (let i = 0; i < 256; i++) {
-        pTable[i] = i;
-    }
+    const pTable: number[] = Array.from({ length: 256 }, (_, i) => i);
+    // Shuffle the permutation table using the seeded PRNG
     for (let i = pTable.length - 1; i > 0; i--) {
         const j = Math.floor(random() * (i + 1));
         [pTable[i], pTable[j]] = [pTable[j], pTable[i]];
     }
+    // Double the permutation table to avoid buffer overflows
     this.p = pTable.concat(pTable);
   }
 
@@ -27,6 +41,12 @@ export class PerlinNoise {
     return ((h & 1) === 0 ? u : -u) + ((h & 2) === 0 ? v : -v);
   }
 
+  /**
+   * Generates a Perlin noise value for a given 2D coordinate.
+   * @param x - The x-coordinate.
+   * @param y - The y-coordinate.
+   * @returns A noise value between -1 and 1.
+   */
   public noise(x: number, y: number): number {
     const X = Math.floor(x) & 255;
     const Y = Math.floor(y) & 255;

@@ -1,12 +1,26 @@
+/**
+ * @file ToolsPalette.tsx
+ * This component renders the floating palette of tools at the bottom of the screen,
+ * allowing the user to switch between different interaction modes (select, paint, etc.).
+ */
+
 import React from 'react';
 import type { Tool } from '../types';
 import { Icon } from './Icon';
 
+/**
+ * Props for the ToolsPalette component.
+ */
 interface ToolsPaletteProps {
+  /** The currently active tool. */
   activeTool: Tool;
+  /** Callback to set the active tool. */
   setActiveTool: (tool: Tool) => void;
 }
 
+/**
+ * A reusable button component for the tools palette.
+ */
 const ToolButton = ({ icon, label, isActive, onClick }: { icon: string; label: string; isActive: boolean; onClick: () => void; }) => (
     <button
         onClick={onClick}
@@ -18,14 +32,29 @@ const ToolButton = ({ icon, label, isActive, onClick }: { icon: string; label: s
     </button>
 );
 
+/**
+ * A floating palette for selecting the active map interaction tool.
+ */
 export function ToolsPalette({ activeTool, setActiveTool }: ToolsPaletteProps) {
+    const tools: { id: Tool; icon: string; label: string }[] = [
+        { id: 'select', icon: 'mouse-pointer-2', label: 'Select Tool' },
+        { id: 'terrain', icon: 'brush', label: 'Terrain Painter' },
+        { id: 'barrier', icon: 'barrier-painter', label: 'Barrier Painter' },
+        { id: 'poi', icon: 'map-pin-pen', label: 'Points of Interest Painter' },
+        { id: 'myth', icon: 'sparkle', label: 'Myth Tool' },
+    ];
+
     return (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 p-2 bg-[#191f29]/80 border border-[#41403f] rounded-xl shadow-lg z-10">
-            <ToolButton icon="mouse-pointer-2" label="Select Tool" isActive={activeTool === 'select'} onClick={() => setActiveTool('select')} />
-            <ToolButton icon="brush" label="Terrain Painter" isActive={activeTool === 'terrain'} onClick={() => setActiveTool('terrain')} />
-            <ToolButton icon="barrier-painter" label="Barrier Painter" isActive={activeTool === 'barrier'} onClick={() => setActiveTool('barrier')} />
-            <ToolButton icon="map-pin-pen" label="Points of Interest Painter" isActive={activeTool === 'poi'} onClick={() => setActiveTool('poi')} />
-            <ToolButton icon="sparkle" label="Myth Tool" isActive={activeTool === 'myth'} onClick={() => setActiveTool('myth')} />
+            {tools.map(tool => (
+                <ToolButton 
+                    key={tool.id}
+                    icon={tool.icon} 
+                    label={tool.label} 
+                    isActive={activeTool === tool.id} 
+                    onClick={() => setActiveTool(tool.id)} 
+                />
+            ))}
         </div>
     );
 }
