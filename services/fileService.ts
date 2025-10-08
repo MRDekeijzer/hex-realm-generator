@@ -31,21 +31,20 @@ export function exportRealmAsJson(realm: Realm) {
 export function exportSvgAsPng(svgId: string, fileName: string) {
   const svgElement = document.getElementById(svgId) as unknown as SVGElement | null;
   if (!svgElement) {
-    console.error('SVG element not found');
     return;
   }
 
   const svgData = new XMLSerializer().serializeToString(svgElement);
   const canvas = document.createElement('canvas');
   const svgSize = svgElement.getBoundingClientRect();
-  
+
   // Render at 2x resolution for better quality
   canvas.width = svgSize.width * 2;
   canvas.height = svgSize.height * 2;
-  
+
   const ctx = canvas.getContext('2d');
-  if(!ctx) return;
-  
+  if (!ctx) return;
+
   const img = new Image();
   img.onload = () => {
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
@@ -57,7 +56,7 @@ export function exportSvgAsPng(svgId: string, fileName: string) {
     a.click();
     document.body.removeChild(a);
   };
-  
+
   // Use btoa to handle special characters in the SVG data
   img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
 }

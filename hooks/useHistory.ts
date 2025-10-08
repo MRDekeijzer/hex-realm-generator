@@ -34,7 +34,7 @@ export const useHistory = <T,>(initialState: T) => {
    * Sets a new state, clearing the future (redo) history.
    */
   const set = useCallback((newState: T) => {
-    setState(currentState => {
+    setState((currentState) => {
       const { present } = currentState;
       if (newState === present) {
         return currentState;
@@ -52,10 +52,11 @@ export const useHistory = <T,>(initialState: T) => {
    */
   const undo = useCallback(() => {
     if (!canUndo) return;
-    setState(currentState => {
+    setState((currentState) => {
       const { past, present, future } = currentState;
       const newPresent = past[past.length - 1];
       const newPast = past.slice(0, past.length - 1);
+      if (newPresent === undefined) return currentState;
       return {
         past: newPast,
         present: newPresent,
@@ -69,10 +70,11 @@ export const useHistory = <T,>(initialState: T) => {
    */
   const redo = useCallback(() => {
     if (!canRedo) return;
-    setState(currentState => {
+    setState((currentState) => {
       const { past, present, future } = currentState;
       const newPresent = future[0];
       const newFuture = future.slice(1);
+      if (newPresent === undefined) return currentState;
       return {
         past: [...past, present],
         present: newPresent,

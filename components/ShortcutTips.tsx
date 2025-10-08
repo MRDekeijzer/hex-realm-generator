@@ -8,18 +8,18 @@ import React from 'react';
 /**
  * A reusable component for displaying a single shortcut.
  */
-const Shortcut = ({ keys, description }: { keys: string[], description: string }) => (
-    <div className="flex items-center gap-2">
-        <div className="flex items-center">
-            {keys.map((key, index) => (
-                <React.Fragment key={key}>
-                    <kbd className="px-1.5 py-0.5 rounded bg-[#324446] font-sans">{key}</kbd>
-                    {index < keys.length - 1 && <span className="mx-1">+</span>}
-                </React.Fragment>
-            ))}
-        </div>
-        <span>{description}</span>
+const Shortcut = ({ keys, description }: { keys: string[]; description: string }) => (
+  <div className="flex items-center gap-2">
+    <div className="flex items-center">
+      {keys.map((key, index) => (
+        <React.Fragment key={key}>
+          <kbd className="px-1.5 py-0.5 rounded bg-[#324446] font-sans">{key}</kbd>
+          {index < keys.length - 1 && <span className="mx-1">+</span>}
+        </React.Fragment>
+      ))}
     </div>
+    <span>{description}</span>
+  </div>
 );
 
 /**

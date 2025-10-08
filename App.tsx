@@ -6,7 +6,6 @@
  * toolbar, the hex grid canvas, and the various sidebars.
  */
 
-// FIX: Import useState, useCallback, and useEffect from React.
 import React, { useState, useCallback, useEffect } from 'react';
 import { HexGrid } from './components/HexGrid';
 import { Toolbar } from './components/Toolbar';
@@ -17,7 +16,19 @@ import { MythSidebar } from './components/MythSidebar';
 import { generateRealm } from './services/realmGenerator';
 import { exportRealmAsJson, exportSvgAsPng } from './services/fileService';
 import type { Realm, Hex, ViewOptions, GenerationOptions, Tool, Myth, TileSet } from './types';
-import { DEFAULT_GRID_SIZE, DEFAULT_TILE_SETS, LANDMARK_TYPES, TERRAIN_TYPES, DEFAULT_TERRAIN_COLORS, BARRIER_COLOR, DEFAULT_GRID_COLOR, DEFAULT_GRID_WIDTH, DEFAULT_TERRAIN_CLUSTERING_MATRIX, DEFAULT_TERRAIN_BIASES, DEFAULT_TERRAIN_HEIGHT_ORDER } from './constants';
+import {
+  DEFAULT_GRID_SIZE,
+  DEFAULT_TILE_SETS,
+  LANDMARK_TYPES,
+  TERRAIN_TYPES,
+  DEFAULT_TERRAIN_COLORS,
+  BARRIER_COLOR,
+  DEFAULT_GRID_COLOR,
+  DEFAULT_GRID_WIDTH,
+  DEFAULT_TERRAIN_CLUSTERING_MATRIX,
+  DEFAULT_TERRAIN_BIASES,
+  DEFAULT_TERRAIN_HEIGHT_ORDER,
+} from './constants';
 import { useHistory } from './hooks/useHistory';
 import { BarrierPainter } from './components/BarrierPainter';
 import { ConfirmationDialog } from './components/ConfirmationDialog';
@@ -26,18 +37,27 @@ import { HistoryControls } from './components/HistoryControls';
 /**
  * State for managing confirmation dialogs.
  */
-interface ConfirmationState {
-    isOpen: boolean;
-    title: string;
-    message: string;
-    onConfirm: () => void;
+export interface ConfirmationState {
+  isOpen: boolean;
+  title: string;
+  message: string;
+  onConfirm: () => void;
+  confirmText?: string;
+  isInfo?: boolean;
 }
 
 /**
  * The main application component.
  */
 export default function App() {
-  const { state: realm, set: setRealm, undo: handleUndo, redo: handleRedo, canUndo, canRedo } = useHistory<Realm | null>(null);
+  const {
+    state: realm,
+    set: setRealm,
+    undo: handleUndo,
+    redo: handleRedo,
+    canUndo,
+    canRedo,
+  } = useHistory<Realm | null>(null);
   const [selectedHex, setSelectedHex] = useState<Hex | null>(null);
   const [relocatingMythId, setRelocatingMythId] = useState<number | null>(null);
   const [viewOptions, setViewOptions] = useState<ViewOptions>({
@@ -50,7 +70,7 @@ export default function App() {
     showIconSpray: true,
   });
   const [activeTool, setActiveTool] = useState<Tool>('select');
-  const [paintTerrain, setPaintTerrain] = useState<string>(TERRAIN_TYPES[0]);
+  const [paintTerrain, setPaintTerrain] = useState<string>(TERRAIN_TYPES[0] ?? 'plain');
   const [paintPoi, setPaintPoi] = useState<string | null>('holding:castle');
   const [tileSets, setTileSets] = useState<TileSet>(DEFAULT_TILE_SETS);
   const [terrainColors, setTerrainColors] = useState(DEFAULT_TERRAIN_COLORS);
@@ -60,18 +80,23 @@ export default function App() {
   const [realmRadius, setRealmRadius] = useState<number>(DEFAULT_GRID_SIZE);
   const [realmWidth, setRealmWidth] = useState<number>(DEFAULT_GRID_SIZE);
   const [realmHeight, setRealmHeight] = useState<number>(DEFAULT_GRID_SIZE);
-  
+
   const [confirmation, setConfirmation] = useState<ConfirmationState | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  // FIX: Widen the type for the 'tab' property to allow for all possible values, resolving the assignment error.
-  const [settingsView, setSettingsView] = useState<{ tab: 'general' | 'generation' | 'terrain'; focusId: string | null; }>({ tab: 'general', focusId: null });
+  const [settingsView, setSettingsView] = useState<{
+    tab: 'general' | 'generation' | 'terrain';
+    focusId: string | null;
+  }>({ tab: 'general', focusId: null });
   const [isPickingTile, setIsPickingTile] = useState(false);
 
   // Initialize landmark counts for generation options.
-  const initialLandmarkCounts = LANDMARK_TYPES.reduce((acc, type) => {
-    acc[type] = 3;
-    return acc;
-  }, {} as { [key: string]: number });
+  const initialLandmarkCounts = LANDMARK_TYPES.reduce(
+    (acc, type) => {
+      acc[type] = 3;
+      return acc;
+    },
+    {} as { [key: string]: number }
+  );
 
   // State for all realm generation parameters.
   const [generationOptions, setGenerationOptions] = useState<GenerationOptions>({
@@ -95,18 +120,26 @@ export default function App() {
    */
   const handleGenerateRealm = useCallback(() => {
     try {
-      const options = realmShape === 'hex'
-        ? { shape: 'hex' as const, radius: realmRadius }
-        : { shape: 'square' as const, width: realmWidth, height: realmHeight };
+      const options =
+        realmShape === 'hex'
+          ? { shape: 'hex' as const, radius: realmRadius }
+          : { shape: 'square' as const, width: realmWidth, height: realmHeight };
       const newRealm = generateRealm(options, generationOptions);
       setRealm(newRealm);
       setSelectedHex(null);
     } catch (error) {
-      if (error instanceof Error) {
-        alert(error.message);
-      } else {
-        alert("An unknown error occurred during realm generation.");
-      }
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'An unknown error occurred during realm generation.';
+      setConfirmation({
+        isOpen: true,
+        title: 'Generation Failed',
+        message: errorMessage,
+        onConfirm: () => setConfirmation(null),
+        confirmText: 'OK',
+        isInfo: true,
+      });
     }
   }, [realmShape, realmRadius, realmWidth, realmHeight, generationOptions, setRealm]);
 
@@ -115,23 +148,27 @@ export default function App() {
    */
   useEffect(() => {
     if (!realm) {
-        handleGenerateRealm();
+      handleGenerateRealm();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  
+  }, [realm, handleGenerateRealm]);
+
   /**
    * Effect to handle tool-specific state changes when the active tool is switched.
    */
   useEffect(() => {
-    if (activeTool === 'terrain' || activeTool === 'barrier' || activeTool === 'poi' || activeTool === 'myth') {
+    if (
+      activeTool === 'terrain' ||
+      activeTool === 'barrier' ||
+      activeTool === 'poi' ||
+      activeTool === 'myth'
+    ) {
       setSelectedHex(null);
     }
-     if (activeTool !== 'myth') {
+    if (activeTool !== 'myth') {
       setRelocatingMythId(null);
     }
     if (activeTool !== 'terrain' && activeTool !== 'poi') {
-        setIsPickingTile(false);
+      setIsPickingTile(false);
     }
   }, [activeTool]);
 
@@ -143,16 +180,18 @@ export default function App() {
       const isCtrlOrCmd = event.ctrlKey || event.metaKey;
 
       if (event.key === 'Escape' && isPickingTile) {
-          event.preventDefault();
-          setIsPickingTile(false);
+        event.preventDefault();
+        setIsPickingTile(false);
       } else if (isCtrlOrCmd && event.key.toLowerCase() === 'z') {
         event.preventDefault();
-        if (event.shiftKey) { // Redo
+        if (event.shiftKey) {
+          // Redo
           if (canRedo) {
             handleRedo();
             setSelectedHex(null);
           }
-        } else { // Undo
+        } else {
+          // Undo
           if (canUndo) {
             handleUndo();
             setSelectedHex(null);
@@ -173,164 +212,220 @@ export default function App() {
     };
   }, [canUndo, canRedo, handleUndo, handleRedo, isPickingTile]);
 
-
   /**
    * Updates one or more hexes in the realm state.
    * @param updatedHexOrHexes A single Hex object or an array of Hex objects to update.
    */
-  const handleUpdateHex = useCallback((updatedHexOrHexes: Hex | Hex[]) => {
-    if (!realm) return;
+  const handleUpdateHex = useCallback(
+    (updatedHexOrHexes: Hex | Hex[]) => {
+      if (!realm) return;
 
-    const updates = Array.isArray(updatedHexOrHexes) ? updatedHexOrHexes : [updatedHexOrHexes];
-    if (updates.length === 0) return;
+      const updates = Array.isArray(updatedHexOrHexes) ? updatedHexOrHexes : [updatedHexOrHexes];
+      if (updates.length === 0) return;
 
-    const updatedHexesMap = new Map<string, Hex>();
-    updates.forEach(h => updatedHexesMap.set(`${h.q},${h.r}`, h));
+      const updatedHexesMap = new Map<string, Hex>();
+      updates.forEach((h) => updatedHexesMap.set(`${h.q},${h.r}`, h));
 
-    const newHexes = realm.hexes.map(h => {
+      const newHexes = realm.hexes.map((h) => {
         const key = `${h.q},${h.r}`;
         return updatedHexesMap.get(key) || h;
-    });
+      });
 
-    setRealm({ ...realm, hexes: newHexes });
+      setRealm({ ...realm, hexes: newHexes });
 
-    if (selectedHex) {
-        const updatedSelectedHexObject = updates.find(h => h.q === selectedHex.q && h.r === selectedHex.r);
+      if (selectedHex) {
+        const updatedSelectedHexObject = updates.find(
+          (h) => h.q === selectedHex.q && h.r === selectedHex.r
+        );
         if (updatedSelectedHexObject) {
-            setSelectedHex(updatedSelectedHexObject);
+          setSelectedHex(updatedSelectedHexObject || null);
         }
-    }
-  }, [realm, selectedHex, setRealm]);
+      }
+    },
+    [realm, selectedHex, setRealm]
+  );
 
   /**
    * Adds a new myth to a specified hex.
    * @param hex The hex where the myth should be added.
    * @param andSelect If true, selects the hex after adding the myth.
    */
-  const handleAddMyth = useCallback((hex: Hex, andSelect: boolean = false) => {
-    if (!realm) return;
-    
-    const currentHexState = realm.hexes.find(h => h.q === hex.q && h.r === hex.r);
-    if (!currentHexState || currentHexState.myth || currentHexState.holding || currentHexState.landmark) {
-        if(currentHexState?.holding || currentHexState?.landmark) alert("Cannot add a myth to a hex with a holding or landmark.");
-        return;
-    }
+  const handleAddMyth = useCallback(
+    (hex: Hex, andSelect = false) => {
+      if (!realm) return;
 
-    const newMythId = (realm.myths.length > 0 ? Math.max(...realm.myths.map(m => m.id)) : 0) + 1;
-    const newMyth: Myth = { id: newMythId, name: `Myth #${newMythId}`, q: hex.q, r: hex.r };
-    const newMyths = [...realm.myths, newMyth];
-    
-    let updatedHexWithMyth: Hex | undefined;
-    const newHexes = realm.hexes.map(h => {
+      const currentHexState = realm.hexes.find((h) => h.q === hex.q && h.r === hex.r);
+      if (
+        !currentHexState ||
+        currentHexState.myth ||
+        currentHexState.holding ||
+        currentHexState.landmark
+      ) {
+        if (currentHexState?.holding || currentHexState?.landmark) {
+          setConfirmation({
+            isOpen: true,
+            title: 'Action Blocked',
+            message: 'Cannot add a myth to a hex with a holding or landmark.',
+            onConfirm: () => setConfirmation(null),
+            isInfo: true,
+          });
+        }
+        return;
+      }
+
+      const newMythId = (realm.myths.length > 0 ? Math.max(...realm.myths.map((m) => m.id)) : 0) + 1;
+      const newMyth: Myth = { id: newMythId, name: `Myth #${newMythId}`, q: hex.q, r: hex.r };
+      const newMyths = [...realm.myths, newMyth];
+
+      let updatedHexWithMyth: Hex | undefined;
+      const newHexes = realm.hexes.map((h) => {
         if (h.q === hex.q && h.r === hex.r) {
-            updatedHexWithMyth = { ...h, myth: newMythId };
-            return updatedHexWithMyth;
+          updatedHexWithMyth = { ...h, myth: newMythId };
+          return updatedHexWithMyth;
         }
         return h;
-    });
+      });
 
-    setRealm({ ...realm, hexes: newHexes, myths: newMyths });
+      setRealm({ ...realm, hexes: newHexes, myths: newMyths });
 
-    if (updatedHexWithMyth && ((selectedHex && selectedHex.q === hex.q && selectedHex.r === hex.r) || andSelect)) {
+      if (
+        updatedHexWithMyth &&
+        ((selectedHex && selectedHex.q === hex.q && selectedHex.r === hex.r) || andSelect)
+      ) {
         setSelectedHex(updatedHexWithMyth);
-    }
-  }, [realm, setRealm, selectedHex]);
-  
+      }
+    },
+    [realm, setRealm, selectedHex]
+  );
+
   /**
    * Removes a myth from a specified hex.
    * @param hex The hex containing the myth to remove.
    */
-  const handleRemoveMyth = useCallback((hex: Hex) => {
+  const handleRemoveMyth = useCallback(
+    (hex: Hex) => {
       if (!realm || !hex.myth) return;
-  
+
       const removedMythId = hex.myth;
       const newMyths = realm.myths
-          .filter(m => m.id !== removedMythId)
-          .map(m => m.id > removedMythId ? { ...m, id: m.id - 1 } : m)
-          .sort((a,b) => a.id - b.id);
-      
+        .filter((m) => m.id !== removedMythId)
+        .map((m) => (m.id > removedMythId ? { ...m, id: m.id - 1 } : m))
+        .sort((a, b) => a.id - b.id);
+
       let updatedHexWithoutMyth: Hex | undefined;
-      const newHexes = realm.hexes.map(h => {
-          if (h.q === hex.q && h.r === hex.r) {
-              const { myth, ...rest } = h;
-              updatedHexWithoutMyth = rest;
-              return rest;
-          }
-          if (h.myth && h.myth > removedMythId) {
-              return { ...h, myth: h.myth - 1 };
-          }
-          return h;
+      const newHexes = realm.hexes.map((h) => {
+        if (h.q === hex.q && h.r === hex.r) {
+          const { myth, ...rest } = h;
+          updatedHexWithoutMyth = rest;
+          return rest;
+        }
+        if (h.myth && h.myth > removedMythId) {
+          return { ...h, myth: h.myth - 1 };
+        }
+        return h;
       });
-  
+
       setRealm({ ...realm, hexes: newHexes, myths: newMyths });
 
       if (selectedHex && selectedHex.q === hex.q && selectedHex.r === hex.r) {
-          setSelectedHex(updatedHexWithoutMyth || null);
+        setSelectedHex(updatedHexWithoutMyth || null);
       }
-  }, [realm, setRealm, selectedHex]);
-  
+    },
+    [realm, setRealm, selectedHex]
+  );
+
   /**
    * Updates the data of an existing myth.
    * @param updatedMyth The myth object with updated data.
    */
-  const handleUpdateMyth = useCallback((updatedMyth: Myth) => {
+  const handleUpdateMyth = useCallback(
+    (updatedMyth: Myth) => {
       if (!realm) return;
-      const newMyths = realm.myths.map(m => m.id === updatedMyth.id ? updatedMyth : m);
+      const newMyths = realm.myths.map((m) => (m.id === updatedMyth.id ? updatedMyth : m));
       setRealm({ ...realm, myths: newMyths });
-  }, [realm, setRealm]);
+    },
+    [realm, setRealm]
+  );
 
   /**
    * Toggles the myth relocation mode for a given myth ID.
    * @param mythId The ID of the myth to relocate.
    */
-  const handleToggleRelocateMyth = useCallback((mythId: number) => {
-    setRelocatingMythId(prev => (prev === mythId ? null : mythId));
-    if (relocatingMythId !== mythId) {
+  const handleToggleRelocateMyth = useCallback(
+    (mythId: number) => {
+      setRelocatingMythId((prev) => (prev === mythId ? null : mythId));
+      if (relocatingMythId !== mythId) {
         setSelectedHex(null);
-    }
-  }, [relocatingMythId]);
+      }
+    },
+    [relocatingMythId]
+  );
 
   /**
    * Relocates a myth to a new hex.
    * @param mythId The ID of the myth to move.
    * @param newHex The target hex for the relocation.
    */
-  const handleRelocateMyth = useCallback((mythId: number, newHex: Hex) => {
-    if (!realm) return;
-    
-    const targetHexState = realm.hexes.find(h => h.q === newHex.q && h.r === newHex.r);
-    if (!targetHexState || targetHexState.myth || targetHexState.holding || targetHexState.landmark) {
-        if(targetHexState?.myth) alert("Cannot relocate to a hex that already has a myth.");
-        if(targetHexState?.holding || targetHexState?.landmark) alert("Cannot relocate a myth to a hex that has a holding or a landmark.");
+  const handleRelocateMyth = useCallback(
+    (mythId: number, newHex: Hex) => {
+      if (!realm) return;
+
+      const targetHexState = realm.hexes.find((h) => h.q === newHex.q && h.r === newHex.r);
+      if (
+        !targetHexState ||
+        targetHexState.myth ||
+        targetHexState.holding ||
+        targetHexState.landmark
+      ) {
+        if (targetHexState?.myth) {
+          setConfirmation({
+            isOpen: true,
+            title: 'Relocation Blocked',
+            message: 'Cannot relocate to a hex that already has a myth.',
+            onConfirm: () => setConfirmation(null),
+            isInfo: true,
+          });
+        }
+        if (targetHexState?.holding || targetHexState?.landmark) {
+          setConfirmation({
+            isOpen: true,
+            title: 'Relocation Blocked',
+            message: 'Cannot relocate a myth to a hex that has a holding or a landmark.',
+            onConfirm: () => setConfirmation(null),
+            isInfo: true,
+          });
+        }
         return;
-    }
+      }
 
-    const mythToMove = realm.myths.find(m => m.id === mythId);
-    if (!mythToMove) return;
+      const mythToMove = realm.myths.find((m) => m.id === mythId);
+      if (!mythToMove) return;
 
-    const oldHexCoords = { q: mythToMove.q, r: mythToMove.r };
-    const updatedMyth = { ...mythToMove, q: newHex.q, r: newHex.r };
-    const newMyths = realm.myths.map(m => m.id === mythId ? updatedMyth : m);
+      const oldHexCoords = { q: mythToMove.q, r: mythToMove.r };
+      const updatedMyth = { ...mythToMove, q: newHex.q, r: newHex.r };
+      const newMyths = realm.myths.map((m) => (m.id === mythId ? updatedMyth : m));
 
-    let updatedNewHexWithMyth: Hex | undefined;
-    const newHexes = realm.hexes.map(h => {
+      let updatedNewHexWithMyth: Hex | undefined;
+      const newHexes = realm.hexes.map((h) => {
         if (h.q === oldHexCoords.q && h.r === oldHexCoords.r) {
-            const { myth, ...rest } = h;
-            return rest;
+          const { myth, ...rest } = h;
+          return rest;
         }
         if (h.q === newHex.q && h.r === newHex.r) {
-            updatedNewHexWithMyth = { ...h, myth: mythId };
-            return updatedNewHexWithMyth;
+          updatedNewHexWithMyth = { ...h, myth: mythId };
+          return updatedNewHexWithMyth;
         }
         return h;
-    });
+      });
 
-    setRealm({ ...realm, hexes: newHexes, myths: newMyths });
-    setRelocatingMythId(null);
-    if (updatedNewHexWithMyth) {
+      setRealm({ ...realm, hexes: newHexes, myths: newMyths });
+      setRelocatingMythId(null);
+      if (updatedNewHexWithMyth) {
         setSelectedHex(updatedNewHexWithMyth);
-    }
-  }, [realm, setRealm]);
+      }
+    },
+    [realm, setRealm]
+  );
 
   /**
    * Handles importing a realm from a JSON file, ensuring backward compatibility.
@@ -338,77 +433,114 @@ export default function App() {
    */
   const handleImportRealm = (importedRealm: Realm) => {
     if (!importedRealm.myths) {
-        importedRealm.myths = [];
-        importedRealm.hexes.forEach(hex => {
-            if (hex.myth) {
-                importedRealm.myths.push({ id: hex.myth, name: `Myth #${hex.myth}`, q: hex.q, r: hex.r });
-            }
-        });
+      importedRealm.myths = [];
+      importedRealm.hexes.forEach((hex) => {
+        if (hex.myth) {
+          importedRealm.myths.push({
+            id: hex.myth,
+            name: `Myth #${hex.myth}`,
+            q: hex.q,
+            r: hex.r,
+          });
+        }
+      });
     }
     setRealm(importedRealm);
     setSelectedHex(null);
     setRealmShape(importedRealm.shape);
     if (importedRealm.shape === 'hex') {
-      setRealmRadius(importedRealm.radius || DEFAULT_GRID_SIZE);
+      setRealmRadius(importedRealm.radius ?? DEFAULT_GRID_SIZE);
     } else {
-      setRealmWidth(importedRealm.width || DEFAULT_GRID_SIZE);
-      setRealmHeight(importedRealm.height || DEFAULT_GRID_SIZE);
+      setRealmWidth(importedRealm.width ?? DEFAULT_GRID_SIZE);
+      setRealmHeight(importedRealm.height ?? DEFAULT_GRID_SIZE);
     }
   };
 
-  const handleExportJson = useCallback(() => { if (realm) exportRealmAsJson(realm); }, [realm]);
-  const handleExportPng = useCallback(() => { exportSvgAsPng('hex-grid-svg', 'realm-map.png'); }, []);
-  
+  const handleExportJson = useCallback(() => {
+    if (realm) exportRealmAsJson(realm);
+  }, [realm]);
+  const handleExportPng = useCallback(() => {
+    exportSvgAsPng('hex-grid-svg', 'realm-map.png');
+  }, []);
+
   /**
    * Designates a hex with a holding as the Seat of Power.
    * @param hex The hex to become the Seat of Power.
    */
-  const handleSetSeatOfPower = useCallback((hex: Hex) => {
-    if (!realm || !hex.holding) return;
-    setRealm({ ...realm, seatOfPower: { q: hex.q, r: hex.r } });
-  }, [realm, setRealm]);
+  const handleSetSeatOfPower = useCallback(
+    (hex: Hex) => {
+      if (!realm || !hex.holding) return;
+      setRealm({ ...realm, seatOfPower: { q: hex.q, r: hex.r } });
+    },
+    [realm, setRealm]
+  );
 
   /**
    * Adds a new custom terrain type.
    * @param name The name of the new terrain.
    * @param color The hex color code for the new terrain.
    */
-  const handleAddTerrain = useCallback((name: string, color: string) => {
+  const handleAddTerrain = useCallback(
+    (name: string, color: string) => {
       const id = name.toLowerCase().replace(/\s+/g, '-');
-      if (tileSets.terrain.some(t => t.id === id || t.label.toLowerCase() === name.toLowerCase())) {
-          alert('A terrain with this name already exists.');
-          return;
+      if (tileSets.terrain.some((t) => t.id === id || t.label.toLowerCase() === name.toLowerCase())) {
+        setConfirmation({
+          isOpen: true,
+          title: 'Duplicate Terrain',
+          message: 'A terrain with this name already exists.',
+          onConfirm: () => setConfirmation(null),
+          isInfo: true,
+        });
+        return;
       }
       const newTerrain = { id, label: name, icon: 'leaf', color, sprayIcons: [] };
-      setTileSets(prev => ({ ...prev, terrain: [...prev.terrain, newTerrain] }));
-      setTerrainColors(prev => ({ ...prev, [id]: color }));
-  }, [tileSets.terrain]);
+      setTileSets((prev) => ({ ...prev, terrain: [...prev.terrain, newTerrain] }));
+      setTerrainColors((prev) => ({ ...prev, [id]: color }));
+    },
+    [tileSets.terrain]
+  );
 
   /**
    * Removes a custom terrain type.
    * @param terrainId The ID of the terrain to remove.
    */
-  const handleRemoveTerrain = useCallback((terrainId: string) => {
+  const handleRemoveTerrain = useCallback(
+    (terrainId: string) => {
       if (TERRAIN_TYPES.includes(terrainId)) {
-          alert('Cannot remove default terrain types.');
-          return;
+        setConfirmation({
+          isOpen: true,
+          title: 'Action Blocked',
+          message: 'Cannot remove default terrain types.',
+          onConfirm: () => setConfirmation(null),
+          isInfo: true,
+        });
+        return;
       }
-      setTileSets(prev => ({ ...prev, terrain: prev.terrain.filter(t => t.id !== terrainId) }));
-      setTerrainColors(prev => {
-          const newColors = { ...prev };
-          delete newColors[terrainId];
-          return newColors;
+      setTileSets((prev) => ({ ...prev, terrain: prev.terrain.filter((t) => t.id !== terrainId) }));
+      setTerrainColors((prev) => {
+        const newColors = { ...prev };
+        delete newColors[terrainId];
+        return newColors;
       });
       if (realm) {
-          setRealm({ ...realm, hexes: realm.hexes.map(h => h.terrain === terrainId ? { ...h, terrain: 'plain' } : h) });
+        setRealm({
+          ...realm,
+          hexes: realm.hexes.map((h) => (h.terrain === terrainId ? { ...h, terrain: 'plain' } : h)),
+        });
       }
-      if (paintTerrain === terrainId) setPaintTerrain(TERRAIN_TYPES[0]);
-  }, [realm, setRealm, paintTerrain]);
+      if (paintTerrain === terrainId) setPaintTerrain(TERRAIN_TYPES[0] ?? 'plain');
+    },
+    [realm, setRealm, paintTerrain]
+  );
 
-  const handleUpdateTerrainColor = useCallback((terrainId: string, color: string) => setTerrainColors(prev => ({ ...prev, [terrainId]: color })), []);
+  const handleUpdateTerrainColor = useCallback(
+    (terrainId: string, color: string) =>
+      setTerrainColors((prev) => ({ ...prev, [terrainId]: color })),
+    []
+  );
   const handleResetTerrainColor = useCallback((terrainId: string) => {
     const defaultColor = DEFAULT_TERRAIN_COLORS[terrainId as keyof typeof DEFAULT_TERRAIN_COLORS];
-    if (defaultColor) setTerrainColors(prev => ({ ...prev, [terrainId]: defaultColor }));
+    if (defaultColor) setTerrainColors((prev) => ({ ...prev, [terrainId]: defaultColor }));
   }, []);
 
   /**
@@ -416,43 +548,62 @@ export default function App() {
    */
   const handleRequestRemoveAllBarriers = useCallback(() => {
     setConfirmation({
-        isOpen: true,
-        title: 'Remove All Barriers',
-        message: 'Are you sure you want to remove all barriers? This action cannot be undone.',
-        onConfirm: () => {
-            if (!realm) return;
-            setRealm({ ...realm, hexes: realm.hexes.map(h => ({ ...h, barrierEdges: [] })) });
-            setConfirmation(null);
-        }
+      isOpen: true,
+      title: 'Remove All Barriers',
+      message: 'Are you sure you want to remove all barriers? This action cannot be undone.',
+      onConfirm: () => {
+        if (!realm) return;
+        setRealm({ ...realm, hexes: realm.hexes.map((h) => ({ ...h, barrierEdges: [] })) });
+        setConfirmation(null);
+      },
     });
   }, [realm, setRealm]);
 
   const handleCancelConfirmation = () => setConfirmation(null);
-  
+
   /**
    * Updates the terrain clustering matrix for generation.
    */
   const handleClusteringChange = useCallback((terrainA: string, terrainB: string, value: number) => {
-    setGenerationOptions(prev => {
-        const newMatrix = JSON.parse(JSON.stringify(prev.terrainClusteringMatrix));
-        newMatrix[terrainA][terrainB] = value;
-        newMatrix[terrainB][terrainA] = value;
-        return { ...prev, terrainClusteringMatrix: newMatrix };
+    setGenerationOptions((prev) => {
+      const newMatrix = JSON.parse(JSON.stringify(prev.terrainClusteringMatrix));
+      const matrixRowA = newMatrix[terrainA];
+      const matrixRowB = newMatrix[terrainB];
+      if (matrixRowA && matrixRowB) {
+        matrixRowA[terrainB] = value;
+        matrixRowB[terrainA] = value;
+      }
+      return { ...prev, terrainClusteringMatrix: newMatrix };
     });
   }, []);
-  
-  const handleGenerationOptionChange = useCallback((key: keyof GenerationOptions, value: any) => setGenerationOptions(prev => ({ ...prev, [key]: value })), []);
 
-  const handleTerrainBiasChange = useCallback((terrainId: string, newBias: number) => setGenerationOptions(prev => ({ ...prev, terrainBiases: { ...prev.terrainBiases, [terrainId]: newBias } })), []);
-    
-  const handleApplyTemplate = useCallback((templateOptions: Partial<GenerationOptions>) => setGenerationOptions(prev => ({ ...prev, ...templateOptions })), []);
+  const handleGenerationOptionChange = useCallback(
+    <K extends keyof GenerationOptions>(key: K, value: GenerationOptions[K]) =>
+      setGenerationOptions((prev) => ({ ...prev, [key]: value })),
+    []
+  );
+
+  const handleTerrainBiasChange = useCallback(
+    (terrainId: string, newBias: number) =>
+      setGenerationOptions((prev) => ({
+        ...prev,
+        terrainBiases: { ...prev.terrainBiases, [terrainId]: newBias },
+      })),
+    []
+  );
+
+  const handleApplyTemplate = useCallback(
+    (templateOptions: Partial<GenerationOptions>) =>
+      setGenerationOptions((prev) => ({ ...prev, ...templateOptions })),
+    []
+  );
 
   /**
    * Handles the start of a tile picking action from a painter tool.
    */
   const handleStartPicking = useCallback(() => {
     if (activeTool === 'terrain' || activeTool === 'poi') {
-        setIsPickingTile(true);
+      setIsPickingTile(true);
     }
   }, [activeTool]);
 
@@ -460,34 +611,44 @@ export default function App() {
    * Handles the result of a tile pick action from the hex grid.
    * @param hex The hex that was clicked during picking mode.
    */
-  const handleTilePick = useCallback((hex: Hex) => {
+  const handleTilePick = useCallback(
+    (hex: Hex) => {
       if (!isPickingTile) return;
 
       if (activeTool === 'terrain') {
-          setPaintTerrain(hex.terrain);
+        setPaintTerrain(hex.terrain);
       } else if (activeTool === 'poi') {
-          if (hex.holding) setPaintPoi(`holding:${hex.holding}`);
-          else if (hex.landmark) setPaintPoi(`landmark:${hex.landmark}`);
-          else if (hex.myth) setPaintPoi('action:myth');
+        if (hex.holding) setPaintPoi(`holding:${hex.holding}`);
+        else if (hex.landmark) setPaintPoi(`landmark:${hex.landmark}`);
+        else if (hex.myth) setPaintPoi('action:myth');
       }
 
       setIsPickingTile(false);
-  }, [isPickingTile, activeTool]);
-    
+    },
+    [isPickingTile, activeTool]
+  );
+
   /**
    * Effect to automatically adjust the terrain clustering matrix based on the "terrain roughness" setting.
    */
   useEffect(() => {
-      const newMatrix = JSON.parse(JSON.stringify(DEFAULT_TERRAIN_CLUSTERING_MATRIX));
-      const multiplier = 2 * (1 - generationOptions.terrainRoughness);
-      TERRAIN_TYPES.forEach(t1 => {
-          TERRAIN_TYPES.forEach(t2 => {
-              const baseValue = DEFAULT_TERRAIN_CLUSTERING_MATRIX[t1]?.[t2] ?? 0;
-              if (newMatrix[t1]) newMatrix[t1][t2] = baseValue === 0 ? 0 : Math.max(0.01, Math.min(1, baseValue * multiplier));
-          });
-      });
-      setGenerationOptions(prev => JSON.stringify(prev.terrainClusteringMatrix) === JSON.stringify(newMatrix) ? prev : { ...prev, terrainClusteringMatrix: newMatrix });
-  }, [generationOptions.terrainRoughness]);
+    const newMatrix = JSON.parse(JSON.stringify(DEFAULT_TERRAIN_CLUSTERING_MATRIX));
+    const multiplier = 2 * (1 - generationOptions.terrainRoughness);
+
+    for (const t1 of TERRAIN_TYPES) {
+      const row = newMatrix[t1];
+      if (!row) continue;
+      for (const t2 of TERRAIN_TYPES) {
+        const baseValue = DEFAULT_TERRAIN_CLUSTERING_MATRIX[t1]?.[t2] ?? 0;
+        row[t2] = baseValue === 0 ? 0 : Math.max(0.01, Math.min(1, baseValue * multiplier));
+      }
+    }
+    setGenerationOptions((prev) =>
+      JSON.stringify(prev.terrainClusteringMatrix) === JSON.stringify(newMatrix)
+        ? prev
+        : { ...prev, terrainClusteringMatrix: newMatrix }
+    );
+  }, [generationOptions.terrainRoughness, generationOptions.terrainClusteringMatrix]);
 
   /**
    * Opens the settings modal and focuses on a specific terrain's spray settings.
@@ -497,10 +658,9 @@ export default function App() {
     setIsSettingsOpen(true);
   }, []);
 
-
   return (
     <div className="flex flex-col h-screen w-screen bg-[#191f2a] overflow-hidden">
-      <Toolbar 
+      <Toolbar
         onGenerate={handleGenerateRealm}
         onExportJson={handleExportJson}
         onExportPng={handleExportPng}
@@ -527,6 +687,7 @@ export default function App() {
         setIsSettingsOpen={setIsSettingsOpen}
         settingsView={settingsView}
         setSettingsView={setSettingsView}
+        setConfirmation={setConfirmation}
       />
       <div className="flex flex-1 overflow-hidden">
         <main className="flex-1 bg-[#18272e] relative">
@@ -552,6 +713,7 @@ export default function App() {
               isSettingsOpen={isSettingsOpen}
               isPickingTile={isPickingTile}
               onTilePick={handleTilePick}
+              setConfirmation={setConfirmation}
             />
           ) : (
             <div className="flex items-center justify-center h-full text-[#a7a984]">
@@ -560,21 +722,84 @@ export default function App() {
           )}
         </main>
         {activeTool === 'terrain' ? (
-          <TerrainPainter paintTerrain={paintTerrain} setPaintTerrain={setPaintTerrain} onClose={() => setActiveTool('select')} tileSets={tileSets} terrainColors={terrainColors} onAddTerrain={handleAddTerrain} onRemoveTerrain={handleRemoveTerrain} onUpdateTerrainColor={handleUpdateTerrainColor} onResetTerrainColor={handleResetTerrainColor} onStartPicking={handleStartPicking} isPickingTile={isPickingTile} onOpenSpraySettings={handleOpenSpraySettings} />
+          <TerrainPainter
+            paintTerrain={paintTerrain}
+            setPaintTerrain={setPaintTerrain}
+            onClose={() => setActiveTool('select')}
+            tileSets={tileSets}
+            terrainColors={terrainColors}
+            onAddTerrain={handleAddTerrain}
+            onRemoveTerrain={handleRemoveTerrain}
+            onUpdateTerrainColor={handleUpdateTerrainColor}
+            onResetTerrainColor={handleResetTerrainColor}
+            onStartPicking={handleStartPicking}
+            isPickingTile={isPickingTile}
+            onOpenSpraySettings={handleOpenSpraySettings}
+          />
         ) : activeTool === 'poi' ? (
-          <PoiPainter paintPoi={paintPoi} setPaintPoi={setPaintPoi} onClose={() => setActiveTool('select')} onStartPicking={handleStartPicking} isPickingTile={isPickingTile} />
+          <PoiPainter
+            paintPoi={paintPoi}
+            setPaintPoi={setPaintPoi}
+            onClose={() => setActiveTool('select')}
+            onStartPicking={handleStartPicking}
+            isPickingTile={isPickingTile}
+          />
         ) : activeTool === 'barrier' ? (
-          <BarrierPainter onRemoveAllBarriers={handleRequestRemoveAllBarriers} onClose={() => setActiveTool('select')} barrierColor={barrierColor} onColorChange={setBarrierColor} />
+          <BarrierPainter
+            onRemoveAllBarriers={handleRequestRemoveAllBarriers}
+            onClose={() => setActiveTool('select')}
+            barrierColor={barrierColor}
+            onColorChange={setBarrierColor}
+          />
         ) : activeTool === 'myth' && realm ? (
-            <MythSidebar realm={realm} selectedHex={selectedHex} onSelectHex={setSelectedHex} onUpdateMyth={handleUpdateMyth} onRemoveMyth={handleRemoveMyth} relocatingMythId={relocatingMythId} onToggleRelocateMyth={handleToggleRelocateMyth} onClose={() => setActiveTool('select')} />
+          <MythSidebar
+            realm={realm}
+            selectedHex={selectedHex}
+            onSelectHex={setSelectedHex}
+            onUpdateMyth={handleUpdateMyth}
+            onRemoveMyth={handleRemoveMyth}
+            relocatingMythId={relocatingMythId}
+            onToggleRelocateMyth={handleToggleRelocateMyth}
+            onClose={() => setActiveTool('select')}
+          />
         ) : activeTool === 'select' ? (
-          <Sidebar selectedHex={selectedHex} realm={realm} onUpdateHex={handleUpdateHex} onDeselect={() => setSelectedHex(null)} onSetSeatOfPower={handleSetSeatOfPower} onAddMyth={handleAddMyth} onRemoveMyth={handleRemoveMyth} tileSets={tileSets} />
+          <Sidebar
+            selectedHex={selectedHex}
+            realm={realm}
+            onUpdateHex={handleUpdateHex}
+            onDeselect={() => setSelectedHex(null)}
+            onSetSeatOfPower={handleSetSeatOfPower}
+            onAddMyth={handleAddMyth}
+            onRemoveMyth={handleRemoveMyth}
+            tileSets={tileSets}
+          />
         ) : null}
       </div>
       {confirmation?.isOpen && (
-        <ConfirmationDialog isOpen={confirmation.isOpen} title={confirmation.title} message={confirmation.message} onConfirm={confirmation.onConfirm} onCancel={handleCancelConfirmation} />
+        <ConfirmationDialog
+          isOpen={confirmation.isOpen}
+          title={confirmation.title}
+          message={confirmation.message}
+          onConfirm={confirmation.onConfirm}
+          onCancel={handleCancelConfirmation}
+          confirmText={confirmation.confirmText}
+          isInfo={confirmation.isInfo}
+        />
       )}
-       {!isSettingsOpen && <HistoryControls onUndo={() => { handleUndo(); setSelectedHex(null); }} onRedo={() => { handleRedo(); setSelectedHex(null); }} canUndo={canUndo} canRedo={canRedo} />}
+      {!isSettingsOpen && (
+        <HistoryControls
+          onUndo={() => {
+            handleUndo();
+            setSelectedHex(null);
+          }}
+          onRedo={() => {
+            handleRedo();
+            setSelectedHex(null);
+          }}
+          canUndo={canUndo}
+          canRedo={canRedo}
+        />
+      )}
     </div>
   );
 }

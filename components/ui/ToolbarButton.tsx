@@ -9,18 +9,18 @@ import { Icon } from '../Icon';
  * Props for the ToolbarButton component.
  */
 interface ToolbarButtonProps {
-    /** Click handler for the button. */
-    onClick: () => void;
-    /** The name of the lucide-react icon to display. */
-    icon: string;
-    /** Optional text label for the button. */
-    children?: React.ReactNode;
-    /** Whether the button is disabled. */
-    disabled?: boolean;
-    /** Whether the button should be styled as active. */
-    isActive?: boolean;
-    /** A tooltip for the button. */
-    title?: string;
+  /** Click handler for the button. */
+  onClick: () => void;
+  /** The name of the lucide-react icon to display. */
+  icon: string;
+  /** Optional text label for the button. */
+  children?: React.ReactNode;
+  /** Whether the button is disabled. */
+  disabled?: boolean;
+  /** Whether the button should be styled as active. */
+  isActive?: boolean;
+  /** A tooltip for the button. */
+  title?: string;
 }
 
 /**
@@ -28,20 +28,21 @@ interface ToolbarButtonProps {
  * It's forward-reffed to allow parent components to access the underlying button element.
  */
 export const ToolbarButton = React.forwardRef<HTMLButtonElement, ToolbarButtonProps>(
-    ({ onClick, icon, children, disabled, isActive, title }, ref) => (
+  ({ onClick, icon, children, disabled, isActive, title }, ref) => (
     <button
-        ref={ref}
-        onClick={onClick}
-        className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-            isActive
-                ? 'bg-[#736b23] text-[#eaebec]'
-                : 'bg-[#324446] text-[#a7a984] hover:bg-[#435360]'
-        }`}
-        disabled={disabled}
-        title={title}
+      ref={ref}
+      onClick={onClick}
+      className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+        isActive
+          ? 'bg-[#736b23] text-[#eaebec]'
+          : 'bg-[#324446] text-[#a7a984] hover:bg-[#435360]'
+      }`}
+      disabled={disabled}
+      title={title}
     >
-        <Icon name={icon} className="w-4 h-4" />
-        {children}
+      <Icon name={icon} className="w-4 h-4" />
+      {children}
     </button>
-));
+  )
+);
 ToolbarButton.displayName = 'ToolbarButton';

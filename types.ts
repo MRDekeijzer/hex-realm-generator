@@ -4,8 +4,6 @@
  * It serves as the single source of truth for the data structures.
  */
 
-import type React from 'react';
-
 /** Represents a 2D point with x and y coordinates. */
 export interface Point {
   x: number;
@@ -108,7 +106,6 @@ export interface SpraySettings {
   placementMask: number[];
 }
 
-
 /** Represents a single paintable or placeable item. */
 export interface Tile {
   /** The unique identifier for the tile. */
@@ -134,7 +131,7 @@ export interface TileSet {
 
 /** Options for specifying the number of each landmark type to generate. */
 export interface LandmarkGenerationOptions {
-  [key:string]: number;
+  [key: string]: number;
 }
 
 /** A matrix defining the clustering affinity between different terrain types. */

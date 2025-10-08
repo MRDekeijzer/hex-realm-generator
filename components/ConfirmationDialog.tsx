@@ -24,6 +24,8 @@ interface ConfirmationDialogProps {
   confirmText?: string;
   /** Optional custom text for the cancel button. */
   cancelText?: string;
+  /** If true, styles as an info dialog (e.g., only one button). */
+  isInfo?: boolean;
 }
 
 /**
@@ -37,6 +39,7 @@ export function ConfirmationDialog({
   onCancel,
   confirmText = 'Confirm',
   cancelText = 'Cancel',
+  isInfo = false,
 }: ConfirmationDialogProps) {
   if (!isOpen) return null;
 
@@ -53,21 +56,27 @@ export function ConfirmationDialog({
         </h2>
         <p className="text-[#a7a984] mb-6 text-center">{message}</p>
         <div className="flex justify-center gap-4">
-          <button
-            onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-[#eaebec] bg-[#324446] rounded-md hover:bg-[#435360] transition-colors"
-          >
-            {cancelText}
-          </button>
+          {!isInfo && (
+            <button
+              onClick={onCancel}
+              className="px-4 py-2 text-sm font-medium text-[#eaebec] bg-[#324446] rounded-md hover:bg-[#435360] transition-colors"
+            >
+              {cancelText}
+            </button>
+          )}
           <button
             onClick={onConfirm}
-            className="px-4 py-2 text-sm font-medium text-white bg-[#60131b] rounded-md hover:bg-[#8a2a34] transition-colors"
+            className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors ${
+              isInfo
+                ? 'bg-[#435360] hover:bg-[#55375d]'
+                : 'bg-[#60131b] hover:bg-[#8a2a34]'
+            }`}
           >
-            {confirmText}
+            {isInfo ? 'OK' : confirmText}
           </button>
         </div>
       </div>
-       <style>{`
+      <style>{`
         @keyframes fade-in { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         .animate-fade-in { animation: fade-in 0.2s ease-out forwards; }
       `}</style>

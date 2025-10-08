@@ -3,7 +3,13 @@
  * This file contains all the static data and default configuration values for the application.
  * It is organized into sections for colors, application constants, and generation defaults.
  */
-import type { TileSet, Tile, TerrainClusteringMatrix, GenerationOptions, SpraySettings } from './types';
+import type {
+  TileSet,
+  Tile,
+  TerrainClusteringMatrix,
+  GenerationOptions,
+  SpraySettings,
+} from './types';
 
 // =================================================================================
 // --- COLOR SETTINGS ---
@@ -47,26 +53,24 @@ export const LANDMARK_ICON_BORDER_COLOR = PALETTE.lightBlue;
 export const DEFAULT_GRID_COLOR = 'rgba(234, 235, 236, 0.2)';
 export const DEFAULT_GRID_WIDTH = 1;
 
-
 // ---------------------------------------------------------------------------------
 // Default Terrain Colors
 // A curated set of default colors for the various terrain types.
 // ---------------------------------------------------------------------------------
 export const TERRAIN_COLORS = {
-    marsh: PALETTE.darkerColorImage,
-    heath: PALETTE.lightGreen,
-    crags: PALETTE.darkColorImage,
-    peaks: PALETTE.columnBorders,
-    forest: PALETTE.lightGreen,
-    valley: PALETTE.lightColorImage,
-    hills: PALETTE.yellowDarkHighlight,
-    meadow: PALETTE.lightBackground,
-    bog: PALETTE.darkColorImage,
-    lakes: PALETTE.lightBlue,
-    glades: PALETTE.lighterBlue,
-    plain: PALETTE.lightColorImage,
+  marsh: PALETTE.darkerColorImage,
+  heath: PALETTE.lightGreen,
+  crags: PALETTE.darkColorImage,
+  peaks: PALETTE.columnBorders,
+  forest: PALETTE.lightGreen,
+  valley: PALETTE.lightColorImage,
+  hills: PALETTE.yellowDarkHighlight,
+  meadow: PALETTE.lightBackground,
+  bog: PALETTE.darkColorImage,
+  lakes: PALETTE.lightBlue,
+  glades: PALETTE.lighterBlue,
+  plain: PALETTE.lightColorImage,
 };
-
 
 // =================================================================================
 // --- APPLICATION CONSTANTS ---
@@ -77,9 +81,35 @@ export const TERRAIN_COLORS = {
 export const DEFAULT_GRID_SIZE = 12;
 
 /** A list of all standard terrain type IDs. */
-export const TERRAIN_TYPES = ['marsh', 'heath', 'crags', 'peaks', 'forest', 'valley', 'hills', 'meadow', 'bog', 'lakes', 'glades', 'plain'];
+export const TERRAIN_TYPES = [
+  'marsh',
+  'heath',
+  'crags',
+  'peaks',
+  'forest',
+  'valley',
+  'hills',
+  'meadow',
+  'bog',
+  'lakes',
+  'glades',
+  'plain',
+];
 /** The default order of terrain types from highest elevation to lowest. */
-export const DEFAULT_TERRAIN_HEIGHT_ORDER = ['peaks', 'crags', 'hills', 'heath', 'forest', 'meadow', 'plain', 'glades', 'valley', 'marsh', 'bog', 'lakes'];
+export const DEFAULT_TERRAIN_HEIGHT_ORDER = [
+  'peaks',
+  'crags',
+  'hills',
+  'heath',
+  'forest',
+  'meadow',
+  'plain',
+  'glades',
+  'valley',
+  'marsh',
+  'bog',
+  'lakes',
+];
 
 /** A list of all standard holding type IDs. */
 export const HOLDING_TYPES = ['castle', 'city', 'town', 'village'];
@@ -89,24 +119,56 @@ export const LANDMARK_TYPES = ['dwelling', 'sanctum', 'monument', 'hazard', 'cur
 export const BARRIER_CHANCE = 1 / 6;
 
 /** A master list of icons available for the Icon Spray feature. */
-export const SPRAYABLE_ICONS = ['tree-pine', 'leaf', 'feather', 'flower', 'grass', 'sprout', 'shrub', 'triangle', 'waves', 'droplet', 'sun', 'wind', 'star', 'sparkle', 'cloud', 'rock', 'flag', 'snowflake', 'branch', 'river', 'path', 'wave-sine', 'chevron-up', 'skull', 'fish', 'tree-deciduous', 'sparkles'];
+export const SPRAYABLE_ICONS = [
+  'tree-pine',
+  'leaf',
+  'feather',
+  'flower',
+  'grass',
+  'sprout',
+  'shrub',
+  'triangle',
+  'waves',
+  'droplet',
+  'sun',
+  'wind',
+  'star',
+  'sparkle',
+  'cloud',
+  'rock',
+  'flag',
+  'snowflake',
+  'branch',
+  'river',
+  'path',
+  'wave-sine',
+  'chevron-up',
+  'skull',
+  'fish',
+  'tree-deciduous',
+  'sparkles',
+];
 
 // ---------------------------------------------------------------------------------
 // Icon Spray Mask Generation
 // ---------------------------------------------------------------------------------
 export const MASK_RESOLUTION = 5;
 const createMask = (filter: (x: number, y: number) => boolean): number[] => {
-    const mask: number[] = [];
-    for (let y = 0; y < MASK_RESOLUTION; y++) {
-        for (let x = 0; x < MASK_RESOLUTION; x++) {
-            mask.push(filter(x, y) ? 1 : 0);
-        }
+  const mask: number[] = [];
+  for (let y = 0; y < MASK_RESOLUTION; y++) {
+    for (let x = 0; x < MASK_RESOLUTION; x++) {
+      mask.push(filter(x, y) ? 1 : 0);
     }
-    return mask;
+  }
+  return mask;
 };
 const center = Math.floor(MASK_RESOLUTION / 2);
-export const centerMask = createMask((x, y) => Math.abs(x - center) <= 1 && Math.abs(y - center) <= 1);
-export const edgeMask = createMask((x, y) => Math.sqrt(Math.pow(x - center, 2) + Math.pow(y - center, 2)) > center * 0.7);
+export const centerMask = createMask(
+  (x, y) => Math.abs(x - center) <= 1 && Math.abs(y - center) <= 1
+);
+export const edgeMask = createMask(
+  (x, y) => Math.sqrt(Math.pow(x - center, 2) + Math.pow(y - center, 2)) > center * 0.7
+);
 export const flowMask = createMask((x, y) => Math.abs(y - center) <= 1);
 export const uniformMask = createMask(() => true);
 // ---------------------------------------------------------------------------------
@@ -128,24 +190,180 @@ export const DEFAULT_SPRAY_SETTINGS: SpraySettings = {
  */
 export const DEFAULT_TILE_SETS: TileSet = {
   terrain: [
-    { id: 'marsh', label: 'Marsh', icon: 'droplet', color: TERRAIN_COLORS.marsh, sprayIcons: ['droplet', 'feather', 'waves'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 3, sizeMin: 7, sizeMax: 9, placementMask: uniformMask } },
-    { id: 'heath', label: 'Heath', icon: 'leaf', color: TERRAIN_COLORS.heath, sprayIcons: ['leaf', 'wind', 'flower'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 3, sizeMin: 7, sizeMax: 9, placementMask: uniformMask } },
-    { id: 'crags', label: 'Crags', icon: 'triangle', color: TERRAIN_COLORS.crags, sprayIcons: ['triangle', 'mountain', 'rock'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 4, sizeMin: 8, sizeMax: 10, placementMask: edgeMask } },
-    { id: 'peaks', label: 'Peaks', icon: 'mountains', color: TERRAIN_COLORS.peaks, sprayIcons: ['triangle', 'flag', 'snowflake'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 3, sizeMin: 9, sizeMax: 11, placementMask: edgeMask } },
-    { id: 'forest', label: 'Forest', icon: 'trees', color: TERRAIN_COLORS.forest, sprayIcons: ['tree-pine', 'leaf', 'branch'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 4, sizeMin: 7, sizeMax: 9, placementMask: uniformMask } },
-    { id: 'valley', label: 'Valley', icon: 'curve', color: TERRAIN_COLORS.valley, sprayIcons: ['river', 'path', 'leaf'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 3, sizeMin: 7, sizeMax: 9, placementMask: flowMask } },
-    { id: 'hills', label: 'Hills', icon: 'hill', color: TERRAIN_COLORS.hills, sprayIcons: ['wave-sine', 'chevron-up', 'rock'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 3, sizeMin: 7, sizeMax: 9, placementMask: uniformMask } },
-    { id: 'meadow', label: 'Meadow', icon: 'flower', color: TERRAIN_COLORS.meadow, sprayIcons: ['flower', 'sun', 'cloud'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 3, sizeMin: 7, sizeMax: 9, placementMask: uniformMask } },
-    { id: 'bog', label: 'Bog', icon: 'droplets', color: TERRAIN_COLORS.bog, sprayIcons: ['droplet', 'skull', 'feather'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 3, sizeMin: 7, sizeMax: 9, placementMask: edgeMask } },
-    { id: 'lakes', label: 'Lakes', icon: 'waves', color: TERRAIN_COLORS.lakes, sprayIcons: ['waves', 'droplet', 'fish'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 3, sizeMin: 8, sizeMax: 10, placementMask: centerMask } },
-    { id: 'glades', label: 'Glades', icon: 'sun', color: TERRAIN_COLORS.glades, sprayIcons: ['tree-deciduous', 'sparkles', 'sun'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 3, sizeMin: 7, sizeMax: 9, placementMask: centerMask } },
-    { id: 'plain', label: 'Plain', icon: 'wind', color: TERRAIN_COLORS.plain, sprayIcons: ['wind', 'cloud', 'sun'], spraySettings: { ...DEFAULT_SPRAY_SETTINGS, density: 2, sizeMin: 6, sizeMax: 8, placementMask: centerMask } },
+    {
+      id: 'marsh',
+      label: 'Marsh',
+      icon: 'droplet',
+      color: TERRAIN_COLORS.marsh,
+      sprayIcons: ['droplet', 'feather', 'waves'],
+      spraySettings: {
+        ...DEFAULT_SPRAY_SETTINGS,
+        density: 3,
+        sizeMin: 7,
+        sizeMax: 9,
+        placementMask: uniformMask,
+      },
+    },
+    {
+      id: 'heath',
+      label: 'Heath',
+      icon: 'leaf',
+      color: TERRAIN_COLORS.heath,
+      sprayIcons: ['leaf', 'wind', 'flower'],
+      spraySettings: {
+        ...DEFAULT_SPRAY_SETTINGS,
+        density: 3,
+        sizeMin: 7,
+        sizeMax: 9,
+        placementMask: uniformMask,
+      },
+    },
+    {
+      id: 'crags',
+      label: 'Crags',
+      icon: 'triangle',
+      color: TERRAIN_COLORS.crags,
+      sprayIcons: ['triangle', 'mountain', 'rock'],
+      spraySettings: {
+        ...DEFAULT_SPRAY_SETTINGS,
+        density: 4,
+        sizeMin: 8,
+        sizeMax: 10,
+        placementMask: edgeMask,
+      },
+    },
+    {
+      id: 'peaks',
+      label: 'Peaks',
+      icon: 'mountains',
+      color: TERRAIN_COLORS.peaks,
+      sprayIcons: ['triangle', 'flag', 'snowflake'],
+      spraySettings: {
+        ...DEFAULT_SPRAY_SETTINGS,
+        density: 3,
+        sizeMin: 9,
+        sizeMax: 11,
+        placementMask: edgeMask,
+      },
+    },
+    {
+      id: 'forest',
+      label: 'Forest',
+      icon: 'trees',
+      color: TERRAIN_COLORS.forest,
+      sprayIcons: ['tree-pine', 'leaf', 'branch'],
+      spraySettings: {
+        ...DEFAULT_SPRAY_SETTINGS,
+        density: 4,
+        sizeMin: 7,
+        sizeMax: 9,
+        placementMask: uniformMask,
+      },
+    },
+    {
+      id: 'valley',
+      label: 'Valley',
+      icon: 'curve',
+      color: TERRAIN_COLORS.valley,
+      sprayIcons: ['river', 'path', 'leaf'],
+      spraySettings: {
+        ...DEFAULT_SPRAY_SETTINGS,
+        density: 3,
+        sizeMin: 7,
+        sizeMax: 9,
+        placementMask: flowMask,
+      },
+    },
+    {
+      id: 'hills',
+      label: 'Hills',
+      icon: 'hill',
+      color: TERRAIN_COLORS.hills,
+      sprayIcons: ['wave-sine', 'chevron-up', 'rock'],
+      spraySettings: {
+        ...DEFAULT_SPRAY_SETTINGS,
+        density: 3,
+        sizeMin: 7,
+        sizeMax: 9,
+        placementMask: uniformMask,
+      },
+    },
+    {
+      id: 'meadow',
+      label: 'Meadow',
+      icon: 'flower',
+      color: TERRAIN_COLORS.meadow,
+      sprayIcons: ['flower', 'sun', 'cloud'],
+      spraySettings: {
+        ...DEFAULT_SPRAY_SETTINGS,
+        density: 3,
+        sizeMin: 7,
+        sizeMax: 9,
+        placementMask: uniformMask,
+      },
+    },
+    {
+      id: 'bog',
+      label: 'Bog',
+      icon: 'droplets',
+      color: TERRAIN_COLORS.bog,
+      sprayIcons: ['droplet', 'skull', 'feather'],
+      spraySettings: {
+        ...DEFAULT_SPRAY_SETTINGS,
+        density: 3,
+        sizeMin: 7,
+        sizeMax: 9,
+        placementMask: edgeMask,
+      },
+    },
+    {
+      id: 'lakes',
+      label: 'Lakes',
+      icon: 'waves',
+      color: TERRAIN_COLORS.lakes,
+      sprayIcons: ['waves', 'droplet', 'fish'],
+      spraySettings: {
+        ...DEFAULT_SPRAY_SETTINGS,
+        density: 3,
+        sizeMin: 8,
+        sizeMax: 10,
+        placementMask: centerMask,
+      },
+    },
+    {
+      id: 'glades',
+      label: 'Glades',
+      icon: 'sun',
+      color: TERRAIN_COLORS.glades,
+      sprayIcons: ['tree-deciduous', 'sparkles', 'sun'],
+      spraySettings: {
+        ...DEFAULT_SPRAY_SETTINGS,
+        density: 3,
+        sizeMin: 7,
+        sizeMax: 9,
+        placementMask: centerMask,
+      },
+    },
+    {
+      id: 'plain',
+      label: 'Plain',
+      icon: 'wind',
+      color: TERRAIN_COLORS.plain,
+      sprayIcons: ['wind', 'cloud', 'sun'],
+      spraySettings: {
+        ...DEFAULT_SPRAY_SETTINGS,
+        density: 2,
+        sizeMin: 6,
+        sizeMax: 8,
+        placementMask: centerMask,
+      },
+    },
   ],
   holding: [
     { id: 'castle', label: 'Castle', icon: 'castle' },
     { id: 'city', label: 'City', icon: 'city' },
     { id: 'town', label: 'Town', icon: 'town' },
-    { id: 'village', label: 'Village', icon: 'village' }
+    { id: 'village', label: 'Village', icon: 'village' },
   ],
   landmark: [
     { id: 'dwelling', label: 'Dwelling', icon: 'dwelling' },
@@ -153,14 +371,14 @@ export const DEFAULT_TILE_SETS: TileSet = {
     { id: 'monument', label: 'Monument', icon: 'monument' },
     { id: 'hazard', label: 'Hazard', icon: 'hazard' },
     { id: 'curse', label: 'Curse', icon: 'curse' },
-    { id: 'ruins', label: 'Ruins', icon: 'ruins' }
+    { id: 'ruins', label: 'Ruins', icon: 'ruins' },
   ],
 };
 
 /** A special set of icons for use in the POI Painter tool that represent actions. */
 export const SPECIAL_POI_ICONS: Tile[] = [
-    { id: 'myth', label: 'Myth', icon: 'sparkle' },
-    { id: 'seatOfPower', label: 'Seat of Power', icon: 'crown' }
+  { id: 'myth', label: 'Myth', icon: 'sparkle' },
+  { id: 'seatOfPower', label: 'Seat of Power', icon: 'crown' },
 ];
 
 /** An explicit mapping of terrain IDs to their default colors. */
@@ -173,12 +391,23 @@ export const DEFAULT_TERRAIN_COLORS: { [key: string]: string } = TERRAIN_COLORS;
 
 const affinities = { self: 0.75, strong: 0.6, moderate: 0.4, weak: 0.2, none: 0.0 };
 const matrix: TerrainClusteringMatrix = {};
-TERRAIN_TYPES.forEach(t1 => {
+TERRAIN_TYPES.forEach((t1) => {
   matrix[t1] = {};
-  TERRAIN_TYPES.forEach(t2 => { matrix[t1][t2] = affinities.weak; });
-  matrix[t1][t1] = affinities.self;
+  TERRAIN_TYPES.forEach((t2) => {
+    const t1Matrix = matrix[t1];
+    if (t1Matrix) t1Matrix[t2] = affinities.weak;
+  });
+  const t1Matrix = matrix[t1];
+  if (t1Matrix) t1Matrix[t1] = affinities.self;
 });
-const applyAffinity = (t1: string, t2: string, level: number) => { if (matrix[t1] && matrix[t2]) { matrix[t1][t2] = level; matrix[t2][t1] = level; } };
+const applyAffinity = (t1: string, t2: string, level: number) => {
+  const t1Matrix = matrix[t1];
+  const t2Matrix = matrix[t2];
+  if (t1Matrix && t2Matrix) {
+    t1Matrix[t2] = level;
+    t2Matrix[t1] = level;
+  }
+};
 
 // Define relationships between terrain types
 applyAffinity('peaks', 'crags', affinities.strong);
@@ -212,10 +441,10 @@ export const DEFAULT_TERRAIN_CLUSTERING_MATRIX: TerrainClusteringMatrix = matrix
  * Logical groupings of terrain types used for highland formation.
  */
 export const TERRAIN_CATEGORIES = {
-    upland: ['peaks', 'crags', 'hills'],
-    lowland: ['lakes', 'marsh', 'bog'],
-    midland: ['plain', 'meadow', 'heath', 'valley', 'glades'],
-    forest: ['forest']
+  upland: ['peaks', 'crags', 'hills'],
+  lowland: ['lakes', 'marsh', 'bog'],
+  midland: ['plain', 'meadow', 'heath', 'valley', 'glades'],
+  forest: ['forest'],
 };
 
 /**
@@ -223,43 +452,102 @@ export const TERRAIN_CATEGORIES = {
  * increase the probability of that terrain appearing.
  */
 export const DEFAULT_TERRAIN_BIASES: { [key: string]: number } = {
-    marsh: 5, heath: 10, crags: 5, peaks: 5, forest: 15, valley: 5,
-    hills: 15, meadow: 10, bog: 5, lakes: 5, glades: 5, plain: 10,
+  marsh: 5,
+  heath: 10,
+  crags: 5,
+  peaks: 5,
+  forest: 15,
+  valley: 5,
+  hills: 15,
+  meadow: 10,
+  bog: 5,
+  lakes: 5,
+  glades: 5,
+  plain: 10,
 };
 
 /**
  * A collection of preset templates for terrain generation settings.
  */
-export const TERRAIN_TEMPLATES: { [key: string]: { name: string; options: Partial<GenerationOptions> }} = {
+export const TERRAIN_TEMPLATES: { [key: string]: { name: string; options: Partial<GenerationOptions> } } =
+  {
     balanced: {
-        name: 'Balanced Realm',
-        options: {
-            highlandFormation: 'linear', highlandFormationStrength: 0.7, highlandFormationRotation: 0,
-            terrainRoughness: 0.5, terrainBiases: { ...DEFAULT_TERRAIN_BIASES }
-        }
+      name: 'Balanced Realm',
+      options: {
+        highlandFormation: 'linear',
+        highlandFormationStrength: 0.7,
+        highlandFormationRotation: 0,
+        terrainRoughness: 0.5,
+        terrainBiases: { ...DEFAULT_TERRAIN_BIASES },
+      },
     },
     jagged: {
-        name: 'Jagged Peaks',
-        options: {
-            highlandFormation: 'circle', highlandFormationStrength: 1.0, highlandFormationRotation: 0,
-            terrainRoughness: 0.8,
-            terrainBiases: { marsh: 1, heath: 2, crags: 20, peaks: 25, forest: 5, valley: 3, hills: 20, meadow: 2, bog: 1, lakes: 1, glades: 2, plain: 5 }
-        }
+      name: 'Jagged Peaks',
+      options: {
+        highlandFormation: 'circle',
+        highlandFormationStrength: 1.0,
+        highlandFormationRotation: 0,
+        terrainRoughness: 0.8,
+        terrainBiases: {
+          marsh: 1,
+          heath: 2,
+          crags: 20,
+          peaks: 25,
+          forest: 5,
+          valley: 3,
+          hills: 20,
+          meadow: 2,
+          bog: 1,
+          lakes: 1,
+          glades: 2,
+          plain: 5,
+        },
+      },
     },
     lush: {
-        name: 'Lush Lowlands',
-        options: {
-            highlandFormation: 'linear', highlandFormationStrength: 0.5, highlandFormationRotation: 180,
-            terrainRoughness: 0.25,
-            terrainBiases: { marsh: 15, heath: 5, crags: 1, peaks: 1, forest: 25, valley: 10, hills: 5, meadow: 8, bog: 10, lakes: 10, glades: 8, plain: 12 }
-        }
+      name: 'Lush Lowlands',
+      options: {
+        highlandFormation: 'linear',
+        highlandFormationStrength: 0.5,
+        highlandFormationRotation: 180,
+        terrainRoughness: 0.25,
+        terrainBiases: {
+          marsh: 15,
+          heath: 5,
+          crags: 1,
+          peaks: 1,
+          forest: 25,
+          valley: 10,
+          hills: 5,
+          meadow: 8,
+          bog: 10,
+          lakes: 10,
+          glades: 8,
+          plain: 12,
+        },
+      },
     },
     sunkenCaldera: {
-        name: 'Sunken Caldera',
-        options: {
-            highlandFormation: 'circle', highlandFormationStrength: 1.0, highlandFormationInverse: true,
-            terrainRoughness: 0.75,
-            terrainBiases: { marsh: 5, heath: 2, crags: 20, peaks: 25, forest: 3, valley: 5, hills: 15, meadow: 1, bog: 10, lakes: 15, glades: 1, plain: 2 }
-        }
-    }
-};
+      name: 'Sunken Caldera',
+      options: {
+        highlandFormation: 'circle',
+        highlandFormationStrength: 1.0,
+        highlandFormationInverse: true,
+        terrainRoughness: 0.75,
+        terrainBiases: {
+          marsh: 5,
+          heath: 2,
+          crags: 20,
+          peaks: 25,
+          forest: 3,
+          valley: 5,
+          hills: 15,
+          meadow: 1,
+          bog: 10,
+          lakes: 15,
+          glades: 1,
+          plain: 2,
+        },
+      },
+    },
+  };

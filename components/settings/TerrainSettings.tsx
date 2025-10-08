@@ -2,7 +2,6 @@
  * @file Component for the "Terrain" tab in the main settings modal.
  */
 
-// FIX: Import useEffect to resolve 'Cannot find name' errors.
 import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import type { TileSet, SpraySettings, Tile } from '../../types';
 import { SPRAYABLE_ICONS, DEFAULT_SPRAY_SETTINGS, MASK_RESOLUTION } from '../../constants';
@@ -59,7 +58,8 @@ const PlacementMaskEditor = ({ mask, onUpdateMask }: PlacementMaskEditorProps) =
     const containerRef = useRef<HTMLDivElement>(null);
 
     const handlePaint = useCallback((index: number) => {
-        if (mask[index] !== paintValue.current) {
+        const currentMask = mask[index];
+        if (currentMask !== undefined && currentMask !== paintValue.current) {
             const newMask = [...mask];
             newMask[index] = paintValue.current;
             onUpdateMask(newMask);
@@ -87,7 +87,8 @@ const PlacementMaskEditor = ({ mask, onUpdateMask }: PlacementMaskEditorProps) =
         const index = getIndexFromEvent(e);
         if (index !== null) {
             setIsPainting(true);
-            paintValue.current = mask[index] === 1 ? 0 : 1;
+            const currentMaskValue = mask[index];
+            paintValue.current = currentMaskValue === 1 ? 0 : 1;
             handlePaint(index);
         }
     };
@@ -156,7 +157,8 @@ const HexSprayPreview = ({ terrain, regenerateCounter, onRegenerate }: HexSprayP
             { q: 5, r: -5 }, { q: -2, r: -4 }, { q: 8, r: 3 },
         ];
         // Select coordinates based on the regenerateCounter.
-        const {q, r} = previewCoords[regenerateCounter % previewCoords.length];
+        const coords = previewCoords[regenerateCounter % previewCoords.length];
+        const {q, r} = coords ?? { q: 0, r: 0 };
         
         // Create a mock hex object with the chosen coordinates.
         const mockHex = { q, r, s: -q - r, terrain: terrain.id, barrierEdges: [] };
@@ -332,7 +334,6 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
                     {tileSets.terrain.map(terrain => {
                         const settings = terrain.spraySettings || DEFAULT_SPRAY_SETTINGS;
                         return (
-                        // FIX: Wrap the ref callback's body in curly braces to ensure it returns undefined, satisfying the Ref type.
                         <details ref={el => { detailsRefs.current.set(terrain.id, el); }} key={terrain.id} className="p-3 bg-[#191f29] rounded-md border border-[#41403f]/50 open:border-[#736b23]/50 transition-colors group/details">
                             <summary className="font-semibold text-md text-[#a7a984] list-none cursor-pointer flex items-center gap-2 hover:text-[#eaebec]">
                                 <Icon name={terrain.icon} className="w-5 h-5" />
