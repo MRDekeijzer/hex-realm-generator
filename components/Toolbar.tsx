@@ -120,13 +120,15 @@ export function Toolbar({
             <div className="flex items-center gap-2">
                 <h1 className="text-xl font-bold text-[#eaebec] mr-4">Hex Realm Generator</h1>
                 <ToolbarButton onClick={onGenerate} icon="sparkles" title="Generate New Realm">Generate</ToolbarButton>
-                <ToolbarButton onClick={() => setIsSettingsOpen(true)} icon="settings" title="Settings" />
+                <ToolbarButton onClick={() => setIsSettingsOpen(true)} icon="settings" title="Settings">Settings</ToolbarButton>
                 
                 <SettingsModal
                     isOpen={isSettingsOpen}
                     onClose={() => setIsSettingsOpen(false)}
                     {...settingsProps}
                 />
+                
+                <div className="border-l border-[#41403f] h-6"></div>
 
                 <div className="relative">
                     <ToolbarButton ref={gridSettingsButtonRef} onClick={() => setIsGridSettingsOpen(prev => !prev)} icon="grid" title="Grid Settings">Grid</ToolbarButton>
