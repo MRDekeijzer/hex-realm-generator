@@ -2,6 +2,67 @@ import React from 'react';
 import type { TileSet, Tile } from './types';
 import { Icon } from './components/Icon';
 
+// =================================================================================
+// --- COLOR SETTINGS ---
+// All application color constants are defined here for easy theming.
+// =================================================================================
+
+// ---------------------------------------------------------------------------------
+// Main Color Palette
+// The foundational colors for the entire application theme.
+// ---------------------------------------------------------------------------------
+export const PALETTE = {
+  columnBorders: '#41403f',
+  textColor: '#221f21',
+  lightColorImage: '#a7a984', // Used for grassland
+  darkerColorImage: '#324446', // Used for mountains, swamp
+  darkColorImage: '#18272e',
+  darkBackground: '#191f29',
+  lightBackground: '#eaebec',
+  purpleHighlight: '#55375d',
+  yellowHighlight: '#736b23',
+  orangeHighlight: '#8a661a',
+  redHighlight: '#60131b',
+  blueHighlight: '#435360',
+  lightRedHighlight: '#692e2a',
+  lightBlue: '#3f6e66', // Used for water, river
+  yellowDarkHighlight: '#9d8940', // Used for hills
+  lightGreen: '#777741', // Used for forest
+  lighterBlue: '#c5d2cb',
+  darkOrange: '#813a28',
+};
+
+// ---------------------------------------------------------------------------------
+// UI Element Colors
+// Specific color assignments for various parts of the UI, derived from the main palette.
+// ---------------------------------------------------------------------------------
+export const MYTH_COLOR = 'rgba(238, 206, 34, 0.8)'; // Corresponds to purpleHighlight with opacity, for myth circles.
+export const BARRIER_COLOR = PALETTE.redHighlight;
+export const SELECTION_COLOR = PALETTE.yellowHighlight;
+export const SEAT_OF_POWER_COLOR = 'rgba(238, 206, 34, 0.8)';
+export const HOLDING_ICON_BORDER_COLOR = PALETTE.darkOrange;
+export const LANDMARK_ICON_BORDER_COLOR = PALETTE.lightBlue;
+
+// ---------------------------------------------------------------------------------
+// Default Terrain Colors
+// A curated set of default colors for the various terrain types.
+// ---------------------------------------------------------------------------------
+export const TERRAIN_COLORS = {
+    forest: PALETTE.lightGreen,
+    grassland: PALETTE.lightColorImage,
+    hills: PALETTE.yellowDarkHighlight,
+    mountains: PALETTE.darkerColorImage,
+    swamp: PALETTE.darkerColorImage,
+    water: PALETTE.lightBlue,
+    river: PALETTE.lightBlue,
+};
+
+
+// =================================================================================
+// --- APPLICATION CONSTANTS ---
+// Core constants used for generation, UI, and game logic.
+// =================================================================================
+
 export const DEFAULT_GRID_SIZE = 12;
 
 export const TERRAIN_TYPES = ['forest', 'grassland', 'hills', 'mountains', 'swamp'];
@@ -9,16 +70,16 @@ export const HOLDING_TYPES = ['castle', 'city', 'town', 'village'];
 export const LANDMARK_TYPES = ['dwelling', 'sanctum', 'monument', 'hazard', 'curse', 'ruins'];
 export const BARRIER_CHANCE = 1 / 6;
 
-export const TILE_SETS: TileSet = {
+export const DEFAULT_TILE_SETS: TileSet = {
   terrain: [
-    { id: 'forest', label: 'Forest', icon: (props) => <Icon name="tree" {...props} />, color: '#228B22' },
-    { id: 'grassland', label: 'Grassland', icon: (props) => <Icon name="leaf" {...props} />, color: '#90EE90' },
+    { id: 'forest', label: 'Forest', icon: (props) => <Icon name="tree" {...props} />, color: TERRAIN_COLORS.forest },
+    { id: 'grassland', label: 'Grassland', icon: (props) => <Icon name="leaf" {...props} />, color: TERRAIN_COLORS.grassland },
     // FIX: Corrected typo in icon name from 'mountain' to "mountain"
-    { id: 'hills', label: 'Hills', icon: (props) => <Icon name="mountain" {...props} />, color: '#D2B48C' },
-    { id: 'mountains', label: 'Mountains', icon: (props) => <Icon name="mountain-range" {...props} />, color: '#A9A9A9' },
-    { id: 'swamp', label: 'Swamp', icon: (props) => <Icon name="waves" {...props} />, color: '#556B2F' },
-    { id: 'water', label: 'Water', icon: (props) => <Icon name="water" {...props} />, color: '#4682B4' },
-    { id: 'river', label: 'River', icon: (props) => <Icon name="water" {...props} />, color: '#4682B4' }
+    { id: 'hills', label: 'Hills', icon: (props) => <Icon name="mountain" {...props} />, color: TERRAIN_COLORS.hills },
+    { id: 'mountains', label: 'Mountains', icon: (props) => <Icon name="mountain-range" {...props} />, color: TERRAIN_COLORS.mountains },
+    { id: 'swamp', label: 'Swamp', icon: (props) => <Icon name="waves" {...props} />, color: TERRAIN_COLORS.swamp },
+    { id: 'water', label: 'Water', icon: (props) => <Icon name="water" {...props} />, color: TERRAIN_COLORS.water },
+    { id: 'river', label: 'River', icon: (props) => <Icon name="water" {...props} />, color: TERRAIN_COLORS.river }
   ],
   holding: [
     { id: 'castle', label: 'Castle', icon: 'assets/icons/castle.svg' },
@@ -56,13 +117,4 @@ export const SPECIAL_POI_ICONS: Tile[] = [
     { id: 'seatOfPower', label: 'Seat of Power', icon: 'assets/icons/system/crown.svg' }
 ];
 
-export const TERRAIN_COLORS: { [key: string]: string } = TILE_SETS.terrain.reduce((acc, t) => {
-  if (t.color) acc[t.id] = t.color;
-  return acc;
-}, {} as { [key: string]: string });
-
-export const MYTH_COLOR = 'rgba(255, 215, 0, 0.8)';
-export const BARRIER_COLOR = '#DC2626';
-export const SEAT_OF_POWER_COLOR = '#FFD700';
-export const HOLDING_ICON_BORDER_COLOR = '#CD7F32'; // Bronze
-export const LANDMARK_ICON_BORDER_COLOR = '#60A5FA'; // Light Blue
+export const DEFAULT_TERRAIN_COLORS: { [key: string]: string } = TERRAIN_COLORS;

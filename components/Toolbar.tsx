@@ -1,8 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 // FIX: Import Myth type to handle backward compatibility for realm imports.
-import type { ViewOptions, Realm, GenerationOptions, Myth } from '../types';
+import type { ViewOptions, Realm, GenerationOptions, Myth, TileSet } from '../types';
 import { Icon } from './Icon';
-import { TILE_SETS } from '../constants';
 
 interface ToolbarProps {
   onGenerate: () => void;
@@ -26,6 +25,7 @@ interface ToolbarProps {
   setRealmHeight: React.Dispatch<React.SetStateAction<number>>;
   generationOptions: GenerationOptions;
   setGenerationOptions: React.Dispatch<React.SetStateAction<GenerationOptions>>;
+  tileSets: TileSet;
 }
 
 interface ToolbarButtonProps {
@@ -36,7 +36,7 @@ interface ToolbarButtonProps {
 }
 
 const ToolbarButton = ({ onClick, icon, children, disabled }: ToolbarButtonProps) => (
-    <button onClick={onClick} className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-300 bg-gray-700 rounded-md hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={disabled}>
+    <button onClick={onClick} className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-[#a7a984] bg-[#324446] rounded-md hover:bg-[#435360] transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={disabled}>
         <Icon name={icon} className="w-4 h-4" />
         {children}
     </button>
@@ -50,7 +50,7 @@ interface ViewToggleButtonProps {
 }
 
 const ViewToggleButton = ({ isChecked, onChange, icon, children }: ViewToggleButtonProps) => (
-    <label className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-300 bg-gray-700 rounded-md hover:bg-gray-600 transition-colors cursor-pointer">
+    <label className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-[#a7a984] bg-[#324446] rounded-md hover:bg-[#435360] transition-colors cursor-pointer">
         <Icon name={icon} className="w-4 h-4" />
         <input type="checkbox" checked={isChecked} onChange={onChange} className="hidden" />
         <span>{children}</span>
@@ -78,7 +78,8 @@ export function Toolbar({
     realmHeight,
     setRealmHeight,
     generationOptions,
-    setGenerationOptions
+    setGenerationOptions,
+    tileSets
 }: ToolbarProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -184,9 +185,9 @@ export function Toolbar({
     };
 
     return (
-        <header className="flex items-center justify-between p-2 bg-gray-900 border-b border-gray-700 shadow-md z-10">
+        <header className="flex items-center justify-between p-2 bg-[#191f29] border-b border-[#41403f] shadow-md z-10">
             <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold text-white mr-4">Hex Realm Generator</h1>
+                <h1 className="text-xl font-bold text-[#eaebec] mr-4">Hex Realm Generator</h1>
                 
                 <ToolbarButton onClick={onGenerate} icon="sparkles">Generate</ToolbarButton>
                 
@@ -195,15 +196,15 @@ export function Toolbar({
                         Settings
                     </ToolbarButton>
                     {isSettingsOpen && (
-                        <div ref={settingsPopoverRef} className="absolute top-full mt-2 left-0 bg-gray-800 border border-gray-700 rounded-lg shadow-xl p-4 z-20 w-80">
+                        <div ref={settingsPopoverRef} className="absolute top-full mt-2 left-0 bg-[#18272e] border border-[#41403f] rounded-lg shadow-xl p-4 z-20 w-80">
                             <div className="max-h-[70vh] overflow-y-auto pr-2 space-y-4">
                                 <div>
-                                    <label htmlFor="realm-shape" className="block text-sm font-medium text-gray-400 mb-1">Shape</label>
+                                    <label htmlFor="realm-shape" className="block text-sm font-medium text-[#a7a984] mb-1">Shape</label>
                                     <select
                                         id="realm-shape"
                                         value={realmShape}
                                         onChange={(e) => setRealmShape(e.target.value as 'hex' | 'square')}
-                                        className="w-full bg-gray-700 p-2 text-sm font-medium text-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-md"
+                                        className="w-full bg-[#324446] p-2 text-sm font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
                                     >
                                         <option value="hex">Hexagon</option>
                                         <option value="square">Square</option>
@@ -212,7 +213,7 @@ export function Toolbar({
 
                                 {realmShape === 'hex' ? (
                                     <div>
-                                        <label htmlFor="realm-radius" className="block text-sm font-medium text-gray-400 mb-1">Radius</label>
+                                        <label htmlFor="realm-radius" className="block text-sm font-medium text-[#a7a984] mb-1">Radius</label>
                                         <input
                                             id="realm-radius"
                                             type="number"
@@ -220,14 +221,14 @@ export function Toolbar({
                                             onChange={(e) => setRealmRadius(Math.max(3, parseInt(e.target.value, 10) || 1))}
                                             min="3"
                                             max="50"
-                                            className="w-full bg-gray-700 p-2 text-sm font-medium text-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-md"
+                                            className="w-full bg-[#324446] p-2 text-sm font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
                                             aria-label="Realm radius"
                                         />
                                     </div>
                                 ) : (
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label htmlFor="realm-width" className="block text-sm font-medium text-gray-400 mb-1">Width</label>
+                                            <label htmlFor="realm-width" className="block text-sm font-medium text-[#a7a984] mb-1">Width</label>
                                             <input
                                                 id="realm-width"
                                                 type="number"
@@ -235,12 +236,12 @@ export function Toolbar({
                                                 onChange={(e) => setRealmWidth(Math.max(3, parseInt(e.target.value, 10) || 1))}
                                                 min="3"
                                                 max="50"
-                                                className="w-full bg-gray-700 p-2 text-sm font-medium text-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-md"
+                                                className="w-full bg-[#324446] p-2 text-sm font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
                                                 aria-label="Realm width"
                                             />
                                         </div>
                                         <div>
-                                            <label htmlFor="realm-height" className="block text-sm font-medium text-gray-400 mb-1">Height</label>
+                                            <label htmlFor="realm-height" className="block text-sm font-medium text-[#a7a984] mb-1">Height</label>
                                             <input
                                                 id="realm-height"
                                                 type="number"
@@ -248,67 +249,67 @@ export function Toolbar({
                                                 onChange={(e) => setRealmHeight(Math.max(3, parseInt(e.target.value, 10) || 1))}
                                                 min="3"
                                                 max="50"
-                                                className="w-full bg-gray-700 p-2 text-sm font-medium text-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-md"
+                                                className="w-full bg-[#324446] p-2 text-sm font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
                                                 aria-label="Realm height"
                                             />
                                         </div>
                                     </div>
                                 )}
-                                <hr className="border-gray-600" />
+                                <hr className="border-[#41403f]" />
                                 <div className="space-y-3">
-                                    <h3 className="text-md font-semibold text-gray-200">Generation Options</h3>
+                                    <h3 className="text-md font-semibold text-[#eaebec]">Generation Options</h3>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label htmlFor="num-holdings" className="block text-sm font-medium text-gray-400 mb-1">Holdings</label>
+                                            <label htmlFor="num-holdings" className="block text-sm font-medium text-[#a7a984] mb-1">Holdings</label>
                                             <input
                                                 id="num-holdings"
                                                 type="number"
                                                 value={generationOptions.numHoldings}
                                                 onChange={(e) => handleGenerationOptionChange('numHoldings', e.target.value)}
                                                 min="0"
-                                                className="w-full bg-gray-700 p-2 text-sm font-medium text-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-md"
+                                                className="w-full bg-[#324446] p-2 text-sm font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
                                                 aria-label="Number of holdings"
                                             />
                                         </div>
                                         <div>
-                                            <label htmlFor="num-myths" className="block text-sm font-medium text-gray-400 mb-1">Myths</label>
+                                            <label htmlFor="num-myths" className="block text-sm font-medium text-[#a7a984] mb-1">Myths</label>
                                             <input
                                                 id="num-myths"
                                                 type="number"
                                                 value={generationOptions.numMyths}
                                                 onChange={(e) => handleGenerationOptionChange('numMyths', e.target.value)}
                                                 min="0"
-                                                className="w-full bg-gray-700 p-2 text-sm font-medium text-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-md"
+                                                className="w-full bg-[#324446] p-2 text-sm font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
                                                 aria-label="Number of myths"
                                             />
                                         </div>
                                     </div>
                                     
                                     <div>
-                                        <label htmlFor="myth-min-distance" className="block text-sm font-medium text-gray-400 mb-1">Myth Min Distance</label>
+                                        <label htmlFor="myth-min-distance" className="block text-sm font-medium text-[#a7a984] mb-1">Myth Min Distance</label>
                                         <input
                                             id="myth-min-distance"
                                             type="number"
                                             value={generationOptions.mythMinDistance}
                                             onChange={(e) => handleGenerationOptionChange('mythMinDistance', e.target.value)}
                                             min="0"
-                                            className="w-full bg-gray-700 p-2 text-sm font-medium text-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-md"
+                                            className="w-full bg-[#324446] p-2 text-sm font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
                                             aria-label="Minimum distance between myths"
                                         />
                                     </div>
 
                                     <div className="space-y-2 pt-2">
-                                        <h4 className="text-sm font-semibold text-gray-300">Landmarks per Type</h4>
-                                        {TILE_SETS.landmark.map(landmark => (
+                                        <h4 className="text-sm font-semibold text-[#a7a984]">Landmarks per Type</h4>
+                                        {tileSets.landmark.map(landmark => (
                                             <div key={landmark.id} className="flex justify-between items-center">
-                                                <label htmlFor={`landmark-${landmark.id}`} className="text-sm text-gray-400">{landmark.label}</label>
+                                                <label htmlFor={`landmark-${landmark.id}`} className="text-sm text-[#a7a984]">{landmark.label}</label>
                                                 <input
                                                     id={`landmark-${landmark.id}`}
                                                     type="number"
                                                     value={generationOptions.landmarks[landmark.id] || 0}
                                                     onChange={(e) => handleLandmarkChange(landmark.id, e.target.value)}
                                                     min="0"
-                                                    className="w-20 bg-gray-700 p-1 text-sm text-center font-medium text-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-md"
+                                                    className="w-20 bg-[#324446] p-1 text-sm text-center font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
                                                     aria-label={`Number of ${landmark.label}`}
                                                 />
                                             </div>
@@ -321,7 +322,7 @@ export function Toolbar({
                 </div>
 
                 <ToolbarButton onClick={onReset} icon="reset">Reset</ToolbarButton>
-                <div className="h-6 w-px bg-gray-700 mx-1"></div>
+                <div className="h-6 w-px bg-[#41403f] mx-1"></div>
                 <ToolbarButton onClick={onUndo} icon="undo" disabled={!canUndo}>Undo</ToolbarButton>
                 <ToolbarButton onClick={onRedo} icon="redo" disabled={!canRedo}>Redo</ToolbarButton>
             </div>

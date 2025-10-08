@@ -46,10 +46,10 @@ export function MythSidebar({ realm, selectedHex, onSelectHex, onUpdateMyth, onR
   };
 
   return (
-    <aside className="w-80 bg-gray-900 border-l border-gray-700 p-4 flex flex-col">
+    <aside className="w-80 bg-[#191f29] border-l border-[#41403f] p-4 flex flex-col">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Myth Tool</h2>
-        <button onClick={onClose} className="p-1 rounded-full hover:bg-gray-700">
+        <button onClick={onClose} className="p-1 rounded-full hover:bg-[#435360]">
           <Icon name="close" className="w-5 h-5" />
         </button>
       </div>
@@ -63,42 +63,42 @@ export function MythSidebar({ realm, selectedHex, onSelectHex, onUpdateMyth, onR
                 const isRelocating = relocatingMythId === myth.id;
 
                 return (
-                  <li key={myth.id} className="bg-gray-800 rounded-md overflow-hidden transition-all duration-300">
+                  <li key={myth.id} className="bg-[#18272e] rounded-md overflow-hidden transition-all duration-300">
                     <button
                       onClick={() => handleMythClick(myth)}
-                      className="w-full text-left p-3 hover:bg-gray-700 transition-colors flex justify-between items-center disabled:cursor-not-allowed"
+                      className="w-full text-left p-3 hover:bg-[#435360] transition-colors flex justify-between items-center disabled:cursor-not-allowed"
                       aria-expanded={isExpanded || isRelocating}
                       disabled={!!relocatingMythId}
                     >
                       <div>
-                        <p className="font-semibold text-amber-500">Myth #{myth.id}: <span className="text-gray-200">{myth.name}</span></p>
-                        <p className="text-xs text-gray-400">Location: ({myth.q}, {myth.r})</p>
+                        <p className="font-semibold text-[#736b23]">Myth #{myth.id}: <span className="text-[#eaebec]">{myth.name}</span></p>
+                        <p className="text-xs text-[#a7a984]">Location: ({myth.q}, {myth.r})</p>
                       </div>
-                      <Icon name={isExpanded || isRelocating ? 'chevron-up' : 'chevron-down'} className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                      <Icon name={isExpanded || isRelocating ? 'chevron-up' : 'chevron-down'} className="w-5 h-5 text-[#a7a984] flex-shrink-0" />
                     </button>
                     {(isExpanded || isRelocating) && (
-                      <div className="p-3 border-t border-gray-700/50 bg-gray-800/50 space-y-3">
+                      <div className="p-3 border-t border-[#41403f]/50 bg-[#18272e]/50 space-y-3">
                         <div>
-                            <label htmlFor={`myth-name-${myth.id}`} className="block text-sm font-medium text-gray-400 mb-1">Edit Name</label>
+                            <label htmlFor={`myth-name-${myth.id}`} className="block text-sm font-medium text-[#a7a984] mb-1">Edit Name</label>
                             <input
                               id={`myth-name-${myth.id}`}
                               type="text"
                               value={myth.name}
                               onChange={(e) => handleNameChange(e, myth)}
-                              className="w-full bg-gray-700 p-2 text-sm font-medium text-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-md"
+                              className="w-full bg-[#324446] p-2 text-sm font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
                             />
                         </div>
                         <div className="flex gap-2">
                             <button
                               onClick={() => onToggleRelocateMyth(myth.id)}
-                              className={`w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors ${isRelocating ? 'bg-blue-600/80 text-white hover:bg-blue-600' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+                              className={`w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors ${isRelocating ? 'bg-[#435360]/80 text-[#eaebec] hover:bg-[#435360]' : 'bg-[#324446] text-[#a7a984] hover:bg-[#435360]'}`}
                             >
                                 <Icon name="move" className="w-4 h-4" />
                                 {isRelocating ? 'Cancel Relocate' : 'Relocate'}
                             </button>
                             <button
                               onClick={() => handleRemoveClick(myth)}
-                              className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-300 bg-red-800/50 rounded-md hover:bg-red-700/50 border border-red-700/80 transition-colors"
+                              className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-[#a7a984] bg-[#60131b]/50 rounded-md hover:bg-[#60131b]/80 border border-[#60131b]/80 transition-colors"
                             >
                                 <Icon name="trash-2" className="w-4 h-4" />
                                 Remove
@@ -107,14 +107,14 @@ export function MythSidebar({ realm, selectedHex, onSelectHex, onUpdateMyth, onR
                       </div>
                     )}
                      {isRelocating && (
-                        <div className="p-3 bg-blue-900/50 text-center text-sm text-blue-300">Select a new hex on the map.</div>
+                        <div className="p-3 bg-[#435360]/50 text-center text-sm text-[#c5d2cb]">Select a new hex on the map.</div>
                     )}
                   </li>
                 );
               })}
             </ul>
           ) : (
-            <p className="text-gray-400 text-center py-4">No myths have been placed on the map.</p>
+            <p className="text-[#a7a984] text-center py-4">No myths have been placed on the map.</p>
           )}
         </div>
       </div>

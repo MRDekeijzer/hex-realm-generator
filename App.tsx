@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect } from 'react';
 import { HexGrid } from './components/HexGrid';
 import { Toolbar } from './components/Toolbar';
@@ -8,8 +9,10 @@ import { MythSidebar } from './components/MythSidebar';
 import { generateRealm } from './services/realmGenerator';
 import { exportRealmAsJson, exportSvgAsPng } from './services/fileService';
 import type { Realm, Hex, Point, ViewOptions, GenerationOptions, Tool, Myth } from './types';
-import { DEFAULT_GRID_SIZE, TILE_SETS, LANDMARK_TYPES, TERRAIN_TYPES, OVERLAY_ICONS, SPECIAL_POI_ICONS } from './constants';
+import { DEFAULT_GRID_SIZE, DEFAULT_TILE_SETS, LANDMARK_TYPES, TERRAIN_TYPES, OVERLAY_ICONS, SPECIAL_POI_ICONS, DEFAULT_TERRAIN_COLORS } from './constants';
 import { useHistory } from './hooks/useHistory';
+import { Icon } from './components/Icon';
+import { BarrierPainter } from './components/BarrierPainter';
 
 export default function App() {
   const { state: realm, set: setRealm, undo: handleUndo, redo: handleRedo, canUndo, canRedo } = useHistory<Realm | null>(null);
@@ -21,11 +24,12 @@ export default function App() {
     orientation: 'pointy',
     hexSize: { x: 50, y: 50 },
   });
-  const [customIcons, setCustomIcons] = useState<{ [key: string]: string }>({});
   const [loadedSvgs, setLoadedSvgs] = useState<{ [key: string]: string }>({});
   const [activeTool, setActiveTool] = useState<Tool>('select');
   const [paintTerrain, setPaintTerrain] = useState<string>(TERRAIN_TYPES[0]);
   const [paintPoi, setPaintPoi] = useState<string | null>('holding:castle');
+  const [tileSets, setTileSets] = useState(DEFAULT_TILE_SETS);
+  const [terrainColors, setTerrainColors] = useState(DEFAULT_TERRAIN_COLORS);
 
   const [realmShape, setRealmShape] = useState<'hex' | 'square'>('square');
   const [realmRadius, setRealmRadius] = useState<number>(DEFAULT_GRID_SIZE);
@@ -80,8 +84,8 @@ export default function App() {
 
   useEffect(() => {
     const iconPaths = [
-      ...TILE_SETS.holding.map(t => t.icon),
-      ...TILE_SETS.landmark.map(t => t.icon),
+      ...DEFAULT_TILE_SETS.holding.map(t => t.icon),
+      ...DEFAULT_TILE_SETS.landmark.map(t => t.icon),
       ...OVERLAY_ICONS.map(t => t.icon),
       ...SPECIAL_POI_ICONS.map(t => t.icon),
     ].filter(icon => typeof icon === 'string') as string[];
@@ -324,10 +328,6 @@ export default function App() {
      handleGenerateRealm();
   }, [handleGenerateRealm]);
   
-  const handleUpdateCustomIcon = useCallback((type: string, dataUrl: string) => {
-    setCustomIcons(prev => ({ ...prev, [type]: dataUrl }));
-  }, []);
-
   const handleSetSeatOfPower = useCallback((hex: Hex) => {
     if (!realm || !hex.holding) return;
     const newRealm = {
@@ -347,9 +347,82 @@ export default function App() {
     setSelectedHex(null);
   }, [handleRedo]);
 
+  const handleAddTerrain = useCallback((name: string, color: string) => {
+      const id = name.toLowerCase().replace(/\s+/g, '-');
+      if (tileSets.terrain.some(t => t.id === id || t.label.toLowerCase() === name.toLowerCase())) {
+          alert('A terrain with this name already exists.');
+          return;
+      }
+      const newTerrain = {
+          id,
+          label: name,
+          icon: (props: any) => <Icon name="leaf" {...props} />, // Generic icon
+          color,
+      };
+      setTileSets(prev => ({
+          ...prev,
+          terrain: [...prev.terrain, newTerrain],
+      }));
+      setTerrainColors(prev => ({ ...prev, [id]: color }));
+  }, [tileSets.terrain]);
+
+  const handleRemoveTerrain = useCallback((terrainId: string) => {
+      if (TERRAIN_TYPES.includes(terrainId)) {
+          alert('Cannot remove default terrain types.');
+          return;
+      }
+
+      setTileSets(prev => ({
+          ...prev,
+          terrain: prev.terrain.filter(t => t.id !== terrainId),
+      }));
+
+      setTerrainColors(prev => {
+          const newColors = { ...prev };
+          delete newColors[terrainId];
+          return newColors;
+      });
+
+      if (realm) {
+          const newHexes = realm.hexes.map(h => {
+              if (h.terrain === terrainId) {
+                  return { ...h, terrain: 'grassland' }; // Revert to default
+              }
+              return h;
+          });
+          setRealm({ ...realm, hexes: newHexes });
+      }
+      
+      if (paintTerrain === terrainId) {
+          setPaintTerrain(TERRAIN_TYPES[0]);
+      }
+
+  }, [realm, setRealm, paintTerrain]);
+
+  const handleRemoveAllBarriers = useCallback(() => {
+    console.log('[App] handleRemoveAllBarriers called.');
+    if (!realm) {
+      console.log('[App] handleRemoveAllBarriers: realm is null, aborting.');
+      return;
+    }
+    console.log('[App] Realm state BEFORE removing barriers:', JSON.parse(JSON.stringify(realm)));
+    const hexesWithBarriersBefore = realm.hexes.filter(h => h.barrierEdges && h.barrierEdges.length > 0).length;
+    console.log(`[App] Found ${hexesWithBarriersBefore} hexes with barriers before removal.`);
+    
+    const newHexes = realm.hexes.map(h => ({ ...h, barrierEdges: [] }));
+    const newRealm = { ...realm, hexes: newHexes };
+    
+    console.log('[App] Realm state AFTER removing barriers (but before setting state):', JSON.parse(JSON.stringify(newRealm)));
+    const hexesWithBarriersAfter = newRealm.hexes.filter(h => h.barrierEdges && h.barrierEdges.length > 0).length;
+    console.log(`[App] Found ${hexesWithBarriersAfter} hexes with barriers in new realm object.`);
+
+    setRealm(newRealm);
+    console.log('[App] setRealm has been called with the new realm state.');
+  }, [realm, setRealm]);
+
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-gray-900 font-sans overflow-hidden">
+    <div className="flex flex-col h-screen w-screen bg-[#191f29] font-sans overflow-hidden">
       <Toolbar 
         onGenerate={handleGenerateRealm}
         onReset={handleReset}
@@ -372,9 +445,10 @@ export default function App() {
         setRealmHeight={setRealmHeight}
         generationOptions={generationOptions}
         setGenerationOptions={setGenerationOptions}
+        tileSets={tileSets}
       />
       <div className="flex flex-1 overflow-hidden">
-        <main className="flex-1 bg-gray-800 relative">
+        <main className="flex-1 bg-[#18272e] relative">
           {realm ? (
             <HexGrid
               realm={realm}
@@ -382,7 +456,6 @@ export default function App() {
               viewOptions={viewOptions}
               selectedHex={selectedHex}
               onHexClick={setSelectedHex}
-              customIcons={customIcons}
               loadedSvgs={loadedSvgs}
               activeTool={activeTool}
               setActiveTool={setActiveTool}
@@ -393,9 +466,10 @@ export default function App() {
               relocatingMythId={relocatingMythId}
               onRelocateMyth={handleRelocateMyth}
               onSetSeatOfPower={handleSetSeatOfPower}
+              terrainColors={terrainColors}
             />
           ) : (
-            <div className="flex items-center justify-center h-full text-gray-400">
+            <div className="flex items-center justify-center h-full text-[#a7a984]">
               <p>Generating initial realm...</p>
             </div>
           )}
@@ -405,6 +479,10 @@ export default function App() {
             paintTerrain={paintTerrain}
             setPaintTerrain={setPaintTerrain}
             onClose={() => setActiveTool('select')}
+            tileSets={tileSets}
+            terrainColors={terrainColors}
+            onAddTerrain={handleAddTerrain}
+            onRemoveTerrain={handleRemoveTerrain}
           />
         ) : activeTool === 'poi' ? (
           <PoiPainter
@@ -412,6 +490,11 @@ export default function App() {
             setPaintPoi={setPaintPoi}
             onClose={() => setActiveTool('select')}
             loadedSvgs={loadedSvgs}
+          />
+        ) : activeTool === 'barrier' ? (
+          <BarrierPainter
+            onRemoveAllBarriers={handleRemoveAllBarriers}
+            onClose={() => setActiveTool('select')}
           />
         ) : activeTool === 'myth' && realm ? (
             <MythSidebar
@@ -431,10 +514,9 @@ export default function App() {
             onUpdateHex={handleUpdateHex}
             onDeselect={() => setSelectedHex(null)}
             onSetSeatOfPower={handleSetSeatOfPower}
-            customIcons={customIcons}
-            onUpdateCustomIcon={handleUpdateCustomIcon}
             onAddMyth={handleAddMyth}
             onRemoveMyth={handleRemoveMyth}
+            tileSets={tileSets}
           />
         )}
       </div>
