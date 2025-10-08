@@ -15,7 +15,6 @@ export interface Hex {
   holding?: string;
   myth?: number;
   landmark?: string;
-  overlayIcons?: string[];
   isWater?: boolean;
   isRiver?: boolean;
 }

@@ -25,7 +25,7 @@ export function ToolsPalette({ activeTool, setActiveTool }: ToolsPaletteProps) {
             <ToolButton icon="brush" label="Terrain Painter" isActive={activeTool === 'terrain'} onClick={() => setActiveTool('terrain')} />
             <ToolButton icon="barrier-painter" label="Barrier Painter" isActive={activeTool === 'barrier'} onClick={() => setActiveTool('barrier')} />
             <ToolButton icon="map-pin-pen" label="Points of Interest Painter" isActive={activeTool === 'poi'} onClick={() => setActiveTool('poi')} />
-            <ToolButton icon="sparkles" label="Myth Tool" isActive={activeTool === 'myth'} onClick={() => setActiveTool('myth')} />
+            <ToolButton icon="sparkle" label="Myth Tool" isActive={activeTool === 'myth'} onClick={() => setActiveTool('myth')} />
         </div>
     );
 }

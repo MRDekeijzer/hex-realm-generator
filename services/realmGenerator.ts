@@ -124,7 +124,7 @@ function addBarriers(hexes: Hex[]): void {
 }
 
 function placeHoldings(hexes: Hex[], sizeForDensity: number, numHoldings: number): { q: number; r: number } {
-    const validHexes = hexes.filter(h => h.terrain !== 'mountains' && h.terrain !== 'water');
+    const validHexes = hexes.filter(h => !['peaks', 'crags', 'bog', 'lakes', 'marsh'].includes(h.terrain));
     let placedCount = 0;
     const placedHoldings: Hex[] = [];
 

@@ -92,7 +92,7 @@ export function Sidebar({ selectedHex, realm, onUpdateHex, onDeselect, onSetSeat
   return (
     <aside className="w-80 bg-[#191f29] border-l border-[#41403f] p-4 flex flex-col">
        <div className="flex justify-between items-center mb-4">
-         <h2 className="text-xl font-bold">Hex ({selectedHex.q}, {selectedHex.r})</h2>
+         <h2 className="text-xl font-bold">Hex (<span className="font-decorative">{selectedHex.q}</span>, <span className="font-decorative">{selectedHex.r}</span>)</h2>
          <button onClick={onDeselect} className="p-1 rounded-full hover:bg-[#435360]">
             <Icon name="close" className="w-5 h-5"/>
          </button>

@@ -7,8 +7,55 @@
     <title>Hex Realm Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+      @font-face {
+        font-family: 'AnglicanText';
+        src: url('/assets/fonts/AnglicanText.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: 'Canterbury';
+        src: url('/assets/fonts/Canterbury.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: 'TeX Gyre Schola';
+        src: url('/assets/fonts/texgyreschola-regular.otf') format('opentype');
+        font-weight: normal;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: 'TeX Gyre Schola';
+        src: url('/assets/fonts/texgyreschola-bold.otf') format('opentype');
+        font-weight: bold;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: 'TeX Gyre Schola';
+        src: url('/assets/fonts/texgyreschola-italic.otf') format('opentype');
+        font-weight: normal;
+        font-style: italic;
+      }
+      @font-face {
+        font-family: 'TeX Gyre Schola';
+        src: url('/assets/fonts/texgyreschola-bolditalic.otf') format('opentype');
+        font-weight: bold;
+        font-style: italic;
+      }
+
       body {
         overscroll-behavior: none;
+        font-family: 'TeX Gyre Schola', serif;
+      }
+      
+      h1 {
+        font-family: 'AnglicanText', serif;
+      }
+
+      .font-decorative {
+        font-family: 'Canterbury', serif;
+        font-size: 1.1em;
       }
     </style>
 <script type="importmap">

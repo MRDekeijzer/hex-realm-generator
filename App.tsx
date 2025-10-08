@@ -9,7 +9,7 @@ import { MythSidebar } from './components/MythSidebar';
 import { generateRealm } from './services/realmGenerator';
 import { exportRealmAsJson, exportSvgAsPng } from './services/fileService';
 import type { Realm, Hex, Point, ViewOptions, GenerationOptions, Tool, Myth } from './types';
-import { DEFAULT_GRID_SIZE, DEFAULT_TILE_SETS, LANDMARK_TYPES, TERRAIN_TYPES, OVERLAY_ICONS, SPECIAL_POI_ICONS, DEFAULT_TERRAIN_COLORS, BARRIER_COLOR, DEFAULT_GRID_COLOR, DEFAULT_GRID_WIDTH } from './constants';
+import { DEFAULT_GRID_SIZE, DEFAULT_TILE_SETS, LANDMARK_TYPES, TERRAIN_TYPES, SPECIAL_POI_ICONS, TERRAIN_COLORS as DEFAULT_TERRAIN_COLORS_MAP, DEFAULT_TERRAIN_COLORS, BARRIER_COLOR, DEFAULT_GRID_COLOR, DEFAULT_GRID_WIDTH } from './constants';
 import { useHistory } from './hooks/useHistory';
 import { Icon } from './components/Icon';
 import { BarrierPainter } from './components/BarrierPainter';
@@ -99,7 +99,6 @@ export default function App() {
     const iconPaths = [
       ...DEFAULT_TILE_SETS.holding.map(t => t.icon),
       ...DEFAULT_TILE_SETS.landmark.map(t => t.icon),
-      ...OVERLAY_ICONS.map(t => t.icon),
       ...SPECIAL_POI_ICONS.map(t => t.icon),
     ].filter(icon => typeof icon === 'string') as string[];
 
@@ -192,7 +191,14 @@ export default function App() {
 
     // Defend against stale state by checking the hex from the current realm state.
     const currentHexState = realm.hexes.find(h => h.q === hex.q && h.r === hex.r);
-    if (currentHexState?.myth) return;
+    if (!currentHexState) return;
+    
+    if (currentHexState.myth) return;
+
+    if (currentHexState.holding || currentHexState.landmark) {
+        alert("Cannot add a myth to a hex that has a holding or a landmark.");
+        return;
+    }
 
     const newMythId = (realm.myths.length > 0 ? Math.max(...realm.myths.map(m => m.id)) : 0) + 1;
     const newMyth: Myth = {
@@ -275,9 +281,17 @@ export default function App() {
 
   const handleRelocateMyth = useCallback((mythId: number, newHex: Hex) => {
     if (!realm) return;
+    
+    const targetHexState = realm.hexes.find(h => h.q === newHex.q && h.r === newHex.r);
+    if (!targetHexState) return;
 
-    if (newHex.myth) {
+    if (targetHexState.myth) {
         alert("Cannot relocate to a hex that already has a myth.");
+        return;
+    }
+    
+    if (targetHexState.holding || targetHexState.landmark) {
+        alert("Cannot relocate a myth to a hex that has a holding or a landmark.");
         return;
     }
 
@@ -405,7 +419,7 @@ export default function App() {
       if (realm) {
           const newHexes = realm.hexes.map(h => {
               if (h.terrain === terrainId) {
-                  return { ...h, terrain: 'grassland' }; // Revert to default
+                  return { ...h, terrain: 'plain' }; // Revert to default
               }
               return h;
           });
@@ -417,6 +431,17 @@ export default function App() {
       }
 
   }, [realm, setRealm, paintTerrain]);
+
+  const handleUpdateTerrainColor = useCallback((terrainId: string, color: string) => {
+    setTerrainColors(prev => ({ ...prev, [terrainId]: color }));
+  }, []);
+
+  const handleResetTerrainColor = useCallback((terrainId: string) => {
+    const defaultColor = DEFAULT_TERRAIN_COLORS_MAP[terrainId as keyof typeof DEFAULT_TERRAIN_COLORS_MAP];
+    if (defaultColor) {
+        setTerrainColors(prev => ({ ...prev, [terrainId]: defaultColor }));
+    }
+  }, []);
 
   const handleRequestRemoveAllBarriers = useCallback(() => {
     setConfirmation({
@@ -437,7 +462,7 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-[#191f2a] font-sans overflow-hidden">
+    <div className="flex flex-col h-screen w-screen bg-[#191f2a] overflow-hidden">
       <Toolbar 
         onGenerate={handleGenerateRealm}
         onExportJson={handleExportJson}
@@ -498,6 +523,8 @@ export default function App() {
             terrainColors={terrainColors}
             onAddTerrain={handleAddTerrain}
             onRemoveTerrain={handleRemoveTerrain}
+            onUpdateTerrainColor={handleUpdateTerrainColor}
+            onResetTerrainColor={handleResetTerrainColor}
           />
         ) : activeTool === 'poi' ? (
           <PoiPainter

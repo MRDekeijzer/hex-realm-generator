@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { Icon } from './Icon';
 // FIX: Rename imported `DEFAULT_TILE_SETS` to `TILE_SETS` as `TILE_SETS` is not an exported member of `constants`.
-import { DEFAULT_TILE_SETS as TILE_SETS, OVERLAY_ICONS, SPECIAL_POI_ICONS } from '../constants';
+import { DEFAULT_TILE_SETS as TILE_SETS, SPECIAL_POI_ICONS } from '../constants';
 import type { Tile } from '../types';
 
 interface PoiPainterProps {
@@ -114,15 +115,6 @@ export function PoiPainter({ paintPoi, setPaintPoi, onClose, loadedSvgs }: PoiPa
             title="Landmarks"
             items={TILE_SETS.landmark}
             type="landmark"
-            paintPoi={paintPoi}
-            setPaintPoi={setPaintPoi}
-            loadedSvgs={loadedSvgs}
-        />
-
-        <PoiSection 
-            title="Overlays"
-            items={OVERLAY_ICONS}
-            type="overlay"
             paintPoi={paintPoi}
             setPaintPoi={setPaintPoi}
             loadedSvgs={loadedSvgs}

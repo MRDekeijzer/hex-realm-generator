@@ -4,7 +4,7 @@ import type { Realm, Hex, ViewOptions, Point, Tool, Tile } from '../types';
 import { axialToPixel, getHexCorners, getBarrierPath, findClosestEdge, getNeighbors } from '../utils/hexUtils';
 import { usePanAndZoom } from '../hooks/usePanAndZoom';
 // FIX: Rename imported `DEFAULT_TILE_SETS` to `TILE_SETS` as `TILE_SETS` is not an exported member of `constants`.
-import { DEFAULT_TILE_SETS as TILE_SETS, OVERLAY_ICONS, MYTH_COLOR, SELECTION_COLOR, SEAT_OF_POWER_COLOR, HOLDING_ICON_BORDER_COLOR, LANDMARK_ICON_BORDER_COLOR } from '../constants';
+import { DEFAULT_TILE_SETS as TILE_SETS, MYTH_COLOR, SELECTION_COLOR, SEAT_OF_POWER_COLOR, HOLDING_ICON_BORDER_COLOR, LANDMARK_ICON_BORDER_COLOR } from '../constants';
 import { ToolsPalette } from './ToolsPalette';
 
 interface HexGridProps {
@@ -29,10 +29,6 @@ interface HexGridProps {
 
 const findTile = (type: string, category: 'terrain' | 'holding' | 'landmark'): Tile | undefined => {
     return TILE_SETS[category].find(t => t.id === type);
-}
-
-const findOverlayTile = (type: string): Tile | undefined => {
-    return OVERLAY_ICONS.find(t => t.id === type);
 }
 
 export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexClick, loadedSvgs, activeTool, setActiveTool, paintTerrain, paintPoi, onAddMyth, onRemoveMyth, relocatingMythId, onRelocateMyth, onSetSeatOfPower, terrainColors, barrierColor }: HexGridProps) {
@@ -221,7 +217,6 @@ export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexCli
         } else {
             updatedHex.holding = id;
             updatedHex.landmark = undefined;
-            updatedHex.overlayIcons = [];
         }
       } else if (type === 'landmark') {
         // If the same landmark is clicked again, remove it. Otherwise, set/replace it.
@@ -230,23 +225,7 @@ export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexCli
         } else {
             updatedHex.landmark = id;
             updatedHex.holding = undefined;
-            updatedHex.overlayIcons = [];
         }
-      } else if (type === 'overlay') {
-        updatedHex.holding = undefined;
-        updatedHex.landmark = undefined;
-        
-        const currentOverlays = updatedHex.overlayIcons ? [...updatedHex.overlayIcons] : [];
-        const existingIndex = currentOverlays.indexOf(id);
-
-        if (existingIndex > -1) {
-            // Overlay exists, remove it (toggle off)
-            currentOverlays.splice(existingIndex, 1);
-        } else {
-            // Overlay doesn't exist, add it
-            currentOverlays.push(id);
-        }
-        updatedHex.overlayIcons = currentOverlays;
       }
 
       onUpdateHex([updatedHex]);
@@ -432,7 +411,6 @@ export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexCli
             
             const holdingTile = hex.holding ? findTile(hex.holding, 'holding') : null;
             const landmarkTile = hex.landmark ? findTile(hex.landmark, 'landmark') : null;
-            const overlayTiles = (hex.overlayIcons || []).map(id => findOverlayTile(id)).filter((t): t is Tile => !!t);
 
             const activeTile = holdingTile || (isGmView ? landmarkTile : null);
             const defaultIcon = activeTile?.icon;
@@ -498,37 +476,10 @@ export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexCli
                   </g>
                 )}
 
-                {overlayTiles.map((overlayTile, index) => {
-                    const overlayIconPath = overlayTile.icon;
-                    if (typeof overlayIconPath !== 'string') return null;
-                    
-                    const svgText = loadedSvgs[overlayIconPath];
-                    if (!svgText) return null;
-
-                    const innerSvg = svgText.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
-                    return (
-                        <svg 
-                            key={`overlay-${overlayTile.id}-${index}`}
-                            x={-iconSize / 2} 
-                            y={-iconSize / 2} 
-                            width={iconSize} 
-                            height={iconSize} 
-                            viewBox="0 0 24 24"
-                            className="text-[#eaebec] opacity-90"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            style={{ filter: 'drop-shadow(0 1px 2px rgba(25,31,41,0.8))' }}
-                        >
-                            <g dangerouslySetInnerHTML={{ __html: innerSvg }} />
-                        </svg>
-                    );
-                })}
-                
                 {isGmView && hex.myth && (
                   <g>
                     <circle r={hexSize.x * 0.25} fill={MYTH_COLOR} />
-                    <text textAnchor="middle" dy=".3em" fill="#221f21" fontWeight="bold">{hex.myth}</text>
+                    <text textAnchor="middle" dy=".3em" fill="#221f21" className="font-decorative">{hex.myth}</text>
                   </g>
                 )}
               </g>

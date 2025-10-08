@@ -339,7 +339,7 @@ export function Toolbar({
                 <label className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-[#a7a984] bg-[#324446] rounded-md hover:bg-[#435360] transition-colors cursor-pointer">
                     <Icon name="eye" className="w-4 h-4" />
                     <input type="checkbox" checked={viewOptions.isGmView} onChange={() => setViewOptions(v => ({ ...v, isGmView: !v.isGmView }))} className="hidden" />
-                    <span>GM View</span>
+                    <span>{viewOptions.isGmView ? 'Referee View' : 'Knight View'}</span>
                 </label>
                 
                 <div className="relative">
