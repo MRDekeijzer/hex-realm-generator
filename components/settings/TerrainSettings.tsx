@@ -195,11 +195,11 @@ export const TerrainSettings = ({ tileSets, setTileSets }: TerrainSettingsProps)
                     {tileSets.terrain.map(terrain => {
                         const settings = terrain.spraySettings || DEFAULT_SPRAY_SETTINGS;
                         return (
-                        <details key={terrain.id} className="p-3 bg-[#191f29] rounded-md border border-[#41403f]/50 open:border-[#736b23]/50 transition-colors">
+                        <details key={terrain.id} className="p-3 bg-[#191f29] rounded-md border border-[#41403f]/50 open:border-[#736b23]/50 transition-colors group">
                             <summary className="font-semibold text-md text-[#a7a984] list-none cursor-pointer flex items-center gap-2 hover:text-[#eaebec]">
                                 <Icon name={terrain.icon} className="w-5 h-5" />
                                 {terrain.label}
-                                <Icon name="chevron-down" className="w-4 h-4 ml-auto transition-transform duration-200 details-open:rotate-180" />
+                                <Icon name="chevron-down" className="w-4 h-4 ml-auto transition-transform duration-200 group-open:rotate-180" />
                             </summary>
                             <div className="pl-7 mt-3 pt-3 border-t border-[#41403f]/50 space-y-4">
                                 <IconGridSelector selectedIcons={terrain.sprayIcons || []} onToggleIcon={(icon) => handleToggleSprayIcon(terrain.id, icon)} />
@@ -236,9 +236,9 @@ export const TerrainSettings = ({ tileSets, setTileSets }: TerrainSettingsProps)
                                     <HexSprayPreview terrain={terrain} />
                                 </div>
                             </div>
-                            <style>{`details summary::-webkit-details-marker { display: none; } details .details-open\\:rotate-180 { transform: rotate(180deg); }`}</style>
                         </details>
-                    ))}
+                        );
+                    })}
                 </div>
             </SettingsSection>
         </div>
