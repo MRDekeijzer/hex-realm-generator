@@ -347,11 +347,6 @@ export default function App() {
     exportSvgAsPng('hex-grid-svg', 'realm-map.png');
   }, []);
   
-  const handleReset = useCallback(() => {
-     setSelectedHex(null);
-     handleGenerateRealm();
-  }, [handleGenerateRealm]);
-  
   const handleSetSeatOfPower = useCallback((hex: Hex) => {
     if (!realm || !hex.holding) return;
     const newRealm = {
@@ -445,7 +440,6 @@ export default function App() {
     <div className="flex flex-col h-screen w-screen bg-[#191f2a] font-sans overflow-hidden">
       <Toolbar 
         onGenerate={handleGenerateRealm}
-        onReset={handleReset}
         onExportJson={handleExportJson}
         onExportPng={handleExportPng}
         onImportJson={handleImportRealm}

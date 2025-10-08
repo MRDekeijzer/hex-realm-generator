@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect } from 'react';
 // FIX: Import Myth type to handle backward compatibility for realm imports.
 import type { ViewOptions, Realm, GenerationOptions, Myth, TileSet } from '../types';
@@ -6,7 +7,6 @@ import { DEFAULT_GRID_COLOR, DEFAULT_GRID_WIDTH } from '../constants';
 
 interface ToolbarProps {
   onGenerate: () => void;
-  onReset: () => void;
   onExportJson: () => void;
   onExportPng: () => void;
   onImportJson: (realm: Realm) => void;
@@ -47,7 +47,6 @@ ToolbarButton.displayName = 'ToolbarButton';
 
 export function Toolbar({ 
     onGenerate, 
-    onReset, 
     onExportJson, 
     onExportPng, 
     onImportJson,
@@ -332,7 +331,6 @@ export function Toolbar({
                     )}
                 </div>
 
-                <ToolbarButton onClick={onReset} icon="reset">Reset</ToolbarButton>
                 <div className="h-6 w-px bg-[#41403f] mx-1"></div>
                 <ToolbarButton onClick={onUndo} icon="undo" disabled={!canUndo}>Undo</ToolbarButton>
                 <ToolbarButton onClick={onRedo} icon="redo" disabled={!canRedo}>Redo</ToolbarButton>
