@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Icon } from './Icon';
 
@@ -9,12 +8,8 @@ interface BarrierPainterProps {
 
 export function BarrierPainter({ onRemoveAllBarriers, onClose }: BarrierPainterProps) {
   const handleRemoveClick = () => {
-    console.log('[BarrierPainter] "Remove All Barriers" button clicked.');
     if (window.confirm('Are you sure you want to remove all barriers from the map? This action cannot be undone.')) {
-      console.log('[BarrierPainter] User confirmed. Calling onRemoveAllBarriers...');
       onRemoveAllBarriers();
-    } else {
-      console.log('[BarrierPainter] User cancelled barrier removal.');
     }
   };
 

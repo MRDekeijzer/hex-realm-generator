@@ -400,24 +400,9 @@ export default function App() {
   }, [realm, setRealm, paintTerrain]);
 
   const handleRemoveAllBarriers = useCallback(() => {
-    console.log('[App] handleRemoveAllBarriers called.');
-    if (!realm) {
-      console.log('[App] handleRemoveAllBarriers: realm is null, aborting.');
-      return;
-    }
-    console.log('[App] Realm state BEFORE removing barriers:', JSON.parse(JSON.stringify(realm)));
-    const hexesWithBarriersBefore = realm.hexes.filter(h => h.barrierEdges && h.barrierEdges.length > 0).length;
-    console.log(`[App] Found ${hexesWithBarriersBefore} hexes with barriers before removal.`);
-    
+    if (!realm) return;
     const newHexes = realm.hexes.map(h => ({ ...h, barrierEdges: [] }));
-    const newRealm = { ...realm, hexes: newHexes };
-    
-    console.log('[App] Realm state AFTER removing barriers (but before setting state):', JSON.parse(JSON.stringify(newRealm)));
-    const hexesWithBarriersAfter = newRealm.hexes.filter(h => h.barrierEdges && h.barrierEdges.length > 0).length;
-    console.log(`[App] Found ${hexesWithBarriersAfter} hexes with barriers in new realm object.`);
-
-    setRealm(newRealm);
-    console.log('[App] setRealm has been called with the new realm state.');
+    setRealm({ ...realm, hexes: newHexes });
   }, [realm, setRealm]);
 
 
