@@ -27,7 +27,9 @@ jobs:
         run: npm ci
 
       - name: Build
-        run: npm run build --if-present
+        env:
+            VITE_BASE: "/${{ github.event.repository.name }}/"
+        run: npm run build
 
       - name: Debug permissions
         run: |
@@ -38,9 +40,20 @@ jobs:
       - name: Deploy to GitHub Pages (peaceiris)
         uses: peaceiris/actions-gh-pages@v3
         with:
-          # this action accepts the built-in GITHUB_TOKEN and pushes the branch directly
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
+          publish_branch: gh-pages
+          enable_jekyll: false
+
+      - name: Deploy to GitHub Pages (peaceiris)
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
+          enable_jekyll: false
+
+
 
       - name: Print expected Pages URL
         if: always()
