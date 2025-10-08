@@ -4,6 +4,12 @@ on:
   push:
     branches: [ main ]
 
+# Ensure the workflow has the permissions required to push to gh-pages
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -23,10 +29,28 @@ jobs:
       - name: Build
         run: npm run build --if-present
 
+      - name: Debug permissions
+        run: |
+          echo "Actor: $GITHUB_ACTOR"
+          echo "Token is available: ${GITHUB_TOKEN:+yes}"
+          echo "Note: ensure Actions -> Settings -> Workflow permissions is set to 'Read and write' for this repository."
+
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+        uses: actions/deploy-pages@v1
         with:
+          # this action also accepts the built-in GITHUB_TOKEN
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
-          # optional: set to true if you want to set the committer name/email
+          # optional: set commit_message if you want to customize
           # commit_message: "Deploy site via GitHub Actions"
+
+      - name: Print expected Pages URL
+        if: always()
+        run: |
+          # GITHUB_REPOSITORY is owner/repo
+          owner_repo="$GITHUB_REPOSITORY"
+          owner=${owner_repo%%/*}
+          repo=${owner_repo##*/}
+          echo "Expected GitHub Pages URL(s):"
+          echo "- User/org pages (if configured): https://$owner.github.io/"
+          echo "- Project pages: https://$owner.github.io/$repo/"
