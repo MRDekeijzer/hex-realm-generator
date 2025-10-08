@@ -285,7 +285,7 @@ export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexCli
 
   const getCursor = () => {
     if (isSpacePanActive) {
-      return isPanning ? `url('assets/icons/system/hand-grab.svg') 12 12, grabbing` : `url('assets/icons/system/hand.svg') 12 12, grab`;
+      return isPanning ? 'grabbing' : 'grab';
     }
     if (relocatingMythId !== null) return 'move';
     switch(activeTool) {
