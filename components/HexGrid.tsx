@@ -25,13 +25,14 @@ interface HexGridProps {
   onSetSeatOfPower: (hex: Hex) => void;
   terrainColors: { [key: string]: string };
   barrierColor: string;
+  isSettingsOpen: boolean;
 }
 
 const findTile = (type: string, category: 'terrain' | 'holding' | 'landmark'): Tile | undefined => {
     return TILE_SETS[category].find(t => t.id === type);
 }
 
-export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexClick, activeTool, setActiveTool, paintTerrain, paintPoi, onAddMyth, onRemoveMyth, relocatingMythId, onRelocateMyth, onSetSeatOfPower, terrainColors, barrierColor }: HexGridProps) {
+export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexClick, activeTool, setActiveTool, paintTerrain, paintPoi, onAddMyth, onRemoveMyth, relocatingMythId, onRelocateMyth, onSetSeatOfPower, terrainColors, barrierColor, isSettingsOpen }: HexGridProps) {
   const { viewbox, containerRef, onMouseDown, onWheel, isPanning } = usePanAndZoom({
     initialWidth: 1000,
     initialHeight: 800,
@@ -479,10 +480,12 @@ export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexCli
           </g>
         )}
       </svg>
-      <ToolsPalette 
-        activeTool={activeTool} 
-        setActiveTool={setActiveTool}
-      />
+      {!isSettingsOpen && (
+        <ToolsPalette 
+          activeTool={activeTool} 
+          setActiveTool={setActiveTool}
+        />
+      )}
     </div>
   );
 }

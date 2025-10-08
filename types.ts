@@ -1,3 +1,4 @@
+
 // FIX: Import React to make React.FC available.
 import type React from 'react';
 
@@ -66,10 +67,25 @@ export interface LandmarkGenerationOptions {
   [key: string]: number;
 }
 
+export type TerrainClusteringMatrix = {
+  [terrainA: string]: {
+    [terrainB: string]: number;
+  };
+};
+
+export type HighlandFormation = 'random' | 'linear' | 'circle' | 'triangle';
+
 export interface GenerationOptions {
   numHoldings: number;
   numMyths: number;
   mythMinDistance: number;
   landmarks: LandmarkGenerationOptions;
   generateBarriers: boolean;
+  highlandFormation: HighlandFormation;
+  highlandFormationStrength: number;
+  highlandFormationRotation: number;
+  highlandFormationInverse?: boolean;
+  terrainRoughness: number;
+  terrainClusteringMatrix: TerrainClusteringMatrix;
+  terrainBiases: { [key: string]: number };
 }

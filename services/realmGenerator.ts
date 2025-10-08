@@ -3,6 +3,7 @@ import type { Realm, Hex, GenerationOptions, Myth } from '../types';
 // FIX: Import BARRIER_CHANCE to use it in the addBarriers function.
 import { TERRAIN_TYPES, HOLDING_TYPES, BARRIER_CHANCE } from '../constants';
 import { getAxialDistance, getNeighbors } from '../utils/hexUtils';
+import { PerlinNoise } from './perlin';
 
 type GenerateRealmOptions = 
   | { shape: 'hex', radius: number }
@@ -64,40 +65,183 @@ function getRandomElement<T,>(arr: T[]): T {
     return arr[Math.floor(Math.random() * arr.length)];
 }
 
-function generateTerrain(hexes: Hex[]): void {
-    const unassigned = new Set(hexes);
-    while (unassigned.size > 0) {
-        const startHex = getRandomElement(Array.from(unassigned));
-        const terrain = getRandomElement(TERRAIN_TYPES);
-        const clusterSize = 12;
-        let currentClusterSize = 0;
-        const queue: Hex[] = [startHex];
-        const visitedInCluster = new Set<Hex>([startHex]);
+function getInitialTerrainMap(hexes: Hex[], options: GenerationOptions): Map<string, string> {
+    const noiseGen = new PerlinNoise(1);
+    if (hexes.length === 0) return new Map();
 
-        while(queue.length > 0 && currentClusterSize < clusterSize) {
-            const current = queue.shift()!;
-            if (unassigned.has(current)) {
-                current.terrain = terrain;
-                unassigned.delete(current);
-                currentClusterSize++;
+    let minQ = Infinity, maxQ = -Infinity, minR = Infinity, maxR = -Infinity;
+    hexes.forEach(h => {
+        minQ = Math.min(minQ, h.q);
+        maxQ = Math.max(maxQ, h.q);
+        minR = Math.min(minR, h.r);
+        maxR = Math.max(maxR, h.r);
+    });
+    const qRange = maxQ - minQ;
+    const rRange = maxR - minR;
+    const maxDimension = Math.max(qRange, rRange, 1);
+    
+    const roughnessScale = 1 + options.terrainRoughness * 9;
+    
+    const hexElevations: { hex: Hex, elevation: number }[] = hexes.map(hex => {
+        const nx_p = hex.q * 0.1 * roughnessScale;
+        const ny_p = hex.r * 0.1 * roughnessScale;
+        let e = 0, freq = 1, amp = 1;
+        for (let i = 0; i < 5; i++) {
+            e += noiseGen.noise(nx_p * freq, ny_p * freq) * amp;
+            freq *= 2;
+            amp *= 0.5;
+        }
 
-                const neighbors = getNeighbors(current);
-                const validNeighbors = hexes.filter(h => 
-                    neighbors.some(n => n.q === h.q && n.r === h.r) && 
-                    !visitedInCluster.has(h) &&
-                    unassigned.has(h)
-                );
-                
-                for(const neighbor of validNeighbors) {
-                    if (!visitedInCluster.has(neighbor)) {
-                        queue.push(neighbor);
-                        visitedInCluster.add(neighbor);
+        let e_mod = 0;
+        if (options.highlandFormation !== 'random') {
+            const centerX = (minQ + maxQ) / 2;
+            const centerY = (minR + maxR) / 2;
+            
+            let nx = (hex.q - centerX) / (maxDimension / 2);
+            let ny = (hex.r - centerY) / (maxDimension / 2);
+
+            const angle = options.highlandFormationRotation * Math.PI / 180;
+            const cosA = Math.cos(angle);
+            const sinA = Math.sin(angle);
+            const rx = nx * cosA - ny * sinA;
+            const ry = nx * sinA + ny * cosA;
+
+            switch (options.highlandFormation) {
+                case 'linear':
+                    e_mod = -ry;
+                    break;
+                case 'circle':
+                    const dist = Math.sqrt(rx * rx + ry * ry) / Math.sqrt(2);
+                    e_mod = 1 - Math.min(1, dist);
+                    break;
+                case 'triangle':
+                    const vA = {x: 0, y: -1};
+                    const vB = {x: 1, y: 1};
+                    const vC = {x: -1, y: 1};
+                    const p = {x: rx, y: ry};
+
+                    const sign = (p1: {x:number, y:number}, p2: {x:number, y:number}, p3: {x:number, y:number}) => 
+                        (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
+
+                    const d1 = sign(p, vA, vB);
+                    const d2 = sign(p, vB, vC);
+                    const d3 = sign(p, vC, vA);
+
+                    const has_neg = (d1 < 0) || (d2 < 0) || (d3 < 0);
+                    const has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+                    
+                    if (!(has_neg && has_pos)) {
+                        e_mod = 1;
                     }
-                }
+                    break;
+            }
+            if (options.highlandFormationInverse && (options.highlandFormation === 'circle' || options.highlandFormation === 'triangle')) {
+                e_mod = -e_mod;
             }
         }
+        
+        const formationEffect = e_mod * 1.5 * options.highlandFormationStrength;
+        e += formationEffect;
+        
+        return { hex, elevation: e };
+    });
+
+    hexElevations.sort((a, b) => b.elevation - a.elevation);
+
+    const initialTerrainMap = new Map<string, string>();
+    const totalHexes = hexes.length;
+    let currentIndex = 0;
+
+    const terrainPlacementOrder = ['peaks', 'crags', 'hills', 'heath', 'forest', 'meadow', 'plain', 'glades', 'valley', 'marsh', 'bog', 'lakes'];
+    
+    const { terrainBiases } = options;
+    let totalBias = Object.values(terrainBiases).reduce((sum, b) => sum + b, 0);
+    
+    if (totalBias === 0) {
+        // Fallback: if all biases are zero, treat them all as 1.
+        TERRAIN_TYPES.forEach(t => terrainBiases[t] = 1);
+        totalBias = TERRAIN_TYPES.length;
     }
+    
+    const terrainsToPlace = Object.entries(terrainBiases)
+        .filter(([, bias]) => bias > 0)
+        .sort(([a], [b]) => terrainPlacementOrder.indexOf(a) - terrainPlacementOrder.indexOf(b));
+
+    for (const [terrain, bias] of terrainsToPlace) {
+        const percentage = (bias / totalBias) * 100;
+        const numHexesForTerrain = Math.round((percentage / 100) * totalHexes);
+        const endIndex = Math.min(currentIndex + numHexesForTerrain, totalHexes);
+        for (let i = currentIndex; i < endIndex; i++) {
+            const { hex } = hexElevations[i];
+            initialTerrainMap.set(`${hex.q},${hex.r}`, terrain);
+        }
+        currentIndex = endIndex;
+    }
+
+    if (currentIndex < totalHexes && terrainsToPlace.length > 0) {
+        const lastTerrain = terrainsToPlace[terrainsToPlace.length - 1][0];
+        for (let i = currentIndex; i < totalHexes; i++) {
+            const { hex } = hexElevations[i];
+            initialTerrainMap.set(`${hex.q},${hex.r}`, lastTerrain);
+        }
+    }
+    
+    return initialTerrainMap;
 }
+
+function generateTerrain(hexes: Hex[], options: GenerationOptions): void {
+  const initialTerrainMap = getInitialTerrainMap(hexes, options);
+  hexes.forEach(hex => {
+      hex.terrain = initialTerrainMap.get(`${hex.q},${hex.r}`) || 'plain';
+  });
+
+  const RELAXATION_PASSES = 4;
+  const INITIAL_TERRAIN_WEIGHT = 1.5;
+  const terrainTypes = Object.keys(options.terrainClusteringMatrix);
+  let currentHexes = hexes.map(h => ({...h}));
+
+  for (let i = 0; i < RELAXATION_PASSES; i++) {
+    const nextHexes = currentHexes.map(h => ({...h}));
+    const currentHexesMap = new Map(currentHexes.map(h => [`${h.q},${h.r}`, h]));
+
+    for (const hex of nextHexes) {
+      let bestTerrain = hex.terrain;
+      let maxScore = -Infinity;
+
+      for (const candidateTerrain of terrainTypes) {
+        let score = 0;
+
+        const neighborsCoords = getNeighbors(hex);
+        for (const coords of neighborsCoords) {
+          const neighbor = currentHexesMap.get(`${coords.q},${coords.r}`);
+          if (neighbor) {
+            score += options.terrainClusteringMatrix[candidateTerrain][neighbor.terrain] || 0;
+          }
+        }
+
+        if (candidateTerrain === initialTerrainMap.get(`${hex.q},${hex.r}`)) {
+          score += INITIAL_TERRAIN_WEIGHT;
+        }
+
+        if (score > maxScore) {
+          maxScore = score;
+          bestTerrain = candidateTerrain;
+        }
+      }
+      hex.terrain = bestTerrain;
+    }
+    currentHexes = nextHexes;
+  }
+
+  const finalHexesMap = new Map(currentHexes.map(h => [`${h.q},${h.r}`, h]));
+  hexes.forEach(originalHex => {
+    const finalHex = finalHexesMap.get(`${originalHex.q},${originalHex.r}`);
+    if (finalHex) {
+      originalHex.terrain = finalHex.terrain;
+    }
+  });
+}
+
 
 
 function addBarriers(hexes: Hex[]): void {
@@ -271,8 +415,8 @@ export function generateRealm(options: GenerateRealmOptions, genOptions: Generat
     realmData.height = options.height;
   }
   
-  generateTerrain(hexes);
-  // Water features would go here. For simplicity, I'm skipping complex river/lake generation.
+  generateTerrain(hexes, genOptions);
+  
   if (genOptions.generateBarriers) {
     addBarriers(hexes);
   }

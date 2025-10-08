@@ -1,5 +1,6 @@
 
-import React, { useState, useCallback, useEffect } from 'react';
+
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { HexGrid } from './components/HexGrid';
 import { Toolbar } from './components/Toolbar';
 import { Sidebar } from './components/Sidebar';
@@ -9,12 +10,12 @@ import { MythSidebar } from './components/MythSidebar';
 import { generateRealm } from './services/realmGenerator';
 import { exportRealmAsJson, exportSvgAsPng } from './services/fileService';
 import type { Realm, Hex, Point, ViewOptions, GenerationOptions, Tool, Myth } from './types';
-// FIX: Remove non-existent import 'DEFAULT_TERRAIN_COLORS_MAP' and rely on 'DEFAULT_TERRAIN_COLORS'.
-import { DEFAULT_GRID_SIZE, DEFAULT_TILE_SETS, LANDMARK_TYPES, TERRAIN_TYPES, DEFAULT_TERRAIN_COLORS, BARRIER_COLOR, DEFAULT_GRID_COLOR, DEFAULT_GRID_WIDTH } from './constants';
+import { DEFAULT_GRID_SIZE, DEFAULT_TILE_SETS, LANDMARK_TYPES, TERRAIN_TYPES, DEFAULT_TERRAIN_COLORS, BARRIER_COLOR, DEFAULT_GRID_COLOR, DEFAULT_GRID_WIDTH, DEFAULT_TERRAIN_CLUSTERING_MATRIX, DEFAULT_TERRAIN_BIASES, TERRAIN_CATEGORIES } from './constants';
 import { useHistory } from './hooks/useHistory';
 import { Icon } from './components/Icon';
 import { BarrierPainter } from './components/BarrierPainter';
 import { ConfirmationDialog } from './components/ConfirmationDialog';
+import { PerlinNoise } from './services/perlin';
 
 interface ConfirmationState {
     isOpen: boolean;
@@ -48,6 +49,7 @@ export default function App() {
   const [realmHeight, setRealmHeight] = useState<number>(DEFAULT_GRID_SIZE);
   
   const [confirmation, setConfirmation] = useState<ConfirmationState | null>(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const initialLandmarkCounts = LANDMARK_TYPES.reduce((acc, type) => {
     acc[type] = 3;
@@ -60,6 +62,13 @@ export default function App() {
     mythMinDistance: 3,
     landmarks: initialLandmarkCounts,
     generateBarriers: false,
+    highlandFormation: 'linear',
+    highlandFormationStrength: 0.7,
+    highlandFormationRotation: 0,
+    highlandFormationInverse: false,
+    terrainRoughness: 0.5,
+    terrainClusteringMatrix: DEFAULT_TERRAIN_CLUSTERING_MATRIX,
+    terrainBiases: DEFAULT_TERRAIN_BIASES,
   });
 
 
@@ -405,7 +414,6 @@ export default function App() {
   }, []);
 
   const handleResetTerrainColor = useCallback((terrainId: string) => {
-    // FIX: Use DEFAULT_TERRAIN_COLORS which is the correct exported constant for the terrain color map.
     const defaultColor = DEFAULT_TERRAIN_COLORS[terrainId as keyof typeof DEFAULT_TERRAIN_COLORS];
     if (defaultColor) {
         setTerrainColors(prev => ({ ...prev, [terrainId]: defaultColor }));
@@ -429,6 +437,66 @@ export default function App() {
   const handleCancelConfirmation = () => {
     setConfirmation(null);
   };
+  
+  const handleClusteringChange = useCallback((terrainA: string, terrainB: string, value: number) => {
+    setGenerationOptions(prev => {
+        const newMatrix = JSON.parse(JSON.stringify(prev.terrainClusteringMatrix)); // Deep copy
+        newMatrix[terrainA][terrainB] = value;
+        newMatrix[terrainB][terrainA] = value; // Symmetric update
+        return { ...prev, terrainClusteringMatrix: newMatrix };
+    });
+  }, []);
+  
+    const handleGenerationOptionChange = useCallback((key: keyof GenerationOptions, value: any) => {
+        setGenerationOptions(prev => ({ ...prev, [key]: value }));
+    }, []);
+
+    const handleTerrainBiasChange = useCallback((terrainId: string, newBias: number) => {
+        setGenerationOptions(prev => {
+            const newBiases = { ...prev.terrainBiases, [terrainId]: newBias };
+            return {
+                ...prev,
+                terrainBiases: newBiases,
+            };
+        });
+    }, []);
+    
+    const handleApplyTemplate = useCallback((templateOptions: Partial<GenerationOptions>) => {
+        setGenerationOptions(prev => ({
+            ...prev,
+            ...templateOptions
+        }));
+    }, []);
+    
+    useEffect(() => {
+        const newMatrix = JSON.parse(JSON.stringify(DEFAULT_TERRAIN_CLUSTERING_MATRIX));
+        
+        // Multiplier ranges from 2 (for roughness 0) to 0 (for roughness 1).
+        // This will increase clustering at low roughness and decrease it at high roughness.
+        const multiplier = 2 * (1 - generationOptions.terrainRoughness);
+
+        TERRAIN_TYPES.forEach(t1 => {
+            TERRAIN_TYPES.forEach(t2 => {
+                const baseValue = DEFAULT_TERRAIN_CLUSTERING_MATRIX[t1]?.[t2] ?? 0;
+                const newValue = baseValue === 0 ? 0 : Math.max(0.01, Math.min(1, baseValue * multiplier));
+                if (newMatrix[t1]) {
+                    newMatrix[t1][t2] = newValue;
+                }
+            });
+        });
+
+        setGenerationOptions(prev => {
+            // Prevent feedback loop if matrix is already what it should be
+            if (JSON.stringify(prev.terrainClusteringMatrix) === JSON.stringify(newMatrix)) {
+                return prev;
+            }
+            return {
+                ...prev,
+                terrainClusteringMatrix: newMatrix
+            }
+        });
+    }, [generationOptions.terrainRoughness]);
+
 
   return (
     <div className="flex flex-col h-screen w-screen bg-[#191f2a] overflow-hidden">
@@ -453,7 +521,13 @@ export default function App() {
         setRealmHeight={setRealmHeight}
         generationOptions={generationOptions}
         setGenerationOptions={setGenerationOptions}
+        onGenerationOptionChange={handleGenerationOptionChange}
+        handleClusteringChange={handleClusteringChange}
+        handleTerrainBiasChange={handleTerrainBiasChange}
+        onApplyTemplate={handleApplyTemplate}
         tileSets={tileSets}
+        isSettingsOpen={isSettingsOpen}
+        setIsSettingsOpen={setIsSettingsOpen}
       />
       <div className="flex flex-1 overflow-hidden">
         <main className="flex-1 bg-[#18272e] relative">
@@ -475,6 +549,7 @@ export default function App() {
               onSetSeatOfPower={handleSetSeatOfPower}
               terrainColors={terrainColors}
               barrierColor={barrierColor}
+              isSettingsOpen={isSettingsOpen}
             />
           ) : (
             <div className="flex items-center justify-center h-full text-[#a7a984]">

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   Sparkles,
@@ -41,6 +42,20 @@ import {
   House,
   Tractor,
   TriangleAlert,
+  HelpCircle,
+  Network,
+  Cloud,
+  Spline,
+  Droplet,
+  Feather,
+  Flower,
+  Sun,
+  TreePine,
+  Triangle,
+  Wind,
+  Compass,
+  ArrowUp,
+  Circle,
   type LucideIcon
 } from 'lucide-react';
 
@@ -75,6 +90,11 @@ const icons: { [key: string]: LucideIcon } = {
   pipette: Pipette,
   reset: RotateCcw,
   star: Star,
+  'help-circle': HelpCircle,
+  network: Network,
+  compass: Compass,
+  'arrow-up': ArrowUp,
+  circle: Circle,
 
   // Terrain
   trees: Trees,
@@ -85,6 +105,22 @@ const icons: { [key: string]: LucideIcon } = {
   water: Droplets,
   'mountain-range': MountainSnow, // alias for peaks
   tree: Trees, // alias for forest
+  // New icons for terrain types
+  droplet: Droplet,
+  triangle: Triangle,
+  // FIX: 'Hill' is not an exported member of 'lucide-react'. Mapped 'hill' to the 'Mountain' icon.
+  hill: Mountain,
+  flower: Flower,
+  droplets: Droplets,
+  sun: Sun,
+  wind: Wind,
+  // Alternative terrain icons
+  'tree-pine': TreePine,
+  // FIX: 'Curve' is not an exported member of 'lucide-react'. Replaced with 'Spline'.
+  curve: Spline,
+  feather: Feather,
+  cloud: Cloud,
+
 
   // POIs (Holdings & Landmarks)
   castle: Castle,
