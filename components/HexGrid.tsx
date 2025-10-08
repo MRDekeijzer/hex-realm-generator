@@ -137,6 +137,94 @@ export function HexGrid({
   }, []);
 
   /**
+   * Effect to manage dynamic cursor style for terrain painting by injecting a <style> tag.
+   * This ensures the style rule is available before it's needed by mousedown handlers.
+   */
+  useEffect(() => {
+    const styleId = 'dynamic-terrain-cursor-style';
+    let styleElement = document.getElementById(styleId) as HTMLStyleElement | null;
+
+    if (activeTool === 'terrain') {
+      if (!styleElement) {
+        styleElement = document.createElement('style');
+        styleElement.id = styleId;
+        document.head.appendChild(styleElement);
+      }
+      const terrainColor = terrainColors[paintTerrain] || '#cccccc';
+      const outerCircle = `<circle cx='12' cy='12' r='10' fill='none' stroke='%23eaebec' stroke-width='2'/>`;
+      const innerCircle = `<circle cx='12' cy='12' r='8' fill='${terrainColor}' stroke='%23191f29' stroke-width='1'/>`;
+      const brushSVG = `<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'>${outerCircle}${innerCircle}</svg>`;
+      const cursorUrl = `url('data:image/svg+xml;utf8,${encodeURIComponent(brushSVG)}') 12 12, auto`;
+
+      styleElement.textContent = `.cursor-terrain-paint { cursor: ${cursorUrl}; }`;
+    } else {
+      if (styleElement) {
+        styleElement.remove();
+      }
+    }
+
+    return () => {
+      const styleElementOnUnmount = document.getElementById(styleId);
+      if (styleElementOnUnmount) {
+        styleElementOnUnmount.remove();
+      }
+    };
+  }, [activeTool, paintTerrain, terrainColors]);
+
+  /**
+   * Effect to apply the correct "resting" cursor class or style to the main container.
+   * The painting cursor is handled separately by mouse event handlers for reliability.
+   */
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const customCursorClasses = [
+      'cursor-pipette',
+      'cursor-terrain-hover',
+      'cursor-terrain-paint',
+    ];
+
+    let cursorStyle = '';
+    let classToAdd = '';
+
+    if (isPickingTile) {
+      classToAdd = 'cursor-pipette';
+    } else if (isSpacePanActive) {
+      cursorStyle = isPanning ? 'grabbing' : 'grab';
+    } else if (relocatingMythId !== null) {
+      cursorStyle = 'move';
+    } else {
+      switch (activeTool) {
+        case 'select':
+          cursorStyle = 'pointer';
+          break;
+        case 'terrain':
+          classToAdd = 'cursor-terrain-hover';
+          break;
+        case 'myth':
+        case 'barrier':
+        case 'poi':
+          cursorStyle = 'crosshair';
+          break;
+        default:
+          cursorStyle = 'default';
+      }
+    }
+
+    // 1. Remove all custom cursor classes to start fresh
+    container.classList.remove(...customCursorClasses);
+
+    // 2. Apply either a class or a style
+    if (classToAdd) {
+      container.classList.add(classToAdd);
+      container.style.cursor = ''; // Clear inline style to ensure class is used
+    } else {
+      container.style.cursor = cursorStyle; // Apply standard cursor
+    }
+  }, [isPickingTile, isSpacePanActive, isPanning, relocatingMythId, activeTool, containerRef]);
+
+  /**
    * Memoized array of hexes to display, combining base realm hexes with
    * any hexes currently being painted for a responsive preview.
    */
@@ -289,6 +377,11 @@ export function HexGrid({
       }
 
       if (activeTool === 'terrain' || activeTool === 'barrier') {
+        // Manually switch cursor class for reliability during drag
+        if (activeTool === 'terrain' && containerRef.current) {
+          containerRef.current.classList.remove('cursor-terrain-hover');
+          containerRef.current.classList.add('cursor-terrain-paint');
+        }
         setIsPainting(true);
         if (activeTool === 'barrier' && svgRef.current) {
           const center = axialToPixel(hex, viewOptions.orientation, viewOptions.hexSize);
@@ -331,6 +424,7 @@ export function HexGrid({
       hexCorners,
       paintedHexes,
       handlePaint,
+      containerRef,
     ]
   );
 
@@ -339,12 +433,19 @@ export function HexGrid({
    */
   const handleMouseUp = useCallback(() => {
     if (!isPainting) return;
+
+    // Manually revert cursor class
+    if (activeTool === 'terrain' && containerRef.current) {
+      containerRef.current.classList.remove('cursor-terrain-paint');
+      containerRef.current.classList.add('cursor-terrain-hover');
+    }
+
     setIsPainting(false);
     if (paintedHexes.size > 0) {
       onUpdateHex(Array.from(paintedHexes.values()));
     }
     setPaintedHexes(new Map());
-  }, [isPainting, onUpdateHex, paintedHexes]);
+  }, [isPainting, onUpdateHex, paintedHexes, activeTool, containerRef]);
 
   /**
    * Handles mouse move events to show a hover preview for the barrier painter.
@@ -381,42 +482,11 @@ export function HexGrid({
     [activeTool, isPainting, viewOptions.orientation, viewOptions.hexSize, hexCorners, hoveredBarrier]
   );
 
-  const getCursor = () => {
-    if (isPickingTile) {
-      const pipetteSVG = `<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='#eaebec' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><path d='m2 22 1-1h3l9-9a2.828 2.828 0 1 0-4-4L2 18v4Z'/><path d='m12.5 6.5 4-4a2.121 2.121 0 0 1 3 3l-4 4'/></svg>`;
-      return `url('data:image/svg+xml;utf8,${encodeURIComponent(pipetteSVG)}') 3 29, auto`;
-    }
-    if (isSpacePanActive) return isPanning ? 'grabbing' : 'grab';
-    if (relocatingMythId !== null) return 'move';
-
-    switch (activeTool) {
-      case 'select':
-        return 'pointer';
-      case 'terrain': {
-        const outerCircle = `<circle cx='12' cy='12' r='10' fill='rgba(234, 235, 236, 0.3)' stroke='#eaebec' stroke-width='2'/>`;
-        let innerCircle = '';
-        if (isPainting) {
-          const terrainColor = terrainColors[paintTerrain] || '#cccccc';
-          innerCircle = `<circle cx='12' cy='12' r='8' fill='${terrainColor}' stroke='#191f29' stroke-width='1'/>`;
-        }
-        const brushSVG = `<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'>${outerCircle}${innerCircle}</svg>`;
-        return `url('data:image/svg+xml;utf8,${encodeURIComponent(brushSVG)}') 12 12, auto`;
-      }
-      case 'myth':
-      case 'barrier':
-      case 'poi':
-        return 'crosshair';
-      default:
-        return 'default';
-    }
-  };
-
   return (
     <div
       ref={containerRef}
       className="w-full h-full overflow-hidden bg-[#18272e] relative"
       onWheel={onWheel}
-      style={{ cursor: getCursor() }}
     >
       <svg
         ref={svgRef}

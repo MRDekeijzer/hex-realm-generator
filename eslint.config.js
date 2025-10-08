@@ -1,56 +1,49 @@
 import globals from 'globals';
-import tseslint from 'typescript-eslint';
+import tsPlugin from '@typescript-eslint/eslint-plugin';
+import tsParser from '@typescript-eslint/parser';
 import reactPlugin from 'eslint-plugin-react';
 import hooksPlugin from 'eslint-plugin-react-hooks';
 import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
-import prettierConfig from 'eslint-config-prettier';
 
-export default tseslint.config(
+// ESLint flat config
+export default [
   {
     // Global ignores
-    ignores: [
-      'dist/',
-      'node_modules/',
-      'vite.config.ts',
-      'eslint.config.js',
-    ],
+    ignores: ['dist/', 'node_modules/', 'vite.config.ts', 'eslint.config.js'],
   },
 
-  // Base configs for JS and TS, includes eslint:recommended
-  ...tseslint.configs.recommended,
-
-  // React specific configurations
+  // TypeScript + React files
   {
     files: ['**/*.{ts,tsx}'],
-    plugins: {
-      react: reactPlugin,
-      'react-hooks': hooksPlugin,
-      'jsx-a11y': jsxA11yPlugin,
-    },
     languageOptions: {
+  parser: tsParser,
       parserOptions: {
-        ecmaFeatures: {
-          jsx: true,
-        },
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        ecmaFeatures: { jsx: true },
       },
       globals: {
         ...globals.browser,
       },
     },
+    plugins: {
+      '@typescript-eslint': tsPlugin,
+      react: reactPlugin,
+      'react-hooks': hooksPlugin,
+      'jsx-a11y': jsxA11yPlugin,
+    },
     settings: {
-      react: {
-        version: 'detect',
-      },
+      react: { version: 'detect' },
     },
     rules: {
-      ...reactPlugin.configs.recommended.rules,
-      ...reactPlugin.configs['jsx-runtime'].rules, // For new JSX transform
-      ...hooksPlugin.configs.recommended.rules,
-      ...jsxA11yPlugin.configs.recommended.rules,
+      // Merge recommended rules from plugins where available
+  ...(tsPlugin.configs?.recommended?.rules),
+  ...(reactPlugin.configs?.recommended?.rules),
+  ...(reactPlugin.configs?.['jsx-runtime']?.rules),
+  ...(hooksPlugin.configs?.recommended?.rules),
+  ...(jsxA11yPlugin.configs?.recommended?.rules),
+      // Project-specific overrides
       'react/prop-types': 'off', // Not needed with TypeScript
     },
   },
-
-  // Prettier config must be last to override other configs
-  prettierConfig
-);
+];
