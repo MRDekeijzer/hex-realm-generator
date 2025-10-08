@@ -129,12 +129,11 @@ function getInitialTerrainMap(hexes: Hex[], options: GenerationOptions): Map<str
     const initialTerrainMap = new Map<string, string>();
     const totalHexes = hexes.length;
     let currentIndex = 0;
-    const { terrainBiases } = options;
+    const { terrainBiases, terrainHeightOrder } = options;
     const totalBias = Object.values(terrainBiases).reduce((sum, b) => sum + b, 0) || 1;
-    const terrainPlacementOrder = ['peaks', 'crags', 'hills', 'heath', 'forest', 'meadow', 'plain', 'glades', 'valley', 'marsh', 'bog', 'lakes'];
     
     const terrainsToPlace = Object.entries(terrainBiases).filter(([, bias]) => bias > 0)
-        .sort(([a], [b]) => terrainPlacementOrder.indexOf(a) - terrainPlacementOrder.indexOf(b));
+        .sort(([a], [b]) => terrainHeightOrder.indexOf(a) - terrainHeightOrder.indexOf(b));
 
     for (const [terrain, bias] of terrainsToPlace) {
         const numHexesForTerrain = Math.round((bias / totalBias) * totalHexes);

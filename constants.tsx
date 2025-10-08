@@ -78,6 +78,9 @@ export const DEFAULT_GRID_SIZE = 12;
 
 /** A list of all standard terrain type IDs. */
 export const TERRAIN_TYPES = ['marsh', 'heath', 'crags', 'peaks', 'forest', 'valley', 'hills', 'meadow', 'bog', 'lakes', 'glades', 'plain'];
+/** The default order of terrain types from highest elevation to lowest. */
+export const DEFAULT_TERRAIN_HEIGHT_ORDER = ['peaks', 'crags', 'hills', 'heath', 'forest', 'meadow', 'plain', 'glades', 'valley', 'marsh', 'bog', 'lakes'];
+
 /** A list of all standard holding type IDs. */
 export const HOLDING_TYPES = ['castle', 'city', 'town', 'village'];
 /** A list of all standard landmark type IDs. */

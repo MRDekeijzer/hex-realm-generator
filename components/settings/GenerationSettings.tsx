@@ -2,7 +2,7 @@
  * @file Component for the "Generation" tab in the main settings modal.
  */
 
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import type { GenerationOptions, TileSet, HighlandFormation } from '../../types';
 import { TERRAIN_TEMPLATES } from '../../constants';
 import { SettingsSection } from '../ui/SettingsSection';
@@ -33,6 +33,7 @@ export const GenerationSettings = ({
     onApplyTemplate,
     tileSets
 }: GenerationSettingsProps) => {
+    const [draggedTerrainId, setDraggedTerrainId] = useState<string | null>(null);
 
     const formationOptions = useMemo(() => [
         { id: 'random', name: 'Random', icon: 'sparkles', description: ['Ignores formation shape.', 'Elevation is purely noise-based.', 'Generates a chaotic landscape.'] },
@@ -53,6 +54,38 @@ export const GenerationSettings = ({
         handleTerrainBiasChange(terrainId, Math.max(0, value));
     };
 
+    const handleDragStart = (e: React.DragEvent<HTMLLIElement>, terrainId: string) => {
+        setDraggedTerrainId(terrainId);
+        e.dataTransfer.effectAllowed = 'move';
+    };
+
+    const handleDragOver = (e: React.DragEvent<HTMLLIElement>) => {
+        e.preventDefault();
+    };
+
+    const handleDrop = (e: React.DragEvent<HTMLLIElement>, targetTerrainId: string) => {
+        if (!draggedTerrainId || draggedTerrainId === targetTerrainId) return;
+
+        const currentOrder = generationOptions.terrainHeightOrder;
+        const draggedIndex = currentOrder.indexOf(draggedTerrainId);
+        const targetIndex = currentOrder.indexOf(targetTerrainId);
+        
+        if (draggedIndex === -1 || targetIndex === -1) return;
+
+        const newOrder = [...currentOrder];
+        const [removed] = newOrder.splice(draggedIndex, 1);
+        newOrder.splice(targetIndex, 0, removed);
+        
+        onGenerationOptionChange('terrainHeightOrder', newOrder);
+    };
+
+    const handleDragEnd = () => {
+        setDraggedTerrainId(null);
+    };
+
+    const getTerrainTile = (id: string) => tileSets.terrain.find(t => t.id === id);
+
+
     return (
         <div className="space-y-6">
             <SettingsSection title="Terrain Generation Templates">
@@ -63,6 +96,36 @@ export const GenerationSettings = ({
                         </button>
                     ))}
                 </div>
+            </SettingsSection>
+
+            <SettingsSection title="Terrain Height">
+                <p className="text-xs text-[#a7a984] !mt-0">
+                    Drag and drop to reorder terrain types from highest (top) to lowest (bottom). This order determines elevation during map generation.
+                </p>
+                <ol className="space-y-1 bg-[#191f29] p-2 rounded-md border border-[#41403f]">
+                    {generationOptions.terrainHeightOrder.map(terrainId => {
+                        const terrain = getTerrainTile(terrainId);
+                        if (!terrain) return null;
+
+                        const isDragging = draggedTerrainId === terrainId;
+
+                        return (
+                            <li
+                                key={terrain.id}
+                                draggable
+                                onDragStart={(e) => handleDragStart(e, terrain.id)}
+                                onDragOver={handleDragOver}
+                                onDrop={(e) => handleDrop(e, terrain.id)}
+                                onDragEnd={handleDragEnd}
+                                className={`flex items-center gap-3 p-2 rounded-md transition-all duration-150 cursor-grab active:cursor-grabbing bg-[#324446] border border-transparent ${isDragging ? 'opacity-50 border-dashed border-[#736b23]' : 'hover:bg-[#435360]'}`}
+                            >
+                                <Icon name="grip-vertical" className="w-5 h-5 text-[#a7a984]" />
+                                <Icon name={terrain.icon} className="w-5 h-5 text-[#eaebec]" />
+                                <span className="font-medium text-sm text-[#eaebec]">{terrain.label}</span>
+                            </li>
+                        );
+                    })}
+                </ol>
             </SettingsSection>
 
             <SettingsSection title="Highland Formation">

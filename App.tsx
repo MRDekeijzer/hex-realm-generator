@@ -17,7 +17,7 @@ import { MythSidebar } from './components/MythSidebar';
 import { generateRealm } from './services/realmGenerator';
 import { exportRealmAsJson, exportSvgAsPng } from './services/fileService';
 import type { Realm, Hex, ViewOptions, GenerationOptions, Tool, Myth, TileSet } from './types';
-import { DEFAULT_GRID_SIZE, DEFAULT_TILE_SETS, LANDMARK_TYPES, TERRAIN_TYPES, DEFAULT_TERRAIN_COLORS, BARRIER_COLOR, DEFAULT_GRID_COLOR, DEFAULT_GRID_WIDTH, DEFAULT_TERRAIN_CLUSTERING_MATRIX, DEFAULT_TERRAIN_BIASES } from './constants';
+import { DEFAULT_GRID_SIZE, DEFAULT_TILE_SETS, LANDMARK_TYPES, TERRAIN_TYPES, DEFAULT_TERRAIN_COLORS, BARRIER_COLOR, DEFAULT_GRID_COLOR, DEFAULT_GRID_WIDTH, DEFAULT_TERRAIN_CLUSTERING_MATRIX, DEFAULT_TERRAIN_BIASES, DEFAULT_TERRAIN_HEIGHT_ORDER } from './constants';
 import { useHistory } from './hooks/useHistory';
 import { BarrierPainter } from './components/BarrierPainter';
 import { ConfirmationDialog } from './components/ConfirmationDialog';
@@ -87,6 +87,7 @@ export default function App() {
     terrainRoughness: 0.5,
     terrainClusteringMatrix: DEFAULT_TERRAIN_CLUSTERING_MATRIX,
     terrainBiases: DEFAULT_TERRAIN_BIASES,
+    terrainHeightOrder: DEFAULT_TERRAIN_HEIGHT_ORDER,
   });
 
   /**

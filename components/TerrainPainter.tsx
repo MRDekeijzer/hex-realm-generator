@@ -104,7 +104,7 @@ export function TerrainPainter({ paintTerrain, setPaintTerrain, onClose, tileSet
                 <div className="flex items-center gap-1.5 flex-shrink-0">
                     <button
                         onClick={(e) => { e.stopPropagation(); isCustomColor ? onResetTerrainColor(terrain.id) : colorInputRefs.current[terrain.id]?.click(); }}
-                        className="w-7 h-7 rounded-md flex-shrink-0 border border-black/20 relative group"
+                        className="w-7 h-7 rounded-md flex-shrink-0 border border-white/80 relative group"
                         style={{ backgroundColor: color }}
                         title={isCustomColor ? 'Reset color to default' : 'Edit color'}
                     >
@@ -116,10 +116,10 @@ export function TerrainPainter({ paintTerrain, setPaintTerrain, onClose, tileSet
 
                     <button
                         onClick={(e) => { e.stopPropagation(); onOpenSpraySettings(terrain.id); }}
-                        className="w-7 h-7 rounded-md flex-shrink-0 border border-black/20 bg-[#eaebec] flex items-center justify-center hover:bg-[#c5d2cb] transition-colors"
+                        className="w-7 h-7 rounded-md flex-shrink-0 border border-white/80 bg-[#324446] flex items-center justify-center hover:bg-[#435360] transition-colors"
                         title={`Edit ${terrain.label} spray settings`}
                     >
-                        <Icon name="spray-can" className="w-5 h-5 text-[#221f21]" />
+                        <Icon name="spray-can" className="w-5 h-5 text-white" />
                     </button>
                 </div>
 

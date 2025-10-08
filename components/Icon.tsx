@@ -14,7 +14,7 @@ import {
   Landmark, Framer, Church, House, Tractor, TriangleAlert, HelpCircle, Network,
   Cloud, Spline, Droplet, Feather, Flower, Sun, TreePine, Triangle, Wind,
   Compass, ArrowUp, Circle, Pipette, Wheat, Sprout, Shrub, SprayCan, type LucideIcon,
-  Flag, Snowflake, GitBranchPlus, Activity, Skull, Fish, Gem
+  Flag, Snowflake, GitBranchPlus, Activity, Skull, Fish, Gem, GripVertical
 } from 'lucide-react';
 
 /**
@@ -42,6 +42,7 @@ const icons: { [key: string]: React.ElementType } = {
   'chevron-down': ChevronDown, move: Move, 'trash-2': Trash2, pipette: Pipette,
   reset: RotateCcw, star: Star, 'help-circle': HelpCircle, network: Network,
   compass: Compass, 'arrow-up': ArrowUp, circle: Circle, 'spray-can': SprayCan,
+  'grip-vertical': GripVertical,
 
   // Terrain & Spray Icons
   trees: Trees, leaf: Leaf, mountain: Mountain, mountains: MountainSnow,

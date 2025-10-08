@@ -173,4 +173,6 @@ export interface GenerationOptions {
   terrainClusteringMatrix: TerrainClusteringMatrix;
   /** A set of weights influencing the frequency of each terrain type. */
   terrainBiases: { [key: string]: number };
+  /** An ordered array of terrain IDs from highest to lowest elevation. */
+  terrainHeightOrder: string[];
 }
