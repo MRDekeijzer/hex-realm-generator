@@ -137,92 +137,42 @@ export function HexGrid({
   }, []);
 
   /**
-   * Effect to manage dynamic cursor style for terrain painting by injecting a <style> tag.
-   * This ensures the style rule is available before it's needed by mousedown handlers.
-   */
-  useEffect(() => {
-    const styleId = 'dynamic-terrain-cursor-style';
-    let styleElement = document.getElementById(styleId) as HTMLStyleElement | null;
-
-    if (activeTool === 'terrain') {
-      if (!styleElement) {
-        styleElement = document.createElement('style');
-        styleElement.id = styleId;
-        document.head.appendChild(styleElement);
-      }
-      const terrainColor = terrainColors[paintTerrain] || '#cccccc';
-      const outerCircle = `<circle cx='12' cy='12' r='10' fill='none' stroke='%23eaebec' stroke-width='2'/>`;
-      const innerCircle = `<circle cx='12' cy='12' r='8' fill='${terrainColor}' stroke='%23191f29' stroke-width='1'/>`;
-      const brushSVG = `<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'>${outerCircle}${innerCircle}</svg>`;
-      const cursorUrl = `url('data:image/svg+xml;utf8,${encodeURIComponent(brushSVG)}') 12 12, auto`;
-
-      styleElement.textContent = `.cursor-terrain-paint { cursor: ${cursorUrl}; }`;
-    } else {
-      if (styleElement) {
-        styleElement.remove();
-      }
-    }
-
-    return () => {
-      const styleElementOnUnmount = document.getElementById(styleId);
-      if (styleElementOnUnmount) {
-        styleElementOnUnmount.remove();
-      }
-    };
-  }, [activeTool, paintTerrain, terrainColors]);
-
-  /**
-   * Effect to apply the correct "resting" cursor class or style to the main container.
-   * The painting cursor is handled separately by mouse event handlers for reliability.
+   * Effect to apply the correct cursor class or style to the main container.
+   * This is the single source of truth for the cursor's appearance.
    */
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    const customCursorClasses = [
-      'cursor-pipette',
-      'cursor-terrain-hover',
-      'cursor-terrain-paint',
-    ];
-
-    let cursorStyle = '';
-    let classToAdd = '';
+    // Reset all custom cursors first
+    const customCursorClasses = ['cursor-pipette', 'cursor-terrain-hover'];
+    container.classList.remove(...customCursorClasses);
+    container.style.cursor = '';
 
     if (isPickingTile) {
-      classToAdd = 'cursor-pipette';
+      container.classList.add('cursor-pipette');
     } else if (isSpacePanActive) {
-      cursorStyle = isPanning ? 'grabbing' : 'grab';
+      container.style.cursor = isPanning ? 'grabbing' : 'grab';
     } else if (relocatingMythId !== null) {
-      cursorStyle = 'move';
+      container.style.cursor = 'move';
     } else {
       switch (activeTool) {
         case 'select':
-          cursorStyle = 'pointer';
+          container.style.cursor = 'pointer';
           break;
         case 'terrain':
-          classToAdd = 'cursor-terrain-hover';
+          container.classList.add('cursor-terrain-hover');
           break;
         case 'myth':
         case 'barrier':
         case 'poi':
-          cursorStyle = 'crosshair';
+          container.style.cursor = 'crosshair';
           break;
         default:
-          cursorStyle = 'default';
+          container.style.cursor = 'default';
       }
     }
-
-    // 1. Remove all custom cursor classes to start fresh
-    container.classList.remove(...customCursorClasses);
-
-    // 2. Apply either a class or a style
-    if (classToAdd) {
-      container.classList.add(classToAdd);
-      container.style.cursor = ''; // Clear inline style to ensure class is used
-    } else {
-      container.style.cursor = cursorStyle; // Apply standard cursor
-    }
-  }, [isPickingTile, isSpacePanActive, isPanning, relocatingMythId, activeTool, containerRef]);
+  }, [isPickingTile, isSpacePanActive, isPanning, relocatingMythId, activeTool]);
 
   /**
    * Memoized array of hexes to display, combining base realm hexes with
@@ -377,11 +327,6 @@ export function HexGrid({
       }
 
       if (activeTool === 'terrain' || activeTool === 'barrier') {
-        // Manually switch cursor class for reliability during drag
-        if (activeTool === 'terrain' && containerRef.current) {
-          containerRef.current.classList.remove('cursor-terrain-hover');
-          containerRef.current.classList.add('cursor-terrain-paint');
-        }
         setIsPainting(true);
         if (activeTool === 'barrier' && svgRef.current) {
           const center = axialToPixel(hex, viewOptions.orientation, viewOptions.hexSize);
@@ -424,7 +369,6 @@ export function HexGrid({
       hexCorners,
       paintedHexes,
       handlePaint,
-      containerRef,
     ]
   );
 
@@ -433,19 +377,12 @@ export function HexGrid({
    */
   const handleMouseUp = useCallback(() => {
     if (!isPainting) return;
-
-    // Manually revert cursor class
-    if (activeTool === 'terrain' && containerRef.current) {
-      containerRef.current.classList.remove('cursor-terrain-paint');
-      containerRef.current.classList.add('cursor-terrain-hover');
-    }
-
     setIsPainting(false);
     if (paintedHexes.size > 0) {
       onUpdateHex(Array.from(paintedHexes.values()));
     }
     setPaintedHexes(new Map());
-  }, [isPainting, onUpdateHex, paintedHexes, activeTool, containerRef]);
+  }, [isPainting, onUpdateHex, paintedHexes]);
 
   /**
    * Handles mouse move events to show a hover preview for the barrier painter.
