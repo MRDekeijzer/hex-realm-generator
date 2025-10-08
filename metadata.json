@@ -1,0 +1,5 @@
+{
+  "name": "Hex Realm Generator",
+  "description": "A web-based hex map editor inspired by Hex Kit, supporting custom tilesets, 12×12 hex grids, and procedural Realm generation based on specific game rules.",
+  "requestFramePermissions": []
+}

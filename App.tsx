@@ -1,0 +1,443 @@
+import React, { useState, useCallback, useEffect } from 'react';
+import { HexGrid } from './components/HexGrid';
+import { Toolbar } from './components/Toolbar';
+import { Sidebar } from './components/Sidebar';
+import { TerrainPainter } from './components/TerrainPainter';
+import { PoiPainter } from './components/PoiPainter';
+import { MythSidebar } from './components/MythSidebar';
+import { generateRealm } from './services/realmGenerator';
+import { exportRealmAsJson, exportSvgAsPng } from './services/fileService';
+import type { Realm, Hex, Point, ViewOptions, GenerationOptions, Tool, Myth } from './types';
+import { DEFAULT_GRID_SIZE, TILE_SETS, LANDMARK_TYPES, TERRAIN_TYPES, OVERLAY_ICONS, SPECIAL_POI_ICONS } from './constants';
+import { useHistory } from './hooks/useHistory';
+
+export default function App() {
+  const { state: realm, set: setRealm, undo: handleUndo, redo: handleRedo, canUndo, canRedo } = useHistory<Realm | null>(null);
+  const [selectedHex, setSelectedHex] = useState<Hex | null>(null);
+  const [relocatingMythId, setRelocatingMythId] = useState<number | null>(null);
+  const [viewOptions, setViewOptions] = useState<ViewOptions>({
+    showGrid: true,
+    isGmView: true,
+    orientation: 'pointy',
+    hexSize: { x: 50, y: 50 },
+  });
+  const [customIcons, setCustomIcons] = useState<{ [key: string]: string }>({});
+  const [loadedSvgs, setLoadedSvgs] = useState<{ [key: string]: string }>({});
+  const [activeTool, setActiveTool] = useState<Tool>('select');
+  const [paintTerrain, setPaintTerrain] = useState<string>(TERRAIN_TYPES[0]);
+  const [paintPoi, setPaintPoi] = useState<string | null>('holding:castle');
+
+  const [realmShape, setRealmShape] = useState<'hex' | 'square'>('square');
+  const [realmRadius, setRealmRadius] = useState<number>(DEFAULT_GRID_SIZE);
+  const [realmWidth, setRealmWidth] = useState<number>(DEFAULT_GRID_SIZE);
+  const [realmHeight, setRealmHeight] = useState<number>(DEFAULT_GRID_SIZE);
+  
+  const initialLandmarkCounts = LANDMARK_TYPES.reduce((acc, type) => {
+    acc[type] = 3;
+    return acc;
+  }, {} as { [key: string]: number });
+
+  const [generationOptions, setGenerationOptions] = useState<GenerationOptions>({
+    numHoldings: 4,
+    numMyths: 6,
+    mythMinDistance: 3,
+    landmarks: initialLandmarkCounts,
+  });
+
+
+  const handleGenerateRealm = useCallback(() => {
+    try {
+      const options = realmShape === 'hex'
+        ? { shape: 'hex' as const, radius: realmRadius }
+        : { shape: 'square' as const, width: realmWidth, height: realmHeight };
+      const newRealm = generateRealm(options, generationOptions);
+      setRealm(newRealm);
+      setSelectedHex(null);
+    } catch (error) {
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert("An unknown error occurred during realm generation.");
+      }
+    }
+  }, [realmShape, realmRadius, realmWidth, realmHeight, generationOptions, setRealm]);
+
+  useEffect(() => {
+    if (!realm) {
+        handleGenerateRealm();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  
+  useEffect(() => {
+    if (activeTool === 'terrain' || activeTool === 'barrier' || activeTool === 'poi' || activeTool === 'myth') {
+      setSelectedHex(null);
+    }
+     if (activeTool !== 'myth') {
+      setRelocatingMythId(null);
+    }
+  }, [activeTool]);
+
+  useEffect(() => {
+    const iconPaths = [
+      ...TILE_SETS.holding.map(t => t.icon),
+      ...TILE_SETS.landmark.map(t => t.icon),
+      ...OVERLAY_ICONS.map(t => t.icon),
+      ...SPECIAL_POI_ICONS.map(t => t.icon),
+    ].filter(icon => typeof icon === 'string') as string[];
+
+    const uniquePaths = [...new Set(iconPaths)];
+
+    Promise.all(
+      uniquePaths.map(path =>
+        fetch(path)
+          .then(res => {
+            if (!res.ok) throw new Error(`Failed to fetch ${path}`);
+            return res.text();
+          })
+          .then(text => ({ path, text }))
+          .catch(error => {
+            console.error(error);
+            return null; // Handle fetch error for an icon
+          })
+      )
+    ).then(results => {
+      const svgCache = results.reduce((acc, result) => {
+        if (result) {
+          acc[result.path] = result.text;
+        }
+        return acc;
+      }, {} as { [key: string]: string });
+      setLoadedSvgs(svgCache);
+    });
+  }, []);
+
+  // Keyboard shortcuts for Undo/Redo
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const isCtrlOrCmd = event.ctrlKey || event.metaKey;
+      if (isCtrlOrCmd && event.key.toLowerCase() === 'z') {
+        event.preventDefault();
+        if (event.shiftKey) { // Ctrl+Shift+Z or Cmd+Shift+Z for Redo
+          if (canRedo) {
+            handleRedo();
+            setSelectedHex(null);
+          }
+        } else { // Ctrl+Z or Cmd+Z for Undo
+          if (canUndo) {
+            handleUndo();
+            setSelectedHex(null);
+          }
+        }
+      } else if (isCtrlOrCmd && event.key.toLowerCase() === 'y') {
+        event.preventDefault(); // Standard Redo shortcut
+        if (canRedo) {
+          handleRedo();
+          setSelectedHex(null);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [canUndo, canRedo, handleUndo, handleRedo]);
+
+
+  const handleUpdateHex = useCallback((updatedHexOrHexes: Hex | Hex[]) => {
+    if (!realm) return;
+
+    const updates = Array.isArray(updatedHexOrHexes) ? updatedHexOrHexes : [updatedHexOrHexes];
+    if (updates.length === 0) return;
+
+    const updatedHexesMap = new Map<string, Hex>();
+    updates.forEach(h => updatedHexesMap.set(`${h.q},${h.r}`, h));
+
+    const newHexes = realm.hexes.map(h => {
+        const key = `${h.q},${h.r}`;
+        return updatedHexesMap.get(key) || h;
+    });
+
+    setRealm({ ...realm, hexes: newHexes });
+
+    if (selectedHex) {
+        // Find the updated version of the currently selected hex from the updates and set it.
+        const updatedSelectedHexObject = updates.find(h => h.q === selectedHex.q && h.r === selectedHex.r);
+        if (updatedSelectedHexObject) {
+            setSelectedHex(updatedSelectedHexObject);
+        }
+    }
+  }, [realm, selectedHex, setRealm]);
+
+  const handleAddMyth = useCallback((hex: Hex, andSelect: boolean = false) => {
+    if (!realm || hex.myth) return;
+
+    const newMythId = (realm.myths.length > 0 ? Math.max(...realm.myths.map(m => m.id)) : 0) + 1;
+    const newMyth: Myth = {
+        id: newMythId,
+        name: `Myth #${newMythId}`,
+        q: hex.q,
+        r: hex.r
+    };
+
+    const newMyths = [...realm.myths, newMyth];
+    
+    let updatedHexWithMyth: Hex | undefined;
+
+    const newHexes = realm.hexes.map(h => {
+        if (h.q === hex.q && h.r === hex.r) {
+            updatedHexWithMyth = { ...h, myth: newMythId };
+            return updatedHexWithMyth;
+        }
+        return h;
+    });
+
+    setRealm({ ...realm, hexes: newHexes, myths: newMyths });
+
+    if (andSelect && updatedHexWithMyth) {
+        setSelectedHex(updatedHexWithMyth);
+    }
+  }, [realm, setRealm]);
+  
+  const handleRemoveMyth = useCallback((hex: Hex) => {
+      if (!realm || !hex.myth) return;
+  
+      const removedMythId = hex.myth;
+      
+      const newMyths = realm.myths
+          .filter(m => m.id !== removedMythId)
+          .map(m => m.id > removedMythId ? { ...m, id: m.id - 1 } : m)
+          .sort((a,b) => a.id - b.id);
+      
+      const newHexes = realm.hexes.map(h => {
+          if (h.q === hex.q && h.r === hex.r) {
+              const { myth, ...rest } = h;
+              return rest;
+          }
+          if (h.myth && h.myth > removedMythId) {
+              return { ...h, myth: h.myth - 1 };
+          }
+          return h;
+      });
+  
+      setRealm({ ...realm, hexes: newHexes, myths: newMyths });
+
+      if (selectedHex && selectedHex.q === hex.q && selectedHex.r === hex.r) {
+          setSelectedHex(null);
+      }
+  }, [realm, setRealm, selectedHex]);
+  
+  const handleUpdateMyth = useCallback((updatedMyth: Myth) => {
+      if (!realm) return;
+  
+      const newMyths = realm.myths.map(m => m.id === updatedMyth.id ? updatedMyth : m);
+  
+      setRealm({ ...realm, myths: newMyths });
+  
+  }, [realm, setRealm]);
+
+  const handleToggleRelocateMyth = useCallback((mythId: number) => {
+    setRelocatingMythId(prev => (prev === mythId ? null : mythId));
+    // When relocation starts, deselect the hex so the highlight doesn't get confusing.
+    if (relocatingMythId !== mythId) {
+        setSelectedHex(null);
+    }
+  }, [relocatingMythId]);
+
+  const handleRelocateMyth = useCallback((mythId: number, newHex: Hex) => {
+    if (!realm) return;
+
+    if (newHex.myth) {
+        alert("Cannot relocate to a hex that already has a myth.");
+        return;
+    }
+
+    const mythToMove = realm.myths.find(m => m.id === mythId);
+    if (!mythToMove) return;
+
+    const oldHexCoords = { q: mythToMove.q, r: mythToMove.r };
+
+    const updatedMyth = { ...mythToMove, q: newHex.q, r: newHex.r };
+    const newMyths = realm.myths.map(m => m.id === mythId ? updatedMyth : m);
+
+    let updatedNewHexWithMyth: Hex | undefined;
+    const newHexes = realm.hexes.map(h => {
+        if (h.q === oldHexCoords.q && h.r === oldHexCoords.r) {
+            const { myth, ...rest } = h;
+            return rest;
+        }
+        if (h.q === newHex.q && h.r === newHex.r) {
+            updatedNewHexWithMyth = { ...h, myth: mythId };
+            return updatedNewHexWithMyth;
+        }
+        return h;
+    });
+
+    setRealm({ ...realm, hexes: newHexes, myths: newMyths });
+    setRelocatingMythId(null);
+    if (updatedNewHexWithMyth) {
+        setSelectedHex(updatedNewHexWithMyth);
+    }
+  }, [realm, setRealm]);
+
+  const handleImportRealm = (importedRealm: Realm) => {
+    // Backward compatibility for files without a 'myths' array
+    if (!importedRealm.myths) {
+        const mythsFromHexes: Myth[] = [];
+        importedRealm.hexes.forEach(hex => {
+            if (hex.myth) {
+                mythsFromHexes.push({
+                    id: hex.myth,
+                    name: `Myth #${hex.myth}`,
+                    q: hex.q,
+                    r: hex.r,
+                });
+            }
+        });
+        importedRealm.myths = mythsFromHexes;
+    }
+    
+    setRealm(importedRealm);
+    setSelectedHex(null);
+    setRealmShape(importedRealm.shape);
+    if (importedRealm.shape === 'hex') {
+      setRealmRadius(importedRealm.radius || DEFAULT_GRID_SIZE);
+    } else {
+      setRealmWidth(importedRealm.width || DEFAULT_GRID_SIZE);
+      setRealmHeight(importedRealm.height || DEFAULT_GRID_SIZE);
+    }
+  };
+
+  const handleExportJson = useCallback(() => {
+    if (realm) {
+      exportRealmAsJson(realm);
+    }
+  }, [realm]);
+
+  const handleExportPng = useCallback(() => {
+    exportSvgAsPng('hex-grid-svg', 'realm-map.png');
+  }, []);
+  
+  const handleReset = useCallback(() => {
+     setSelectedHex(null);
+     handleGenerateRealm();
+  }, [handleGenerateRealm]);
+  
+  const handleUpdateCustomIcon = useCallback((type: string, dataUrl: string) => {
+    setCustomIcons(prev => ({ ...prev, [type]: dataUrl }));
+  }, []);
+
+  const handleSetSeatOfPower = useCallback((hex: Hex) => {
+    if (!realm || !hex.holding) return;
+    const newRealm = {
+        ...realm,
+        seatOfPower: { q: hex.q, r: hex.r }
+    };
+    setRealm(newRealm);
+}, [realm, setRealm]);
+
+  const onUndoClick = useCallback(() => {
+    handleUndo();
+    setSelectedHex(null);
+  }, [handleUndo]);
+
+  const onRedoClick = useCallback(() => {
+    handleRedo();
+    setSelectedHex(null);
+  }, [handleRedo]);
+
+
+  return (
+    <div className="flex flex-col h-screen w-screen bg-gray-900 font-sans overflow-hidden">
+      <Toolbar 
+        onGenerate={handleGenerateRealm}
+        onReset={handleReset}
+        onExportJson={handleExportJson}
+        onExportPng={handleExportPng}
+        onImportJson={handleImportRealm}
+        onUndo={onUndoClick}
+        onRedo={onRedoClick}
+        canUndo={canUndo}
+        canRedo={canRedo}
+        viewOptions={viewOptions}
+        setViewOptions={setViewOptions}
+        realmShape={realmShape}
+        setRealmShape={setRealmShape}
+        realmRadius={realmRadius}
+        setRealmRadius={setRealmRadius}
+        realmWidth={realmWidth}
+        setRealmWidth={setRealmWidth}
+        realmHeight={realmHeight}
+        setRealmHeight={setRealmHeight}
+        generationOptions={generationOptions}
+        setGenerationOptions={setGenerationOptions}
+      />
+      <div className="flex flex-1 overflow-hidden">
+        <main className="flex-1 bg-gray-800 relative">
+          {realm ? (
+            <HexGrid
+              realm={realm}
+              onUpdateHex={handleUpdateHex}
+              viewOptions={viewOptions}
+              selectedHex={selectedHex}
+              onHexClick={setSelectedHex}
+              customIcons={customIcons}
+              loadedSvgs={loadedSvgs}
+              activeTool={activeTool}
+              setActiveTool={setActiveTool}
+              paintTerrain={paintTerrain}
+              paintPoi={paintPoi}
+              onAddMyth={handleAddMyth}
+              onRemoveMyth={handleRemoveMyth}
+              relocatingMythId={relocatingMythId}
+              onRelocateMyth={handleRelocateMyth}
+              onSetSeatOfPower={handleSetSeatOfPower}
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full text-gray-400">
+              <p>Generating initial realm...</p>
+            </div>
+          )}
+        </main>
+        {activeTool === 'terrain' ? (
+          <TerrainPainter
+            paintTerrain={paintTerrain}
+            setPaintTerrain={setPaintTerrain}
+            onClose={() => setActiveTool('select')}
+          />
+        ) : activeTool === 'poi' ? (
+          <PoiPainter
+            paintPoi={paintPoi}
+            setPaintPoi={setPaintPoi}
+            onClose={() => setActiveTool('select')}
+            loadedSvgs={loadedSvgs}
+          />
+        ) : activeTool === 'myth' && realm ? (
+            <MythSidebar
+                realm={realm}
+                selectedHex={selectedHex}
+                onSelectHex={setSelectedHex}
+                onUpdateMyth={handleUpdateMyth}
+                onRemoveMyth={handleRemoveMyth}
+                relocatingMythId={relocatingMythId}
+                onToggleRelocateMyth={handleToggleRelocateMyth}
+                onClose={() => setActiveTool('select')}
+            />
+        ) : (
+          <Sidebar 
+            selectedHex={selectedHex}
+            realm={realm}
+            onUpdateHex={handleUpdateHex}
+            onDeselect={() => setSelectedHex(null)}
+            onSetSeatOfPower={handleSetSeatOfPower}
+            customIcons={customIcons}
+            onUpdateCustomIcon={handleUpdateCustomIcon}
+            onAddMyth={handleAddMyth}
+            onRemoveMyth={handleRemoveMyth}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
