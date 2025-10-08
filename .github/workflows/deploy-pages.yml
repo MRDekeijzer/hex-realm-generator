@@ -35,14 +35,16 @@ jobs:
           echo "Token is available: ${GITHUB_TOKEN:+yes}"
           echo "Note: ensure Actions -> Settings -> Workflow permissions is set to 'Read and write' for this repository."
 
+      - name: Upload artifact for GitHub Pages
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ./dist
+
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v1
         with:
-          # this action also accepts the built-in GITHUB_TOKEN
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-          # optional: set commit_message if you want to customize
-          # commit_message: "Deploy site via GitHub Actions"
+          # official action expects `token` and reads the uploaded artifact
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Print expected Pages URL
         if: always()
