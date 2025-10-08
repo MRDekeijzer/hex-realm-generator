@@ -9,12 +9,9 @@ interface PoiPainterProps {
   paintPoi: string | null;
   setPaintPoi: (poi: string) => void;
   onClose: () => void;
-  loadedSvgs: { [key: string]: string };
 }
 
-const PoiButton = ({ item, type, isSelected, onClick, svgText }: { item: Tile; type: string; isSelected: boolean; onClick: () => void; svgText?: string; }) => {
-    const IconComponent = item.icon;
-
+const PoiButton = ({ item, isSelected, onClick }: { item: Tile; isSelected: boolean; onClick: () => void; }) => {
     return (
         <button
             key={item.id}
@@ -27,38 +24,19 @@ const PoiButton = ({ item, type, isSelected, onClick, svgText }: { item: Tile; t
             <div 
               className="w-12 h-12 rounded-lg flex items-center justify-center bg-[#324446]"
             >
-              {svgText ? (
-                  <svg 
-                      width="32" 
-                      height="32" 
-                      viewBox="0 0 24 24" 
-                      className="text-[#eaebec]"
-                      fill={'none'}
-                      stroke={'currentColor'}
-                      strokeWidth={type === 'overlay' ? "1.5" : "2"}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                  >
-                      <g dangerouslySetInnerHTML={{ __html: svgText.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '') }} />
-                  </svg>
-              ) : (typeof IconComponent === 'function') ? (
-                 <svg width="32" height="32" viewBox="0 0 24 24" className="text-[#eaebec]">
-                    <IconComponent />
-                 </svg>
-              ) : null}
+              <Icon name={item.icon} className="w-8 h-8 text-[#eaebec]" strokeWidth={2} />
             </div>
             <span className="text-xs font-medium">{item.label}</span>
         </button>
     );
 };
 
-const PoiSection = ({ title, items, type, paintPoi, setPaintPoi, loadedSvgs }: {
+const PoiSection = ({ title, items, type, paintPoi, setPaintPoi }: {
     title: string;
     items: Tile[];
     type: string;
     paintPoi: string | null;
     setPaintPoi: (poi: string) => void;
-    loadedSvgs: { [key: string]: string };
 }) => (
     <div>
         <h3 className="text-lg font-semibold mb-2 text-[#a7a984]">{title}</h3>
@@ -69,10 +47,8 @@ const PoiSection = ({ title, items, type, paintPoi, setPaintPoi, loadedSvgs }: {
                     <PoiButton
                         key={fullId}
                         item={item}
-                        type={type}
                         isSelected={paintPoi === fullId}
                         onClick={() => setPaintPoi(fullId)}
-                        svgText={typeof item.icon === 'string' ? loadedSvgs[item.icon] : undefined}
                     />
                 );
             })}
@@ -81,7 +57,7 @@ const PoiSection = ({ title, items, type, paintPoi, setPaintPoi, loadedSvgs }: {
 );
 
 
-export function PoiPainter({ paintPoi, setPaintPoi, onClose, loadedSvgs }: PoiPainterProps) {
+export function PoiPainter({ paintPoi, setPaintPoi, onClose }: PoiPainterProps) {
   return (
     <aside className="w-80 bg-[#191f29] border-l border-[#41403f] p-4 flex flex-col">
       <div className="flex justify-between items-center mb-4">
@@ -99,7 +75,6 @@ export function PoiPainter({ paintPoi, setPaintPoi, onClose, loadedSvgs }: PoiPa
             type="action"
             paintPoi={paintPoi}
             setPaintPoi={setPaintPoi}
-            loadedSvgs={loadedSvgs}
         />
         
         <PoiSection 
@@ -108,7 +83,6 @@ export function PoiPainter({ paintPoi, setPaintPoi, onClose, loadedSvgs }: PoiPa
             type="holding"
             paintPoi={paintPoi}
             setPaintPoi={setPaintPoi}
-            loadedSvgs={loadedSvgs}
         />
         
         <PoiSection 
@@ -117,7 +91,6 @@ export function PoiPainter({ paintPoi, setPaintPoi, onClose, loadedSvgs }: PoiPa
             type="landmark"
             paintPoi={paintPoi}
             setPaintPoi={setPaintPoi}
-            loadedSvgs={loadedSvgs}
         />
         
       </div>

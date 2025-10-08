@@ -1,125 +1,115 @@
 import React from 'react';
+import {
+  Sparkles,
+  Sparkle,
+  RotateCcw,
+  Undo2,
+  Redo2,
+  Eye,
+  Hexagon,
+  FileUp,
+  FileDown,
+  ImageDown,
+  X,
+  Settings,
+  Star,
+  Crown,
+  MousePointer2,
+  Brush,
+  Slice,
+  MapPin,
+  Plus,
+  Minus,
+  ChevronUp,
+  ChevronDown,
+  Move,
+  Trash2,
+  Pipette,
+  Trees,
+  Leaf,
+  Mountain,
+  MountainSnow,
+  Waves,
+  Droplets,
+  Castle,
+  Building2,
+  Ban,
+  DoorClosed,
+  Landmark,
+  Framer,
+  Church,
+  House,
+  Tractor,
+  TriangleAlert,
+  type LucideIcon
+} from 'lucide-react';
 
-// Using a simple SVG sprite approach for icons
+const icons: { [key: string]: LucideIcon } = {
+  // Toolbar
+  sparkles: Sparkles,
+  settings: Settings,
+  grid: Hexagon,
+  undo: Undo2,
+  redo: Redo2,
+  eye: Eye,
+  upload: FileUp,
+  download: FileDown,
+  'image-down': ImageDown,
+  
+  // Tools
+  'mouse-pointer-2': MousePointer2,
+  brush: Brush,
+  'barrier-painter': Slice,
+  'map-pin-pen': MapPin,
+  sparkle: Sparkle, // Myth tool icon
 
-interface IconProps extends React.SVGProps<SVGSVGElement> {
+  // UI Elements
+  close: X,
+  crown: Crown, // Seat of Power
+  plus: Plus,
+  minus: Minus,
+  'chevron-up': ChevronUp,
+  'chevron-down': ChevronDown,
+  move: Move,
+  'trash-2': Trash2,
+  pipette: Pipette,
+  reset: RotateCcw,
+  star: Star,
+
+  // Terrain
+  trees: Trees,
+  leaf: Leaf,
+  mountain: Mountain,
+  mountains: MountainSnow,
+  waves: Waves,
+  water: Droplets,
+  'mountain-range': MountainSnow, // alias for peaks
+  tree: Trees, // alias for forest
+
+  // POIs (Holdings & Landmarks)
+  castle: Castle,
+  city: Building2,
+  town: House,
+  village: Tractor,
+  dwelling: DoorClosed,
+  sanctum: Church,
+  monument: Landmark,
+  hazard: TriangleAlert,
+  curse: Ban,
+  ruins: Framer,
+};
+
+// FIX: Change IconProps to extend React.SVGAttributes<SVGSVGElement>
+// This makes standard SVG props like className, x, y, etc., available on the Icon component.
+interface IconProps extends React.SVGAttributes<SVGSVGElement> {
   name: string;
 }
 
-export const Icon = ({ name, className, ...props }: IconProps) => {
-  const iconPaths: { [key:string]: string | string[] } = {
-    // Toolbar Icons
-    sparkles: [
-        "M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z",
-        "M20 2v4",
-        "M22 4h-4",
-        "M 2,20 a 2,2 0 1,0 4,0 a 2,2 0 1,0 -4,0",
-    ],
-    sparkle: [
-      "M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"
-    ],
-    reset: ["M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", "M3 3v5h5"],
-    undo: [
-        "M9 14 4 9l5-5",
-        "M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"
-    ],
-    redo: [
-        "m15 14 5-5-5-5",
-        "M20 9H9.5A5.5 5.5 0 0 0 4 14.5A5.5 5.5 0 0 0 9.5 20H13"
-    ],
-    eye: ["M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0", "M 9,12 a 3,3 0 1,0 6,0 a 3,3 0 1,0 -6,0"],
-    grid: "M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z",
-    upload: [
-      "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z",
-      "M14 2v4a2 2 0 0 0 2 2h4",
-      "M12 12v6",
-      "m15 15-3-3-3 3"
-    ],
-    download: [
-      "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z",
-      "M14 2v4a2 2 0 0 0 2 2h4",
-      "M12 18v-6",
-      "m9 15 3 3 3-3"
-    ],
-    'image-down': [
-        "M10.3 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10l-3.1-3.1a2 2 0 0 0-2.814.014L6 21",
-        "m14 19 3 3v-5.5",
-        "m17 22 3-3",
-        "M 7,9 a 2,2 0 1,0 4,0 a 2,2 0 1,0 -4,0",
-    ],
-    close: "M18 6L6 18 M6 6l12 12",
-    settings: [
-        "M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915",
-        "M 9,12 a 3,3 0 1,0 6,0 a 3,3 0 1,0 -6,0"
-    ],
-    star: "M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z",
-    crown: [
-      "M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z",
-      "M5 21h14"
-    ],
-    'mouse-pointer-2': "M4.037 4.688a.495.495 0 0 1 .651-.651l16 6.5a.5.5 0 0 1-.063.947l-6.124 1.58a2 2 0 0 0-1.438 1.435l-1.579 6.126a.5.5 0 0 1-.947.063z",
-    brush: [
-      "m11 10 3 3",
-      "M6.5 21A3.5 3.5 0 1 0 3 17.5a2.62 2.62 0 0 1-.708 1.792A1 1 0 0 0 3 21z",
-      "M9.969 17.031 21.378 5.624a1 1 0 0 0-3.002-3.002L6.967 14.031",
-    ],
-    'barrier-painter': "M11 16.586V19a1 1 0 0 1-1 1H2L18.37 3.63a1 1 0 1 1 3 3l-9.663 9.663a1 1 0 0 1-1.414 0L8 14",
-    'map-pin-pen': [
-        "M17.97 9.304A8 8 0 0 0 2 10c0 4.69 4.887 9.562 7.022 11.468",
-        "M21.378 16.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z",
-        "M 7,10 a 3,3 0 1,0 6,0 a 3,3 0 1,0 -6,0",
-    ],
-    plus: "M5 12h14M12 5v14",
-    minus: "M5 12h14",
-    'chevron-up': "m18 15-6-6-6 6",
-    'chevron-down': "m6 9 6 6 6-6",
-    'move': [
-      "M12 2v20",
-      "m15 19-3 3-3-3",
-      "m19 9 3 3-3 3",
-      "M2 12h20",
-      "m5 9-3 3 3 3",
-      "m9 5 3-3 3 3",
-    ],
-    'trash-2': [
-      "M10 11v6",
-      "M14 11v6",
-      "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6",
-      "M3 6h18",
-      "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-    ],
-    pipette: [
-      "m12 9-8.414 8.414A2 2 0 0 0 3 18.828v1.344a2 2 0 0 1-.586 1.414A2 2 0 0 1 3.828 21h1.344a2 2 0 0 0 1.414-.586L15 12",
-      "m18 9 .4.4a1 1 0 1 1-3 3l-3.8-3.8a1 1 0 1 1 3-3l.4.4 3.4-3.4a1 1 0 1 1 3 3z",
-      "m2 22 .414-.414"
-    ],
-
-    // Terrain Icons
-    tree: "M12 21v-4a4 4 0 00-4-4H8a4 4 0 00-4 4v4 M12 21h4a4 4 0 004-4v-1a4 4 0 00-4-4h-1 M12 21h-4 M16 9.5a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z",
-    leaf: "M20 12c0-5-4-9-9-9S2 7 2 12c0 3.33 1.88 6.22 4.5 7.6a1 1 0 001-1.74A5.99 5.99 0 015 12c0-3.31 2.69-6 6-6s6 2.69 6 6c0 .8-.16 1.55-.44 2.22a1 1 0 001.07 1.62A8.91 8.91 0 0020 12z",
-    mountain: "M12 3L2 21h20L12 3z M8.5 15l-2.5 4h12l-3.5-6-3 4-3-2z",
-    "mountain-range": "M3 17l6-10 4 5 5-5 5 10H3z",
-    waves: "M2 9c3-3 6-3 9 0s6 3 9 0M2 15c3-3 6-3 9 0s6 3 9 0",
-    water: "M12 20a8 8 0 008-8c0-4.42-3.58-8-8-8S4 7.58 4 12a8 8 0 008 8z M12 2a10 10 0 100 20 10 10 0 000-20z",
-  };
-
-  const pathData = iconPaths[name];
-
-  return (
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="1.5" 
-      strokeLinecap="round" 
-      strokeLinejoin="round" 
-      className={className}
-      {...props}
-    >
-      {Array.isArray(pathData)
-        ? pathData.map((d, i) => <path key={i} d={d} />)
-        : <path d={pathData as string || ''} />}
-    </svg>
-  );
+export const Icon = ({ name, ...props }: IconProps) => {
+  const LucideIcon = icons[name];
+  if (!LucideIcon) {
+    console.warn(`Icon "${name}" not found.`);
+    return null;
+  }
+  return <LucideIcon strokeWidth={1.5} {...props} />;
 };

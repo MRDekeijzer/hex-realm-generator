@@ -52,7 +52,7 @@ export interface ViewOptions {
 export interface Tile {
   id: string;
   label: string;
-  icon: React.FC<{ className?: string }> | string;
+  icon: string;
   color?: string;
 }
 

@@ -6,6 +6,7 @@ import { usePanAndZoom } from '../hooks/usePanAndZoom';
 // FIX: Rename imported `DEFAULT_TILE_SETS` to `TILE_SETS` as `TILE_SETS` is not an exported member of `constants`.
 import { DEFAULT_TILE_SETS as TILE_SETS, MYTH_COLOR, SELECTION_COLOR, SEAT_OF_POWER_COLOR, HOLDING_ICON_BORDER_COLOR, LANDMARK_ICON_BORDER_COLOR } from '../constants';
 import { ToolsPalette } from './ToolsPalette';
+import { Icon } from './Icon';
 
 interface HexGridProps {
   realm: Realm;
@@ -13,7 +14,6 @@ interface HexGridProps {
   viewOptions: ViewOptions;
   selectedHex: Hex | null;
   onHexClick: (hex: Hex | null) => void;
-  loadedSvgs: { [key: string]: string };
   activeTool: Tool;
   setActiveTool: (tool: Tool) => void;
   paintTerrain: string;
@@ -31,7 +31,7 @@ const findTile = (type: string, category: 'terrain' | 'holding' | 'landmark'): T
     return TILE_SETS[category].find(t => t.id === type);
 }
 
-export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexClick, loadedSvgs, activeTool, setActiveTool, paintTerrain, paintPoi, onAddMyth, onRemoveMyth, relocatingMythId, onRelocateMyth, onSetSeatOfPower, terrainColors, barrierColor }: HexGridProps) {
+export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexClick, activeTool, setActiveTool, paintTerrain, paintPoi, onAddMyth, onRemoveMyth, relocatingMythId, onRelocateMyth, onSetSeatOfPower, terrainColors, barrierColor }: HexGridProps) {
   const { viewbox, containerRef, onMouseDown, onWheel, isPanning } = usePanAndZoom({
     initialWidth: 1000,
     initialHeight: 800,
@@ -437,42 +437,17 @@ export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexCli
                       strokeWidth={isSeatOfPower ? 6 / backplateScale : 4 / backplateScale}
                       strokeLinejoin="round"
                     />
-                    {(() => {
-                      if (typeof defaultIcon === 'string') {
-                          const svgText = loadedSvgs[defaultIcon];
-                          if (svgText) {
-                            const innerSvg = svgText.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
-                            return (
-                                <svg 
-                                    x={-iconSize / 2} 
-                                    y={-iconSize / 2} 
-                                    width={iconSize} 
-                                    height={iconSize} 
-                                    viewBox="0 0 24 24" 
-                                    className="text-[#221f21]"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                >
-                                    <g dangerouslySetInnerHTML={{ __html: innerSvg }} />
-                                </svg>
-                            );
-                          }
-                      }
-                      
-                      if (typeof defaultIcon === 'function') {
-                        const IconComponent = defaultIcon;
-                        return (
-                          <svg x={-iconSize / 2} y={-iconSize / 2} width={iconSize} height={iconSize} viewBox="0 0 24 24">
-                            <IconComponent className="text-[#221f21]" />
-                          </svg>
-                        );
-                      }
-                      
-                      return null;
-                    })()}
+                    {defaultIcon && typeof defaultIcon === 'string' && (
+                        <Icon
+                            name={defaultIcon}
+                            x={-iconSize / 2}
+                            y={-iconSize / 2}
+                            width={iconSize}
+                            height={iconSize}
+                            className="text-[#221f21]"
+                            strokeWidth={2}
+                        />
+                    )}
                   </g>
                 )}
 

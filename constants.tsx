@@ -1,7 +1,5 @@
 
-import React from 'react';
 import type { TileSet, Tile } from './types';
-import { Icon } from './components/Icon';
 
 // =================================================================================
 // --- COLOR SETTINGS ---
@@ -81,38 +79,38 @@ export const BARRIER_CHANCE = 1 / 6;
 
 export const DEFAULT_TILE_SETS: TileSet = {
   terrain: [
-    { id: 'marsh', label: 'Marsh', icon: (props) => <Icon name="waves" {...props} />, color: TERRAIN_COLORS.marsh },
-    { id: 'heath', label: 'Heath', icon: (props) => <Icon name="leaf" {...props} />, color: TERRAIN_COLORS.heath },
-    { id: 'crags', label: 'Crags', icon: (props) => <Icon name="mountain" {...props} />, color: TERRAIN_COLORS.crags },
-    { id: 'peaks', label: 'Peaks', icon: (props) => <Icon name="mountain-range" {...props} />, color: TERRAIN_COLORS.peaks },
-    { id: 'forest', label: 'Forest', icon: (props) => <Icon name="tree" {...props} />, color: TERRAIN_COLORS.forest },
-    { id: 'valley', label: 'Valley', icon: (props) => <Icon name="leaf" {...props} />, color: TERRAIN_COLORS.valley },
-    { id: 'hills', label: 'Hills', icon: (props) => <Icon name="mountain" {...props} />, color: TERRAIN_COLORS.hills },
-    { id: 'meadow', label: 'Meadow', icon: (props) => <Icon name="leaf" {...props} />, color: TERRAIN_COLORS.meadow },
-    { id: 'bog', label: 'Bog', icon: (props) => <Icon name="waves" {...props} />, color: TERRAIN_COLORS.bog },
-    { id: 'lakes', label: 'Lakes', icon: (props) => <Icon name="water" {...props} />, color: TERRAIN_COLORS.lakes },
-    { id: 'glades', label: 'Glades', icon: (props) => <Icon name="leaf" {...props} />, color: TERRAIN_COLORS.glades },
-    { id: 'plain', label: 'Plain', icon: (props) => <Icon name="leaf" {...props} />, color: TERRAIN_COLORS.plain },
+    { id: 'marsh', label: 'Marsh', icon: 'waves', color: TERRAIN_COLORS.marsh },
+    { id: 'heath', label: 'Heath', icon: 'leaf', color: TERRAIN_COLORS.heath },
+    { id: 'crags', label: 'Crags', icon: 'mountain', color: TERRAIN_COLORS.crags },
+    { id: 'peaks', label: 'Peaks', icon: 'mountains', color: TERRAIN_COLORS.peaks },
+    { id: 'forest', label: 'Forest', icon: 'trees', color: TERRAIN_COLORS.forest },
+    { id: 'valley', label: 'Valley', icon: 'leaf', color: TERRAIN_COLORS.valley },
+    { id: 'hills', label: 'Hills', icon: 'mountain', color: TERRAIN_COLORS.hills },
+    { id: 'meadow', label: 'Meadow', icon: 'leaf', color: TERRAIN_COLORS.meadow },
+    { id: 'bog', label: 'Bog', icon: 'waves', color: TERRAIN_COLORS.bog },
+    { id: 'lakes', label: 'Lakes', icon: 'water', color: TERRAIN_COLORS.lakes },
+    { id: 'glades', label: 'Glades', icon: 'leaf', color: TERRAIN_COLORS.glades },
+    { id: 'plain', label: 'Plain', icon: 'leaf', color: TERRAIN_COLORS.plain },
   ],
   holding: [
-    { id: 'castle', label: 'Castle', icon: 'assets/icons/castle.svg' },
-    { id: 'city', label: 'City', icon: 'assets/icons/city.svg' },
-    { id: 'town', label: 'Town', icon: 'assets/icons/town.svg' },
-    { id: 'village', label: 'Village', icon: 'assets/icons/village.svg' }
+    { id: 'castle', label: 'Castle', icon: 'castle' },
+    { id: 'city', label: 'City', icon: 'city' },
+    { id: 'town', label: 'Town', icon: 'town' },
+    { id: 'village', label: 'Village', icon: 'village' }
   ],
   landmark: [
-    { id: 'dwelling', label: 'Dwelling', icon: 'assets/icons/dwelling.svg' },
-    { id: 'sanctum', label: 'Sanctum', icon: 'assets/icons/sanctum.svg' },
-    { id: 'monument', label: 'Monument', icon: 'assets/icons/monument.svg' },
-    { id: 'hazard', label: 'Hazard', icon: 'assets/icons/hazard.svg' },
-    { id: 'curse', label: 'Curse', icon: 'assets/icons/curse.svg' },
-    { id: 'ruins', label: 'Ruins', icon: 'assets/icons/ruins.svg' }
+    { id: 'dwelling', label: 'Dwelling', icon: 'dwelling' },
+    { id: 'sanctum', label: 'Sanctum', icon: 'sanctum' },
+    { id: 'monument', label: 'Monument', icon: 'monument' },
+    { id: 'hazard', label: 'Hazard', icon: 'hazard' },
+    { id: 'curse', label: 'Curse', icon: 'curse' },
+    { id: 'ruins', label: 'Ruins', icon: 'ruins' }
   ],
 };
 
 export const SPECIAL_POI_ICONS: Tile[] = [
-    { id: 'myth', label: 'Myth', icon: 'assets/icons/sparkle.svg' },
-    { id: 'seatOfPower', label: 'Seat of Power', icon: 'assets/icons/system/crown.svg' }
+    { id: 'myth', label: 'Myth', icon: 'sparkle' },
+    { id: 'seatOfPower', label: 'Seat of Power', icon: 'crown' }
 ];
 
 export const DEFAULT_TERRAIN_COLORS: { [key: string]: string } = TERRAIN_COLORS;

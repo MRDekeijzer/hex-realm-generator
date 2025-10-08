@@ -9,7 +9,8 @@ import { MythSidebar } from './components/MythSidebar';
 import { generateRealm } from './services/realmGenerator';
 import { exportRealmAsJson, exportSvgAsPng } from './services/fileService';
 import type { Realm, Hex, Point, ViewOptions, GenerationOptions, Tool, Myth } from './types';
-import { DEFAULT_GRID_SIZE, DEFAULT_TILE_SETS, LANDMARK_TYPES, TERRAIN_TYPES, SPECIAL_POI_ICONS, TERRAIN_COLORS as DEFAULT_TERRAIN_COLORS_MAP, DEFAULT_TERRAIN_COLORS, BARRIER_COLOR, DEFAULT_GRID_COLOR, DEFAULT_GRID_WIDTH } from './constants';
+// FIX: Remove non-existent import 'DEFAULT_TERRAIN_COLORS_MAP' and rely on 'DEFAULT_TERRAIN_COLORS'.
+import { DEFAULT_GRID_SIZE, DEFAULT_TILE_SETS, LANDMARK_TYPES, TERRAIN_TYPES, DEFAULT_TERRAIN_COLORS, BARRIER_COLOR, DEFAULT_GRID_COLOR, DEFAULT_GRID_WIDTH } from './constants';
 import { useHistory } from './hooks/useHistory';
 import { Icon } from './components/Icon';
 import { BarrierPainter } from './components/BarrierPainter';
@@ -34,7 +35,6 @@ export default function App() {
     gridColor: DEFAULT_GRID_COLOR,
     gridWidth: DEFAULT_GRID_WIDTH,
   });
-  const [loadedSvgs, setLoadedSvgs] = useState<{ [key: string]: string }>({});
   const [activeTool, setActiveTool] = useState<Tool>('select');
   const [paintTerrain, setPaintTerrain] = useState<string>(TERRAIN_TYPES[0]);
   const [paintPoi, setPaintPoi] = useState<string | null>('holding:castle');
@@ -94,39 +94,6 @@ export default function App() {
       setRelocatingMythId(null);
     }
   }, [activeTool]);
-
-  useEffect(() => {
-    const iconPaths = [
-      ...DEFAULT_TILE_SETS.holding.map(t => t.icon),
-      ...DEFAULT_TILE_SETS.landmark.map(t => t.icon),
-      ...SPECIAL_POI_ICONS.map(t => t.icon),
-    ].filter(icon => typeof icon === 'string') as string[];
-
-    const uniquePaths = [...new Set(iconPaths)];
-
-    Promise.all(
-      uniquePaths.map(path =>
-        fetch(path)
-          .then(res => {
-            if (!res.ok) throw new Error(`Failed to fetch ${path}`);
-            return res.text();
-          })
-          .then(text => ({ path, text }))
-          .catch(error => {
-            console.error(error);
-            return null; // Handle fetch error for an icon
-          })
-      )
-    ).then(results => {
-      const svgCache = results.reduce((acc, result) => {
-        if (result) {
-          acc[result.path] = result.text;
-        }
-        return acc;
-      }, {} as { [key: string]: string });
-      setLoadedSvgs(svgCache);
-    });
-  }, []);
 
   // Keyboard shortcuts for Undo/Redo
   useEffect(() => {
@@ -389,7 +356,7 @@ export default function App() {
       const newTerrain = {
           id,
           label: name,
-          icon: (props: any) => <Icon name="leaf" {...props} />, // Generic icon
+          icon: 'leaf', // Generic icon
           color,
       };
       setTileSets(prev => ({
@@ -437,7 +404,8 @@ export default function App() {
   }, []);
 
   const handleResetTerrainColor = useCallback((terrainId: string) => {
-    const defaultColor = DEFAULT_TERRAIN_COLORS_MAP[terrainId as keyof typeof DEFAULT_TERRAIN_COLORS_MAP];
+    // FIX: Use DEFAULT_TERRAIN_COLORS which is the correct exported constant for the terrain color map.
+    const defaultColor = DEFAULT_TERRAIN_COLORS[terrainId as keyof typeof DEFAULT_TERRAIN_COLORS];
     if (defaultColor) {
         setTerrainColors(prev => ({ ...prev, [terrainId]: defaultColor }));
     }
@@ -495,7 +463,6 @@ export default function App() {
               viewOptions={viewOptions}
               selectedHex={selectedHex}
               onHexClick={setSelectedHex}
-              loadedSvgs={loadedSvgs}
               activeTool={activeTool}
               setActiveTool={setActiveTool}
               paintTerrain={paintTerrain}
@@ -531,7 +498,6 @@ export default function App() {
             paintPoi={paintPoi}
             setPaintPoi={setPaintPoi}
             onClose={() => setActiveTool('select')}
-            loadedSvgs={loadedSvgs}
           />
         ) : activeTool === 'barrier' ? (
           <BarrierPainter
