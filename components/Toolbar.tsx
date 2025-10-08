@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 // FIX: Import Myth type to handle backward compatibility for realm imports.
 import type { ViewOptions, Realm, GenerationOptions, Myth, TileSet } from '../types';
 import { Icon } from './Icon';
+import { DEFAULT_GRID_COLOR, DEFAULT_GRID_WIDTH } from '../constants';
 
 interface ToolbarProps {
   onGenerate: () => void;
@@ -35,27 +36,14 @@ interface ToolbarButtonProps {
     disabled?: boolean;
 }
 
-const ToolbarButton = ({ onClick, icon, children, disabled }: ToolbarButtonProps) => (
-    <button onClick={onClick} className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-[#a7a984] bg-[#324446] rounded-md hover:bg-[#435360] transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={disabled}>
+const ToolbarButton = React.forwardRef<HTMLButtonElement, ToolbarButtonProps>(
+    ({ onClick, icon, children, disabled }, ref) => (
+    <button ref={ref} onClick={onClick} className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-[#a7a984] bg-[#324446] rounded-md hover:bg-[#435360] transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={disabled}>
         <Icon name={icon} className="w-4 h-4" />
         {children}
     </button>
-);
-
-interface ViewToggleButtonProps {
-    isChecked: boolean;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    icon: string;
-    children?: React.ReactNode;
-}
-
-const ViewToggleButton = ({ isChecked, onChange, icon, children }: ViewToggleButtonProps) => (
-    <label className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-[#a7a984] bg-[#324446] rounded-md hover:bg-[#435360] transition-colors cursor-pointer">
-        <Icon name={icon} className="w-4 h-4" />
-        <input type="checkbox" checked={isChecked} onChange={onChange} className="hidden" />
-        <span>{children}</span>
-    </label>
-);
+));
+ToolbarButton.displayName = 'ToolbarButton';
 
 export function Toolbar({ 
     onGenerate, 
@@ -84,15 +72,30 @@ export function Toolbar({
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const settingsPopoverRef = useRef<HTMLDivElement>(null);
+    const settingsButtonRef = useRef<HTMLButtonElement>(null);
+    const [isGridSettingsOpen, setIsGridSettingsOpen] = useState(false);
+    const gridSettingsPopoverRef = useRef<HTMLDivElement>(null);
+    const gridSettingsButtonRef = useRef<HTMLButtonElement>(null);
+
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
+            if (settingsButtonRef.current?.contains(event.target as Node)) {
+                return;
+            }
             if (settingsPopoverRef.current && !settingsPopoverRef.current.contains(event.target as Node)) {
                 setIsSettingsOpen(false);
             }
+            
+            if (gridSettingsButtonRef.current?.contains(event.target as Node)) {
+                return;
+            }
+            if (gridSettingsPopoverRef.current && !gridSettingsPopoverRef.current.contains(event.target as Node)) {
+                setIsGridSettingsOpen(false);
+            }
         };
 
-        if (isSettingsOpen) {
+        if (isSettingsOpen || isGridSettingsOpen) {
             document.addEventListener('mousedown', handleClickOutside);
         } else {
             document.removeEventListener('mousedown', handleClickOutside);
@@ -101,7 +104,7 @@ export function Toolbar({
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [isSettingsOpen]);
+    }, [isSettingsOpen, isGridSettingsOpen]);
 
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -183,6 +186,14 @@ export function Toolbar({
             }
         }));
     };
+    
+    const handleResetGridSettings = () => {
+        setViewOptions(v => ({
+            ...v,
+            gridColor: DEFAULT_GRID_COLOR,
+            gridWidth: DEFAULT_GRID_WIDTH,
+        }));
+    };
 
     return (
         <header className="flex items-center justify-between p-2 bg-[#191f29] border-b border-[#41403f] shadow-md z-10">
@@ -192,7 +203,7 @@ export function Toolbar({
                 <ToolbarButton onClick={onGenerate} icon="sparkles">Generate</ToolbarButton>
                 
                 <div className="relative">
-                    <ToolbarButton onClick={() => setIsSettingsOpen(prev => !prev)} icon="settings">
+                    <ToolbarButton ref={settingsButtonRef} onClick={() => setIsSettingsOpen(prev => !prev)} icon="settings">
                         Settings
                     </ToolbarButton>
                     {isSettingsOpen && (
@@ -327,12 +338,63 @@ export function Toolbar({
                 <ToolbarButton onClick={onRedo} icon="redo" disabled={!canRedo}>Redo</ToolbarButton>
             </div>
             <div className="flex items-center gap-2">
-                <ViewToggleButton isChecked={viewOptions.isGmView} onChange={() => setViewOptions(v => ({ ...v, isGmView: !v.isGmView }))} icon="eye">
-                    GM View
-                </ViewToggleButton>
-                 <ViewToggleButton isChecked={viewOptions.showGrid} onChange={() => setViewOptions(v => ({ ...v, showGrid: !v.showGrid }))} icon="grid">
-                    Grid
-                </ViewToggleButton>
+                <label className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-[#a7a984] bg-[#324446] rounded-md hover:bg-[#435360] transition-colors cursor-pointer">
+                    <Icon name="eye" className="w-4 h-4" />
+                    <input type="checkbox" checked={viewOptions.isGmView} onChange={() => setViewOptions(v => ({ ...v, isGmView: !v.isGmView }))} className="hidden" />
+                    <span>GM View</span>
+                </label>
+                
+                <div className="relative">
+                    <ToolbarButton ref={gridSettingsButtonRef} onClick={() => setIsGridSettingsOpen(prev => !prev)} icon="grid">
+                        Grid
+                    </ToolbarButton>
+                     {isGridSettingsOpen && (
+                        <div ref={gridSettingsPopoverRef} className="absolute top-full mt-2 right-0 bg-[#18272e] border border-[#41403f] rounded-lg shadow-xl p-4 z-20 w-64 space-y-4">
+                            <label className="flex items-center justify-between gap-2 text-sm font-medium text-[#a7a984] cursor-pointer">
+                                <span>Show Grid</span>
+                                <div className="relative">
+                                    <input type="checkbox" checked={viewOptions.showGrid} onChange={() => setViewOptions(v => ({ ...v, showGrid: !v.showGrid }))} className="sr-only peer" />
+                                    <div className="w-11 h-6 bg-[#324446] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#736b23]"></div>
+                                </div>
+                            </label>
+                            <hr className="border-[#41403f]" />
+                            <div>
+                                <label htmlFor="grid-color" className="block text-sm font-medium text-[#a7a984] mb-1">Grid Color</label>
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        id="grid-color"
+                                        type="color"
+                                        value={viewOptions.gridColor}
+                                        onChange={(e) => setViewOptions(v => ({ ...v, gridColor: e.target.value }))}
+                                        className="h-8 p-1 bg-[#324446] border border-[#41403f] rounded-md cursor-pointer"
+                                        title="Select grid color"
+                                    />
+                                    <span className="p-1 bg-[#324446] rounded-md text-xs font-mono flex-grow text-center">{viewOptions.gridColor}</span>
+                                </div>
+                            </div>
+                             <div>
+                                <label htmlFor="grid-width" className="block text-sm font-medium text-[#a7a984] mb-1">Border Width</label>
+                                <input
+                                    id="grid-width"
+                                    type="number"
+                                    value={viewOptions.gridWidth}
+                                    onChange={(e) => setViewOptions(v => ({...v, gridWidth: Math.max(0.1, parseFloat(e.target.value)) || 1}))}
+                                    min="0.1"
+                                    step="0.1"
+                                    className="w-full bg-[#324446] p-2 text-sm font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
+                                    aria-label="Grid border width"
+                                />
+                            </div>
+                            <button
+                                onClick={handleResetGridSettings}
+                                className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-[#a7a984] bg-[#324446] rounded-md hover:bg-[#435360] transition-colors"
+                            >
+                                <Icon name="reset" className="w-4 h-4" />
+                                Reset to Default
+                            </button>
+                        </div>
+                    )}
+                </div>
                 
                 <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".json" style={{ display: 'none' }}/>
                 <ToolbarButton onClick={handleImportClick} icon="upload">Import JSON</ToolbarButton>

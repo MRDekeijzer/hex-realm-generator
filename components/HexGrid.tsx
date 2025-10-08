@@ -1,9 +1,10 @@
+
 import React, { useMemo, useState, useRef, useCallback, useEffect } from 'react';
 import type { Realm, Hex, ViewOptions, Point, Tool, Tile } from '../types';
 import { axialToPixel, getHexCorners, getBarrierPath, findClosestEdge, getNeighbors } from '../utils/hexUtils';
 import { usePanAndZoom } from '../hooks/usePanAndZoom';
 // FIX: Rename imported `DEFAULT_TILE_SETS` to `TILE_SETS` as `TILE_SETS` is not an exported member of `constants`.
-import { DEFAULT_TILE_SETS as TILE_SETS, OVERLAY_ICONS, MYTH_COLOR, BARRIER_COLOR, SELECTION_COLOR, SEAT_OF_POWER_COLOR, HOLDING_ICON_BORDER_COLOR, LANDMARK_ICON_BORDER_COLOR } from '../constants';
+import { DEFAULT_TILE_SETS as TILE_SETS, OVERLAY_ICONS, MYTH_COLOR, SELECTION_COLOR, SEAT_OF_POWER_COLOR, HOLDING_ICON_BORDER_COLOR, LANDMARK_ICON_BORDER_COLOR } from '../constants';
 import { ToolsPalette } from './ToolsPalette';
 
 interface HexGridProps {
@@ -23,6 +24,7 @@ interface HexGridProps {
   onRelocateMyth: (mythId: number, newHex: Hex) => void;
   onSetSeatOfPower: (hex: Hex) => void;
   terrainColors: { [key: string]: string };
+  barrierColor: string;
 }
 
 const findTile = (type: string, category: 'terrain' | 'holding' | 'landmark'): Tile | undefined => {
@@ -33,7 +35,7 @@ const findOverlayTile = (type: string): Tile | undefined => {
     return OVERLAY_ICONS.find(t => t.id === type);
 }
 
-export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexClick, loadedSvgs, activeTool, setActiveTool, paintTerrain, paintPoi, onAddMyth, onRemoveMyth, relocatingMythId, onRelocateMyth, onSetSeatOfPower, terrainColors }: HexGridProps) {
+export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexClick, loadedSvgs, activeTool, setActiveTool, paintTerrain, paintPoi, onAddMyth, onRemoveMyth, relocatingMythId, onRelocateMyth, onSetSeatOfPower, terrainColors, barrierColor }: HexGridProps) {
   const { viewbox, containerRef, onMouseDown, onWheel, isPanning } = usePanAndZoom({
     initialWidth: 1000,
     initialHeight: 800,
@@ -345,7 +347,7 @@ export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexCli
             const terrainColor = terrainColors[hex.terrain] || '#cccccc';
             
             // The border is a light color when grid is on, and same as fill color when off to hide seams.
-            const borderColor = viewOptions.showGrid ? 'rgba(234, 235, 236, 0.2)' : terrainColor;
+            const borderColor = viewOptions.showGrid ? viewOptions.gridColor : terrainColor;
 
             return (
               <g 
@@ -361,7 +363,7 @@ export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexCli
                   points={hexCorners.map(p => `${p.x},${p.y}`).join(' ')} 
                   fill={terrainColor}
                   stroke={borderColor}
-                  strokeWidth="1"
+                  strokeWidth={viewOptions.gridWidth}
                 />
                 {/* Inner Hover Highlight - prevents overlapping adjacent hexes */}
                 <polygon
@@ -543,7 +545,7 @@ export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexCli
               return (
                 <g key={`barriers-${hex.q}-${hex.r}`} transform={`translate(${center.x}, ${center.y})`}>
                   {hex.barrierEdges.map(edgeIndex => (
-                    <path key={edgeIndex} d={getBarrierPath(edgeIndex, hexCorners)} stroke={BARRIER_COLOR} strokeWidth="6" strokeLinecap="round" />
+                    <path key={edgeIndex} d={getBarrierPath(edgeIndex, hexCorners)} stroke={barrierColor} strokeWidth="6" strokeLinecap="round" />
                   ))}
                 </g>
               );

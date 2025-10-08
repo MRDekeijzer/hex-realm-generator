@@ -9,10 +9,18 @@ import { MythSidebar } from './components/MythSidebar';
 import { generateRealm } from './services/realmGenerator';
 import { exportRealmAsJson, exportSvgAsPng } from './services/fileService';
 import type { Realm, Hex, Point, ViewOptions, GenerationOptions, Tool, Myth } from './types';
-import { DEFAULT_GRID_SIZE, DEFAULT_TILE_SETS, LANDMARK_TYPES, TERRAIN_TYPES, OVERLAY_ICONS, SPECIAL_POI_ICONS, DEFAULT_TERRAIN_COLORS } from './constants';
+import { DEFAULT_GRID_SIZE, DEFAULT_TILE_SETS, LANDMARK_TYPES, TERRAIN_TYPES, OVERLAY_ICONS, SPECIAL_POI_ICONS, DEFAULT_TERRAIN_COLORS, BARRIER_COLOR, DEFAULT_GRID_COLOR, DEFAULT_GRID_WIDTH } from './constants';
 import { useHistory } from './hooks/useHistory';
 import { Icon } from './components/Icon';
 import { BarrierPainter } from './components/BarrierPainter';
+import { ConfirmationDialog } from './components/ConfirmationDialog';
+
+interface ConfirmationState {
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+}
 
 export default function App() {
   const { state: realm, set: setRealm, undo: handleUndo, redo: handleRedo, canUndo, canRedo } = useHistory<Realm | null>(null);
@@ -23,6 +31,8 @@ export default function App() {
     isGmView: true,
     orientation: 'pointy',
     hexSize: { x: 50, y: 50 },
+    gridColor: DEFAULT_GRID_COLOR,
+    gridWidth: DEFAULT_GRID_WIDTH,
   });
   const [loadedSvgs, setLoadedSvgs] = useState<{ [key: string]: string }>({});
   const [activeTool, setActiveTool] = useState<Tool>('select');
@@ -30,12 +40,15 @@ export default function App() {
   const [paintPoi, setPaintPoi] = useState<string | null>('holding:castle');
   const [tileSets, setTileSets] = useState(DEFAULT_TILE_SETS);
   const [terrainColors, setTerrainColors] = useState(DEFAULT_TERRAIN_COLORS);
+  const [barrierColor, setBarrierColor] = useState(BARRIER_COLOR);
 
   const [realmShape, setRealmShape] = useState<'hex' | 'square'>('square');
   const [realmRadius, setRealmRadius] = useState<number>(DEFAULT_GRID_SIZE);
   const [realmWidth, setRealmWidth] = useState<number>(DEFAULT_GRID_SIZE);
   const [realmHeight, setRealmHeight] = useState<number>(DEFAULT_GRID_SIZE);
   
+  const [confirmation, setConfirmation] = useState<ConfirmationState | null>(null);
+
   const initialLandmarkCounts = LANDMARK_TYPES.reduce((acc, type) => {
     acc[type] = 3;
     return acc;
@@ -175,7 +188,11 @@ export default function App() {
   }, [realm, selectedHex, setRealm]);
 
   const handleAddMyth = useCallback((hex: Hex, andSelect: boolean = false) => {
-    if (!realm || hex.myth) return;
+    if (!realm) return;
+
+    // Defend against stale state by checking the hex from the current realm state.
+    const currentHexState = realm.hexes.find(h => h.q === hex.q && h.r === hex.r);
+    if (currentHexState?.myth) return;
 
     const newMythId = (realm.myths.length > 0 ? Math.max(...realm.myths.map(m => m.id)) : 0) + 1;
     const newMyth: Myth = {
@@ -199,10 +216,14 @@ export default function App() {
 
     setRealm({ ...realm, hexes: newHexes, myths: newMyths });
 
-    if (andSelect && updatedHexWithMyth) {
-        setSelectedHex(updatedHexWithMyth);
+    if (updatedHexWithMyth) {
+      // If the modified hex is the selected one, or if we're supposed to select it after adding,
+      // update the selectedHex state so the UI reflects the change immediately.
+      if ((selectedHex && selectedHex.q === hex.q && selectedHex.r === hex.r) || andSelect) {
+          setSelectedHex(updatedHexWithMyth);
+      }
     }
-  }, [realm, setRealm]);
+  }, [realm, setRealm, selectedHex]);
   
   const handleRemoveMyth = useCallback((hex: Hex) => {
       if (!realm || !hex.myth) return;
@@ -214,9 +235,12 @@ export default function App() {
           .map(m => m.id > removedMythId ? { ...m, id: m.id - 1 } : m)
           .sort((a,b) => a.id - b.id);
       
+      let updatedHexWithoutMyth: Hex | undefined;
+
       const newHexes = realm.hexes.map(h => {
           if (h.q === hex.q && h.r === hex.r) {
               const { myth, ...rest } = h;
+              updatedHexWithoutMyth = rest;
               return rest;
           }
           if (h.myth && h.myth > removedMythId) {
@@ -228,7 +252,7 @@ export default function App() {
       setRealm({ ...realm, hexes: newHexes, myths: newMyths });
 
       if (selectedHex && selectedHex.q === hex.q && selectedHex.r === hex.r) {
-          setSelectedHex(null);
+          setSelectedHex(updatedHexWithoutMyth || null);
       }
   }, [realm, setRealm, selectedHex]);
   
@@ -399,15 +423,26 @@ export default function App() {
 
   }, [realm, setRealm, paintTerrain]);
 
-  const handleRemoveAllBarriers = useCallback(() => {
-    if (!realm) return;
-    const newHexes = realm.hexes.map(h => ({ ...h, barrierEdges: [] }));
-    setRealm({ ...realm, hexes: newHexes });
+  const handleRequestRemoveAllBarriers = useCallback(() => {
+    setConfirmation({
+        isOpen: true,
+        title: 'Remove All Barriers',
+        message: 'Are you sure you want to remove all barriers from the map? This action cannot be undone.',
+        onConfirm: () => {
+            if (!realm) return;
+            const newHexes = realm.hexes.map(h => ({ ...h, barrierEdges: [] }));
+            setRealm({ ...realm, hexes: newHexes });
+            setConfirmation(null);
+        }
+    });
   }, [realm, setRealm]);
 
+  const handleCancelConfirmation = () => {
+    setConfirmation(null);
+  };
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-[#191f29] font-sans overflow-hidden">
+    <div className="flex flex-col h-screen w-screen bg-[#191f2a] font-sans overflow-hidden">
       <Toolbar 
         onGenerate={handleGenerateRealm}
         onReset={handleReset}
@@ -452,6 +487,7 @@ export default function App() {
               onRelocateMyth={handleRelocateMyth}
               onSetSeatOfPower={handleSetSeatOfPower}
               terrainColors={terrainColors}
+              barrierColor={barrierColor}
             />
           ) : (
             <div className="flex items-center justify-center h-full text-[#a7a984]">
@@ -478,8 +514,10 @@ export default function App() {
           />
         ) : activeTool === 'barrier' ? (
           <BarrierPainter
-            onRemoveAllBarriers={handleRemoveAllBarriers}
+            onRemoveAllBarriers={handleRequestRemoveAllBarriers}
             onClose={() => setActiveTool('select')}
+            barrierColor={barrierColor}
+            onColorChange={setBarrierColor}
           />
         ) : activeTool === 'myth' && realm ? (
             <MythSidebar
@@ -505,6 +543,15 @@ export default function App() {
           />
         )}
       </div>
+      {confirmation?.isOpen && (
+        <ConfirmationDialog
+            isOpen={confirmation.isOpen}
+            title={confirmation.title}
+            message={confirmation.message}
+            onConfirm={confirmation.onConfirm}
+            onCancel={handleCancelConfirmation}
+        />
+      )}
     </div>
   );
 }

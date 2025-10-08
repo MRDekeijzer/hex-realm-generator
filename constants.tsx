@@ -42,6 +42,9 @@ export const SELECTION_COLOR = PALETTE.yellowHighlight;
 export const SEAT_OF_POWER_COLOR = 'rgba(238, 206, 34, 0.8)';
 export const HOLDING_ICON_BORDER_COLOR = PALETTE.darkOrange;
 export const LANDMARK_ICON_BORDER_COLOR = PALETTE.lightBlue;
+export const DEFAULT_GRID_COLOR = 'rgba(234, 235, 236, 0.2)';
+export const DEFAULT_GRID_WIDTH = 1;
+
 
 // ---------------------------------------------------------------------------------
 // Default Terrain Colors

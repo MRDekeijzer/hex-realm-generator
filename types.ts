@@ -46,6 +46,8 @@ export interface ViewOptions {
   isGmView: boolean;
   orientation: HexOrientation;
   hexSize: Point;
+  gridColor: string;
+  gridWidth: number;
 }
 
 export interface Tile {
