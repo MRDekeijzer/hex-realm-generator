@@ -74,13 +74,13 @@ export const SettingsModal = ({
                 </aside>
 
                 {/* Right Content Area */}
-                <main className="flex-1 flex flex-col">
+                <main className="flex-1 flex flex-col min-w-0">
                     <div className="text-right p-4 flex-shrink-0">
-                        <button onClick={onClose} className="p-2 rounded-full bg-[#18272e] hover:bg-[#435360] transition-colors" aria-label="Close settings">
+                        <button onClick={onClose} className="p-1 text-[#a7a984] hover:text-[#eaebec] transition-colors" aria-label="Close settings">
                             <Icon name="close" className="w-6 h-6"/>
                         </button>
                     </div>
-                    <div className="flex-1 overflow-y-auto px-8 pb-8">
+                    <div className="flex-1 overflow-y-scroll px-8 pb-8">
                         {activeTab === 'general' && (
                             <GeneralSettings
                                 realmShape={props.realmShape}

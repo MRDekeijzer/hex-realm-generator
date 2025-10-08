@@ -119,12 +119,39 @@ export const GenerationSettings = ({
                     <p className="text-sm text-[#a7a984]">This matrix controls how terrain types attract each other. It is adjusted by the slider above.</p>
                     <div className="overflow-auto max-h-[calc(80vh-150px)] bg-[#191f29] rounded-md border border-[#41403f] mt-2">
                         <table className="w-full border-collapse text-xs whitespace-nowrap">
-                            <thead className="sticky top-0 bg-[#191f29] z-10"><tr><th className="sticky left-0 bg-[#191f29] p-2 border-r border-b border-[#41403f] w-28"></th>{tileSets.terrain.map(t => (<th key={t.id} className="p-1 border-b border-[#41403f] text-center font-medium" title={t.label}><div className="flex justify-center items-center h-full w-8 mx-auto"><Icon name={t.icon} className="w-5 h-5" /></div></th>))}</tr></thead>
-                            <tbody>{tileSets.terrain.map((rowTerrain, rowIndex) => (<tr key={rowTerrain.id}><th className="sticky left-0 bg-[#18272e] p-2 border-r border-b border-[#41403f] text-left font-medium flex items-center gap-2 w-28"><Icon name={rowTerrain.icon} className="w-5 h-5 flex-shrink-0" /><span className="truncate">{rowTerrain.label}</span></th>{tileSets.terrain.map((colTerrain, colIndex) => {
-                                if (colIndex > rowIndex) { return <td key={colTerrain.id} className="p-1 border-b border-[#41403f] bg-[#191f29]/50"></td>; }
-                                const value = generationOptions.terrainClusteringMatrix[rowTerrain.id]?.[colTerrain.id] ?? 0.5;
-                                return (<td key={colTerrain.id} className="p-1 border-b border-[#41403f] text-center"><input type="number" min="0" max="100" step="1" value={Math.round(value * 100)} onChange={e => { let v = parseInt(e.target.value, 10) || 0; handleClusteringChange(rowTerrain.id, colTerrain.id, Math.max(0, Math.min(100, v)) / 100); }} className="w-14 bg-[#324446] p-1 text-sm text-center font-medium text-[#a7a984] focus:outline-none focus:ring-1 focus:ring-[#736b23] rounded-md" title={`${rowTerrain.label} <> ${colTerrain.label}: ${Math.round(value * 100)}`} /></td>);
-                            })}</tr>))}</tbody>
+                            <thead className="sticky top-0 bg-[#191f29] z-20">
+                                <tr>
+                                    <th className="sticky left-0 bg-[#191f29] p-2 border-r border-b border-[#41403f] w-28 z-30"></th>
+                                    {tileSets.terrain.map(t => (
+                                        <th key={t.id} className="p-1 border-b border-[#41403f] text-center font-medium" title={t.label}>
+                                            <div className="flex justify-center items-center h-full w-8 mx-auto">
+                                                <Icon name={t.icon} className="w-5 h-5" />
+                                            </div>
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {tileSets.terrain.map((rowTerrain, rowIndex) => (
+                                    <tr key={rowTerrain.id}>
+                                        <th className="sticky left-0 bg-[#18272e] p-0 border-r border-b border-[#41403f] text-left font-medium w-28 z-10">
+                                            <div className="flex items-center gap-2 p-2">
+                                                <Icon name={rowTerrain.icon} className="w-5 h-5 flex-shrink-0" />
+                                                <span className="truncate">{rowTerrain.label}</span>
+                                            </div>
+                                        </th>
+                                        {tileSets.terrain.map((colTerrain, colIndex) => {
+                                            if (colIndex > rowIndex) { return <td key={colTerrain.id} className="p-1 border-b border-[#41403f] bg-[#191f29]/50"></td>; }
+                                            const value = generationOptions.terrainClusteringMatrix[rowTerrain.id]?.[colTerrain.id] ?? 0.5;
+                                            return (
+                                                <td key={colTerrain.id} className="p-1 border-b border-[#41403f] text-center">
+                                                    <input type="number" min="0" max="100" step="1" value={Math.round(value * 100)} onChange={e => { let v = parseInt(e.target.value, 10) || 0; handleClusteringChange(rowTerrain.id, colTerrain.id, Math.max(0, Math.min(100, v)) / 100); }} className="w-14 bg-[#324446] p-1 text-sm text-center font-medium text-[#a7a984] focus:outline-none focus:ring-1 focus:ring-[#736b23] rounded-md" title={`${rowTerrain.label} <> ${colTerrain.label}: ${Math.round(value * 100)}`} />
+                                                </td>
+                                            );
+                                        })}
+                                    </tr>
+                                ))}
+                            </tbody>
                         </table>
                     </div>
                 </div>
