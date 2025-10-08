@@ -8,6 +8,7 @@ import { Icon } from '../Icon';
 import { SettingsTabButton } from '../ui/SettingsTabButton';
 import { GeneralSettings } from './GeneralSettings';
 import { GenerationSettings } from './GenerationSettings';
+import { TerrainSettings } from './TerrainSettings';
 
 /**
  * Props for the SettingsModal component.
@@ -24,10 +25,11 @@ interface SettingsModalProps {
     setRealmWidth: React.Dispatch<React.SetStateAction<number>>;
     realmHeight: number;
     setRealmHeight: React.Dispatch<React.SetStateAction<number>>;
-    // Props for both tabs
+    // Props for multiple tabs
     generationOptions: GenerationOptions;
     setGenerationOptions: React.Dispatch<React.SetStateAction<GenerationOptions>>;
     tileSets: TileSet;
+    setTileSets: React.Dispatch<React.SetStateAction<TileSet>>;
     // Props for GenerationSettings
     onGenerationOptionChange: (key: keyof GenerationOptions, value: any) => void;
     handleClusteringChange: (terrainA: string, terrainB: string, value: number) => void;
@@ -44,7 +46,7 @@ export const SettingsModal = ({
     ...props
 }: SettingsModalProps) => {
     const backdropRef = useRef<HTMLDivElement>(null);
-    const [activeTab, setActiveTab] = useState<'general' | 'generation'>('general');
+    const [activeTab, setActiveTab] = useState<'general' | 'generation' | 'terrain'>('general');
 
     const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
         if (event.target === backdropRef.current) {
@@ -70,6 +72,7 @@ export const SettingsModal = ({
                     <nav className="flex flex-col gap-2">
                         <SettingsTabButton icon="settings" label="General" isActive={activeTab === 'general'} onClick={() => setActiveTab('general')} />
                         <SettingsTabButton icon="network" label="Generation" isActive={activeTab === 'generation'} onClick={() => setActiveTab('generation')} />
+                        <SettingsTabButton icon="brush" label="Terrain" isActive={activeTab === 'terrain'} onClick={() => setActiveTab('terrain')} />
                     </nav>
                 </aside>
 
@@ -104,6 +107,12 @@ export const SettingsModal = ({
                                 handleTerrainBiasChange={props.handleTerrainBiasChange}
                                 onApplyTemplate={props.onApplyTemplate}
                                 tileSets={props.tileSets}
+                            />
+                        )}
+                        {activeTab === 'terrain' && (
+                            <TerrainSettings
+                                tileSets={props.tileSets}
+                                setTileSets={props.setTileSets}
                             />
                         )}
                     </div>

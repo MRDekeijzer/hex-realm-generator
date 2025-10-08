@@ -13,40 +13,16 @@ import {
   Mountain, MountainSnow, Waves, Droplets, Castle, Building2, Ban, DoorClosed,
   Landmark, Framer, Church, House, Tractor, TriangleAlert, HelpCircle, Network,
   Cloud, Spline, Droplet, Feather, Flower, Sun, TreePine, Triangle, Wind,
-  Compass, ArrowUp, Circle, type LucideIcon
+  Compass, ArrowUp, Circle, Pipette, Wheat, Sprout, Shrub, SprayCan, type LucideIcon,
+  Flag, Snowflake, GitBranchPlus, Activity, Skull, Fish, Gem
 } from 'lucide-react';
 
 /**
  * Raw SVG path data for icons used in special cases like cursors.
  */
 export const iconPaths = {
-    pipette: {
-        path1: "m2 22 1-1h3l9-9a2.828 2.828 0 1 0-4-4L2 18v4Z",
-        path2: "m12.5 6.5 4-4a2.121 2.121 0 0 1 3 3l-4 4",
-    }
+    // This is now empty, but kept in case other special cursors are needed.
 };
-
-/**
- * A custom component for the pipette icon using raw SVG paths. This ensures
- * consistency with the custom cursor and centralizes the icon definition.
- */
-const PipetteIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...props}
-    >
-      <path d={iconPaths.pipette.path1} />
-      <path d={iconPaths.pipette.path2} />
-    </svg>
-);
-
 
 /**
  * A mapping of string names to Lucide icon components.
@@ -63,16 +39,19 @@ const icons: { [key: string]: React.ElementType } = {
 
   // UI Elements
   close: X, crown: Crown, plus: Plus, minus: Minus, 'chevron-up': ChevronUp,
-  'chevron-down': ChevronDown, move: Move, 'trash-2': Trash2, pipette: PipetteIcon,
+  'chevron-down': ChevronDown, move: Move, 'trash-2': Trash2, pipette: Pipette,
   reset: RotateCcw, star: Star, 'help-circle': HelpCircle, network: Network,
-  compass: Compass, 'arrow-up': ArrowUp, circle: Circle,
+  compass: Compass, 'arrow-up': ArrowUp, circle: Circle, 'spray-can': SprayCan,
 
-  // Terrain
+  // Terrain & Spray Icons
   trees: Trees, leaf: Leaf, mountain: Mountain, mountains: MountainSnow,
   waves: Waves, water: Droplets, 'mountain-range': MountainSnow, tree: Trees,
   droplet: Droplet, triangle: Triangle, hill: Mountain, flower: Flower,
   droplets: Droplets, sun: Sun, wind: Wind, 'tree-pine': TreePine, curve: Spline,
-  feather: Feather, cloud: Cloud,
+  feather: Feather, cloud: Cloud, grass: Wheat, sprout: Sprout, shrub: Shrub,
+  flag: Flag, snowflake: Snowflake, branch: GitBranchPlus, river: Spline,
+  path: Spline, 'wave-sine': Activity, skull: Skull, fish: Fish, rock: Gem,
+  'tree-deciduous': Leaf,
 
   // POIs (Holdings & Landmarks)
   castle: Castle, city: Building2, town: House, village: Tractor, dwelling: DoorClosed,

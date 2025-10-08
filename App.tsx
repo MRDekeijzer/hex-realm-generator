@@ -16,11 +16,12 @@ import { PoiPainter } from './components/PoiPainter';
 import { MythSidebar } from './components/MythSidebar';
 import { generateRealm } from './services/realmGenerator';
 import { exportRealmAsJson, exportSvgAsPng } from './services/fileService';
-import type { Realm, Hex, ViewOptions, GenerationOptions, Tool, Myth } from './types';
+import type { Realm, Hex, ViewOptions, GenerationOptions, Tool, Myth, TileSet } from './types';
 import { DEFAULT_GRID_SIZE, DEFAULT_TILE_SETS, LANDMARK_TYPES, TERRAIN_TYPES, DEFAULT_TERRAIN_COLORS, BARRIER_COLOR, DEFAULT_GRID_COLOR, DEFAULT_GRID_WIDTH, DEFAULT_TERRAIN_CLUSTERING_MATRIX, DEFAULT_TERRAIN_BIASES } from './constants';
 import { useHistory } from './hooks/useHistory';
 import { BarrierPainter } from './components/BarrierPainter';
 import { ConfirmationDialog } from './components/ConfirmationDialog';
+import { HistoryControls } from './components/HistoryControls';
 
 /**
  * State for managing confirmation dialogs.
@@ -46,11 +47,12 @@ export default function App() {
     hexSize: { x: 50, y: 50 },
     gridColor: DEFAULT_GRID_COLOR,
     gridWidth: DEFAULT_GRID_WIDTH,
+    showIconSpray: true,
   });
   const [activeTool, setActiveTool] = useState<Tool>('select');
   const [paintTerrain, setPaintTerrain] = useState<string>(TERRAIN_TYPES[0]);
   const [paintPoi, setPaintPoi] = useState<string | null>('holding:castle');
-  const [tileSets, setTileSets] = useState(DEFAULT_TILE_SETS);
+  const [tileSets, setTileSets] = useState<TileSet>(DEFAULT_TILE_SETS);
   const [terrainColors, setTerrainColors] = useState(DEFAULT_TERRAIN_COLORS);
   const [barrierColor, setBarrierColor] = useState(BARRIER_COLOR);
 
@@ -374,7 +376,7 @@ export default function App() {
           alert('A terrain with this name already exists.');
           return;
       }
-      const newTerrain = { id, label: name, icon: 'leaf', color };
+      const newTerrain = { id, label: name, icon: 'leaf', color, sprayIcons: [] };
       setTileSets(prev => ({ ...prev, terrain: [...prev.terrain, newTerrain] }));
       setTerrainColors(prev => ({ ...prev, [id]: color }));
   }, [tileSets.terrain]);
@@ -492,10 +494,6 @@ export default function App() {
         onExportJson={handleExportJson}
         onExportPng={handleExportPng}
         onImportJson={handleImportRealm}
-        onUndo={() => { handleUndo(); setSelectedHex(null); }}
-        onRedo={() => { handleRedo(); setSelectedHex(null); }}
-        canUndo={canUndo}
-        canRedo={canRedo}
         viewOptions={viewOptions}
         setViewOptions={setViewOptions}
         realmShape={realmShape}
@@ -513,6 +511,7 @@ export default function App() {
         handleTerrainBiasChange={handleTerrainBiasChange}
         onApplyTemplate={handleApplyTemplate}
         tileSets={tileSets}
+        setTileSets={setTileSets}
         isSettingsOpen={isSettingsOpen}
         setIsSettingsOpen={setIsSettingsOpen}
       />
@@ -534,6 +533,7 @@ export default function App() {
               relocatingMythId={relocatingMythId}
               onRelocateMyth={handleRelocateMyth}
               onSetSeatOfPower={handleSetSeatOfPower}
+              tileSets={tileSets}
               terrainColors={terrainColors}
               barrierColor={barrierColor}
               isSettingsOpen={isSettingsOpen}
@@ -561,6 +561,7 @@ export default function App() {
       {confirmation?.isOpen && (
         <ConfirmationDialog isOpen={confirmation.isOpen} title={confirmation.title} message={confirmation.message} onConfirm={confirmation.onConfirm} onCancel={handleCancelConfirmation} />
       )}
+       {!isSettingsOpen && <HistoryControls onUndo={() => { handleUndo(); setSelectedHex(null); }} onRedo={() => { handleRedo(); setSelectedHex(null); }} canUndo={canUndo} canRedo={canRedo} />}
     </div>
   );
 }

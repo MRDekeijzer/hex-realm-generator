@@ -20,10 +20,6 @@ interface ToolbarProps {
   onExportJson: () => void;
   onExportPng: () => void;
   onImportJson: (realm: Realm) => void;
-  onUndo: () => void;
-  onRedo: () => void;
-  canUndo: boolean;
-  canRedo: boolean;
   viewOptions: ViewOptions;
   setViewOptions: React.Dispatch<React.SetStateAction<ViewOptions>>;
   realmShape: 'hex' | 'square';
@@ -41,6 +37,7 @@ interface ToolbarProps {
   handleTerrainBiasChange: (terrainId: string, value: number) => void;
   onApplyTemplate: (templateOptions: Partial<GenerationOptions>) => void;
   tileSets: TileSet;
+  setTileSets: React.Dispatch<React.SetStateAction<TileSet>>;
   isSettingsOpen: boolean;
   setIsSettingsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -53,10 +50,6 @@ export function Toolbar({
     onExportJson, 
     onExportPng, 
     onImportJson,
-    onUndo,
-    onRedo,
-    canUndo,
-    canRedo,
     viewOptions, 
     setViewOptions,
     isSettingsOpen,
@@ -126,8 +119,8 @@ export function Toolbar({
         <header className="flex items-center justify-between p-2 bg-[#191f29] border-b border-[#41403f] shadow-md z-10">
             <div className="flex items-center gap-2">
                 <h1 className="text-xl font-bold text-[#eaebec] mr-4">Hex Realm Generator</h1>
-                <ToolbarButton onClick={onGenerate} icon="sparkles">Generate</ToolbarButton>
-                <ToolbarButton onClick={() => setIsSettingsOpen(true)} icon="settings">Settings</ToolbarButton>
+                <ToolbarButton onClick={onGenerate} icon="sparkles" title="Generate New Realm">Generate</ToolbarButton>
+                <ToolbarButton onClick={() => setIsSettingsOpen(true)} icon="settings" title="Settings" />
                 
                 <SettingsModal
                     isOpen={isSettingsOpen}
@@ -135,30 +128,33 @@ export function Toolbar({
                     {...settingsProps}
                 />
 
-                <div className="h-6 w-px bg-[#41403f] mx-1"></div>
-
                 <div className="relative">
-                    <ToolbarButton ref={gridSettingsButtonRef} onClick={() => setIsGridSettingsOpen(prev => !prev)} icon="grid">
-                        Grid
-                    </ToolbarButton>
+                    <ToolbarButton ref={gridSettingsButtonRef} onClick={() => setIsGridSettingsOpen(prev => !prev)} icon="grid" title="Grid Settings">Grid</ToolbarButton>
                     {isGridSettingsOpen && <GridSettingsPopover ref={gridSettingsPopoverRef} viewOptions={viewOptions} setViewOptions={setViewOptions} />}
                 </div>
-
-                <div className="h-6 w-px bg-[#41403f] mx-1"></div>
-                <ToolbarButton onClick={onUndo} icon="undo" disabled={!canUndo}>Undo</ToolbarButton>
-                <ToolbarButton onClick={onRedo} icon="redo" disabled={!canRedo}>Redo</ToolbarButton>
+                
+                <ToolbarButton
+                    onClick={() => setViewOptions(v => ({ ...v, showIconSpray: !v.showIconSpray }))}
+                    icon="spray-can"
+                    isActive={viewOptions.showIconSpray}
+                    title="Toggle Icon Spray"
+                >
+                  Icon Spray
+                </ToolbarButton>
+                 <ToolbarButton
+                    onClick={() => setViewOptions(v => ({ ...v, isGmView: !v.isGmView }))}
+                    icon="eye"
+                    isActive={viewOptions.isGmView}
+                    title={viewOptions.isGmView ? 'Referee View' : 'Knight View'}
+                >
+                  {viewOptions.isGmView ? 'Referee View' : 'Knight View'}
+                </ToolbarButton>
             </div>
             <div className="flex items-center gap-2">
-                <label className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-[#a7a984] bg-[#324446] rounded-md hover:bg-[#435360] transition-colors cursor-pointer">
-                    <Icon name="eye" className="w-4 h-4" />
-                    <input type="checkbox" checked={viewOptions.isGmView} onChange={() => setViewOptions(v => ({ ...v, isGmView: !v.isGmView }))} className="hidden" />
-                    <span>{viewOptions.isGmView ? 'Referee View' : 'Knight View'}</span>
-                </label>
-                
                 <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".json" style={{ display: 'none' }}/>
-                <ToolbarButton onClick={() => fileInputRef.current?.click()} icon="upload">Import JSON</ToolbarButton>
-                <ToolbarButton onClick={onExportJson} icon="download">Export JSON</ToolbarButton>
-                <ToolbarButton onClick={onExportPng} icon="image-down">Export PNG</ToolbarButton>
+                <ToolbarButton onClick={() => fileInputRef.current?.click()} icon="upload" title="Import from JSON file">Import JSON</ToolbarButton>
+                <ToolbarButton onClick={onExportJson} icon="download" title="Export as JSON file">Export JSON</ToolbarButton>
+                <ToolbarButton onClick={onExportPng} icon="image-down" title="Export as PNG image">Export PNG</ToolbarButton>
             </div>
         </header>
     );

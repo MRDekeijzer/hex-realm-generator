@@ -86,7 +86,36 @@ export interface ViewOptions {
   gridColor: string;
   /** The width of the grid lines. */
   gridWidth: number;
+  /** Whether to display the procedural icon spray layer. */
+  showIconSpray: boolean;
 }
+
+/** Detailed settings for the procedural Icon Spray feature. */
+export interface SpraySettings {
+  /** The number of icons to place per hex. */
+  density: number;
+  /** The minimum size of a spray icon in pixels. */
+  sizeMin: number;
+  /** The maximum size of a spray icon in pixels. */
+  sizeMax: number;
+  /** The base opacity of spray icons (0.1 to 1.0). */
+  opacity: number;
+  /** The maximum random rotation to apply in degrees (e.g., 30 means ±30°). */
+  rotationJitter: number;
+  /** The random variation in opacity (0 to 0.2). */
+  tintVariance: number;
+  /** A grid mask defining where icons can be placed. */
+  placementMask: number[];
+  /** How tightly icons clump together (0 is scattered, 1 is a single clump). */
+  clusterFactor: number;
+  /** Whether to prevent icons from overlapping. */
+  collisionAvoidance: boolean;
+  /** The minimum spacing between icons if collision avoidance is on. */
+  minSpacing: number;
+  /** A seed for the random number generator, or 'auto' for hex-based seeding. */
+  seed: number | 'auto';
+}
+
 
 /** Represents a single paintable or placeable item. */
 export interface Tile {
@@ -98,6 +127,10 @@ export interface Tile {
   icon: string;
   /** The color associated with the tile (primarily for terrain). */
   color?: string;
+  /** An array of icon names to be used by the Icon Spray feature. */
+  sprayIcons?: string[];
+  /** Detailed settings for the procedural icon spray on this tile. */
+  spraySettings?: SpraySettings;
 }
 
 /** A collection of all available tile types, categorized. */
@@ -109,7 +142,7 @@ export interface TileSet {
 
 /** Options for specifying the number of each landmark type to generate. */
 export interface LandmarkGenerationOptions {
-  [key: string]: number;
+  [key:string]: number;
 }
 
 /** A matrix defining the clustering affinity between different terrain types. */
