@@ -12,7 +12,7 @@ import { axialToPixel, getHexCorners, getBarrierPath, findClosestEdge, getNeighb
 import { usePanAndZoom } from '../hooks/usePanAndZoom';
 import { DEFAULT_TILE_SETS as TILE_SETS, MYTH_COLOR, SELECTION_COLOR, SEAT_OF_POWER_COLOR, HOLDING_ICON_BORDER_COLOR, LANDMARK_ICON_BORDER_COLOR } from '../constants';
 import { ToolsPalette } from './ToolsPalette';
-import { Icon } from './Icon';
+import { Icon, iconPaths } from './Icon';
 import { ShortcutTips } from './ShortcutTips';
 
 /**
@@ -249,8 +249,9 @@ export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexCli
 
   const getCursor = () => {
     if (isPickingTile) {
-      const pipetteSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><defs><filter id="cursor-shadow"><feDropShadow dx="1" dy="1" stdDeviation="1" flood-color="rgba(0,0,0,0.9)"/></filter></defs><g filter="url(#cursor-shadow)"><path d="m2 22 1-1h3l9-9M3 21v-3l9-9m9-9 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4c.9.9.9 2.5 0 3.4l-2.1 2.1c-.9.9-2.5.9-3.4 0L12 14l-4 4m4-11 2 2" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`;
-      return `url('data:image/svg+xml;utf8,${encodeURIComponent(pipetteSVG)}') 2 22, auto`;
+      const { path1, path2 } = iconPaths.pipette;
+      const pipetteSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#eaebec" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="${path1}"/><path d="${path2}"/></svg>`;
+      return `url('data:image/svg+xml;utf8,${encodeURIComponent(pipetteSVG)}') 3 29, auto`;
     }
     if (isSpacePanActive) return isPanning ? 'grabbing' : 'grab';
     if (relocatingMythId !== null) return 'move';
@@ -258,7 +259,13 @@ export function HexGrid({ realm, onUpdateHex, viewOptions, selectedHex, onHexCli
     switch(activeTool) {
       case 'select': return 'pointer';
       case 'terrain': {
-        const brushSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="rgba(234, 235, 236, 0.3)" stroke="#eaebec" stroke-width="2"/></svg>`;
+        const outerCircle = `<circle cx="12" cy="12" r="10" fill="rgba(234, 235, 236, 0.3)" stroke="#eaebec" stroke-width="2"/>`;
+        let innerCircle = '';
+        if (isPainting) {
+            const terrainColor = terrainColors[paintTerrain] || '#cccccc';
+            innerCircle = `<circle cx="12" cy="12" r="8" fill="${terrainColor}" stroke="#191f29" stroke-width="1"/>`;
+        }
+        const brushSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">${outerCircle}${innerCircle}</svg>`;
         return `url('data:image/svg+xml;utf8,${encodeURIComponent(brushSVG)}') 12 12, auto`;
       }
       case 'myth': case 'barrier': case 'poi': return 'crosshair';

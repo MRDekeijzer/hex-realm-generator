@@ -9,7 +9,7 @@ import React from 'react';
 import {
   Sparkles, Sparkle, RotateCcw, Undo2, Redo2, Eye, Hexagon, FileUp, FileDown,
   ImageDown, X, Settings, Star, Crown, MousePointer2, Brush, Slice, MapPin,
-  Plus, Minus, ChevronUp, ChevronDown, Move, Trash2, Pipette, Trees, Leaf,
+  Plus, Minus, ChevronUp, ChevronDown, Move, Trash2, Trees, Leaf,
   Mountain, MountainSnow, Waves, Droplets, Castle, Building2, Ban, DoorClosed,
   Landmark, Framer, Church, House, Tractor, TriangleAlert, HelpCircle, Network,
   Cloud, Spline, Droplet, Feather, Flower, Sun, TreePine, Triangle, Wind,
@@ -17,10 +17,42 @@ import {
 } from 'lucide-react';
 
 /**
+ * Raw SVG path data for icons used in special cases like cursors.
+ */
+export const iconPaths = {
+    pipette: {
+        path1: "m2 22 1-1h3l9-9a2.828 2.828 0 1 0-4-4L2 18v4Z",
+        path2: "m12.5 6.5 4-4a2.121 2.121 0 0 1 3 3l-4 4",
+    }
+};
+
+/**
+ * A custom component for the pipette icon using raw SVG paths. This ensures
+ * consistency with the custom cursor and centralizes the icon definition.
+ */
+const PipetteIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d={iconPaths.pipette.path1} />
+      <path d={iconPaths.pipette.path2} />
+    </svg>
+);
+
+
+/**
  * A mapping of string names to Lucide icon components.
  * This allows icons to be referenced by a simple string name throughout the app.
  */
-const icons: { [key: string]: LucideIcon } = {
+const icons: { [key: string]: React.ElementType } = {
   // Toolbar
   sparkles: Sparkles, settings: Settings, grid: Hexagon, undo: Undo2, redo: Redo2,
   eye: Eye, upload: FileUp, download: FileDown, 'image-down': ImageDown,
@@ -31,7 +63,7 @@ const icons: { [key: string]: LucideIcon } = {
 
   // UI Elements
   close: X, crown: Crown, plus: Plus, minus: Minus, 'chevron-up': ChevronUp,
-  'chevron-down': ChevronDown, move: Move, 'trash-2': Trash2, pipette: Pipette,
+  'chevron-down': ChevronDown, move: Move, 'trash-2': Trash2, pipette: PipetteIcon,
   reset: RotateCcw, star: Star, 'help-circle': HelpCircle, network: Network,
   compass: Compass, 'arrow-up': ArrowUp, circle: Circle,
 
