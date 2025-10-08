@@ -35,16 +35,12 @@ jobs:
           echo "Token is available: ${GITHUB_TOKEN:+yes}"
           echo "Note: ensure Actions -> Settings -> Workflow permissions is set to 'Read and write' for this repository."
 
-      - name: Upload artifact for GitHub Pages
-        uses: actions/upload-pages-artifact@v1
+      - name: Deploy to GitHub Pages (peaceiris)
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          path: ./dist
-
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v1
-        with:
-          # official action expects `token` and reads the uploaded artifact
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # this action accepts the built-in GITHUB_TOKEN and pushes the branch directly
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
 
       - name: Print expected Pages URL
         if: always()
