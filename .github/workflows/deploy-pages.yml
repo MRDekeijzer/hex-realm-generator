@@ -45,16 +45,6 @@ jobs:
           publish_branch: gh-pages
           enable_jekyll: false
 
-      - name: Deploy to GitHub Pages (peaceiris)
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-          publish_branch: gh-pages
-          enable_jekyll: false
-
-
-
       - name: Print expected Pages URL
         if: always()
         run: |
