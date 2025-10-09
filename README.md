@@ -83,5 +83,6 @@ Contributions, issues, and feature requests are welcome. If you'd like to contri
 - Author: https://github.com/MRDekeijzer
 - Mythic Bastionland (design inspiration and intended playstyle): https://chrismcdee.itch.io/mythic-bastionland
 - Google Gemini Pro 2.5 (acknowledged tool used with this project)
+- Icons by Lucide
 
 Made for fast, tabletop-friendly hex realm creation. If you'd like, I can also add a short video GIF showing basic painting and generation UX.
