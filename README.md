@@ -1,88 +1,20 @@
-# Hex Realm Generator
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+</div>
 
-Hex Realm Generator is a browser-based tool to quickly create hex-based realms and encounter sites for TTRPGs, built specifically to support Mythic Bastionland-style play. Use it to procedurally generate terrain, paint points-of-interest (POIs), draw barriers, tweak generation settings, and export maps for use at the table.
+# Run and deploy your AI Studio app
 
-Author: https://github.com/MRDekeijzer
+This contains everything you need to run your app locally.
 
-## What this does
+View your app in AI Studio: https://ai.studio/apps/drive/1rg5vRNPAJzGai1ilcSELb9g8R3XT0dgW
 
-- Procedural hex-grid realm generation using Perlin/noise-based algorithms.
-- Interactive painting tools for terrain, POIs, and barriers.
-- Undo/redo history and pan/zoom support for smooth editing.
-- Configurable generation and terrain settings via a settings modal.
-- Export or save work locally (file service integration).
+## Run Locally
 
-This project is optimized for fast creation of intriguing, compact realms suitable for Mythic Bastionland sessions, but it can be used in other hex-based TTRPGs as well.
+**Prerequisites:**  Node.js
 
-## Features
-
-- Hex grid rendering with configurable grid size and formatting.
-- Procedural generation with tweakable controls (noise scale, jitter, seed, etc.).
-- Manual painting tools: terrain painter, POI painter, barrier painter, and spray tools.
-- History controls for undo/redo and version management.
-- Lightweight UI: toolbar, palette, settings, and helpful shortcuts.
-
-
-## Quickstart (development)
-
-Prerequisites: Node.js (14+ recommended) and npm.
 
 1. Install dependencies:
-
-   npm install
-
-2. Run the dev server:
-
-   npm run dev
-
-3. Open http://localhost:5173 (or the port Vite reports) in a browser.
-
-## Build for production
-
-1. Build:
-
-   npm run build
-
-2. Preview production build locally:
-
-   npm run preview
-
-## Project structure (high level)
-
-- `src/components` — React components: painters, toolbar, settings modal, sidebar, hex grid and UI controls.
-- `src/services` — core generation and utilities (Perlin noise, realm generator, file service).
-- `src/hooks` — custom hooks for pan/zoom and history.
-- `src/utils` — helper utilities for hex math and spray painting.
-
-Open the code to find exact components such as `HexGrid.tsx`, `TerrainPainter.tsx`, `PoiPainter.tsx`, and `realmGenerator.ts`.
-
-## Usage notes
-
-- Use the Tools palette to select terrain, POIs, or barrier modes, then click or drag on the map to paint.
-- Generation settings allow you to tweak how the procedural algorithm lays out biomes and features.
-- Use History controls to undo/redo changes.
-- The toolbar exposes common actions (new, save/load, export) — check the UI for available export formats.
-
-## Configuration & Environment
-
-- The project runs entirely client-side for generation and painting. No API keys are required to use the core features.
-
-If you later integrate external services, keep any keys out of source control and add them to a `.env.local` if needed.
-
-## Contributing
-
-Contributions, issues, and feature requests are welcome. If you'd like to contribute:
-
-1. Fork the repo
-2. Create a feature branch: `git checkout -b feat/your-feature`
-3. Make changes and add tests where appropriate
-4. Submit a PR and describe the use-case
-
-## Credits
-
-- Author: https://github.com/MRDekeijzer
-- Mythic Bastionland (design inspiration and intended playstyle): https://chrismcdee.itch.io/mythic-bastionland
-- Google Gemini Pro 2.5 (acknowledged tool used with this project)
-- Icons by Lucide
-
-Made for fast, tabletop-friendly hex realm creation. If you'd like, I can also add a short video GIF showing basic painting and generation UX.
+   `npm install`
+2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+3. Run the app:
+   `npm run dev`

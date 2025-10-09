@@ -141,33 +141,21 @@ const PlacementMaskEditor = ({ mask, onUpdateMask }: PlacementMaskEditorProps) =
 // =================================================================================
 interface HexSprayPreviewProps {
     terrain: Tile;
-    regenerateCounter: number;
-    onRegenerate: () => void;
 }
 
-const HexSprayPreview = ({ terrain, regenerateCounter, onRegenerate }: HexSprayPreviewProps) => {
+const HexSprayPreview = ({ terrain }: HexSprayPreviewProps) => {
     const previewHexSize = { x: 50, y: 50 };
     const hexCorners = useMemo(() => getHexCorners('pointy', previewHexSize), []);
     
     const iconsToRender = useMemo(() => {
-        // Define a set of coordinates to cycle through for the preview.
-        // This ensures the preview shows different, but deterministic, examples.
-        const previewCoords = [
-            { q: 0, r: 0 }, { q: 1, r: 2 }, { q: -3, r: 1 },
-            { q: 5, r: -5 }, { q: -2, r: -4 }, { q: 8, r: 3 },
-        ];
-        // Select coordinates based on the regenerateCounter.
-        const coords = previewCoords[regenerateCounter % previewCoords.length];
-        const {q, r} = coords ?? { q: 0, r: 0 };
-        
-        // Create a mock hex object with the chosen coordinates.
-        const mockHex = { q, r, s: -q - r, terrain: terrain.id, barrierEdges: [] };
+        // We use a mock hex. Coordinates don't matter with the new seeding,
+        // but the function requires a hex object.
+        const mockHex = { q: 0, r: 0, s: 0, terrain: terrain.id, barrierEdges: [] };
         
         // Generate icons using the same function as the main map.
         // This guarantees the preview is an exact representation of a real hex.
         return generateSprayIcons(mockHex, terrain, previewHexSize);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [terrain, regenerateCounter]);
+    }, [terrain]);
 
     return (
         <div className="flex flex-col items-center gap-2">
@@ -183,13 +171,9 @@ const HexSprayPreview = ({ terrain, regenerateCounter, onRegenerate }: HexSprayP
                     </g>
                 </g>
             </svg>
-            <button
-                onClick={onRegenerate}
-                className="w-full max-w-[200px] flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-[#a7a984] bg-[#324446] rounded-md hover:bg-[#435360] transition-colors"
-            >
-                <Icon name="sparkles" className="w-4 h-4" />
-                Regenerate Preview
-            </button>
+            <p className="text-xs text-center text-[#a7a984]">
+                This pattern is consistent for all '{terrain.label}' hexes.
+            </p>
         </div>
     );
 };
@@ -280,7 +264,6 @@ interface TerrainSettingsProps {
  * including the procedural Icon Spray feature.
  */
 export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSettingsProps) => {
-    const [regenerateCounter, setRegenerateCounter] = useState(0);
     const colorInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
     const detailsRefs = useRef<Map<string, HTMLDetailsElement | null>>(new Map());
 
@@ -341,7 +324,7 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
                                 <Icon name="chevron-down" className="w-4 h-4 ml-auto transition-transform duration-200 group-open/details:rotate-180" />
                             </summary>
                             <div className="pl-7 mt-3 pt-3 border-t border-[#41403f]/50 space-y-4">
-                               <HexSprayPreview terrain={terrain} regenerateCounter={regenerateCounter} onRegenerate={() => setRegenerateCounter(c => c + 1)} />
+                               <HexSprayPreview terrain={terrain} />
                                 <IconGridSelector selectedIcons={terrain.sprayIcons || []} onToggleIcon={(icon) => handleToggleSprayIcon(terrain.id, icon)} />
                                 <div className="pt-4 grid grid-cols-2 gap-4">
                                     <SettingSlider label="Density" value={settings.density} onChange={v => handleSettingChange(terrain.id, 'density', v)} min={0} max={128} step={1} displayMultiplier={1} displaySuffix=" icons" />

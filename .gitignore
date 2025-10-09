@@ -1,122 +1,24 @@
-# Node / package manager
-node_modules/
-/.pnp/
-/.pnp.js
-
-# Build output
-/dist/
-/dist-ssr/
-/build/
-
-# Production
+# Logs
+logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
 
-# dotenv environment variables files
-.env
-.env.*.local
-.env.local
-
-# Local env files sometimes used by editors or tools
-.env.*
-
-# OS files
-.DS_Store
-Thumbs.db
-desktop.ini
+node_modules
+dist
+dist-ssr
+*.local
 
 # Editor directories and files
-.vscode/
+.vscode/*
 !.vscode/extensions.json
-.idea/
+.idea
+.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
-
-# TypeScript
-*.tsbuildinfo
-
-# Optional npm cache directory
-.npm
-
-# Parcel cache
-.parcel-cache/
-
-# Storybook
-node_modules/.cache/storybook
-
-# Vite cache
-/.vite/
-
-# Jest
-/coverage/
-jest.config.js
-
-# Testing library
-/.vitest/
-
-# Logs
-logs/
-*.log
-
-# ESLint cache
-.eslintcache
-
-# Stylelint cache
-.stylelintcache
-
-# Temporary files
-*.tmp
-*.temp
-*.bak
-*.swp
-
-# Mac-specific
-._*
-
-# Windows image file caches
-ehthumbs.db
-
-# IDE or editor specific
-.history/
-/.idea/
-.vscode/
-*.code-workspace
-
-# Coverage directory
-/coverage/
-
-# Visual Studio Code settings
-.vscode/settings.json
-
-# Yarn v2+ (berry)
-/.yarn/*
-!.yarn/patches
-!.yarn/releases
-!.yarn/plugins
-!.yarn/sdks
-!.yarn/versions
-
-# MacOS
-.DS_Store
-
-# Lockfiles (if you intentionally vendor them, remove these)
-# package-lock.json
-# pnpm-lock.yaml
-# yarn.lock
-
-# Generated icon / image assets
-assets/icons/generated/
-
-# Logs and databases for local dev
-.turbo/
-.serverless/
-/.vercel/
-
-# Misc
-.cache/
-coverage/
-
+*.sw?

@@ -30,6 +30,21 @@ function mulberry32(a: number) {
 }
 
 /**
+ * Generates a consistent seed from a string.
+ * @param str The input string (e.g., terrain ID).
+ * @returns A 32-bit integer seed.
+ */
+function stringToSeed(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+}
+
+/**
  * Generates a set of procedural icons to spray onto a hex tile for added texture.
  * The generation is deterministic based on the hex coordinates.
  */
@@ -56,9 +71,9 @@ export const generateSprayIcons = (
     return [];
   }
 
-  // The seed is now solely and deterministically based on the hex coordinates.
-  // This ensures that the preview and the main map generate identical icons for the same coordinates.
-  const seed = hex.q * 1337 + hex.r * 31337;
+  // The seed is deterministically based on the terrain type, making the spray pattern
+  // consistent for all hexes of the same terrain.
+  const seed = stringToSeed(terrainTile.id);
   const random = mulberry32(seed);
 
   const finalIcons: SprayIcon[] = [];
