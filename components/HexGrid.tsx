@@ -7,7 +7,7 @@
  */
 
 import React, { useMemo, useState, useRef, useCallback, useEffect } from 'react';
-import type { Realm, Hex, ViewOptions, Point, Tool, TileSet } from '../types';
+import type { Realm, Hex, ViewOptions, Tool, TileSet, TerrainTextures, Point } from '../types';
 import {
   axialToPixel,
   getHexCorners,
@@ -16,18 +16,11 @@ import {
   getNeighbors,
 } from '../utils/hexUtils';
 import { usePanAndZoom } from '../hooks/usePanAndZoom';
-import {
-  MYTH_COLOR,
-  SELECTION_COLOR,
-  SEAT_OF_POWER_COLOR,
-  HOLDING_ICON_BORDER_COLOR,
-  LANDMARK_ICON_BORDER_COLOR,
-} from '../constants';
+import { SELECTION_COLOR } from '../constants';
 import { ToolsPalette } from './ToolsPalette';
-import { Icon } from './Icon';
 import { ShortcutTips } from './ShortcutTips';
-import { generateSprayIcons } from '../utils/sprayUtils';
 import type { ConfirmationState } from '../App';
+import { Hexagon } from './Hexagon';
 
 /**
  * Props for the HexGrid component.
@@ -54,6 +47,8 @@ interface HexGridProps {
   isPickingTile: boolean;
   onTilePick: (hex: Hex) => void;
   setConfirmation: React.Dispatch<React.SetStateAction<ConfirmationState | null>>;
+  terrainTextures: TerrainTextures | null;
+  isLoadingTextures: boolean;
 }
 
 /**
@@ -75,12 +70,13 @@ export function HexGrid({
   onRelocateMyth,
   onSetSeatOfPower,
   tileSets,
-  terrainColors,
   barrierColor,
   isSettingsOpen,
   isPickingTile,
   onTilePick,
   setConfirmation,
+  terrainTextures,
+  isLoadingTextures,
 }: HexGridProps) {
   const { viewbox, containerRef, onMouseDown, onWheel, isPanning } = usePanAndZoom({
     initialWidth: 1000,
@@ -97,6 +93,20 @@ export function HexGrid({
     () => getHexCorners(viewOptions.orientation, viewOptions.hexSize, 0.9),
     [viewOptions.orientation, viewOptions.hexSize]
   );
+  const hexBoundingBox = useMemo(() => {
+    const xCoords = hexCorners.map((c) => c.x);
+    const yCoords = hexCorners.map((c) => c.y);
+    const minX = Math.min(...xCoords);
+    const minY = Math.min(...yCoords);
+    const maxX = Math.max(...xCoords);
+    const maxY = Math.max(...yCoords);
+    return {
+      x: minX,
+      y: minY,
+      width: maxX - minX,
+      height: maxY - minY,
+    };
+  }, [hexCorners]);
 
   const [isPainting, setIsPainting] = useState(false);
   const [paintedHexes, setPaintedHexes] = useState(new Map<string, Hex>());
@@ -210,9 +220,10 @@ export function HexGrid({
           const ctm = svgRef.current.getScreenCTM();
           if (!ctm) return prevPainted;
           const transformedPoint = svgPoint.matrixTransform(ctm.inverse());
-          const relativePoint = {
-            x: transformedPoint.x - center.x,
-            y: transformedPoint.y - center.y,
+          // FIX: Explicitly cast to Number to avoid TS arithmetic errors.
+          const relativePoint: Point = {
+            x: Number(transformedPoint.x) - Number(center.x),
+            y: Number(transformedPoint.y) - Number(center.y),
           };
           const edgeIndex = findClosestEdge(relativePoint, hexCorners);
 
@@ -232,7 +243,8 @@ export function HexGrid({
           if (!neighborCoords) return newPainted;
           const neighborHex = getHex(neighborCoords.q, neighborCoords.r);
           if (neighborHex) {
-            const oppositeEdge = (edgeIndex + 3) % 6;
+            // FIX: Explicitly cast to Number to avoid TS arithmetic errors.
+            const oppositeEdge = (Number(edgeIndex) + 3) % 6;
             const newNeighborEdges = isAdding
               ? [...neighborHex.barrierEdges, oppositeEdge]
               : neighborHex.barrierEdges.filter((edge) => edge !== oppositeEdge);
@@ -385,14 +397,21 @@ export function HexGrid({
   }, [isPainting, onUpdateHex, paintedHexes]);
 
   /**
-   * Handles mouse move events to show a hover preview for the barrier painter.
+   * Handles mouse move events for painting and barrier hover previews.
    */
   const handleHexMouseMove = useCallback(
     (hex: Hex, e: React.MouseEvent) => {
+      // Robust painting on drag
+      if (isPainting) {
+        handlePaint(hex, e);
+      }
+
+      // Barrier hover preview
       if (activeTool !== 'barrier' || isPainting) {
         if (hoveredBarrier) setHoveredBarrier(null);
         return;
       }
+
       if (!svgRef.current) return;
       const center = axialToPixel(hex, viewOptions.orientation, viewOptions.hexSize);
       const svgPoint = svgRef.current.createSVGPoint();
@@ -416,8 +435,16 @@ export function HexGrid({
         setHoveredBarrier({ q: hex.q, r: hex.r, edge: edgeIndex });
       }
     },
-    [activeTool, isPainting, viewOptions.orientation, viewOptions.hexSize, hexCorners, hoveredBarrier]
+    [activeTool, isPainting, viewOptions.orientation, viewOptions.hexSize, hexCorners, hoveredBarrier, handlePaint]
   );
+
+  if (isLoadingTextures || !terrainTextures) {
+    return (
+      <div className="flex items-center justify-center h-full text-[#a7a984]">
+        <p>Loading terrain textures...</p>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -442,94 +469,36 @@ export function HexGrid({
             <polygon points={hexCorners.map((p) => `${p.x},${p.y}`).join(' ')} />
           </clipPath>
         </defs>
-        {/* Layer 1: Hex Fills, Spray Icons, and Grid Lines */}
+
         <g>
           {displayHexes.map((hex) => {
-            const center = axialToPixel(hex, viewOptions.orientation, viewOptions.hexSize);
-            const terrainColor = terrainColors[hex.terrain] || '#cccccc';
-            const borderColor = viewOptions.showGrid ? viewOptions.gridColor : terrainColor;
+            const isSelected = selectedHex ? hex.q === selectedHex.q && hex.r === selectedHex.r : false;
+            const isSeatOfPower =
+              hex.holding && hex.q === realm.seatOfPower.q && hex.r === realm.seatOfPower.r;
             return (
-              <g
+              <Hexagon
                 key={`hex-${hex.q}-${hex.r}`}
-                transform={`translate(${center.x}, ${center.y})`}
-                onMouseDown={(e) => handleHexMouseDown(hex, e)}
-                onMouseEnter={(e) => isPainting && handlePaint(hex, e)}
-                onMouseMove={(e) => handleHexMouseMove(hex, e)}
-                className="group"
-                style={{ pointerEvents: isSpacePanActive ? 'none' : 'auto' }}
-              >
-                <polygon
-                  points={hexCorners.map((p) => `${p.x},${p.y}`).join(' ')}
-                  fill={terrainColor}
-                  stroke={borderColor}
-                  strokeWidth={viewOptions.gridWidth}
-                />
-
-                {viewOptions.showIconSpray &&
-                  (() => {
-                    const terrainTile = tileSets.terrain.find((t) => t.id === hex.terrain);
-                    if (!terrainTile) return null;
-
-                    const iconsToRender = generateSprayIcons(hex, terrainTile, viewOptions.hexSize);
-
-                    return (
-                      <g style={{ pointerEvents: 'none', clipPath: 'url(#hex-clip-path)' }}>
-                        {iconsToRender.map((icon, i) => (
-                          <g
-                            key={i}
-                            transform={`translate(${icon.x}, ${icon.y}) rotate(${icon.rotation})`}
-                          >
-                            <Icon
-                              name={icon.name}
-                              style={{ opacity: icon.opacity, color: icon.color }}
-                              width={icon.size}
-                              height={icon.size}
-                              x={-icon.size / 2}
-                              y={-icon.size / 2}
-                              strokeWidth={2.5}
-                            />
-                          </g>
-                        ))}
-                      </g>
-                    );
-                  })()}
-
-                <polygon
-                  points={hexCornersInnerHighlight.map((p) => `${p.x},${p.y}`).join(' ')}
-                  fill="none"
-                  stroke="rgba(115, 107, 35, 0.8)"
-                  strokeWidth="2.5"
-                  strokeLinejoin="round"
-                  className={`opacity-0 ${
-                    activeTool !== 'barrier' && activeTool !== 'terrain' && !isPickingTile
-                      ? 'group-hover:opacity-100'
-                      : ''
-                  } transition-opacity duration-150`}
-                  style={{ pointerEvents: 'none' }}
-                />
-              </g>
+                hex={hex}
+                viewOptions={viewOptions}
+                tileSets={tileSets}
+                terrainTextures={terrainTextures}
+                barrierColor={barrierColor}
+                isSelected={isSelected}
+                isSeatOfPower={isSeatOfPower}
+                isSpacePanActive={isSpacePanActive}
+                activeTool={activeTool}
+                isPickingTile={isPickingTile}
+                onMouseDown={handleHexMouseDown}
+                onMouseMove={handleHexMouseMove}
+                hexCorners={hexCorners}
+                hexCornersInnerHighlight={hexCornersInnerHighlight}
+                hexBoundingBox={hexBoundingBox}
+              />
             );
           })}
         </g>
 
-        {/* Layer 2: Selection and Hover Highlights */}
-        {selectedHex && activeTool !== 'barrier' && (
-          <g style={{ pointerEvents: 'none' }}>
-            <g
-              transform={`translate(${
-                axialToPixel(selectedHex, viewOptions.orientation, viewOptions.hexSize).x
-              }, ${axialToPixel(selectedHex, viewOptions.orientation, viewOptions.hexSize).y})`}
-            >
-              <polygon
-                points={hexCornersInnerHighlight.map((p) => `${p.x},${p.y}`).join(' ')}
-                fill="none"
-                stroke={SELECTION_COLOR}
-                strokeWidth={4}
-                strokeLinejoin="round"
-              />
-            </g>
-          </g>
-        )}
+        {/* Barrier Hover Highlight Layer */}
         {hoveredBarrier && activeTool === 'barrier' && !isPainting && (
           <g style={{ pointerEvents: 'none' }}>
             {(() => {
@@ -551,87 +520,6 @@ export function HexGrid({
                 </g>
               );
             })()}
-          </g>
-        )}
-
-        {/* Layer 3: Icons and Details */}
-        <g style={{ pointerEvents: 'none' }}>
-          {displayHexes.map((hex) => {
-            const center = axialToPixel(hex, viewOptions.orientation, viewOptions.hexSize);
-            const holdingTile = hex.holding ? tileSets.holding.find((t) => t.id === hex.holding) : null;
-            const landmarkTile = hex.landmark
-              ? tileSets.landmark.find((t) => t.id === hex.landmark)
-              : null;
-            const activeTile = holdingTile || (viewOptions.isGmView ? landmarkTile : null);
-            const isHolding = !!holdingTile;
-            const isSeatOfPower =
-              hex.holding && hex.q === realm.seatOfPower.q && hex.r === realm.seatOfPower.r;
-            const backplateBorderColor = isSeatOfPower
-              ? SEAT_OF_POWER_COLOR
-              : isHolding
-              ? HOLDING_ICON_BORDER_COLOR
-              : LANDMARK_ICON_BORDER_COLOR;
-            return (
-              <g key={`details-${hex.q}-${hex.r}`} transform={`translate(${center.x}, ${center.y})`}>
-                {activeTile?.icon && (
-                  <g>
-                    <polygon
-                      points={hexCorners.map((p) => `${p.x},${p.y}`).join(' ')}
-                      transform="scale(0.75)"
-                      fill="#eaebec"
-                      stroke={backplateBorderColor}
-                      strokeWidth={isSeatOfPower ? 6 / 0.75 : 4 / 0.75}
-                      strokeLinejoin="round"
-                    />
-                    <Icon
-                      name={activeTile.icon}
-                      x={-viewOptions.hexSize.x * 0.4}
-                      y={-viewOptions.hexSize.y * 0.4}
-                      width={viewOptions.hexSize.x * 0.8}
-                      height={viewOptions.hexSize.y * 0.8}
-                      className="text-[#221f21]"
-                      strokeWidth={2}
-                    />
-                  </g>
-                )}
-                {viewOptions.isGmView && hex.myth && (
-                  <g>
-                    <circle r={viewOptions.hexSize.x * 0.25} fill={MYTH_COLOR} />
-                    <text
-                      textAnchor="middle"
-                      dy=".3em"
-                      fill="#221f21"
-                      className="font-myth-number"
-                    >
-                      {hex.myth}
-                    </text>
-                  </g>
-                )}
-              </g>
-            );
-          })}
-        </g>
-
-        {/* Layer 4: Barriers */}
-        {viewOptions.isGmView && (
-          <g style={{ pointerEvents: 'none' }}>
-            {displayHexes.map((hex) => {
-              if (hex.barrierEdges.length === 0) return null;
-              const center = axialToPixel(hex, viewOptions.orientation, viewOptions.hexSize);
-              return (
-                <g key={`barriers-${hex.q}-${hex.r}`} transform={`translate(${center.x}, ${center.y})`}>
-                  {hex.barrierEdges.map((edgeIndex) => (
-                    <path
-                      key={edgeIndex}
-                      d={getBarrierPath(edgeIndex, hexCorners)}
-                      stroke={barrierColor}
-                      strokeWidth="6"
-                      strokeLinecap="round"
-                    />
-                  ))}
-                </g>
-              );
-            })}
           </g>
         )}
       </svg>

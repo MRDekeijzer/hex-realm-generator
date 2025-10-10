@@ -169,10 +169,12 @@ const icons: { [key: string]: React.ElementType } = {
 /**
  * Props for the Icon component.
  */
-interface IconProps extends React.SVGAttributes<SVGSVGElement> {
+// FIX: Changed interface with extends to a type intersection to resolve issues with TS not recognizing SVG attributes.
+type IconProps = {
   /** The string name of the icon to render. Must exist in the `icons` map. */
   name: string;
-}
+} & React.SVGAttributes<SVGSVGElement>;
+
 
 /**
  * Renders a Lucide icon based on a string name.

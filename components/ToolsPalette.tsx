@@ -18,20 +18,18 @@ interface ToolsPaletteProps {
   setActiveTool: (tool: Tool) => void;
 }
 
-/**
- * A reusable button component for the tools palette.
- */
-const ToolButton = ({
-  icon,
-  label,
-  isActive,
-  onClick,
-}: {
+interface ToolButtonProps {
   icon: string;
   label: string;
   isActive: boolean;
   onClick: () => void;
-}) => (
+}
+
+/**
+ * A reusable button component for the tools palette.
+ */
+// FIX: Changed to React.FC to correctly type as a component, resolving key prop errors.
+const ToolButton: React.FC<ToolButtonProps> = ({ icon, label, isActive, onClick }) => (
   <button
     onClick={onClick}
     className={`p-3 rounded-lg transition-colors duration-150 ${

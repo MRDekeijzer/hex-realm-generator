@@ -25,21 +25,20 @@ interface PoiPainterProps {
   isPickingTile: boolean;
 }
 
-/**
- * A reusable button for selecting a POI to paint.
- */
-const PoiButton = ({
-  item,
-  isSelected,
-  onClick,
-}: {
+interface PoiButtonProps {
   item: Tile;
   isSelected: boolean;
   onClick: () => void;
-}) => {
+}
+
+/**
+ * A reusable button for selecting a POI to paint.
+ */
+// FIX: Changed to React.FC to correctly type as a component, resolving key prop errors.
+const PoiButton: React.FC<PoiButtonProps> = ({ item, isSelected, onClick }) => {
   return (
     <button
-      key={item.id}
+      // FIX: Removed invalid key prop from inside component.
       onClick={onClick}
       className={`flex flex-col items-center justify-center gap-2 p-2 rounded-lg transition-all duration-150 border-2 text-center
               ${

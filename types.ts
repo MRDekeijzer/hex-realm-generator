@@ -129,6 +129,14 @@ export interface TileSet {
   landmark: Tile[];
 }
 
+/** A map of terrain IDs to their pre-rendered texture data URLs. */
+export interface TerrainTextures {
+  [terrainId: string]: {
+    withSpray: string;
+    withoutSpray: string;
+  };
+}
+
 /** Options for specifying the number of each landmark type to generate. */
 export interface LandmarkGenerationOptions {
   [key: string]: number;

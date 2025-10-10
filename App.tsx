@@ -15,7 +15,16 @@ import { PoiPainter } from './components/PoiPainter';
 import { MythSidebar } from './components/MythSidebar';
 import { generateRealm } from './services/realmGenerator';
 import { exportRealmAsJson, exportSvgAsPng } from './services/fileService';
-import type { Realm, Hex, ViewOptions, GenerationOptions, Tool, Myth, TileSet } from './types';
+import type {
+  Realm,
+  Hex,
+  ViewOptions,
+  GenerationOptions,
+  Tool,
+  Myth,
+  TileSet,
+  TerrainTextures,
+} from './types';
 import {
   DEFAULT_GRID_SIZE,
   DEFAULT_TILE_SETS,
@@ -33,6 +42,7 @@ import { useHistory } from './hooks/useHistory';
 import { BarrierPainter } from './components/BarrierPainter';
 import { ConfirmationDialog } from './components/ConfirmationDialog';
 import { HistoryControls } from './components/HistoryControls';
+import { generateTerrainTextures } from './utils/textureUtils';
 
 /**
  * State for managing confirmation dialogs.
@@ -88,6 +98,10 @@ export default function App() {
     focusId: string | null;
   }>({ tab: 'general', focusId: null });
   const [isPickingTile, setIsPickingTile] = useState(false);
+
+  // State for performance-enhancing pre-rendered terrain textures
+  const [terrainTextures, setTerrainTextures] = useState<TerrainTextures | null>(null);
+  const [isLoadingTextures, setIsLoadingTextures] = useState(true);
 
   // Initialize landmark counts for generation options.
   const initialLandmarkCounts = LANDMARK_TYPES.reduce(
@@ -151,6 +165,31 @@ export default function App() {
       handleGenerateRealm();
     }
   }, [realm, handleGenerateRealm]);
+
+  /**
+   * Effect to regenerate terrain textures whenever terrain settings or colors change.
+   */
+  useEffect(() => {
+    const generateAndSetTextures = async () => {
+      setIsLoadingTextures(true);
+      try {
+        const textures = await generateTerrainTextures(tileSets, terrainColors);
+        setTerrainTextures(textures);
+      } catch (error) {
+        console.error('Failed to generate terrain textures:', error);
+        setConfirmation({
+          isOpen: true,
+          title: 'Texture Generation Failed',
+          message: 'Could not generate map textures. The map may not display correctly.',
+          onConfirm: () => setConfirmation(null),
+          isInfo: true,
+        });
+      } finally {
+        setIsLoadingTextures(false);
+      }
+    };
+    generateAndSetTextures();
+  }, [tileSets, terrainColors]);
 
   /**
    * Effect to handle tool-specific state changes when the active tool is switched.
@@ -714,6 +753,8 @@ export default function App() {
               isPickingTile={isPickingTile}
               onTilePick={handleTilePick}
               setConfirmation={setConfirmation}
+              terrainTextures={terrainTextures}
+              isLoadingTextures={isLoadingTextures}
             />
           ) : (
             <div className="flex items-center justify-center h-full text-[#a7a984]">
