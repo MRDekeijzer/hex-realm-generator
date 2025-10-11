@@ -11,7 +11,6 @@ import { ToolbarButton } from './ui/ToolbarButton';
 import { SettingsModal } from './settings/SettingsModal';
 import { GridSettingsPopover } from './GridSettingsPopover';
 import type { ConfirmationState } from '../App';
-import { ThemeToggle } from './ui/ThemeToggle';
 
 /**
  * Props for the Toolbar component.
@@ -187,6 +186,8 @@ export function Toolbar({
           )}
         </div>
 
+        <div className="border-l border-[var(--color-border-primary)] h-6"></div>
+
         <ToolbarButton
           onClick={() => setViewOptions((v) => ({ ...v, showIconSpray: !v.showIconSpray }))}
           icon="spray-can"
@@ -205,8 +206,6 @@ export function Toolbar({
         </ToolbarButton>
       </div>
       <div className="flex items-center gap-2">
-        <ThemeToggle />
-        <div className="border-l border-[var(--color-border-primary)] h-6"></div>
         <input
           type="file"
           ref={fileInputRef}
