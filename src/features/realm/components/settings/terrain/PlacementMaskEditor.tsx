@@ -73,14 +73,16 @@ export const PlacementMaskEditor: React.FC<PlacementMaskEditorProps> = ({ mask, 
       </p>
       <div
         ref={containerRef}
-        className="relative bg-realm-command-panel-surface rounded-md overflow-hidden select-none"
-        style={{ aspectRatio: '1 / 1' }}
+        className="relative bg-realm-command-panel-surface rounded-md overflow-hidden select-none aspect-square"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={() => setIsPainting(false)}
         onMouseLeave={() => setIsPainting(false)}
       >
-        <div className="grid grid-cols-5 h-full">
+        <div
+          className="grid h-full"
+          style={{ gridTemplateColumns: `repeat(${MASK_RESOLUTION}, minmax(0, 1fr))` }}
+        >
           {mask.map((value, index) => (
             <div
               key={index}

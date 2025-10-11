@@ -166,7 +166,7 @@ export const resolveColorToken = (token: string): string => {
   const lookupKey = legacyColorTokenMap[normalized] ?? normalized;
   const paletteValue = tailwindColorPalette[lookupKey as TailwindColorName];
   if (paletteValue) {
-    return paletteValue.toUpperCase();
+    return HEX_PATTERN.test(paletteValue) ? paletteValue.toUpperCase() : paletteValue;
   }
   if (HEX_PATTERN.test(token)) {
     return token.toUpperCase();

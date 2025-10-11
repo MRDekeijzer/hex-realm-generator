@@ -5,7 +5,7 @@
  * custom terrain types.
  */
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Icon } from '../Icon';
 import { TERRAIN_TYPES } from '@/features/realm/config/constants';
 import { resolveColorToken, getTerrainBaseColor } from '@/app/theme/colors';
@@ -13,6 +13,7 @@ import type { TileSet } from '@/features/realm/types';
 import { InfoPopup } from '../ui/InfoPopup';
 import { AddTerrainForm } from './terrain/AddTerrainForm';
 import { useInfoPopup } from '@/shared/hooks/useInfoPopup';
+import { TerrainColorSwatch } from '../ui/TerrainColorSwatch';
 
 /**
  * Props for the TerrainPainterSidebar component.
@@ -51,7 +52,6 @@ export function TerrainPainterSidebar({
 }: TerrainPainterSidebarProps) {
   const [newTerrainName, setNewTerrainName] = useState('');
   const [newTerrainColor, setNewTerrainColor] = useState('#CCCCCC');
-  const colorInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const {
     activeInfo,
     handleInfoClick,
@@ -176,43 +176,20 @@ export function TerrainPainterSidebar({
                 title={`Paint ${terrain.label}`}
               >
                 <div className="flex items-center gap-2 flex-grow min-w-0">
-                  <button
-                    type="button"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      if (isCustomColor) {
-                        onResetTerrainColor(terrain.id);
-                      } else {
-                        colorInputRefs.current[terrain.id]?.click();
-                      }
-                    }}
-                    className="w-7 h-7 rounded-md flex-shrink-0 border border-white/80 relative group"
-                    style={{ backgroundColor: resolvedColor }}
-                    title={isCustomColor ? 'Reset color to default' : 'Edit color'}
-                    aria-label={
+                  <TerrainColorSwatch
+                    color={resolvedColor}
+                    ariaLabel={
                       isCustomColor
                         ? `Reset ${terrain.label} color to default`
                         : `Select color for ${terrain.label}`
                     }
-                  >
-                    <input
-                      ref={(element) => {
-                        if (element) colorInputRefs.current[terrain.id] = element;
-                      }}
-                      type="color"
-                      value={resolvedColor}
-                      onChange={(event) => {
-                        event.stopPropagation();
-                        onUpdateTerrainColor(terrain.id, event.target.value.toUpperCase());
-                      }}
-                      onClick={(event) => event.stopPropagation()}
-                      className="opacity-0 w-0 h-0 absolute pointer-events-none"
-                      aria-label={`${terrain.label} color picker`}
-                    />
-                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <Icon name={isCustomColor ? 'reset' : 'pipette'} className="w-4 h-4 text-white" />
-                    </div>
-                  </button>
+                    tooltip={isCustomColor ? 'Reset color to default' : 'Edit color'}
+                    onChange={(value) => onUpdateTerrainColor(terrain.id, value)}
+                    onReset={isCustomColor ? () => onResetTerrainColor(terrain.id) : undefined}
+                    canReset={isCustomColor}
+                    className="w-7 h-7 rounded-md flex-shrink-0 border border-white/80"
+                    iconClassName="w-4 h-4 text-white"
+                  />
                   <span
                     className={`font-medium text-sm truncate ${
                       isSelected ? 'text-text-high-contrast' : 'text-text-muted'

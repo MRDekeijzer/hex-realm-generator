@@ -15,6 +15,7 @@ import { IconGridSelector } from './terrain/IconGridSelector';
 import { PlacementMaskEditor } from './terrain/PlacementMaskEditor';
 import { RangeSlider } from './terrain/RangeSlider';
 import { useInfoPopup } from '@/shared/hooks/useInfoPopup';
+import { TerrainColorSwatch } from '../ui/TerrainColorSwatch';
 
 // =================================================================================
 // --- Sub-component: IconGridSelector ---
@@ -42,7 +43,6 @@ interface TerrainSettingsProps {
  * including the procedural Icon Spray feature.
  */
 export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSettingsProps) => {
-  const colorInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const detailsRefs = useRef<Map<string, HTMLDetailsElement | null>>(new Map());
   const {
     activeInfo,
@@ -233,27 +233,16 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
                         Color
                       </label>
                       <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => colorInputRefs.current[terrain.id]?.click()}
-                          className="w-10 h-10 rounded-md flex-shrink-0 border border-black/20 relative group/pipette"
-                          style={{ backgroundColor: settings.color }}
-                          title="Edit color"
-                        >
-                          <input
-                            ref={(el) => {
-                              if (el) colorInputRefs.current[terrain.id] = el;
-                            }}
-                            type="color"
-                            value={settings.color}
-                            onChange={(e) =>
-                              handleSettingChange(terrain.id, 'color', e.target.value)
-                            }
-                            className="opacity-0 w-0 h-0 absolute pointer-events-none"
-                          />
-                          <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/pipette:opacity-100 transition-opacity flex items-center justify-center">
-                            <Icon name="pipette" className="w-5 h-5 text-white" />
-                          </div>
-                        </button>
+                        <TerrainColorSwatch
+                          color={resolvedSprayColor}
+                          ariaLabel={`Select spray color for ${terrain.label}`}
+                          tooltip="Edit color"
+                          onChange={(value) =>
+                            handleSettingChange(terrain.id, 'color', value)
+                          }
+                          className="w-10 h-10 rounded-md flex-shrink-0 border border-black/20"
+                          iconClassName="w-5 h-5 text-white"
+                        />
                         <span className="p-2 bg-realm-command-panel-surface rounded-md text-sm font-mono flex-grow text-center h-10 flex items-center justify-center">
                           {resolvedSprayColor}
                         </span>
