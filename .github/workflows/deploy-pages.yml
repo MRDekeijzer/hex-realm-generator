@@ -25,6 +25,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Work around npm optional dependency bug
+        if: runner.os == 'Linux'
+        run: npm install --no-save @rollup/rollup-linux-x64-gnu@4.52.4
+
       - name: Build
         env:
           VITE_BASE: '/${{ github.event.repository.name }}/'
