@@ -2,19 +2,19 @@ import React, { createContext, useState, useEffect, useMemo, useContext } from '
 import { colorTokenList } from '@/features/realm/config/constants';
 
 interface ThemeContextType {
-  colors: { [key: string]: string };
+  colors: Record<string, string>;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
-  const [resolvedColors, setResolvedColors] = useState<{ [key: string]: string }>({});
+  const [resolvedColors, setResolvedColors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', 'dark');
 
     const rootStyle = getComputedStyle(document.documentElement);
-    const newColors: { [key: string]: string } = {};
+    const newColors: Record<string, string> = {};
     for (const token of colorTokenList) {
       newColors[token] = rootStyle.getPropertyValue(token).trim();
     }

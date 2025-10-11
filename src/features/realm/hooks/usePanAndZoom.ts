@@ -3,7 +3,8 @@
  * This file contains a custom React hook for managing panning and zooming
  * interactions on an SVG canvas.
  */
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import type React from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 
 /**
  * Options for the usePanAndZoom hook.

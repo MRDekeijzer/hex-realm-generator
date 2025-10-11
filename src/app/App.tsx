@@ -85,12 +85,12 @@ export default function App() {
   const [tileSets, setTileSets] = useState<TileSet>(DEFAULT_TILE_SETS);
   const { colors } = useTheme();
 
-  const [terrainColors, setTerrainColors] = useState<{ [key: string]: string }>({});
+  const [terrainColors, setTerrainColors] = useState<Record<string, string>>({});
   const [barrierColor, setBarrierColor] = useState(BARRIER_COLOR);
 
   useEffect(() => {
     if (Object.keys(colors).length > 0) {
-      const initialTerrainColors: { [key: string]: string } = {};
+      const initialTerrainColors: Record<string, string> = {};
       TERRAIN_TYPES.forEach((id) => {
         const color = colors[`--terrain-${id}`];
         if (color) {
@@ -126,7 +126,7 @@ export default function App() {
       acc[type] = 3;
       return acc;
     },
-    {} as { [key: string]: number }
+    {} as Record<string, number>
   );
 
   // State for all realm generation parameters.

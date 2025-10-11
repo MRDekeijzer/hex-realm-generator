@@ -130,24 +130,16 @@ export interface TileSet {
 }
 
 /** A map of terrain IDs to their pre-rendered texture data URLs. */
-export interface TerrainTextures {
-  [terrainId: string]: {
+export type TerrainTextures = Record<string, {
     withSpray: string;
     withoutSpray: string;
-  };
-}
+  }>;
 
 /** Options for specifying the number of each landmark type to generate. */
-export interface LandmarkGenerationOptions {
-  [key: string]: number;
-}
+export type LandmarkGenerationOptions = Record<string, number>;
 
 /** A matrix defining the clustering affinity between different terrain types. */
-export type TerrainClusteringMatrix = {
-  [terrainA: string]: {
-    [terrainB: string]: number;
-  };
-};
+export type TerrainClusteringMatrix = Record<string, Record<string, number>>;
 
 /** Defines the shape used for forming highland areas during terrain generation. */
 export type HighlandFormation = 'random' | 'linear' | 'circle' | 'triangle';
@@ -177,7 +169,7 @@ export interface GenerationOptions {
   /** The matrix of terrain clustering affinities. */
   terrainClusteringMatrix: TerrainClusteringMatrix;
   /** A set of weights influencing the frequency of each terrain type. */
-  terrainBiases: { [key: string]: number };
+  terrainBiases: Record<string, number>;
   /** An ordered array of terrain IDs from highest to lowest elevation. */
   terrainHeightOrder: string[];
 }

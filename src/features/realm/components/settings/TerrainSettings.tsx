@@ -335,7 +335,7 @@ interface TerrainSettingsProps {
  * including the procedural Icon Spray feature.
  */
 export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSettingsProps) => {
-  const colorInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+  const colorInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const detailsRefs = useRef<Map<string, HTMLDetailsElement | null>>(new Map());
 
   useEffect(() => {

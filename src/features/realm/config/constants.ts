@@ -444,7 +444,7 @@ export const TERRAIN_CATEGORIES = {
  * The default weights for each terrain type during generation. Higher numbers
  * increase the probability of that terrain appearing.
  */
-export const DEFAULT_TERRAIN_BIASES: { [key: string]: number } = {
+export const DEFAULT_TERRAIN_BIASES: Record<string, number> = {
   marsh: 5,
   heath: 10,
   crags: 5,
@@ -462,9 +462,7 @@ export const DEFAULT_TERRAIN_BIASES: { [key: string]: number } = {
 /**
  * A collection of preset templates for terrain generation settings.
  */
-export const TERRAIN_TEMPLATES: {
-  [key: string]: { name: string; options: Partial<GenerationOptions> };
-} = {
+export const TERRAIN_TEMPLATES: Record<string, { name: string; options: Partial<GenerationOptions> }> = {
   balanced: {
     name: 'Balanced Realm',
     options: {

@@ -49,7 +49,7 @@ interface HexGridProps {
   onRelocateMyth: (mythId: number, newHex: Hex) => void;
   onSetSeatOfPower: (hex: Hex) => void;
   tileSets: TileSet;
-  terrainColors: { [key: string]: string };
+  terrainColors: Record<string, string>;
   barrierColor: string;
   isSettingsOpen: boolean;
   isPickingTile: boolean;

@@ -17,9 +17,9 @@ const TEXTURE_HEX_SIZE: Point = { x: TEXTURE_SIZE / 2, y: TEXTURE_SIZE / 2 };
  * Reads all theme-related CSS variables from the document's computed style.
  * @returns A map of CSS variable names to their computed color values.
  */
-function getResolvedColors(): { [key: string]: string } {
+function getResolvedColors(): Record<string, string> {
   const rootStyle = getComputedStyle(document.documentElement);
-  const newColors: { [key: string]: string } = {};
+  const newColors: Record<string, string> = {};
   for (const token of colorTokenList) {
     newColors[token] = rootStyle.getPropertyValue(token).trim();
   }
@@ -35,7 +35,7 @@ function getResolvedColors(): { [key: string]: string } {
 function drawSprayIcons(
   ctx: CanvasRenderingContext2D,
   terrain: Tile,
-  resolvedColors: { [key: string]: string }
+  resolvedColors: Record<string, string>
 ) {
   // Use a mock hex; the coordinates don't matter as the pattern is deterministic by terrain ID.
   const mockHex = { q: 0, r: 0, s: 0, terrain: terrain.id, barrierEdges: [] };
@@ -49,7 +49,7 @@ function drawSprayIcons(
     ctx.translate(icon.x, icon.y);
     ctx.rotate((icon.rotation * Math.PI) / 180);
 
-    const varNameMatch = icon.color.match(/--[a-zA-Z0-9-]+/);
+    const varNameMatch = /--[a-zA-Z0-9-]+/.exec(icon.color);
     const colorKey = varNameMatch ? varNameMatch[0] : null;
     const resolvedColor = colorKey ? resolvedColors[colorKey] : icon.color;
 
@@ -82,7 +82,7 @@ function drawSprayIcons(
  */
 export async function generateTerrainTextures(
   tileSets: TileSet,
-  terrainColors: { [key: string]: string }
+  terrainColors: Record<string, string>
 ): Promise<TerrainTextures> {
   const resolvedColors = getResolvedColors();
   if (!resolvedColors['--color-background-primary']) {

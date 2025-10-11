@@ -12,7 +12,7 @@ import { DEFAULT_GRID_COLOR, DEFAULT_GRID_WIDTH } from '@/features/realm/config/
  */
 const rgbaToHexOpacity = (rgba: string): { hex: string; opacity: number } => {
   if (rgba.startsWith('#')) return { hex: rgba, opacity: 1 };
-  const match = rgba.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+  const match = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/.exec(rgba);
   if (!match) return { hex: '#eaebec', opacity: 0.2 };
   const toHex = (c: number) => ('0' + c.toString(16)).slice(-2);
   const r = match[1];

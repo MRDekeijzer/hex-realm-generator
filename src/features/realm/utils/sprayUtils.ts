@@ -5,7 +5,7 @@
 import type { Hex, Point, Tile } from '@/features/realm/types';
 import { DEFAULT_SPRAY_SETTINGS, MASK_RESOLUTION } from '@/features/realm/config/constants';
 
-type SprayIcon = {
+interface SprayIcon {
   name: string;
   x: number;
   y: number;
@@ -13,7 +13,7 @@ type SprayIcon = {
   rotation: number;
   opacity: number;
   color: string;
-};
+}
 
 /**
  * A simple, high-quality pseudo-random number generator.

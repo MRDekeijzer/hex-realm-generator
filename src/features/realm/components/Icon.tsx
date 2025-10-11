@@ -81,7 +81,7 @@ import {
  * A mapping of string names to Lucide icon components.
  * This allows icons to be referenced by a simple string name throughout the app.
  */
-const icons: { [key: string]: React.ElementType } = {
+const icons: Record<string, React.ElementType> = {
   // Toolbar
   sparkles: Sparkles,
   settings: Settings,

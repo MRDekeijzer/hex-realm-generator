@@ -333,7 +333,7 @@ function placeMyths(hexes: Hex[], numMyths: number, mythMinDistance: number): My
  * @param hexes - The array of hexes.
  * @param landmarkOptions - An object specifying how many of each landmark to place.
  */
-function placeLandmarks(hexes: Hex[], landmarkOptions: { [key: string]: number }): void {
+function placeLandmarks(hexes: Hex[], landmarkOptions: Record<string, number>): void {
   const validHexes = hexes.filter((h) => !h.holding && !h.landmark);
   Object.entries(landmarkOptions).forEach(([type, count]) => {
     const numToPlace = count || 0;

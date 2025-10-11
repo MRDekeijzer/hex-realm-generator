@@ -21,7 +21,7 @@ interface TerrainPainterSidebarProps {
   setPaintTerrain: (terrain: string) => void;
   onClose: () => void;
   tileSets: TileSet;
-  terrainColors: { [key: string]: string };
+  terrainColors: Record<string, string>;
   onAddTerrain: (name: string, color: string) => void;
   onRemoveTerrain: (id: string) => void;
   onUpdateTerrainColor: (id: string, color: string) => void;
@@ -50,7 +50,7 @@ export function TerrainPainterSidebar({
 }: TerrainPainterSidebarProps) {
   const [newTerrainName, setNewTerrainName] = useState('');
   const [newTerrainColor, setNewTerrainColor] = useState('#cccccc');
-  const colorInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+  const colorInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   // FIX: Added `useTheme` hook to get the resolved CSS variables.
   const { colors } = useTheme();
 

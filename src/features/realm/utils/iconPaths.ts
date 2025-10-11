@@ -11,7 +11,7 @@
  * Each key is an icon name, and the value is an array of SVG path 'd' attributes.
  * Some icons may consist of multiple paths.
  */
-export const iconPaths: { [key: string]: string[] } = {
+export const iconPaths: Record<string, string[]> = {
   'tree-pine': [
     'M12 22v-3',
     'M12 9c3.3 0 6-2.7 6-6s-2.7-6-6-6-6 2.7-6 6 2.7 6 6 6z',
