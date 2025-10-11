@@ -28,6 +28,7 @@ jobs:
       - name: Build
         env:
           VITE_BASE: '/${{ github.event.repository.name }}/'
+          ROLLUP_SKIP_NATIVE: 'true'
         run: npm run build
 
       - name: Debug permissions
