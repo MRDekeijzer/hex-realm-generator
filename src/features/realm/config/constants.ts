@@ -10,61 +10,33 @@ import type {
   GenerationOptions,
   SpraySettings,
 } from '../types/index.ts';
+import { colorPalette, flattenColorPalette } from '@/app/theme/colors';
 
-// =================================================================================
-// --- COLOR SETTINGS ---
-// All application color constants are defined here for easy theming.
-// They reference the CSS variables defined in styles/tokens.css.
-// =================================================================================
+const flattenedColors = flattenColorPalette(colorPalette);
 
-/** A list of all CSS color variables used for theming. */
-export const colorTokenList = [
-  '--color-background-primary',
-  '--color-background-secondary',
-  '--color-surface-primary',
-  '--color-surface-secondary',
-  '--color-surface-tertiary',
-  '--color-border-primary',
-  '--color-border-holding',
-  '--color-border-landmark',
-  '--color-text-primary',
-  '--color-text-secondary',
-  '--color-text-tertiary',
-  '--color-text-inverse',
-  '--color-text-accent',
-  '--color-accent-primary',
-  '--color-accent-primary-hover',
-  '--color-accent-danger',
-  '--color-accent-danger-hover',
-  '--color-accent-special',
-  '--color-accent-success',
-  '--color-accent-info',
-  '--color-accent-myth',
-  '--color-accent-seat-of-power',
-  '--terrain-marsh',
-  '--terrain-heath',
-  '--terrain-crags',
-  '--terrain-peaks',
-  '--terrain-forest',
-  '--terrain-valley',
-  '--terrain-hills',
-  '--terrain-meadow',
-  '--terrain-bog',
-  '--terrain-lakes',
-  '--terrain-glades',
-  '--terrain-plain',
-];
+export const TERRAIN_BASE_COLORS: Record<string, string> = Object.fromEntries(
+  Object.keys(colorPalette.terrain).map((terrainId) => [
+    terrainId,
+    flattenedColors[`terrain-${terrainId}-base`],
+  ])
+);
 
 // ---------------------------------------------------------------------------------
 // UI Element Colors
 // Specific color assignments for various parts of the UI, derived from CSS variables.
 // ---------------------------------------------------------------------------------
-export const MYTH_COLOR = 'var(--color-accent-myth)';
-export const BARRIER_COLOR = 'var(--color-accent-danger)';
-export const SELECTION_COLOR = 'var(--color-accent-primary)';
-export const SEAT_OF_POWER_COLOR = 'var(--color-accent-seat-of-power)';
-export const HOLDING_ICON_BORDER_COLOR = 'var(--color-border-holding)';
-export const LANDMARK_ICON_BORDER_COLOR = 'var(--color-border-landmark)';
+export const MYTH_COLOR = flattenedColors['mythic-myth-glow'];
+export const BARRIER_COLOR = flattenedColors['actions-danger-base'];
+export const SELECTION_COLOR = flattenedColors['actions-command-primary'];
+export const SEAT_OF_POWER_COLOR = flattenedColors['mythic-seat-of-power'];
+export const HOLDING_ICON_BORDER_COLOR = flattenedColors['border-holding-marker'];
+export const LANDMARK_ICON_BORDER_COLOR = flattenedColors['border-landmark-marker'];
+export const TEXT_INVERSE_COLOR = flattenedColors['text-inverse'];
+export const TEXT_HIGH_CONTRAST_COLOR = flattenedColors['text-high-contrast'];
+export const CARD_SURFACE_COLOR = flattenedColors['realm-card-surface'];
+export const BORDER_PANEL_DIVIDER_COLOR = flattenedColors['border-panel-divider'];
+export const COMMAND_PANEL_SURFACE_COLOR = flattenedColors['realm-command-panel-surface'];
+export const SUCCESS_HIGHLIGHT_COLOR = flattenedColors['feedback-success-highlight'];
 export const DEFAULT_GRID_COLOR = 'rgba(234, 235, 236, 0.2)';
 export const DEFAULT_GRID_WIDTH = 1;
 
@@ -176,7 +148,7 @@ export const DEFAULT_SPRAY_SETTINGS: SpraySettings = {
   sizeMax: 9,
   opacityMin: 0.6,
   opacityMax: 0.8,
-  color: 'var(--color-text-inverse)',
+  color: flattenedColors['text-inverse'],
   placementMask: uniformMask,
 };
 
@@ -190,7 +162,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       id: 'marsh',
       label: 'Marsh',
       icon: 'droplet',
-      color: 'var(--terrain-marsh)',
+      color: TERRAIN_BASE_COLORS['marsh'],
       description:
         'Sodden lowlands thick with reeds and standing water. Travel is slow, but the damp earth hides secrets and strange wildlife.',
       sprayIcons: ['droplet', 'feather', 'waves'],
@@ -206,7 +178,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       id: 'heath',
       label: 'Heath',
       icon: 'leaf',
-      color: 'var(--terrain-heath)',
+      color: TERRAIN_BASE_COLORS['heath'],
       description:
         'Open scrubland swept by relentless winds and hardy brush. A liminal place where travelers can see danger coming from afar.',
       sprayIcons: ['leaf', 'wind', 'flower'],
@@ -222,7 +194,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       id: 'crags',
       label: 'Crags',
       icon: 'triangle',
-      color: 'var(--terrain-crags)',
+      color: TERRAIN_BASE_COLORS['crags'],
       description:
         'Jagged highlands broken into cliffs of bare stone. Treacherous footing rewards climbers with stunning vantage points.',
       sprayIcons: ['triangle', 'mountain', 'rock'],
@@ -238,7 +210,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       id: 'peaks',
       label: 'Peaks',
       icon: 'mountains',
-      color: 'var(--terrain-peaks)',
+      color: TERRAIN_BASE_COLORS['peaks'],
       description:
         'Towering mountain summits often crowned with snow. Thin air and frigid winds shelter ancient shrines and nesting wyverns.',
       sprayIcons: ['triangle', 'flag', 'snowflake'],
@@ -254,7 +226,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       id: 'forest',
       label: 'Forest',
       icon: 'trees',
-      color: 'var(--terrain-forest)',
+      color: TERRAIN_BASE_COLORS['forest'],
       description:
         'Dense woodland of towering trunks and tangled undergrowth. Sunlight filters through the canopy, alive with birdsong and hidden paths.',
       sprayIcons: ['tree-pine', 'leaf', 'branch'],
@@ -270,7 +242,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       id: 'valley',
       label: 'Valley',
       icon: 'curve',
-      color: 'var(--terrain-valley)',
+      color: TERRAIN_BASE_COLORS['valley'],
       description:
         'Sheltered lowlands carved by rivers and gentle slopes. Trade roads follow the water, drawing settlements and fertile farms.',
       sprayIcons: ['river', 'path', 'leaf'],
@@ -286,7 +258,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       id: 'hills',
       label: 'Hills',
       icon: 'hill',
-      color: 'var(--terrain-hills)',
+      color: TERRAIN_BASE_COLORS['hills'],
       description:
         'Rolling uplands of ridgelines and wind-swept rises. Shepherds and watchtowers cling to the heights to guard the realm.',
       sprayIcons: ['wave-sine', 'chevron-up', 'rock'],
@@ -302,7 +274,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       id: 'meadow',
       label: 'Meadow',
       icon: 'flower',
-      color: 'var(--terrain-meadow)',
+      color: TERRAIN_BASE_COLORS['meadow'],
       description:
         'Lush grasslands dotted with bright wildflowers. Ideal for foraging and grazing, these fields invite festivals in the warm months.',
       sprayIcons: ['flower', 'sun', 'cloud'],
@@ -318,7 +290,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       id: 'bog',
       label: 'Bog',
       icon: 'droplets',
-      color: 'var(--terrain-bog)',
+      color: TERRAIN_BASE_COLORS['bog'],
       description:
         'Peat-choked wetlands that cling to unwary travelers. Lantern lights drift across the mist, not all of them friendly.',
       sprayIcons: ['droplet', 'skull', 'feather'],
@@ -334,7 +306,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       id: 'lakes',
       label: 'Lakes',
       icon: 'waves',
-      color: 'var(--terrain-lakes)',
+      color: TERRAIN_BASE_COLORS['lakes'],
       description:
         'Deep inland waters fed by streams and hidden springs. Fisherfolk ply their trade while legends speak of things beneath the surface.',
       sprayIcons: ['waves', 'droplet', 'fish'],
@@ -350,7 +322,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       id: 'glades',
       label: 'Glades',
       icon: 'sun',
-      color: 'var(--terrain-glades)',
+      color: TERRAIN_BASE_COLORS['glades'],
       description:
         'Sunlit clearings cradled within surrounding trees. Sacred stones and hidden gatherings are said to appear under moonlight.',
       sprayIcons: ['tree-deciduous', 'sparkles', 'sun'],
@@ -366,7 +338,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       id: 'plain',
       label: 'Plain',
       icon: 'wind',
-      color: 'var(--terrain-plain)',
+      color: TERRAIN_BASE_COLORS['plain'],
       description:
         'Wide, open flatlands stretching toward distant horizons. Armies march here, but so do caravans and migrating herds.',
       sprayIcons: ['wind', 'cloud', 'sun'],

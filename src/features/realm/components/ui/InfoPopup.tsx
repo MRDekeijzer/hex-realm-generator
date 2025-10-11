@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect, useEffect, useRef, useCallback } from 'react';
+﻿import React, { useState, useLayoutEffect, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 
 interface InfoPopupProps {
@@ -99,7 +99,7 @@ export const InfoPopup: React.FC<InfoPopupProps> = ({
   return createPortal(
     <div
       ref={popupRef}
-      className="fixed z-[999] w-64 rounded-md border border-[var(--color-border-primary)] bg-[var(--color-background-primary)] p-3 shadow-lg"
+      className="fixed z-[999] w-64 rounded-md border border-border-panel-divider bg-realm-canvas-backdrop p-3 shadow-lg"
       style={{ top: `${position.top}px`, left: `${position.left}px` }}
       role="dialog"
       onMouseEnter={onMouseEnter}
@@ -110,3 +110,4 @@ export const InfoPopup: React.FC<InfoPopupProps> = ({
     document.body
   );
 };
+

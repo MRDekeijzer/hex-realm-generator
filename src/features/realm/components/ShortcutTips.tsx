@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file ShortcutTips.tsx
  * This component displays a small, unobtrusive list of keyboard shortcuts
  * on the main map view.
@@ -13,7 +13,7 @@ const Shortcut = ({ keys, description }: { keys: string[]; description: string }
     <div className="flex items-center">
       {keys.map((key, index) => (
         <React.Fragment key={key}>
-          <kbd className="px-1.5 py-0.5 rounded bg-[var(--color-surface-primary)] font-sans">
+          <kbd className="px-1.5 py-0.5 rounded bg-realm-command-panel-surface font-sans">
             {key}
           </kbd>
           {index < keys.length - 1 && <span className="mx-1">+</span>}
@@ -29,7 +29,7 @@ const Shortcut = ({ keys, description }: { keys: string[]; description: string }
  */
 export function ShortcutTips() {
   return (
-    <div className="absolute bottom-4 left-4 bg-[rgba(var(--color-background-primary-rgb),0.8)] border border-[var(--color-border-primary)] p-3 rounded-lg shadow-lg text-xs text-[var(--color-text-secondary)] z-10 pointer-events-none space-y-2">
+    <div className="absolute bottom-4 left-4 bg-realm-canvas-backdrop/80 border border-border-panel-divider p-3 rounded-lg shadow-lg text-xs text-text-muted z-10 pointer-events-none space-y-2">
       <Shortcut keys={['Space']} description="Pan Map" />
       <Shortcut keys={['Ctrl', 'Z']} description="Undo" />
       <Shortcut keys={['Ctrl', 'Y']} description="Redo" />
@@ -37,3 +37,4 @@ export function ShortcutTips() {
     </div>
   );
 }
+

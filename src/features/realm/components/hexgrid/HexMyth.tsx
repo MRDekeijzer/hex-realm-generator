@@ -4,7 +4,7 @@
  */
 import React from 'react';
 import type { Point } from '@/features/realm/types';
-import { MYTH_COLOR } from '@/features/realm/config/constants';
+import { MYTH_COLOR, TEXT_INVERSE_COLOR } from '@/features/realm/config/constants';
 
 interface HexMythProps {
   mythId: number | undefined;
@@ -23,8 +23,8 @@ export const HexMyth = ({ mythId, isGmView, hexSize }: HexMythProps) => {
       <text
         textAnchor="middle"
         dy=".3em"
-        fill="var(--color-text-inverse)"
-        className="font-myth-number"
+        fill={TEXT_INVERSE_COLOR}
+        className="font-myth-number text-[1.8em]"
       >
         {mythId}
       </text>

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file HexBackplate.tsx
  * This component renders the backplate and icon for holdings and landmarks on a hex.
  */
@@ -9,6 +9,7 @@ import {
   SEAT_OF_POWER_COLOR,
   HOLDING_ICON_BORDER_COLOR,
   LANDMARK_ICON_BORDER_COLOR,
+  CARD_SURFACE_COLOR,
 } from '@/features/realm/config/constants';
 
 interface HexBackplateProps {
@@ -41,7 +42,7 @@ export const HexBackplate = ({
       <polygon
         points={hexCorners.map((p) => `${p.x},${p.y}`).join(' ')}
         transform="scale(0.75)"
-        fill="var(--color-surface-tertiary)"
+        fill={CARD_SURFACE_COLOR}
         stroke={backplateBorderColor}
         strokeWidth={isSeatOfPower ? 6 / 0.75 : 4 / 0.75}
         strokeLinejoin="round"
@@ -52,9 +53,10 @@ export const HexBackplate = ({
         y={-viewOptions.hexSize.y * 0.4}
         width={viewOptions.hexSize.x * 0.8}
         height={viewOptions.hexSize.y * 0.8}
-        className="text-[var(--color-text-inverse)]"
+        className="text-text-inverse"
         strokeWidth={2}
       />
     </g>
   );
 };
+

@@ -36,6 +36,10 @@ export function usePanAndZoom({
   const isPanningRef = useRef(false);
   const lastPoint = useRef({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
+  const clampZoom = useCallback(
+    (value: number) => Math.max(minZoom, Math.min(maxZoom, value)),
+    [minZoom, maxZoom]
+  );
 
   const setPanningState = useCallback((panning: boolean) => {
     isPanningRef.current = panning;
@@ -77,27 +81,40 @@ export function usePanAndZoom({
   }, [setPanningState]);
 
   const onWheel = useCallback(
-    (e: React.WheelEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      const [x, y, w, h] = viewbox.split(' ').map(parseFloat);
-      if (x === undefined || y === undefined || w === undefined || h === undefined) return;
-      const newZoom = Math.max(minZoom, Math.min(maxZoom, zoom * (1 - e.deltaY / 500)));
-      const zoomFactor = newZoom / zoom;
+    (event: WheelEvent) => {
+      event.preventDefault();
+      const container = containerRef.current;
+      if (!container) return;
 
-      if (!containerRef.current) return;
-      const containerRect = containerRef.current.getBoundingClientRect();
-      const mouseX = e.clientX - containerRect.left;
-      const mouseY = e.clientY - containerRect.top;
+      const containerRect = container.getBoundingClientRect();
+      const mouseX = event.clientX - containerRect.left;
+      const mouseY = event.clientY - containerRect.top;
 
-      const newW = w / zoomFactor;
-      const newH = h / zoomFactor;
-      const newX = x + (mouseX / zoom) * (1 - 1 / zoomFactor);
-      const newY = y + (mouseY / zoom) * (1 - 1 / zoomFactor);
+      setZoom((prevZoom) => {
+        const nextZoom = clampZoom(prevZoom * (1 - event.deltaY / 500));
+        if (nextZoom === prevZoom) return prevZoom;
 
-      setViewbox(`${newX} ${newY} ${newW} ${newH}`);
-      setZoom(newZoom);
+        const zoomFactor = nextZoom / prevZoom;
+        const safePrevZoom = prevZoom === 0 ? Number.EPSILON : prevZoom;
+
+        setViewbox((prevViewbox) => {
+          const [x, y, w, h] = prevViewbox.split(' ').map(Number);
+          if ([x, y, w, h].some((value) => Number.isNaN(value))) {
+            return prevViewbox;
+          }
+
+          const newW = w / zoomFactor;
+          const newH = h / zoomFactor;
+          const newX = x + (mouseX / safePrevZoom) * (1 - 1 / zoomFactor);
+          const newY = y + (mouseY / safePrevZoom) * (1 - 1 / zoomFactor);
+
+          return `${newX} ${newY} ${newW} ${newH}`;
+        });
+
+        return nextZoom;
+      });
     },
-    [viewbox, zoom, minZoom, maxZoom]
+    [clampZoom]
   );
 
   useEffect(() => {
@@ -112,5 +129,15 @@ export function usePanAndZoom({
     };
   }, [onMouseMove, onMouseUp]);
 
-  return { viewbox, containerRef, onMouseDown, onWheel, isPanning };
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    container.addEventListener('wheel', onWheel, { passive: false });
+    return () => {
+      container.removeEventListener('wheel', onWheel);
+    };
+  }, [onWheel]);
+
+  return { viewbox, containerRef, onMouseDown, isPanning };
 }

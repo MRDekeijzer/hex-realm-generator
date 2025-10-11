@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file Component for the "Terrain" tab in the main settings modal.
  */
 
@@ -8,7 +8,11 @@ import {
   SPRAYABLE_ICONS,
   DEFAULT_SPRAY_SETTINGS,
   MASK_RESOLUTION,
+  SUCCESS_HIGHLIGHT_COLOR,
+  BORDER_PANEL_DIVIDER_COLOR,
+  TEXT_HIGH_CONTRAST_COLOR,
 } from '@/features/realm/config/constants';
+import { resolvePaletteColor } from '@/app/theme/colors';
 import { SettingsSection } from '../ui/SettingsSection';
 import { SettingSlider } from '../ui/SettingSlider';
 import { Icon } from '../Icon';
@@ -30,10 +34,10 @@ interface IconGridSelectorProps {
 const IconGridSelector = ({ selectedIcons, onToggleIcon }: IconGridSelectorProps) => {
   return (
     <div>
-      <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
+      <label className="block text-sm font-medium text-text-muted mb-1">
         Spray Icons
       </label>
-      <div className="grid grid-cols-6 gap-1 p-2 bg-[var(--color-background-secondary)] rounded-md max-h-48 overflow-y-auto">
+      <div className="grid grid-cols-6 gap-1 p-2 bg-realm-map-viewport rounded-md max-h-48 overflow-y-auto">
         {SPRAYABLE_ICONS.sort().map((icon) => {
           const isSelected = selectedIcons.includes(icon);
           return (
@@ -41,7 +45,7 @@ const IconGridSelector = ({ selectedIcons, onToggleIcon }: IconGridSelectorProps
               key={icon}
               onClick={() => onToggleIcon(icon)}
               className={`flex flex-col items-center justify-center gap-1 p-1 rounded-md transition-all duration-150 border-2 text-center h-16
-                                ${isSelected ? 'bg-[rgba(var(--color-accent-primary-rgb),0.3)] border-[var(--color-accent-primary)] text-[var(--color-text-primary)]' : 'bg-[var(--color-surface-primary)] border-transparent hover:border-[var(--color-text-secondary)] text-[var(--color-text-secondary)]'}`}
+                                ${isSelected ? 'bg-actions-command-primary/30 border-actions-command-primary text-text-high-contrast' : 'bg-realm-command-panel-surface border-transparent hover:border-text-muted text-text-muted'}`}
               title={icon}
             >
               <Icon name={icon} className="w-6 h-6" />
@@ -120,16 +124,16 @@ const PlacementMaskEditor = ({ mask, onUpdateMask }: PlacementMaskEditorProps) =
 
   return (
     <div className="col-span-2">
-      <label className="block text-sm font-medium text-[var(--color-text-secondary)]">
+      <label className="block text-sm font-medium text-text-muted">
         Placement Mask
       </label>
-      <p className="text-xs text-[var(--color-text-secondary)] mt-1 mb-2">
+      <p className="text-xs text-text-muted mt-1 mb-2">
         Click and drag to "paint" the green area where icons are allowed to appear. This defines the
         placement area within the hex.
       </p>
       <div
         ref={containerRef}
-        className="grid bg-[var(--color-border-primary)] rounded-md select-none cursor-pointer gap-px w-min"
+        className="grid bg-border-panel-divider rounded-md select-none cursor-pointer gap-px w-min"
         style={{ gridTemplateColumns: `repeat(${MASK_RESOLUTION}, 1fr)` }}
         onMouseDown={handleMouseDown}
         onMouseUp={() => setIsPainting(false)}
@@ -139,25 +143,20 @@ const PlacementMaskEditor = ({ mask, onUpdateMask }: PlacementMaskEditorProps) =
         {mask.map((value, index) => (
           <div
             key={index}
-            className="w-5 h-5"
-            style={{
-              backgroundColor: value
-                ? 'var(--color-accent-success)'
-                : 'var(--color-surface-primary)',
-            }}
+            className={`w-5 h-5 ${value ? 'bg-feedback-success-highlight' : 'bg-realm-command-panel-surface'}`}
           />
         ))}
       </div>
       <div className="flex items-center gap-2 mt-2">
         <button
           onClick={handleFill}
-          className="px-2 py-0.5 text-xs bg-[var(--color-surface-primary)] hover:bg-[var(--color-surface-secondary)] rounded-md text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
+          className="px-2 py-0.5 text-xs bg-realm-command-panel-surface hover:bg-realm-command-panel-hover rounded-md text-text-muted hover:text-text-high-contrast transition-colors"
         >
           Fill
         </button>
         <button
           onClick={handleEmpty}
-          className="px-2 py-0.5 text-xs bg-[var(--color-surface-primary)] hover:bg-[var(--color-surface-secondary)] rounded-md text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
+          className="px-2 py-0.5 text-xs bg-realm-command-panel-surface hover:bg-realm-command-panel-hover rounded-md text-text-muted hover:text-text-high-contrast transition-colors"
         >
           Empty
         </button>
@@ -193,7 +192,7 @@ const HexSprayPreview = ({ terrain }: HexSprayPreviewProps) => {
           <polygon
             points={hexCorners.map((p) => `${p.x},${p.y}`).join(' ')}
             fill={terrain.color || '#ccc'}
-            stroke="var(--color-border-primary)"
+            stroke={BORDER_PANEL_DIVIDER_COLOR}
             strokeWidth="1"
           />
           <g>
@@ -213,7 +212,7 @@ const HexSprayPreview = ({ terrain }: HexSprayPreviewProps) => {
           </g>
         </g>
       </svg>
-      <p className="text-xs text-center text-[var(--color-text-secondary)]">
+      <p className="text-xs text-center text-text-muted">
         This pattern is consistent for all '{terrain.label}' hexes.
       </p>
     </div>
@@ -292,10 +291,10 @@ const RangeSlider = ({ min, max, valueMin, valueMax, onChange, step = 1 }: Range
         className="absolute w-full h-2 bg-transparent pointer-events-none appearance-none z-20 thumb-slider"
       />
       <div className="relative w-full">
-        <div className="absolute w-full rounded-lg h-2 bg-[var(--color-surface-primary)] z-0 top-1/2 -translate-y-1/2"></div>
+        <div className="absolute w-full rounded-lg h-2 bg-realm-command-panel-surface z-0 top-1/2 -translate-y-1/2"></div>
         <div
           ref={rangeRef}
-          className="absolute rounded-lg h-2 bg-[var(--color-accent-primary)] z-10 top-1/2 -translate-y-1/2"
+          className="absolute rounded-lg h-2 bg-actions-command-primary z-10 top-1/2 -translate-y-1/2"
         ></div>
       </div>
       <style>{`
@@ -305,7 +304,7 @@ const RangeSlider = ({ min, max, valueMin, valueMax, onChange, step = 1 }: Range
                     width: 16px;
                     height: 16px;
                     border-radius: 50%;
-                    background: var(--color-text-primary);
+                    background: ${TEXT_HIGH_CONTRAST_COLOR};
                     cursor: pointer;
                     pointer-events: auto;
                     margin-top: -7px;
@@ -314,7 +313,7 @@ const RangeSlider = ({ min, max, valueMin, valueMax, onChange, step = 1 }: Range
                     width: 16px;
                     height: 16px;
                     border-radius: 50%;
-                    background: var(--color-text-primary);
+                    background: ${TEXT_HIGH_CONTRAST_COLOR};
                     cursor: pointer;
                     pointer-events: auto;
                     border: none;
@@ -355,11 +354,16 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
       if (!value) {
         return '#CCCCCC';
       }
-      const match = value.match(/^var\((--[^)]+)\)$/i);
-      if (match) {
-        const token = match[1];
-        const resolved = token ? colors[token] : undefined;
-        return resolved ? resolved.toUpperCase() : value;
+      const varMatch = value.match(/^var\((--[^)]+)\)$/i);
+      if (varMatch?.[1]) {
+        const resolved = resolvePaletteColor(colors, varMatch[1]);
+        if (resolved) {
+          return resolved.toUpperCase();
+        }
+      }
+      const paletteResolved = resolvePaletteColor(colors, value);
+      if (paletteResolved) {
+        return paletteResolved.toUpperCase();
       }
       return value.toUpperCase?.() ?? value;
     },
@@ -452,7 +456,7 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
   return (
     <div className="space-y-6">
       <SettingsSection title="Terrain Icon Spray">
-        <p className="text-xs text-[var(--color-text-secondary)] !mt-0">
+        <p className="text-xs text-text-muted !mt-0">
           Configure the small, semi-transparent icons that are procedurally scattered on each
           terrain type to add visual texture.
         </p>
@@ -467,9 +471,9 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
                   detailsRefs.current.set(terrain.id, el);
                 }}
                 key={terrain.id}
-                className="p-3 bg-[var(--color-background-primary)] rounded-md border border-[var(--color-border-primary)]/50 open:border-[var(--color-accent-primary)]/50 transition-colors group/details"
+                className="p-3 bg-realm-canvas-backdrop rounded-md border border-border-panel-divider/50 open:border-actions-command-primary/50 transition-colors group/details"
               >
-                <summary className="font-semibold text-md text-[var(--color-text-secondary)] list-none cursor-pointer flex items-center gap-2 hover:text-[var(--color-text-primary)]">
+                <summary className="font-semibold text-md text-text-muted list-none cursor-pointer flex items-center gap-2 hover:text-text-high-contrast">
                   <Icon name={terrain.icon} className="w-5 h-5" />
                   <span className="flex items-center gap-2">
                     {terrain.label}
@@ -538,8 +542,8 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
                       }}
                       className={`w-6 h-6 flex items-center justify-center rounded-full transition-colors ${
                         activeInfo?.id === terrain.id
-                          ? 'bg-[var(--color-background-secondary)] text-[var(--color-text-primary)]'
-                          : 'text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] hover:bg-[var(--color-background-secondary)]'
+                          ? 'bg-realm-map-viewport text-text-high-contrast'
+                          : 'text-text-subtle hover:text-text-muted hover:bg-realm-map-viewport'
                       }`}
                       title={`Learn more about ${terrain.label}`}
                       aria-label={`Terrain information for ${terrain.label}`}
@@ -583,11 +587,11 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
                       }, infoPopupOptions.closeDelay);
                     }}
                   >
-                    <p className="text-xs leading-relaxed text-[var(--color-text-secondary)]">
+                    <p className="text-xs leading-relaxed text-text-muted">
                       {terrain.description ??
                         'Custom terrain created by the user. Add details in settings.'}
                     </p>
-                    <div className="mt-2 flex items-center justify-between text-[var(--color-text-tertiary)] text-[11px] uppercase tracking-wide">
+                    <div className="mt-2 flex items-center justify-between text-text-subtle text-[11px] uppercase tracking-wide">
                       <span>Palette Swatch</span>
                       <span>{resolvedTerrainColor}</span>
                     </div>
@@ -595,7 +599,7 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
                       className="mt-1 h-2 rounded-full"
                       style={{ backgroundColor: terrain.color || resolvedTerrainColor }}
                     />
-                    <p className="mt-2 text-[11px] text-[var(--color-text-secondary)] leading-relaxed">
+                    <p className="mt-2 text-[11px] text-text-muted leading-relaxed">
                       {terrain.sprayIcons?.length
                         ? `Signature icons: ${terrain.sprayIcons
                             .map((icon) => icon.replace(/-/g, ' '))
@@ -604,7 +608,7 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
                     </p>
                   </InfoPopup>
                 )}
-                <div className="pl-7 mt-3 pt-3 border-t border-[var(--color-border-primary)]/50 space-y-4">
+                <div className="pl-7 mt-3 pt-3 border-t border-border-panel-divider/50 space-y-4">
                   <HexSprayPreview terrain={terrain} />
                   <IconGridSelector
                     selectedIcons={terrain.sprayIcons || []}
@@ -622,7 +626,7 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
                       displaySuffix=" icons"
                     />
                     <div>
-                      <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
+                      <label className="block text-sm font-medium text-text-muted mb-1">
                         Color
                       </label>
                       <div className="flex items-center gap-2">
@@ -647,14 +651,14 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
                             <Icon name="pipette" className="w-5 h-5 text-white" />
                           </div>
                         </button>
-                        <span className="p-2 bg-[var(--color-surface-primary)] rounded-md text-sm font-mono flex-grow text-center h-10 flex items-center justify-center">
+                        <span className="p-2 bg-realm-command-panel-surface rounded-md text-sm font-mono flex-grow text-center h-10 flex items-center justify-center">
                           {resolvedSprayColor}
                         </span>
                       </div>
                     </div>
 
                     <div className="col-span-2">
-                      <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
+                      <label className="block text-sm font-medium text-text-muted mb-1">
                         Size Range ({settings.sizeMin}px - {settings.sizeMax}px)
                       </label>
                       <RangeSlider
@@ -669,7 +673,7 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
                       />
                     </div>
                     <div className="col-span-2">
-                      <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
+                      <label className="block text-sm font-medium text-text-muted mb-1">
                         Opacity Range ({Math.round(settings.opacityMin * 100)}% -{' '}
                         {Math.round(settings.opacityMax * 100)}%)
                       </label>
@@ -702,3 +706,5 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
     </div>
   );
 };
+
+

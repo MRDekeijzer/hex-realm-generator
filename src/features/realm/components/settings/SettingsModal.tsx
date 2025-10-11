@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file A modal component for displaying all application settings.
  */
 
@@ -60,14 +60,14 @@ export const SettingsModal = ({ isOpen, onClose, settingsView, ...props }: Setti
   return (
     <div
       onClick={(e) => e.target === e.currentTarget && onClose()}
-      className="fixed inset-0 bg-[rgba(var(--color-black-rgb),0.7)] z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-overlay-scrim z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="settings-dialog-title"
     >
-      <div className="bg-[var(--color-background-primary)] w-full max-w-6xl h-[90vh] rounded-lg shadow-xl flex overflow-hidden border border-[var(--color-border-primary)] animate-fade-in">
+      <div className="bg-realm-canvas-backdrop w-full max-w-6xl h-[90vh] rounded-lg shadow-xl flex overflow-hidden border border-border-panel-divider animate-fade-in">
         {/* Left Sidebar for Tabs */}
-        <aside className="w-64 bg-[var(--color-background-secondary)] p-6 border-r border-[var(--color-border-primary)] flex flex-col">
+        <aside className="w-64 bg-realm-map-viewport p-6 border-r border-border-panel-divider flex flex-col">
           <h2 id="settings-dialog-title" className="text-2xl font-bold mb-8">
             Settings
           </h2>
@@ -98,7 +98,7 @@ export const SettingsModal = ({ isOpen, onClose, settingsView, ...props }: Setti
           <div className="text-right p-4 flex-shrink-0">
             <button
               onClick={onClose}
-              className="p-1 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
+              className="p-1 text-text-muted hover:text-text-high-contrast transition-colors"
               aria-label="Close settings"
             >
               <Icon name="close" className="w-6 h-6" />
@@ -147,3 +147,4 @@ export const SettingsModal = ({ isOpen, onClose, settingsView, ...props }: Setti
     </div>
   );
 };
+

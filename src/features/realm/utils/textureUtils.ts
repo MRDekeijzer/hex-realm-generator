@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file utils/textureUtils.ts
  * This file contains the logic for pre-rendering terrain tiles to canvas textures
  * for performance optimization.
@@ -8,35 +8,15 @@ import type { TileSet, TerrainTextures, Point, Tile } from '@/features/realm/typ
 import { getHexCorners } from './hexUtils';
 import { generateSprayIcons } from './sprayUtils';
 import { iconPaths } from './iconPaths';
-import { colorTokenList } from '@/features/realm/config/constants';
 
 const TEXTURE_SIZE = 256; // Use a high-resolution power-of-two for good quality and performance.
 const TEXTURE_HEX_SIZE: Point = { x: TEXTURE_SIZE / 2, y: TEXTURE_SIZE / 2 };
-
-/**
- * Reads all theme-related CSS variables from the document's computed style.
- * @returns A map of CSS variable names to their computed color values.
- */
-function getResolvedColors(): Record<string, string> {
-  const rootStyle = getComputedStyle(document.documentElement);
-  const newColors: Record<string, string> = {};
-  for (const token of colorTokenList) {
-    newColors[token] = rootStyle.getPropertyValue(token).trim();
-  }
-  return newColors;
-}
-
 /**
  * Renders the spray icons for a given terrain onto a canvas context.
  * @param ctx The 2D rendering context of the canvas.
  * @param terrain The terrain tile definition.
- * @param resolvedColors A map of CSS variable names to their computed color values.
  */
-function drawSprayIcons(
-  ctx: CanvasRenderingContext2D,
-  terrain: Tile,
-  resolvedColors: Record<string, string>
-) {
+function drawSprayIcons(ctx: CanvasRenderingContext2D, terrain: Tile) {
   // Use a mock hex; the coordinates don't matter as the pattern is deterministic by terrain ID.
   const mockHex = { q: 0, r: 0, s: 0, terrain: terrain.id, barrierEdges: [] };
   const iconsToRender = generateSprayIcons(mockHex, terrain, TEXTURE_HEX_SIZE);
@@ -49,11 +29,9 @@ function drawSprayIcons(
     ctx.translate(icon.x, icon.y);
     ctx.rotate((icon.rotation * Math.PI) / 180);
 
-    const varNameMatch = /--[a-zA-Z0-9-]+/.exec(icon.color);
-    const colorKey = varNameMatch ? varNameMatch[0] : null;
-    const resolvedColor = colorKey ? resolvedColors[colorKey] : icon.color;
 
-    ctx.fillStyle = resolvedColor || '#FF00FF'; // Fallback to magenta if color is invalid
+    const fillColor = icon.color || '#FF00FF';
+    ctx.fillStyle = fillColor;
     ctx.globalAlpha = icon.opacity;
 
     // The icon paths from lucide are for a 24x24 viewport. We need to scale them to the desired size.
@@ -84,11 +62,6 @@ export async function generateTerrainTextures(
   tileSets: TileSet,
   terrainColors: Record<string, string>
 ): Promise<TerrainTextures> {
-  const resolvedColors = getResolvedColors();
-  if (!resolvedColors['--color-background-primary']) {
-    throw new Error('CSS color variables could not be resolved. Styles may not be loaded.');
-  }
-
   const textures: TerrainTextures = {};
 
   const canvas = document.createElement('canvas');
@@ -129,7 +102,7 @@ export async function generateTerrainTextures(
     const withoutSpray = canvas.toDataURL('image/png');
 
     // --- Generate texture WITH spray ---
-    drawSprayIcons(ctx, terrain, resolvedColors);
+    drawSprayIcons(ctx, terrain);
     const withSpray = canvas.toDataURL('image/png');
 
     textures[terrain.id] = { withSpray, withoutSpray };
@@ -138,3 +111,4 @@ export async function generateTerrainTextures(
 
   return textures;
 }
+

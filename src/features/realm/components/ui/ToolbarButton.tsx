@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file Reusable toolbar button component with an icon and optional text.
  */
 
@@ -34,8 +34,8 @@ export const ToolbarButton = React.forwardRef<HTMLButtonElement, ToolbarButtonPr
       onClick={onClick}
       className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
         isActive
-          ? 'bg-[var(--color-accent-primary)] text-[var(--color-text-primary)]'
-          : 'bg-[var(--color-surface-primary)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)]'
+          ? 'bg-actions-command-primary text-text-high-contrast'
+          : 'bg-realm-command-panel-surface text-text-muted hover:bg-realm-command-panel-hover'
       }`}
       disabled={disabled}
       title={title}
@@ -46,3 +46,4 @@ export const ToolbarButton = React.forwardRef<HTMLButtonElement, ToolbarButtonPr
   )
 );
 ToolbarButton.displayName = 'ToolbarButton';
+

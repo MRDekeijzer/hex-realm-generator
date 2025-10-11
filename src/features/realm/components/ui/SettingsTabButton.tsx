@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file A reusable button for tab navigation within settings modals.
  */
 
@@ -28,11 +28,12 @@ export const SettingsTabButton = ({ icon, label, isActive, onClick }: SettingsTa
     onClick={onClick}
     className={`flex items-center gap-3 w-full text-left p-3 rounded-md transition-colors ${
       isActive
-        ? 'bg-[var(--color-accent-primary)] text-[var(--color-text-primary)]'
-        : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-primary)]'
+        ? 'bg-actions-command-primary text-text-high-contrast'
+        : 'text-text-muted hover:bg-realm-command-panel-surface'
     }`}
   >
     <Icon name={icon} className="w-5 h-5" />
     <span className="font-medium">{label}</span>
   </button>
 );
+

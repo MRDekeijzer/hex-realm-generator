@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file Toolbar.tsx
  * This component renders the main header bar of the application.
  * It contains primary actions like generating a new realm, undo/redo, import/export,
@@ -154,9 +154,9 @@ export function Toolbar({
   };
 
   return (
-    <header className="flex items-center justify-between p-2 bg-[var(--color-background-primary)] border-b border-[var(--color-border-primary)] shadow-md z-10">
+    <header className="flex items-center justify-between p-2 bg-realm-canvas-backdrop border-b border-border-panel-divider shadow-md z-10">
       <div className="flex items-center gap-2">
-        <h1 className="text-xl font-bold text-[var(--color-text-primary)] mr-4">
+        <h1 className="text-xl font-bold text-text-high-contrast mr-4">
           Hex Realm Generator
         </h1>
         <ToolbarButton onClick={onGenerate} icon="sparkles" title="Generate New Realm">
@@ -173,7 +173,7 @@ export function Toolbar({
           {...settingsProps}
         />
 
-        <div className="border-l border-[var(--color-border-primary)] h-6"></div>
+        <div className="border-l border-border-panel-divider h-6"></div>
 
         <div className="relative">
           <ToolbarButton
@@ -193,7 +193,7 @@ export function Toolbar({
           )}
         </div>
 
-        <div className="border-l border-[var(--color-border-primary)] h-6"></div>
+        <div className="border-l border-border-panel-divider h-6"></div>
 
         <ToolbarButton
           onClick={() => setViewOptions((v) => ({ ...v, showIconSpray: !v.showIconSpray }))}
@@ -238,3 +238,4 @@ export function Toolbar({
     </header>
   );
 }
+

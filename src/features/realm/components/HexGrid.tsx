@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file HexGrid.tsx
  * This component is the core interactive map area of the application.
  * It renders the hexagonal grid using SVG, handles user interactions like
@@ -86,7 +86,7 @@ export function HexGrid({
   terrainTextures,
   isLoadingTextures,
 }: HexGridProps) {
-  const { viewbox, containerRef, onMouseDown, onWheel, isPanning } = usePanAndZoom({
+  const { viewbox, containerRef, onMouseDown, isPanning } = usePanAndZoom({
     initialWidth: 1000,
     initialHeight: 800,
     minZoom: 0.2,
@@ -470,7 +470,7 @@ export function HexGrid({
 
   if (isLoadingTextures || !terrainTextures) {
     return (
-      <div className="flex items-center justify-center h-full text-[var(--color-text-secondary)]">
+      <div className="flex items-center justify-center h-full text-text-muted">
         <p>Loading terrain textures...</p>
       </div>
     );
@@ -509,8 +509,7 @@ export function HexGrid({
   return (
     <div
       ref={containerRef}
-      className="w-full h-full overflow-hidden bg-[var(--color-background-secondary)] relative"
-      onWheel={onWheel}
+      className="w-full h-full overflow-hidden bg-realm-map-viewport relative"
     >
       <svg
         ref={svgRef}
@@ -563,3 +562,4 @@ export function HexGrid({
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file PoiPainterSidebar.tsx
  * This component renders the sidebar for the "Points of Interest" painter tool.
  * It allows the user to select a holding, landmark, or action to apply to hexes on the map.
@@ -46,16 +46,16 @@ const PoiButton: React.FC<PoiButtonProps> = ({ item, isSelected, onClick }) => {
       className={`flex flex-col items-center justify-center gap-2 p-2 rounded-lg transition-all duration-150 border-2 text-center
               ${
                 isSelected
-                  ? 'bg-[rgba(var(--color-accent-primary-rgb),0.2)] border-[var(--color-accent-primary)] text-[var(--color-text-primary)]'
-                  : 'bg-[var(--color-background-secondary)] border-[var(--color-border-primary)] hover:border-[var(--color-text-secondary)] text-[var(--color-text-secondary)]'
+                  ? 'bg-actions-command-primary/20 border-actions-command-primary text-text-high-contrast'
+                  : 'bg-realm-map-viewport border-border-panel-divider hover:border-text-muted text-text-muted'
               }`}
       title={`Place ${item.label}`}
       aria-label={`Select ${item.label} for placement`}
     >
-      <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-[var(--color-surface-primary)]">
+      <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-realm-command-panel-surface">
         <Icon
           name={item.icon}
-          className="w-8 h-8 text-[var(--color-text-primary)]"
+          className="w-8 h-8 text-text-high-contrast"
           strokeWidth={2}
         />
       </div>
@@ -81,7 +81,7 @@ const PoiSection = ({
   setPaintPoi: (poi: string) => void;
 }) => (
   <div>
-    <h3 className="text-lg font-semibold mb-2 text-[var(--color-text-secondary)]">{title}</h3>
+    <h3 className="text-lg font-semibold mb-2 text-text-muted">{title}</h3>
     <div className="grid grid-cols-3 gap-2">
       {items.map((item) => {
         const fullId = `${type}:${item.id}`;
@@ -120,7 +120,7 @@ export function PoiPainterSidebar({
   }, [onStartPicking]);
 
   return (
-    <aside className="w-80 bg-[var(--color-background-primary)] border-l border-[var(--color-border-primary)] p-4 flex flex-col">
+    <aside className="w-80 bg-realm-canvas-backdrop border-l border-border-panel-divider p-4 flex flex-col">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Points of Interest</h2>
         <div className="flex items-center gap-2">
@@ -128,8 +128,8 @@ export function PoiPainterSidebar({
             onClick={onStartPicking}
             className={`p-2 rounded-md transition-colors ${
               isPickingTile
-                ? 'bg-[var(--color-accent-primary)] text-[var(--color-text-primary)]'
-                : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)]'
+                ? 'bg-actions-command-primary text-text-high-contrast'
+                : 'text-text-muted hover:bg-realm-command-panel-hover'
             }`}
             title="Pick POI from Map (Ctrl+I)"
             aria-label="Pick POI from Map"
@@ -138,7 +138,7 @@ export function PoiPainterSidebar({
           </button>
           <button
             onClick={onClose}
-            className="p-1 rounded-full hover:bg-[var(--color-surface-secondary)]"
+            className="p-1 rounded-full hover:bg-realm-command-panel-hover"
             aria-label="Close POI Painter"
           >
             <Icon name="close" className="w-5 h-5" />
@@ -147,11 +147,11 @@ export function PoiPainterSidebar({
       </div>
       <div className="flex-grow overflow-y-auto pr-2 space-y-6">
         {isPickingTile && (
-          <div className="bg-[rgba(var(--color-accent-info-rgb),0.5)] text-center text-sm text-[var(--color-text-tertiary)] p-2 rounded-md mb-4 animate-pulse">
+          <div className="bg-feedback-info-panel/50 text-center text-sm text-text-subtle p-2 rounded-md mb-4 animate-pulse">
             Click on the map to pick a POI.
           </div>
         )}
-        <p className="text-sm text-[var(--color-text-secondary)]">
+        <p className="text-sm text-text-muted">
           Select an item, then click a hex to place it.
         </p>
         <PoiSection
@@ -179,3 +179,4 @@ export function PoiPainterSidebar({
     </aside>
   );
 }
+

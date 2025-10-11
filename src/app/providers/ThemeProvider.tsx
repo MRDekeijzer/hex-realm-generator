@@ -1,5 +1,5 @@
-import React, { createContext, useState, useEffect, useMemo, useContext } from 'react';
-import { colorTokenList } from '@/features/realm/config/constants';
+import React, { createContext, useEffect, useMemo, useContext } from 'react';
+import { colorPalette, flattenColorPalette } from '@/app/theme/colors';
 
 interface ThemeContextType {
   colors: Record<string, string>;
@@ -8,20 +8,14 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
-  const [resolvedColors, setResolvedColors] = useState<Record<string, string>>({});
-
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', 'dark');
-
-    const rootStyle = getComputedStyle(document.documentElement);
-    const newColors: Record<string, string> = {};
-    for (const token of colorTokenList) {
-      newColors[token] = rootStyle.getPropertyValue(token).trim();
-    }
-    setResolvedColors(newColors);
   }, []);
 
-  const value = useMemo(() => ({ colors: resolvedColors }), [resolvedColors]);
+  const value = useMemo(
+    () => ({ colors: flattenColorPalette(colorPalette) }),
+    []
+  );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };

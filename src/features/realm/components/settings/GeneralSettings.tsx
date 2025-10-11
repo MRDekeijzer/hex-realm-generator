@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file Component for the "General" tab in the main settings modal.
  */
 
@@ -56,7 +56,7 @@ export const GeneralSettings = ({
         <div>
           <label
             htmlFor="realm-shape"
-            className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1"
+            className="block text-sm font-medium text-text-muted mb-1"
           >
             Shape
           </label>
@@ -64,7 +64,7 @@ export const GeneralSettings = ({
             id="realm-shape"
             value={realmShape}
             onChange={(e) => setRealmShape(e.target.value as 'hex' | 'square')}
-            className="w-full bg-[var(--color-surface-primary)] p-2 text-sm font-medium text-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-primary)] rounded-md"
+            className="w-full bg-realm-command-panel-surface p-2 text-sm font-medium text-text-muted focus:outline-none focus:ring-2 focus:ring-actions-command-primary rounded-md"
           >
             <option value="hex">Hexagon</option>
             <option value="square">Square</option>
@@ -74,7 +74,7 @@ export const GeneralSettings = ({
           <div>
             <label
               htmlFor="realm-radius"
-              className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1"
+              className="block text-sm font-medium text-text-muted mb-1"
             >
               Radius
             </label>
@@ -85,7 +85,7 @@ export const GeneralSettings = ({
               onChange={(e) => setRealmRadius(Math.max(3, parseInt(e.target.value, 10) || 1))}
               min="3"
               max="50"
-              className="w-full bg-[var(--color-surface-primary)] p-2 text-sm font-medium text-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-primary)] rounded-md"
+              className="w-full bg-realm-command-panel-surface p-2 text-sm font-medium text-text-muted focus:outline-none focus:ring-2 focus:ring-actions-command-primary rounded-md"
               aria-label="Realm radius"
             />
           </div>
@@ -94,7 +94,7 @@ export const GeneralSettings = ({
             <div>
               <label
                 htmlFor="realm-width"
-                className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1"
+                className="block text-sm font-medium text-text-muted mb-1"
               >
                 Width
               </label>
@@ -105,14 +105,14 @@ export const GeneralSettings = ({
                 onChange={(e) => setRealmWidth(Math.max(3, parseInt(e.target.value, 10) || 1))}
                 min="3"
                 max="50"
-                className="w-full bg-[var(--color-surface-primary)] p-2 text-sm font-medium text-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-primary)] rounded-md"
+                className="w-full bg-realm-command-panel-surface p-2 text-sm font-medium text-text-muted focus:outline-none focus:ring-2 focus:ring-actions-command-primary rounded-md"
                 aria-label="Realm width"
               />
             </div>
             <div>
               <label
                 htmlFor="realm-height"
-                className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1"
+                className="block text-sm font-medium text-text-muted mb-1"
               >
                 Height
               </label>
@@ -123,7 +123,7 @@ export const GeneralSettings = ({
                 onChange={(e) => setRealmHeight(Math.max(3, parseInt(e.target.value, 10) || 1))}
                 min="3"
                 max="50"
-                className="w-full bg-[var(--color-surface-primary)] p-2 text-sm font-medium text-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-primary)] rounded-md"
+                className="w-full bg-realm-command-panel-surface p-2 text-sm font-medium text-text-muted focus:outline-none focus:ring-2 focus:ring-actions-command-primary rounded-md"
                 aria-label="Realm height"
               />
             </div>
@@ -136,7 +136,7 @@ export const GeneralSettings = ({
             <div key={landmark.id} className="flex justify-between items-center">
               <label
                 htmlFor={`landmark-${landmark.id}`}
-                className="text-sm text-[var(--color-text-secondary)]"
+                className="text-sm text-text-muted"
               >
                 {landmark.label}
               </label>
@@ -146,7 +146,7 @@ export const GeneralSettings = ({
                 value={generationOptions.landmarks[landmark.id] || 0}
                 onChange={(e) => handleLandmarkChange(landmark.id, e.target.value)}
                 min="0"
-                className="w-20 bg-[var(--color-surface-primary)] p-1 text-sm text-center font-medium text-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-primary)] rounded-md"
+                className="w-20 bg-realm-command-panel-surface p-1 text-sm text-center font-medium text-text-muted focus:outline-none focus:ring-2 focus:ring-actions-command-primary rounded-md"
                 aria-label={`Number of ${landmark.label}`}
               />
             </div>
@@ -158,7 +158,7 @@ export const GeneralSettings = ({
           <div>
             <label
               htmlFor="num-holdings"
-              className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1"
+              className="block text-sm font-medium text-text-muted mb-1"
             >
               Holdings
             </label>
@@ -173,14 +173,14 @@ export const GeneralSettings = ({
                 }))
               }
               min="0"
-              className="w-full bg-[var(--color-surface-primary)] p-2 text-sm font-medium text-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-primary)] rounded-md"
+              className="w-full bg-realm-command-panel-surface p-2 text-sm font-medium text-text-muted focus:outline-none focus:ring-2 focus:ring-actions-command-primary rounded-md"
               aria-label="Number of holdings"
             />
           </div>
           <div>
             <label
               htmlFor="num-myths"
-              className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1"
+              className="block text-sm font-medium text-text-muted mb-1"
             >
               Myths
             </label>
@@ -195,7 +195,7 @@ export const GeneralSettings = ({
                 }))
               }
               min="0"
-              className="w-full bg-[var(--color-surface-primary)] p-2 text-sm font-medium text-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-primary)] rounded-md"
+              className="w-full bg-realm-command-panel-surface p-2 text-sm font-medium text-text-muted focus:outline-none focus:ring-2 focus:ring-actions-command-primary rounded-md"
               aria-label="Number of myths"
             />
           </div>
@@ -203,7 +203,7 @@ export const GeneralSettings = ({
         <div>
           <label
             htmlFor="myth-min-distance"
-            className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1"
+            className="block text-sm font-medium text-text-muted mb-1"
           >
             Myth Min Distance
           </label>
@@ -218,15 +218,15 @@ export const GeneralSettings = ({
               }))
             }
             min="0"
-            className="w-full bg-[var(--color-surface-primary)] p-2 text-sm font-medium text-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-primary)] rounded-md"
+            className="w-full bg-realm-command-panel-surface p-2 text-sm font-medium text-text-muted focus:outline-none focus:ring-2 focus:ring-actions-command-primary rounded-md"
             aria-label="Minimum distance between myths"
           />
         </div>
         <label
           htmlFor="generate-barriers"
-          className="flex items-center justify-between pt-4 border-t border-[var(--color-border-primary)] cursor-pointer"
+          className="flex items-center justify-between pt-4 border-t border-border-panel-divider cursor-pointer"
         >
-          <span className="text-sm font-medium text-[var(--color-text-secondary)]">
+          <span className="text-sm font-medium text-text-muted">
             Generate Barriers
           </span>
           <div className="relative">
@@ -239,10 +239,11 @@ export const GeneralSettings = ({
               }
               className="sr-only peer"
             />
-            <div className="w-11 h-6 bg-[var(--color-surface-primary)] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--color-accent-primary)]"></div>
+            <div className="w-11 h-6 bg-realm-command-panel-surface rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-actions-command-primary"></div>
           </div>
         </label>
       </SettingsSection>
     </div>
   );
 };
+

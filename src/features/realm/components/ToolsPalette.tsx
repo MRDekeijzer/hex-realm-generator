@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file ToolsPalette.tsx
  * This component renders the floating palette of tools at the bottom of the screen,
  * allowing the user to switch between different interaction modes (select, paint, etc.).
@@ -34,8 +34,8 @@ const ToolButton: React.FC<ToolButtonProps> = ({ icon, label, isActive, onClick 
     onClick={onClick}
     className={`p-3 rounded-lg transition-colors duration-150 ${
       isActive
-        ? 'bg-[var(--color-accent-primary)] text-[var(--color-text-primary)]'
-        : 'bg-[var(--color-surface-primary)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)]'
+        ? 'bg-actions-command-primary text-text-high-contrast'
+        : 'bg-realm-command-panel-surface text-text-muted hover:bg-realm-command-panel-hover'
     }`}
     aria-label={label}
     title={label}
@@ -57,7 +57,7 @@ export function ToolsPalette({ activeTool, setActiveTool }: ToolsPaletteProps) {
   ];
 
   return (
-    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 p-2 bg-[rgba(var(--color-background-primary-rgb),0.8)] border border-[var(--color-border-primary)] rounded-xl shadow-lg z-10">
+    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 p-2 bg-realm-canvas-backdrop/80 border border-border-panel-divider rounded-xl shadow-lg z-10">
       {tools.map((tool) => (
         <ToolButton
           key={tool.id}
@@ -70,3 +70,4 @@ export function ToolsPalette({ activeTool, setActiveTool }: ToolsPaletteProps) {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file BarrierPainterSidebar.tsx
  * This component renders the sidebar for the Barrier Painter tool.
  * It provides controls for changing the barrier color and an action
@@ -36,23 +36,23 @@ export function BarrierPainterSidebar({
   const isCustomColor = barrierColor !== DEFAULT_BARRIER_COLOR;
 
   return (
-    <aside className="w-80 bg-[var(--color-background-primary)] border-l border-[var(--color-border-primary)] p-4 flex flex-col">
+    <aside className="w-80 bg-realm-canvas-backdrop border-l border-border-panel-divider p-4 flex flex-col">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Barrier Painter</h2>
         <button
           onClick={onClose}
-          className="p-1 rounded-full hover:bg-[var(--color-surface-secondary)]"
+          className="p-1 rounded-full hover:bg-realm-command-panel-hover"
           aria-label="Close Barrier Painter"
         >
           <Icon name="close" className="w-5 h-5" />
         </button>
       </div>
       <div className="flex-grow overflow-y-auto pr-2 space-y-6">
-        <p className="text-sm text-[var(--color-text-secondary)]">
+        <p className="text-sm text-text-muted">
           Click and drag on hex edges to add or remove barriers.
         </p>
 
-        <div className="mt-6 pt-4 border-t border-[var(--color-border-primary)]">
+        <div className="mt-6 pt-4 border-t border-border-panel-divider">
           <h3 className="text-lg font-bold mb-2">Barrier Color</h3>
           <div className="flex items-center gap-2">
             <button
@@ -80,7 +80,7 @@ export function BarrierPainterSidebar({
                 <Icon name={isCustomColor ? 'reset' : 'pipette'} className="w-5 h-5 text-white" />
               </div>
             </button>
-            <span className="p-2 bg-[var(--color-surface-primary)] rounded-md text-sm font-mono flex-grow text-center">
+            <span className="p-2 bg-realm-command-panel-surface rounded-md text-sm font-mono flex-grow text-center">
               {barrierColor.toUpperCase()}
             </span>
           </div>
@@ -88,7 +88,7 @@ export function BarrierPainterSidebar({
 
         <button
           onClick={onRemoveAllBarriers}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-[var(--color-text-secondary)] bg-[rgba(var(--color-accent-danger-rgb),0.5)] rounded-md hover:bg-[rgba(var(--color-accent-danger-rgb),0.8)] border border-[var(--color-accent-danger)] transition-colors"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-text-muted bg-actions-danger-base/50 rounded-md hover:bg-actions-danger-base/80 border border-actions-danger-base transition-colors"
         >
           <Icon name="trash-2" className="w-4 h-4" />
           Remove All Barriers
@@ -97,3 +97,4 @@ export function BarrierPainterSidebar({
     </aside>
   );
 }
+

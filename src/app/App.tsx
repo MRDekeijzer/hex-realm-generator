@@ -36,6 +36,7 @@ import {
   DEFAULT_TERRAIN_CLUSTERING_MATRIX,
   DEFAULT_TERRAIN_BIASES,
   DEFAULT_TERRAIN_HEIGHT_ORDER,
+  TERRAIN_BASE_COLORS,
 } from '@/features/realm/config/constants';
 import { useHistory } from '@/shared/hooks/useHistory';
 import { BarrierPainterSidebar } from '@/features/realm/components/sidebars/BarrierPainterSidebar';
@@ -85,20 +86,21 @@ export default function App() {
   const [tileSets, setTileSets] = useState<TileSet>(DEFAULT_TILE_SETS);
   const { colors } = useTheme();
 
-  const [terrainColors, setTerrainColors] = useState<Record<string, string>>({});
+  const [terrainColors, setTerrainColors] = useState<Record<string, string>>({
+    ...TERRAIN_BASE_COLORS,
+  });
   const [barrierColor, setBarrierColor] = useState(BARRIER_COLOR);
 
   useEffect(() => {
     if (Object.keys(colors).length > 0) {
-      const initialTerrainColors: Record<string, string> = {};
-      TERRAIN_TYPES.forEach((id) => {
-        const color = colors[`--terrain-${id}`];
-        if (color) {
-          initialTerrainColors[id] = color;
-        }
-      });
+      const initialTerrainColors = Object.fromEntries(
+        TERRAIN_TYPES.map((id) => {
+          const paletteKey = `terrain-${id}-base`;
+          return [id, colors[paletteKey] ?? TERRAIN_BASE_COLORS[id] ?? '#cccccc'];
+        })
+      );
       setTerrainColors(initialTerrainColors);
-      const newBarrierColor = colors['--color-accent-danger'];
+      const newBarrierColor = colors['actions-danger-base'];
       if (newBarrierColor) setBarrierColor(newBarrierColor);
     }
   }, [colors]);
@@ -609,7 +611,8 @@ export default function App() {
 
   const handleResetTerrainColor = useCallback(
     (terrainId: string) => {
-      const defaultColor = colors[`--terrain-${terrainId}`];
+      const defaultColor =
+        colors[`terrain-${terrainId}-base`] ?? TERRAIN_BASE_COLORS[terrainId];
       if (defaultColor) setTerrainColors((prev) => ({ ...prev, [terrainId]: defaultColor }));
     },
     [colors]
@@ -734,7 +737,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-[var(--color-background-primary)] overflow-hidden">
+    <div className="flex flex-col h-screen w-screen bg-realm-canvas-backdrop overflow-hidden">
       <Toolbar
         onGenerate={handleGenerateRealm}
         onExportJson={handleExportJson}
@@ -765,7 +768,7 @@ export default function App() {
         setConfirmation={setConfirmation}
       />
       <div className="flex flex-1 overflow-hidden">
-        <main className="flex-1 bg-[var(--color-background-secondary)] relative">
+        <main className="flex-1 bg-realm-map-viewport relative">
           {realm ? (
             <HexGrid
               realm={realm}
@@ -793,7 +796,7 @@ export default function App() {
               isLoadingTextures={isLoadingTextures}
             />
           ) : (
-            <div className="flex items-center justify-center h-full text-[var(--color-text-secondary)]">
+            <div className="flex items-center justify-center h-full text-text-muted">
               <p>Generating initial realm...</p>
             </div>
           )}

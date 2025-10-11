@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file MythSidebar.tsx
  * This component renders the sidebar for the Myth tool. It lists all myths
  * present in the realm and provides controls for editing their names,
@@ -52,12 +52,12 @@ export function MythSidebar({
   };
 
   return (
-    <aside className="w-80 bg-[var(--color-background-primary)] border-l border-[var(--color-border-primary)] p-4 flex flex-col">
+    <aside className="w-80 bg-realm-canvas-backdrop border-l border-border-panel-divider p-4 flex flex-col">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Myth Tool</h2>
         <button
           onClick={onClose}
-          className="p-1 rounded-full hover:bg-[var(--color-surface-secondary)]"
+          className="p-1 rounded-full hover:bg-realm-command-panel-hover"
           aria-label="Close Myth Tool"
         >
           <Icon name="close" className="w-5 h-5" />
@@ -77,34 +77,34 @@ export function MythSidebar({
                   return (
                     <li
                       key={myth.id}
-                      className="bg-[var(--color-background-secondary)] rounded-md overflow-hidden transition-all duration-300"
+                      className="bg-realm-map-viewport rounded-md overflow-hidden transition-all duration-300"
                     >
                       <button
                         onClick={() => handleMythClick(myth)}
-                        className="w-full text-left p-3 hover:bg-[var(--color-surface-secondary)] transition-colors flex justify-between items-center disabled:cursor-not-allowed"
+                        className="w-full text-left p-3 hover:bg-realm-command-panel-hover transition-colors flex justify-between items-center disabled:cursor-not-allowed"
                         aria-expanded={isExpanded || isRelocating}
                         disabled={!!relocatingMythId}
                       >
                         <div>
-                          <p className="font-semibold text-[var(--color-text-accent)]">
+                          <p className="font-semibold text-text-accent-headline">
                             Myth #{myth.id}:{' '}
-                            <span className="text-[var(--color-text-primary)]">{myth.name}</span>
+                            <span className="text-text-high-contrast">{myth.name}</span>
                           </p>
-                          <p className="text-xs text-[var(--color-text-secondary)]">
+                          <p className="text-xs text-text-muted">
                             Location: ({myth.q}, {myth.r})
                           </p>
                         </div>
                         <Icon
                           name={isExpanded || isRelocating ? 'chevron-up' : 'chevron-down'}
-                          className="w-5 h-5 text-[var(--color-text-secondary)] flex-shrink-0"
+                          className="w-5 h-5 text-text-muted flex-shrink-0"
                         />
                       </button>
                       {(isExpanded || isRelocating) && (
-                        <div className="p-3 border-t border-[var(--color-border-primary)]/50 bg-[var(--color-background-secondary)]/50 space-y-3">
+                        <div className="p-3 border-t border-border-panel-divider/50 bg-realm-map-viewport/50 space-y-3">
                           <div>
                             <label
                               htmlFor={`myth-name-${myth.id}`}
-                              className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1"
+                              className="block text-sm font-medium text-text-muted mb-1"
                             >
                               Edit Name
                             </label>
@@ -113,7 +113,7 @@ export function MythSidebar({
                               type="text"
                               value={myth.name}
                               onChange={(e) => onUpdateMyth({ ...myth, name: e.target.value })}
-                              className="w-full bg-[var(--color-surface-primary)] p-2 text-sm font-medium text-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-primary)] rounded-md"
+                              className="w-full bg-realm-command-panel-surface p-2 text-sm font-medium text-text-muted focus:outline-none focus:ring-2 focus:ring-actions-command-primary rounded-md"
                             />
                           </div>
                           <div className="flex gap-2">
@@ -121,8 +121,8 @@ export function MythSidebar({
                               onClick={() => onToggleRelocateMyth(myth.id)}
                               className={`w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                                 isRelocating
-                                  ? 'bg-[var(--color-surface-secondary)]/80 text-[var(--color-text-primary)] hover:bg-[var(--color-surface-secondary)]'
-                                  : 'bg-[var(--color-surface-primary)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)]'
+                                  ? 'bg-realm-command-panel-hover/80 text-text-high-contrast hover:bg-realm-command-panel-hover'
+                                  : 'bg-realm-command-panel-surface text-text-muted hover:bg-realm-command-panel-hover'
                               }`}
                             >
                               <Icon name="move" className="w-4 h-4" />
@@ -130,7 +130,7 @@ export function MythSidebar({
                             </button>
                             <button
                               onClick={() => handleRemoveClick(myth)}
-                              className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-[var(--color-text-secondary)] bg-[rgba(var(--color-accent-danger-rgb),0.5)] rounded-md hover:bg-[rgba(var(--color-accent-danger-rgb),0.8)] border border-[var(--color-accent-danger)] transition-colors"
+                              className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-text-muted bg-actions-danger-base/50 rounded-md hover:bg-actions-danger-base/80 border border-actions-danger-base transition-colors"
                             >
                               <Icon name="trash-2" className="w-4 h-4" />
                               Remove
@@ -139,7 +139,7 @@ export function MythSidebar({
                         </div>
                       )}
                       {isRelocating && (
-                        <div className="p-3 bg-[var(--color-surface-secondary)]/50 text-center text-sm text-[var(--color-text-tertiary)]">
+                        <div className="p-3 bg-realm-command-panel-hover/50 text-center text-sm text-text-subtle">
                           Select a new hex on the map.
                         </div>
                       )}
@@ -148,7 +148,7 @@ export function MythSidebar({
                 })}
             </ul>
           ) : (
-            <p className="text-[var(--color-text-secondary)] text-center py-4">
+            <p className="text-text-muted text-center py-4">
               No myths have been placed on the map.
             </p>
           )}
@@ -157,3 +157,4 @@ export function MythSidebar({
     </aside>
   );
 }
+

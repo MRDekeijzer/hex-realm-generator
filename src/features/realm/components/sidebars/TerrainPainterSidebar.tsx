@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file TerrainPainterSidebar.tsx
  * This component renders the sidebar for the Terrain Painter tool. It allows users
  * to select a terrain type to paint, customize terrain colors, and add or remove
@@ -9,6 +9,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Icon } from '../Icon';
 // FIX: Removed `DEFAULT_TERRAIN_COLORS` as it does not exist. Default colors are now handled by the theme context.
 import { TERRAIN_TYPES } from '@/features/realm/config/constants';
+import { resolvePaletteColor } from '@/app/theme/colors';
 import type { TileSet } from '@/features/realm/types';
 // FIX: Added import for `useTheme` to access resolved CSS color variables for default terrain colors.
 import { useTheme } from '@/app/providers/ThemeProvider';
@@ -68,11 +69,16 @@ export function TerrainPainterSidebar({
       if (!value) {
         return '#CCCCCC';
       }
-      const match = value.match(/^var\((--[^)]+)\)$/i);
-      if (match) {
-        const token = match[1];
-        const resolved = token ? colors[token] : undefined;
-        return resolved ? resolved.toUpperCase() : value;
+      const varMatch = value.match(/^var\((--[^)]+)\)$/i);
+      if (varMatch?.[1]) {
+        const resolved = resolvePaletteColor(colors, varMatch[1]);
+        if (resolved) {
+          return resolved.toUpperCase();
+        }
+      }
+      const paletteResolved = resolvePaletteColor(colors, value);
+      if (paletteResolved) {
+        return paletteResolved.toUpperCase();
       }
       return value.toUpperCase?.() ?? value;
     },
@@ -134,7 +140,7 @@ export function TerrainPainterSidebar({
   };
 
   return (
-    <aside className="w-80 bg-[var(--color-background-primary)] border-l border-[var(--color-border-primary)] p-4 flex flex-col">
+    <aside className="w-80 bg-realm-canvas-backdrop border-l border-border-panel-divider p-4 flex flex-col">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Terrain Painter</h2>
         <div className="flex items-center gap-2">
@@ -142,8 +148,8 @@ export function TerrainPainterSidebar({
             onClick={onStartPicking}
             className={`p-2 rounded-md transition-colors ${
               isPickingTile
-                ? 'bg-[var(--color-accent-primary)] text-[var(--color-text-primary)]'
-                : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)]'
+                ? 'bg-actions-command-primary text-text-high-contrast'
+                : 'text-text-muted hover:bg-realm-command-panel-hover'
             }`}
             title="Pick Terrain from Map (Ctrl+I)"
             aria-label="Pick Terrain from Map"
@@ -152,7 +158,7 @@ export function TerrainPainterSidebar({
           </button>
           <button
             onClick={onClose}
-            className="p-1 rounded-full hover:bg-[var(--color-surface-secondary)]"
+            className="p-1 rounded-full hover:bg-realm-command-panel-hover"
             aria-label="Close Terrain Painter"
           >
             <Icon name="close" className="w-5 h-5" />
@@ -161,11 +167,11 @@ export function TerrainPainterSidebar({
       </div>
       <div className="flex-grow overflow-y-auto pr-2">
         {isPickingTile && (
-          <div className="bg-[rgba(var(--color-accent-info-rgb),0.5)] text-center text-sm text-[var(--color-text-tertiary)] p-2 rounded-md mb-4 animate-pulse">
+          <div className="bg-feedback-info-panel/50 text-center text-sm text-text-subtle p-2 rounded-md mb-4 animate-pulse">
             Click on the map to pick a terrain.
           </div>
         )}
-        <p className="text-sm text-[var(--color-text-secondary)] mb-4">
+        <p className="text-sm text-text-muted mb-4">
           Select a terrain to paint. Click a color swatch to customize.
         </p>
         <div className="space-y-2">
@@ -174,7 +180,9 @@ export function TerrainPainterSidebar({
             const isSelected = paintTerrain === terrain.id;
             const isDefault = TERRAIN_TYPES.includes(terrain.id);
             // FIX: Replaced non-existent `DEFAULT_TERRAIN_COLORS` with the `colors` map from the theme context.
-            const defaultColor = colors[`--terrain-${terrain.id}`];
+            const defaultColor =
+              resolvePaletteColor(colors, `--terrain-${terrain.id}`) ??
+              resolvePaletteColor(colors, `terrain-${terrain.id}-base`);
             const isCustomColor = isDefault && defaultColor ? defaultColor !== color : false;
             const infoDescription =
               terrain.description ?? 'Custom terrain created by the user. Add details in settings.';
@@ -208,8 +216,8 @@ export function TerrainPainterSidebar({
                 className={`relative group/item p-2 rounded-md transition-all duration-150 border-2 flex items-center gap-2 cursor-pointer
                 ${
                   isSelected
-                    ? 'bg-[rgba(var(--color-accent-primary-rgb),0.2)] border-[var(--color-accent-primary)]'
-                    : 'bg-[var(--color-background-secondary)] border-[var(--color-border-primary)] hover:border-[var(--color-text-secondary)]'
+                    ? 'bg-actions-command-primary/20 border-actions-command-primary'
+                    : 'bg-realm-map-viewport border-border-panel-divider hover:border-text-muted'
                 }`}
                 title={`Paint ${terrain.label}`}
               >
@@ -256,8 +264,8 @@ export function TerrainPainterSidebar({
                   <span
                     className={`font-medium text-sm truncate ${
                       isSelected
-                        ? 'text-[var(--color-text-primary)]'
-                        : 'text-[var(--color-text-secondary)]'
+                        ? 'text-text-high-contrast'
+                        : 'text-text-muted'
                     }`}
                   >
                     {terrain.label}
@@ -327,8 +335,8 @@ export function TerrainPainterSidebar({
                       }}
                       className={`w-6 h-6 flex items-center justify-center rounded-full transition-colors ${
                         isInfoOpen
-                          ? 'bg-[var(--color-background-secondary)] text-[var(--color-text-primary)]'
-                          : 'text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] hover:bg-[var(--color-background-secondary)]'
+                          ? 'bg-realm-map-viewport text-text-high-contrast'
+                          : 'text-text-subtle hover:text-text-muted hover:bg-realm-map-viewport'
                       }`}
                       title={`Learn more about ${terrain.label}`}
                       aria-label={`Terrain information for ${terrain.label}`}
@@ -366,15 +374,15 @@ export function TerrainPainterSidebar({
                           }, infoPopupOptions.closeDelay);
                         }}
                       >
-                        <p className="text-xs leading-relaxed text-[var(--color-text-secondary)]">
+                        <p className="text-xs leading-relaxed text-text-muted">
                           {infoDescription}
                         </p>
-                        <div className="mt-2 flex items-center justify-between text-[var(--color-text-tertiary)] text-[11px] uppercase tracking-wide">
+                        <div className="mt-2 flex items-center justify-between text-text-subtle text-[11px] uppercase tracking-wide">
                           <span>Palette Swatch</span>
                           <span>{resolvedColor}</span>
                         </div>
                         <div className="mt-1 h-2 rounded-full" style={{ backgroundColor: color }} />
-                        <p className="mt-2 text-[11px] text-[var(--color-text-secondary)] leading-relaxed">
+                        <p className="mt-2 text-[11px] text-text-muted leading-relaxed">
                           {spraySummary}
                         </p>
                       </InfoPopup>
@@ -407,7 +415,7 @@ export function TerrainPainterSidebar({
                         closeInfo();
                       }
                     }}
-                    className="absolute -top-1.5 -right-1.5 p-1 text-[var(--color-text-primary)] bg-[var(--color-accent-danger)] rounded-full hover:bg-[var(--color-accent-danger-hover)] opacity-0 group-hover/item:opacity-100 transition-opacity z-10"
+                    className="absolute -top-1.5 -right-1.5 p-1 text-text-high-contrast bg-actions-danger-base rounded-full hover:bg-actions-danger-hover opacity-0 group-hover/item:opacity-100 transition-opacity z-10"
                     title={`Remove ${terrain.label}`}
                     aria-label={`Remove ${terrain.label}`}
                   >
@@ -419,13 +427,13 @@ export function TerrainPainterSidebar({
           })}
         </div>
 
-        <div className="mt-6 pt-4 border-t border-[var(--color-border-primary)]">
+        <div className="mt-6 pt-4 border-t border-border-panel-divider">
           <h3 className="text-lg font-bold mb-2">Add New Terrain</h3>
           <form onSubmit={handleAddSubmit}>
             <div className="mb-2">
               <label
                 htmlFor="terrain-name"
-                className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1"
+                className="block text-sm font-medium text-text-muted mb-1"
               >
                 Name
               </label>
@@ -434,7 +442,7 @@ export function TerrainPainterSidebar({
                 type="text"
                 value={newTerrainName}
                 onChange={(e) => setNewTerrainName(e.target.value)}
-                className="w-full bg-[var(--color-surface-primary)] p-2 text-sm font-medium text-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-primary)] rounded-md"
+                className="w-full bg-realm-command-panel-surface p-2 text-sm font-medium text-text-muted focus:outline-none focus:ring-2 focus:ring-actions-command-primary rounded-md"
                 placeholder="e.g. Cursed Wastes"
                 required
               />
@@ -442,7 +450,7 @@ export function TerrainPainterSidebar({
             <div className="mb-4">
               <label
                 htmlFor="terrain-color"
-                className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1"
+                className="block text-sm font-medium text-text-muted mb-1"
               >
                 Color
               </label>
@@ -452,18 +460,18 @@ export function TerrainPainterSidebar({
                   type="color"
                   value={newTerrainColor}
                   onChange={(e) => setNewTerrainColor(e.target.value)}
-                  className="h-10 p-1 bg-[var(--color-surface-primary)] border border-[var(--color-border-primary)] rounded-md cursor-pointer"
+                  className="h-10 p-1 bg-realm-command-panel-surface border border-border-panel-divider rounded-md cursor-pointer"
                   title="Select color"
                   aria-label="New terrain color picker"
                 />
-                <span className="p-2 bg-[var(--color-surface-primary)] rounded-md text-sm font-mono flex-grow text-center">
+                <span className="p-2 bg-realm-command-panel-surface rounded-md text-sm font-mono flex-grow text-center">
                   {newTerrainColor}
                 </span>
               </div>
             </div>
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-[var(--color-text-primary)] bg-[var(--color-accent-success)] rounded-md hover:bg-[var(--color-accent-primary-hover)] transition-colors disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-text-high-contrast bg-feedback-success-highlight rounded-md hover:bg-actions-command-primary-hover transition-colors disabled:opacity-50"
               disabled={!newTerrainName.trim()}
             >
               <Icon name="plus" className="w-4 h-4" />
@@ -475,3 +483,5 @@ export function TerrainPainterSidebar({
     </aside>
   );
 }
+
+

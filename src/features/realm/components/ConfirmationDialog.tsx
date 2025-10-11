@@ -45,34 +45,34 @@ export function ConfirmationDialog({
 
   return (
     <div
-      className="fixed inset-0 bg-[rgba(var(--color-black-rgb),0.7)] z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-overlay-scrim z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="confirmation-dialog-title"
     >
-      <div className="bg-[var(--color-background-secondary)] border border-[var(--color-border-primary)] rounded-lg shadow-xl w-full max-w-md p-6 animate-fade-in">
+      <div className="bg-realm-map-viewport border border-border-panel-divider rounded-lg shadow-xl w-full max-w-md p-6 animate-fade-in">
         <h2
           id="confirmation-dialog-title"
-          className="text-xl font-bold text-[var(--color-text-primary)] text-center mb-4"
+          className="text-xl font-bold text-text-high-contrast text-center mb-4"
         >
           {title}
         </h2>
-        <p className="text-[var(--color-text-secondary)] mb-6 text-center">{message}</p>
+        <p className="text-text-muted mb-6 text-center">{message}</p>
         <div className="flex justify-center gap-4">
           {!isInfo && (
             <button
               onClick={onCancel}
-              className="px-4 py-2 text-sm font-medium text-[var(--color-text-primary)] bg-[var(--color-surface-primary)] rounded-md hover:bg-[var(--color-surface-secondary)] transition-colors"
+              className="px-4 py-2 text-sm font-medium text-text-high-contrast bg-realm-command-panel-surface rounded-md hover:bg-realm-command-panel-hover transition-colors"
             >
               {cancelText}
             </button>
           )}
           <button
             onClick={onConfirm}
-            className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors ${
+            className={`px-4 py-2 text-sm font-medium text-text-high-contrast rounded-md transition-colors ${
               isInfo
-                ? 'bg-[var(--color-accent-info)] hover:bg-[var(--color-accent-special)]'
-                : 'bg-[var(--color-accent-danger)] hover:bg-[var(--color-accent-danger-hover)]'
+                ? 'bg-feedback-info-panel hover:bg-feedback-mystic-highlight'
+                : 'bg-actions-danger-base hover:bg-actions-danger-hover'
             }`}
           >
             {isInfo ? 'OK' : confirmText}
