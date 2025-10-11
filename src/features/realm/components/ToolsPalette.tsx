@@ -33,7 +33,9 @@ const ToolButton: React.FC<ToolButtonProps> = ({ icon, label, isActive, onClick 
   <button
     onClick={onClick}
     className={`p-3 rounded-lg transition-colors duration-150 ${
-      isActive ? 'bg-[var(--color-accent-primary)] text-[var(--color-text-primary)]' : 'bg-[var(--color-surface-primary)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)]'
+      isActive
+        ? 'bg-[var(--color-accent-primary)] text-[var(--color-text-primary)]'
+        : 'bg-[var(--color-surface-primary)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)]'
     }`}
     aria-label={label}
     title={label}

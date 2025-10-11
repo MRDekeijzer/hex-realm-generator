@@ -6,7 +6,10 @@
 
 import React, { useEffect } from 'react';
 import { Icon } from '../Icon';
-import { DEFAULT_TILE_SETS as TILE_SETS, SPECIAL_POI_ICONS } from '@/features/realm/config/constants';
+import {
+  DEFAULT_TILE_SETS as TILE_SETS,
+  SPECIAL_POI_ICONS,
+} from '@/features/realm/config/constants';
 import type { Tile } from '@/features/realm/types';
 
 /**
@@ -50,7 +53,11 @@ const PoiButton: React.FC<PoiButtonProps> = ({ item, isSelected, onClick }) => {
       aria-label={`Select ${item.label} for placement`}
     >
       <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-[var(--color-surface-primary)]">
-        <Icon name={item.icon} className="w-8 h-8 text-[var(--color-text-primary)]" strokeWidth={2} />
+        <Icon
+          name={item.icon}
+          className="w-8 h-8 text-[var(--color-text-primary)]"
+          strokeWidth={2}
+        />
       </div>
       <span className="text-xs font-medium">{item.label}</span>
     </button>
@@ -120,14 +127,20 @@ export function PoiPainterSidebar({
           <button
             onClick={onStartPicking}
             className={`p-2 rounded-md transition-colors ${
-              isPickingTile ? 'bg-[var(--color-accent-primary)] text-[var(--color-text-primary)]' : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)]'
+              isPickingTile
+                ? 'bg-[var(--color-accent-primary)] text-[var(--color-text-primary)]'
+                : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)]'
             }`}
             title="Pick POI from Map (Ctrl+I)"
             aria-label="Pick POI from Map"
           >
             <Icon name="pipette" className="w-5 h-5" />
           </button>
-          <button onClick={onClose} className="p-1 rounded-full hover:bg-[var(--color-surface-secondary)]" aria-label="Close POI Painter">
+          <button
+            onClick={onClose}
+            className="p-1 rounded-full hover:bg-[var(--color-surface-secondary)]"
+            aria-label="Close POI Painter"
+          >
             <Icon name="close" className="w-5 h-5" />
           </button>
         </div>
@@ -138,7 +151,9 @@ export function PoiPainterSidebar({
             Click on the map to pick a POI.
           </div>
         )}
-        <p className="text-sm text-[var(--color-text-secondary)]">Select an item, then click a hex to place it.</p>
+        <p className="text-sm text-[var(--color-text-secondary)]">
+          Select an item, then click a hex to place it.
+        </p>
         <PoiSection
           title="Actions"
           items={SPECIAL_POI_ICONS}

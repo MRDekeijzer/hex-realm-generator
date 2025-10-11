@@ -48,11 +48,7 @@ function stringToSeed(str: string): number {
  * Generates a set of procedural icons to spray onto a hex tile for added texture.
  * The generation is deterministic based on the hex coordinates.
  */
-export const generateSprayIcons = (
-  hex: Hex,
-  terrainTile: Tile,
-  hexSize: Point
-): SprayIcon[] => {
+export const generateSprayIcons = (hex: Hex, terrainTile: Tile, hexSize: Point): SprayIcon[] => {
   const settings = terrainTile.spraySettings || DEFAULT_SPRAY_SETTINGS;
   if (!terrainTile.sprayIcons || terrainTile.sprayIcons.length === 0 || settings.density === 0) {
     return [];

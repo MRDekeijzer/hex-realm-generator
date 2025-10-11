@@ -20,7 +20,7 @@ interface History<T> {
  * @returns An object containing the current state, a setter function,
  *          undo/redo functions, and booleans indicating if undo/redo is possible.
  */
-export const useHistory = <T,>(initialState: T) => {
+export const useHistory = <T>(initialState: T) => {
   const [state, setState] = useState<History<T>>({
     past: [],
     present: initialState,

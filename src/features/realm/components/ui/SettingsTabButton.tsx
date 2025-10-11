@@ -24,15 +24,15 @@ interface SettingsTabButtonProps {
  * It displays an icon and a label, with a distinct style for the active state.
  */
 export const SettingsTabButton = ({ icon, label, isActive, onClick }: SettingsTabButtonProps) => (
-    <button
-        onClick={onClick}
-        className={`flex items-center gap-3 w-full text-left p-3 rounded-md transition-colors ${
-            isActive
-                ? 'bg-[var(--color-accent-primary)] text-[var(--color-text-primary)]'
-                : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-primary)]'
-        }`}
-    >
-        <Icon name={icon} className="w-5 h-5" />
-        <span className="font-medium">{label}</span>
-    </button>
+  <button
+    onClick={onClick}
+    className={`flex items-center gap-3 w-full text-left p-3 rounded-md transition-colors ${
+      isActive
+        ? 'bg-[var(--color-accent-primary)] text-[var(--color-text-primary)]'
+        : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-primary)]'
+    }`}
+  >
+    <Icon name={icon} className="w-5 h-5" />
+    <span className="font-medium">{label}</span>
+  </button>
 );

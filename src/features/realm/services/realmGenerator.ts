@@ -148,8 +148,7 @@ function getInitialTerrainMap(hexes: Hex[], options: GenerationOptions): Map<str
   const totalHexes = hexes.length;
   let currentIndex = 0;
   const { terrainBiases, terrainHeightOrder } = options;
-  const totalBias =
-    Object.values(terrainBiases).reduce((sum, b) => (sum || 0) + (b || 0), 0) || 1;
+  const totalBias = Object.values(terrainBiases).reduce((sum, b) => (sum || 0) + (b || 0), 0) || 1;
 
   const terrainsToPlace = Object.entries(terrainBiases)
     .filter(([, bias]) => (bias || 0) > 0)
@@ -309,7 +308,9 @@ function placeMyths(hexes: Hex[], numMyths: number, mythMinDistance: number): My
         Math.min(...featureHexes.map((f) => getAxialDistance(a, f)))
     );
   } else {
-    candidates.sort((a, b) => getAxialDistance({ q: 0, r: 0 }, b) - getAxialDistance({ q: 0, r: 0 }, a));
+    candidates.sort(
+      (a, b) => getAxialDistance({ q: 0, r: 0 }, b) - getAxialDistance({ q: 0, r: 0 }, a)
+    );
   }
   const placedMyths: Hex[] = [];
   for (const candidate of candidates) {

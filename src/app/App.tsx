@@ -87,22 +87,21 @@ export default function App() {
 
   const [terrainColors, setTerrainColors] = useState<{ [key: string]: string }>({});
   const [barrierColor, setBarrierColor] = useState(BARRIER_COLOR);
-  
+
   useEffect(() => {
     if (Object.keys(colors).length > 0) {
-        const initialTerrainColors: { [key: string]: string } = {};
-        TERRAIN_TYPES.forEach(id => {
-            const color = colors[`--terrain-${id}`];
-            if (color) {
-              initialTerrainColors[id] = color;
-            }
-        });
-        setTerrainColors(initialTerrainColors);
-        const newBarrierColor = colors['--color-accent-danger'];
-        if (newBarrierColor) setBarrierColor(newBarrierColor);
+      const initialTerrainColors: { [key: string]: string } = {};
+      TERRAIN_TYPES.forEach((id) => {
+        const color = colors[`--terrain-${id}`];
+        if (color) {
+          initialTerrainColors[id] = color;
+        }
+      });
+      setTerrainColors(initialTerrainColors);
+      const newBarrierColor = colors['--color-accent-danger'];
+      if (newBarrierColor) setBarrierColor(newBarrierColor);
     }
   }, [colors]);
-
 
   const [realmShape, setRealmShape] = useState<'hex' | 'square'>('square');
   const [realmRadius, setRealmRadius] = useState<number>(DEFAULT_GRID_SIZE);
@@ -332,7 +331,8 @@ export default function App() {
         return;
       }
 
-      const newMythId = (realm.myths.length > 0 ? Math.max(...realm.myths.map((m) => m.id)) : 0) + 1;
+      const newMythId =
+        (realm.myths.length > 0 ? Math.max(...realm.myths.map((m) => m.id)) : 0) + 1;
       const newMyth: Myth = { id: newMythId, name: `Myth #${newMythId}`, q: hex.q, r: hex.r };
       const newMyths = [...realm.myths, newMyth];
 
@@ -542,7 +542,9 @@ export default function App() {
   const handleAddTerrain = useCallback(
     (name: string, color: string) => {
       const id = name.toLowerCase().replace(/\s+/g, '-');
-      if (tileSets.terrain.some((t) => t.id === id || t.label.toLowerCase() === name.toLowerCase())) {
+      if (
+        tileSets.terrain.some((t) => t.id === id || t.label.toLowerCase() === name.toLowerCase())
+      ) {
         setConfirmation({
           isOpen: true,
           title: 'Duplicate Terrain',
@@ -598,10 +600,13 @@ export default function App() {
     []
   );
 
-  const handleResetTerrainColor = useCallback((terrainId: string) => {
-    const defaultColor = colors[`--terrain-${terrainId}`];
-    if (defaultColor) setTerrainColors((prev) => ({ ...prev, [terrainId]: defaultColor }));
-  }, [colors]);
+  const handleResetTerrainColor = useCallback(
+    (terrainId: string) => {
+      const defaultColor = colors[`--terrain-${terrainId}`];
+      if (defaultColor) setTerrainColors((prev) => ({ ...prev, [terrainId]: defaultColor }));
+    },
+    [colors]
+  );
 
   /**
    * Opens a confirmation dialog to remove all barriers from the map.
@@ -624,18 +629,21 @@ export default function App() {
   /**
    * Updates the terrain clustering matrix for generation.
    */
-  const handleClusteringChange = useCallback((terrainA: string, terrainB: string, value: number) => {
-    setGenerationOptions((prev) => {
-      const newMatrix = JSON.parse(JSON.stringify(prev.terrainClusteringMatrix));
-      const matrixRowA = newMatrix[terrainA];
-      const matrixRowB = newMatrix[terrainB];
-      if (matrixRowA && matrixRowB) {
-        matrixRowA[terrainB] = value;
-        matrixRowB[terrainA] = value;
-      }
-      return { ...prev, terrainClusteringMatrix: newMatrix };
-    });
-  }, []);
+  const handleClusteringChange = useCallback(
+    (terrainA: string, terrainB: string, value: number) => {
+      setGenerationOptions((prev) => {
+        const newMatrix = JSON.parse(JSON.stringify(prev.terrainClusteringMatrix));
+        const matrixRowA = newMatrix[terrainA];
+        const matrixRowB = newMatrix[terrainB];
+        if (matrixRowA && matrixRowB) {
+          matrixRowA[terrainB] = value;
+          matrixRowB[terrainA] = value;
+        }
+        return { ...prev, terrainClusteringMatrix: newMatrix };
+      });
+    },
+    []
+  );
 
   const handleGenerationOptionChange = useCallback(
     <K extends keyof GenerationOptions>(key: K, value: GenerationOptions[K]) =>

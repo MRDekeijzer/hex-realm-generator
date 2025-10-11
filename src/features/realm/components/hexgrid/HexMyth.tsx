@@ -20,7 +20,12 @@ export const HexMyth = ({ mythId, isGmView, hexSize }: HexMythProps) => {
   return (
     <g style={{ pointerEvents: 'none' }}>
       <circle r={hexSize.x * 0.3} fill={MYTH_COLOR} />
-      <text textAnchor="middle" dy=".3em" fill="var(--color-text-inverse)" className="font-myth-number">
+      <text
+        textAnchor="middle"
+        dy=".3em"
+        fill="var(--color-text-inverse)"
+        className="font-myth-number"
+      >
         {mythId}
       </text>
     </g>

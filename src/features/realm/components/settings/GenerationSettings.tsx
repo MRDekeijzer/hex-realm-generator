@@ -54,7 +54,11 @@ export const GenerationSettings = ({
         id: 'linear',
         name: 'Linear',
         icon: 'arrow-up',
-        description: ["Creates a linear slope.", "Highlands form at arrow's tip.", 'Good for continents.'],
+        description: [
+          'Creates a linear slope.',
+          "Highlands form at arrow's tip.",
+          'Good for continents.',
+        ],
       },
       {
         id: 'circle',
@@ -168,12 +172,16 @@ export const GenerationSettings = ({
                 onDrop={(e) => handleDrop(e, terrain.id)}
                 onDragEnd={handleDragEnd}
                 className={`flex items-center gap-3 p-2 rounded-md transition-all duration-150 cursor-grab active:cursor-grabbing bg-[var(--color-surface-primary)] border border-transparent ${
-                  isDragging ? 'opacity-50 border-dashed border-[var(--color-accent-primary)]' : 'hover:bg-[var(--color-surface-secondary)]'
+                  isDragging
+                    ? 'opacity-50 border-dashed border-[var(--color-accent-primary)]'
+                    : 'hover:bg-[var(--color-surface-secondary)]'
                 }`}
               >
                 <Icon name="grip-vertical" className="w-5 h-5 text-[var(--color-text-secondary)]" />
                 <Icon name={terrain.icon} className="w-5 h-5 text-[var(--color-text-primary)]" />
-                <span className="font-medium text-sm text-[var(--color-text-primary)]">{terrain.label}</span>
+                <span className="font-medium text-sm text-[var(--color-text-primary)]">
+                  {terrain.label}
+                </span>
               </li>
             );
           })}
@@ -185,7 +193,9 @@ export const GenerationSettings = ({
           {formationOptions.map((option) => (
             <button
               key={option.id}
-              onClick={() => onGenerationOptionChange('highlandFormation', option.id as HighlandFormation)}
+              onClick={() =>
+                onGenerationOptionChange('highlandFormation', option.id as HighlandFormation)
+              }
               className={`p-4 rounded-md text-left transition-all duration-150 border-2 h-full ${
                 generationOptions.highlandFormation === option.id
                   ? 'bg-[rgba(var(--color-accent-primary-rgb),0.2)] border-[var(--color-accent-primary)] text-[var(--color-text-primary)]'
@@ -231,9 +241,13 @@ export const GenerationSettings = ({
                 </div>
                 <div className="flex flex-col items-center justify-center text-center">
                   <Icon
-                    name={generationOptions.highlandFormation === 'triangle' ? 'triangle' : 'arrow-up'}
+                    name={
+                      generationOptions.highlandFormation === 'triangle' ? 'triangle' : 'arrow-up'
+                    }
                     className="w-8 h-8 mx-auto mb-2 text-[var(--color-text-secondary)]"
-                    style={{ transform: `rotate(${generationOptions.highlandFormationRotation}deg)` }}
+                    style={{
+                      transform: `rotate(${generationOptions.highlandFormationRotation}deg)`,
+                    }}
                   />
                   <p className="text-xs text-[var(--color-text-secondary)]">
                     Lowlands start at the base and highlands form towards the tip.
@@ -248,15 +262,21 @@ export const GenerationSettings = ({
                 className="flex items-center justify-between pt-4 border-t border-[var(--color-border-primary)] cursor-pointer"
               >
                 <div className="flex flex-col">
-                  <span className="text-sm font-medium text-[var(--color-text-secondary)]">Invert Formation</span>
-                  <span className="text-xs text-[var(--color-text-secondary)]">Flips highlands and lowlands.</span>
+                  <span className="text-sm font-medium text-[var(--color-text-secondary)]">
+                    Invert Formation
+                  </span>
+                  <span className="text-xs text-[var(--color-text-secondary)]">
+                    Flips highlands and lowlands.
+                  </span>
                 </div>
                 <div className="relative">
                   <input
                     id="invert-formation"
                     type="checkbox"
                     checked={generationOptions.highlandFormationInverse || false}
-                    onChange={(e) => onGenerationOptionChange('highlandFormationInverse', e.target.checked)}
+                    onChange={(e) =>
+                      onGenerationOptionChange('highlandFormationInverse', e.target.checked)
+                    }
                     className="sr-only peer"
                   />
                   <div className="w-11 h-6 bg-[var(--color-surface-primary)] rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--color-accent-primary)]"></div>
@@ -344,9 +364,13 @@ export const GenerationSettings = ({
                         );
                       }
                       const value =
-                        generationOptions.terrainClusteringMatrix[rowTerrain.id]?.[colTerrain.id] ?? 0.5;
+                        generationOptions.terrainClusteringMatrix[rowTerrain.id]?.[colTerrain.id] ??
+                        0.5;
                       return (
-                        <td key={colTerrain.id} className="p-1 border-b border-[var(--color-border-primary)] text-center">
+                        <td
+                          key={colTerrain.id}
+                          className="p-1 border-b border-[var(--color-border-primary)] text-center"
+                        >
                           <input
                             type="number"
                             min="0"

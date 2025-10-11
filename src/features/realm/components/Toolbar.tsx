@@ -120,7 +120,12 @@ export function Toolbar({
             loadedData.myths = [];
             loadedData.hexes.forEach((hex: { myth: number; q: number; r: number }) => {
               if (hex.myth)
-                loadedData.myths.push({ id: hex.myth, name: `Myth #${hex.myth}`, q: hex.q, r: hex.r });
+                loadedData.myths.push({
+                  id: hex.myth,
+                  name: `Myth #${hex.myth}`,
+                  q: hex.q,
+                  r: hex.r,
+                });
             });
           }
           onImportJson(loadedData as Realm);
@@ -151,7 +156,9 @@ export function Toolbar({
   return (
     <header className="flex items-center justify-between p-2 bg-[var(--color-background-primary)] border-b border-[var(--color-border-primary)] shadow-md z-10">
       <div className="flex items-center gap-2">
-        <h1 className="text-xl font-bold text-[var(--color-text-primary)] mr-4">Hex Realm Generator</h1>
+        <h1 className="text-xl font-bold text-[var(--color-text-primary)] mr-4">
+          Hex Realm Generator
+        </h1>
         <ToolbarButton onClick={onGenerate} icon="sparkles" title="Generate New Realm">
           Generate
         </ToolbarButton>

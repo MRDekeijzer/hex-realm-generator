@@ -177,7 +177,6 @@ type IconProps = {
   name: string;
 } & React.SVGAttributes<SVGSVGElement>;
 
-
 /**
  * Renders a Lucide icon based on a string name.
  * @param {IconProps} props - The component props.

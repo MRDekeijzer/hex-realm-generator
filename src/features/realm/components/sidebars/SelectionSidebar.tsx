@@ -35,7 +35,9 @@ const renderSelect = (
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
 ) => (
   <div className="mb-4">
-    <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">{label}</label>
+    <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
+      {label}
+    </label>
     <select
       value={value}
       onChange={onChange}
@@ -67,9 +69,14 @@ export function SelectionSidebar({
   if (!selectedHex) {
     return (
       <aside className="w-80 bg-[var(--color-background-primary)] border-l border-[var(--color-border-primary)] p-4 flex flex-col items-center justify-center text-center">
-        <Icon name="mouse-pointer-2" className="w-16 h-16 text-[var(--color-surface-secondary)] mb-4" />
+        <Icon
+          name="mouse-pointer-2"
+          className="w-16 h-16 text-[var(--color-surface-secondary)] mb-4"
+        />
         <h2 className="text-xl font-bold">Select a Hex</h2>
-        <p className="text-[var(--color-text-secondary)]">Click on any hex on the map to view and edit its details.</p>
+        <p className="text-[var(--color-text-secondary)]">
+          Click on any hex on the map to view and edit its details.
+        </p>
       </aside>
     );
   }
@@ -95,7 +102,9 @@ export function SelectionSidebar({
       return;
     }
 
-    const neighborHex = realm.hexes.find((h) => h.q === neighborCoords.q && h.r === neighborCoords.r);
+    const neighborHex = realm.hexes.find(
+      (h) => h.q === neighborCoords.q && h.r === neighborCoords.r
+    );
 
     if (neighborHex) {
       const oppositeEdge = (edge + 3) % 6;
@@ -129,7 +138,11 @@ export function SelectionSidebar({
           Hex (<span className="font-decorative">{selectedHex.q}</span>,{' '}
           <span className="font-decorative">{selectedHex.r}</span>)
         </h2>
-        <button onClick={onDeselect} className="p-1 rounded-full hover:bg-[var(--color-surface-secondary)]" aria-label="Deselect Hex">
+        <button
+          onClick={onDeselect}
+          className="p-1 rounded-full hover:bg-[var(--color-surface-secondary)]"
+          aria-label="Deselect Hex"
+        >
           <Icon name="close" className="w-5 h-5" />
         </button>
       </div>
@@ -139,7 +152,9 @@ export function SelectionSidebar({
         )}
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">Holding</label>
+          <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
+            Holding
+          </label>
           <select
             value={selectedHex.holding || ''}
             onChange={(e) => handleChange('holding', e.target.value)}
@@ -174,7 +189,9 @@ export function SelectionSidebar({
         )}
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">Landmark</label>
+          <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
+            Landmark
+          </label>
           <select
             value={selectedHex.landmark || ''}
             onChange={(e) => handleChange('landmark', e.target.value)}
@@ -190,7 +207,9 @@ export function SelectionSidebar({
         </div>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">Myth</label>
+          <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
+            Myth
+          </label>
           <button
             onClick={handleMythToggle}
             className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-[var(--color-text-secondary)] bg-[var(--color-surface-primary)] rounded-md hover:bg-[var(--color-surface-secondary)] transition-colors"
@@ -232,7 +251,9 @@ export function SelectionSidebar({
                 <g
                   key={`barrier-interactive-${edgeIndex}`}
                   onClick={() => handleBarrierToggle(edgeIndex)}
-                  onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleBarrierToggle(edgeIndex)}
+                  onKeyDown={(e) =>
+                    (e.key === 'Enter' || e.key === ' ') && handleBarrierToggle(edgeIndex)
+                  }
                   className="cursor-pointer group"
                   role="button"
                   tabIndex={0}

@@ -13,7 +13,9 @@ const Shortcut = ({ keys, description }: { keys: string[]; description: string }
     <div className="flex items-center">
       {keys.map((key, index) => (
         <React.Fragment key={key}>
-          <kbd className="px-1.5 py-0.5 rounded bg-[var(--color-surface-primary)] font-sans">{key}</kbd>
+          <kbd className="px-1.5 py-0.5 rounded bg-[var(--color-surface-primary)] font-sans">
+            {key}
+          </kbd>
           {index < keys.length - 1 && <span className="mx-1">+</span>}
         </React.Fragment>
       ))}

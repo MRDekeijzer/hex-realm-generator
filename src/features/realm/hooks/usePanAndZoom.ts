@@ -63,7 +63,8 @@ export function usePanAndZoom({
         const p1 = parts[1];
         const p2 = parts[2];
         const p3 = parts[3];
-        if (p0 === undefined || p1 === undefined || p2 === undefined || p3 === undefined) return prev;
+        if (p0 === undefined || p1 === undefined || p2 === undefined || p3 === undefined)
+          return prev;
         return `${p0 - dx / zoom} ${p1 - dy / zoom} ${p2} ${p3}`;
       });
     },

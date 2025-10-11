@@ -57,7 +57,9 @@ export function BarrierPainterSidebar({
           <div className="flex items-center gap-2">
             <button
               onClick={() =>
-                isCustomColor ? onColorChange(DEFAULT_BARRIER_COLOR) : colorInputRef.current?.click()
+                isCustomColor
+                  ? onColorChange(DEFAULT_BARRIER_COLOR)
+                  : colorInputRef.current?.click()
               }
               className="w-10 h-10 rounded-md flex-shrink-0 border border-black/20 relative group"
               style={{ backgroundColor: barrierColor }}

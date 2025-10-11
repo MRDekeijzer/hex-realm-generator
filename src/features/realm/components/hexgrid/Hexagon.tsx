@@ -5,7 +5,14 @@
  * like selection and hover highlights. It is memoized for performance.
  */
 import React, { useMemo } from 'react';
-import type { Hex, ViewOptions, Point, Tool, TileSet, TerrainTextures } from '@/features/realm/types';
+import type {
+  Hex,
+  ViewOptions,
+  Point,
+  Tool,
+  TileSet,
+  TerrainTextures,
+} from '@/features/realm/types';
 import { axialToPixel } from '@/features/realm/utils/hexUtils';
 import { HexHoverHighlight } from './HexHoverHighlight';
 import { HexBackplate } from './HexBackplate';

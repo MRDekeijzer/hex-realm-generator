@@ -115,7 +115,10 @@ export const GridSettingsPopover = React.forwardRef<HTMLDivElement, GridSettings
           </label>
           <hr className="border-[var(--color-border-primary)]" />
           <div>
-            <label htmlFor="grid-color-btn" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
+            <label
+              htmlFor="grid-color-btn"
+              className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1"
+            >
               Grid Color
             </label>
             <div className="flex items-center gap-2">
@@ -142,7 +145,10 @@ export const GridSettingsPopover = React.forwardRef<HTMLDivElement, GridSettings
                   aria-label="Grid color picker"
                 />
                 <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <Icon name={isCustomGridColor ? 'reset' : 'pipette'} className="w-5 h-5 text-white" />
+                  <Icon
+                    name={isCustomGridColor ? 'reset' : 'pipette'}
+                    className="w-5 h-5 text-white"
+                  />
                 </div>
               </button>
               <span className="p-2 bg-[var(--color-surface-primary)] rounded-md text-sm font-mono flex-grow text-center">
@@ -151,7 +157,10 @@ export const GridSettingsPopover = React.forwardRef<HTMLDivElement, GridSettings
             </div>
           </div>
           <div>
-            <label htmlFor="grid-opacity" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
+            <label
+              htmlFor="grid-opacity"
+              className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1"
+            >
               Opacity
             </label>
             <div className="flex items-center gap-2">
@@ -172,7 +181,10 @@ export const GridSettingsPopover = React.forwardRef<HTMLDivElement, GridSettings
             </div>
           </div>
           <div>
-            <label htmlFor="grid-width" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
+            <label
+              htmlFor="grid-width"
+              className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1"
+            >
               Border Width
             </label>
             <input

@@ -82,7 +82,9 @@ export function TerrainPainterSidebar({
           <button
             onClick={onStartPicking}
             className={`p-2 rounded-md transition-colors ${
-              isPickingTile ? 'bg-[var(--color-accent-primary)] text-[var(--color-text-primary)]' : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)]'
+              isPickingTile
+                ? 'bg-[var(--color-accent-primary)] text-[var(--color-text-primary)]'
+                : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)]'
             }`}
             title="Pick Terrain from Map (Ctrl+I)"
             aria-label="Pick Terrain from Map"
@@ -122,7 +124,9 @@ export function TerrainPainterSidebar({
                 onClick={() => setPaintTerrain(terrain.id)}
                 role="button"
                 tabIndex={0}
-                onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setPaintTerrain(terrain.id)}
+                onKeyDown={(e) =>
+                  (e.key === 'Enter' || e.key === ' ') && setPaintTerrain(terrain.id)
+                }
                 className={`relative group/item p-2 rounded-md transition-all duration-150 border-2 flex items-center gap-2 cursor-pointer
                 ${
                   isSelected
@@ -133,7 +137,9 @@ export function TerrainPainterSidebar({
               >
                 <span
                   className={`font-medium text-sm truncate flex-grow ${
-                    isSelected ? 'text-[var(--color-text-primary)]' : 'text-[var(--color-text-secondary)]'
+                    isSelected
+                      ? 'text-[var(--color-text-primary)]'
+                      : 'text-[var(--color-text-secondary)]'
                   }`}
                 >
                   {terrain.label}
@@ -171,7 +177,10 @@ export function TerrainPainterSidebar({
                       aria-label={`${terrain.label} color picker`}
                     />
                     <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <Icon name={isCustomColor ? 'reset' : 'pipette'} className="w-4 h-4 text-white" />
+                      <Icon
+                        name={isCustomColor ? 'reset' : 'pipette'}
+                        className="w-4 h-4 text-white"
+                      />
                     </div>
                   </button>
 
@@ -210,7 +219,10 @@ export function TerrainPainterSidebar({
           <h3 className="text-lg font-bold mb-2">Add New Terrain</h3>
           <form onSubmit={handleAddSubmit}>
             <div className="mb-2">
-              <label htmlFor="terrain-name" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
+              <label
+                htmlFor="terrain-name"
+                className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1"
+              >
                 Name
               </label>
               <input
@@ -224,7 +236,10 @@ export function TerrainPainterSidebar({
               />
             </div>
             <div className="mb-4">
-              <label htmlFor="terrain-color" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
+              <label
+                htmlFor="terrain-color"
+                className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1"
+              >
                 Color
               </label>
               <div className="flex items-center gap-2">

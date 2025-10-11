@@ -12,7 +12,11 @@ interface HexHoverHighlightProps {
   isPickingTile: boolean;
 }
 
-export const HexHoverHighlight = ({ points, activeTool, isPickingTile }: HexHoverHighlightProps) => {
+export const HexHoverHighlight = ({
+  points,
+  activeTool,
+  isPickingTile,
+}: HexHoverHighlightProps) => {
   const shouldShowHover = ['select', 'poi', 'myth'].includes(activeTool) && !isPickingTile;
 
   return (

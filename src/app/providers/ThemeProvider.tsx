@@ -23,11 +23,7 @@ export const ThemeProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
 
   const value = useMemo(() => ({ colors: resolvedColors }), [resolvedColors]);
 
-  return (
-    <ThemeContext.Provider value={value}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };
 
 export const useTheme = (): ThemeContextType => {

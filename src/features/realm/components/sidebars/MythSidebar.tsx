@@ -55,7 +55,11 @@ export function MythSidebar({
     <aside className="w-80 bg-[var(--color-background-primary)] border-l border-[var(--color-border-primary)] p-4 flex flex-col">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Myth Tool</h2>
-        <button onClick={onClose} className="p-1 rounded-full hover:bg-[var(--color-surface-secondary)]" aria-label="Close Myth Tool">
+        <button
+          onClick={onClose}
+          className="p-1 rounded-full hover:bg-[var(--color-surface-secondary)]"
+          aria-label="Close Myth Tool"
+        >
           <Icon name="close" className="w-5 h-5" />
         </button>
       </div>
@@ -83,7 +87,8 @@ export function MythSidebar({
                       >
                         <div>
                           <p className="font-semibold text-[var(--color-text-accent)]">
-                            Myth #{myth.id}: <span className="text-[var(--color-text-primary)]">{myth.name}</span>
+                            Myth #{myth.id}:{' '}
+                            <span className="text-[var(--color-text-primary)]">{myth.name}</span>
                           </p>
                           <p className="text-xs text-[var(--color-text-secondary)]">
                             Location: ({myth.q}, {myth.r})

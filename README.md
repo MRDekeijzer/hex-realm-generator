@@ -22,7 +22,6 @@ This project is optimized for fast creation of intriguing, compact realms suitab
 - History controls for undo/redo and version management.
 - Lightweight UI: toolbar, palette, settings, and helpful shortcuts.
 
-
 ## Quickstart (development)
 
 Prerequisites: Node.js (14+ recommended) and npm.

@@ -51,7 +51,10 @@ export function ConfirmationDialog({
       aria-labelledby="confirmation-dialog-title"
     >
       <div className="bg-[var(--color-background-secondary)] border border-[var(--color-border-primary)] rounded-lg shadow-xl w-full max-w-md p-6 animate-fade-in">
-        <h2 id="confirmation-dialog-title" className="text-xl font-bold text-[var(--color-text-primary)] text-center mb-4">
+        <h2
+          id="confirmation-dialog-title"
+          className="text-xl font-bold text-[var(--color-text-primary)] text-center mb-4"
+        >
           {title}
         </h2>
         <p className="text-[var(--color-text-secondary)] mb-6 text-center">{message}</p>

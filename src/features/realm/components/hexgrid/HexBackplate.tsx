@@ -33,8 +33,8 @@ export const HexBackplate = ({
   const backplateBorderColor = isSeatOfPower
     ? SEAT_OF_POWER_COLOR
     : isHolding
-    ? HOLDING_ICON_BORDER_COLOR
-    : LANDMARK_ICON_BORDER_COLOR;
+      ? HOLDING_ICON_BORDER_COLOR
+      : LANDMARK_ICON_BORDER_COLOR;
 
   return (
     <g style={{ pointerEvents: 'none' }}>

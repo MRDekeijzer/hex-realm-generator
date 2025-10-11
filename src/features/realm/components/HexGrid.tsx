@@ -7,7 +7,15 @@
  */
 
 import React, { useMemo, useState, useRef, useCallback, useEffect } from 'react';
-import type { Realm, Hex, ViewOptions, Tool, TileSet, TerrainTextures, Point } from '@/features/realm/types';
+import type {
+  Realm,
+  Hex,
+  ViewOptions,
+  Tool,
+  TileSet,
+  TerrainTextures,
+  Point,
+} from '@/features/realm/types';
 import {
   axialToPixel,
   getHexCorners,
@@ -117,9 +125,11 @@ export function HexGrid({
   );
   const svgRef = useRef<SVGSVGElement>(null);
   const [isSpacePanActive, setIsSpacePanActive] = useState(false);
-  const [hoveredBarrier, setHoveredBarrier] = useState<{ q: number; r: number; edge: number } | null>(
-    null
-  );
+  const [hoveredBarrier, setHoveredBarrier] = useState<{
+    q: number;
+    r: number;
+    edge: number;
+  } | null>(null);
 
   /**
    * Effect to enable panning with the spacebar.
@@ -434,7 +444,15 @@ export function HexGrid({
         setHoveredBarrier({ q: hex.q, r: hex.r, edge: edgeIndex });
       }
     },
-    [activeTool, isPainting, viewOptions.orientation, viewOptions.hexSize, hexCorners, hoveredBarrier, handlePaint]
+    [
+      activeTool,
+      isPainting,
+      viewOptions.orientation,
+      viewOptions.hexSize,
+      hexCorners,
+      hoveredBarrier,
+      handlePaint,
+    ]
   );
 
   if (isLoadingTextures || !terrainTextures) {

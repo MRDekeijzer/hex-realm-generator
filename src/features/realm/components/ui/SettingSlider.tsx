@@ -9,24 +9,24 @@ import { Icon } from '../Icon';
  * Props for the SettingSlider component.
  */
 interface SettingSliderProps {
-    /** The label displayed above the slider. */
-    label: string;
-    /** An optional tooltip for the label. */
-    tooltip?: string;
-    /** The current value of the slider. */
-    value: number;
-    /** Callback function when the slider value changes. */
-    onChange: (value: number) => void;
-    /** The minimum value of the slider. */
-    min?: number;
-    /** The maximum value of the slider. */
-    max?: number;
-    /** The step increment of the slider. */
-    step?: number;
-    /** A multiplier for displaying the value (e.g., 100 for percentages). */
-    displayMultiplier?: number;
-    /** A suffix for the displayed value (e.g., '%'). */
-    displaySuffix?: string;
+  /** The label displayed above the slider. */
+  label: string;
+  /** An optional tooltip for the label. */
+  tooltip?: string;
+  /** The current value of the slider. */
+  value: number;
+  /** Callback function when the slider value changes. */
+  onChange: (value: number) => void;
+  /** The minimum value of the slider. */
+  min?: number;
+  /** The maximum value of the slider. */
+  max?: number;
+  /** The step increment of the slider. */
+  step?: number;
+  /** A multiplier for displaying the value (e.g., 100 for percentages). */
+  displayMultiplier?: number;
+  /** A suffix for the displayed value (e.g., '%'). */
+  displaySuffix?: string;
 }
 
 /**
@@ -34,43 +34,54 @@ interface SettingSliderProps {
  * current value display, and an optional tooltip.
  */
 export const SettingSlider = ({
-    label,
-    tooltip,
-    value,
-    onChange,
-    min = 0,
-    max = 1,
-    step = 0.01,
-    displayMultiplier = 100,
-    displaySuffix = '%'
+  label,
+  tooltip,
+  value,
+  onChange,
+  min = 0,
+  max = 1,
+  step = 0.01,
+  displayMultiplier = 100,
+  displaySuffix = '%',
 }: SettingSliderProps) => {
-    const inputId = `slider-${label.toLowerCase().replace(/\s+/g, '-')}`;
-    return (
-        <div>
-            <div className="flex justify-between items-center mb-1">
-                <div className="flex items-center gap-2">
-                    <label htmlFor={inputId} className="text-sm font-medium text-[var(--color-text-secondary)]">{label}</label>
-                    {tooltip && (
-                        <div className="relative group">
-                            <Icon name="help-circle" className="w-4 h-4 text-[var(--color-text-secondary)] cursor-help" />
-                            <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 w-64 p-2 bg-[var(--color-background-secondary)] text-xs text-[var(--color-text-primary)] rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 border border-[var(--color-border-primary)]">
-                                {tooltip}
-                            </div>
-                        </div>
-                    )}
-                </div>
-                <span className="px-2 py-0.5 bg-[var(--color-surface-primary)] rounded-md text-xs">{Math.round(value * displayMultiplier)}{displaySuffix}</span>
+  const inputId = `slider-${label.toLowerCase().replace(/\s+/g, '-')}`;
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-1">
+        <div className="flex items-center gap-2">
+          <label
+            htmlFor={inputId}
+            className="text-sm font-medium text-[var(--color-text-secondary)]"
+          >
+            {label}
+          </label>
+          {tooltip && (
+            <div className="relative group">
+              <Icon
+                name="help-circle"
+                className="w-4 h-4 text-[var(--color-text-secondary)] cursor-help"
+              />
+              <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 w-64 p-2 bg-[var(--color-background-secondary)] text-xs text-[var(--color-text-primary)] rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 border border-[var(--color-border-primary)]">
+                {tooltip}
+              </div>
             </div>
-            <input
-                id={inputId}
-                type="range"
-                min={min}
-                max={max}
-                step={step}
-                value={value}
-                onChange={e => onChange(parseFloat(e.target.value))}
-                className="w-full h-2 bg-[var(--color-surface-primary)] rounded-lg appearance-none cursor-pointer accent-[var(--color-accent-primary)]"
-            />
+          )}
         </div>
-    );
+        <span className="px-2 py-0.5 bg-[var(--color-surface-primary)] rounded-md text-xs">
+          {Math.round(value * displayMultiplier)}
+          {displaySuffix}
+        </span>
+      </div>
+      <input
+        id={inputId}
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(parseFloat(e.target.value))}
+        className="w-full h-2 bg-[var(--color-surface-primary)] rounded-lg appearance-none cursor-pointer accent-[var(--color-accent-primary)]"
+      />
+    </div>
+  );
 };
