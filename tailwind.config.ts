@@ -1,12 +1,12 @@
 import type { Config } from 'tailwindcss';
-import { colorPalette, flattenColorPalette } from './src/app/theme/colors';
+import { tailwindColorPalette } from './src/app/theme/colors';
 
 const config: Config = {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   darkMode: ['class', '[data-theme="dark"]'],
   theme: {
     extend: {
-      colors: flattenColorPalette(colorPalette),
+      colors: tailwindColorPalette,
       fontFamily: {
         display: ['AnglicanText', 'serif'],
         decorative: ['Canterbury', 'serif'],

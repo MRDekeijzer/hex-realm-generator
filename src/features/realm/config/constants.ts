@@ -10,9 +10,9 @@ import type {
   GenerationOptions,
   SpraySettings,
 } from '../types/index.ts';
-import { colorPalette, flattenColorPalette } from '@/app/theme/colors';
+import { colorPalette, tailwindColorPalette } from '@/app/theme/colors';
 
-const flattenedColors = flattenColorPalette(colorPalette);
+const flattenedColors = tailwindColorPalette;
 
 export const TERRAIN_BASE_COLORS: Record<string, string> = Object.fromEntries(
   Object.keys(colorPalette.terrain).map((terrainId) => [

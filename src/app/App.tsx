@@ -43,7 +43,7 @@ import { BarrierPainterSidebar } from '@/features/realm/components/sidebars/Barr
 import { ConfirmationDialog } from '@/features/realm/components/ConfirmationDialog';
 import { HistoryControls } from '@/features/realm/components/HistoryControls';
 import { generateTerrainTextures } from '@/features/realm/utils/textureUtils';
-import { useTheme } from '@/app/providers/ThemeProvider';
+import { getTerrainBaseColor } from '@/app/theme/colors';
 
 /**
  * State for managing confirmation dialogs.
@@ -84,26 +84,14 @@ export default function App() {
   const [paintTerrain, setPaintTerrain] = useState<string>(TERRAIN_TYPES[0] ?? 'plain');
   const [paintPoi, setPaintPoi] = useState<string | null>('holding:castle');
   const [tileSets, setTileSets] = useState<TileSet>(DEFAULT_TILE_SETS);
-  const { colors } = useTheme();
-
   const [terrainColors, setTerrainColors] = useState<Record<string, string>>({
     ...TERRAIN_BASE_COLORS,
   });
   const [barrierColor, setBarrierColor] = useState(BARRIER_COLOR);
 
   useEffect(() => {
-    if (Object.keys(colors).length > 0) {
-      const initialTerrainColors = Object.fromEntries(
-        TERRAIN_TYPES.map((id) => {
-          const paletteKey = `terrain-${id}-base`;
-          return [id, colors[paletteKey] ?? TERRAIN_BASE_COLORS[id] ?? '#cccccc'];
-        })
-      );
-      setTerrainColors(initialTerrainColors);
-      const newBarrierColor = colors['actions-danger-base'];
-      if (newBarrierColor) setBarrierColor(newBarrierColor);
-    }
-  }, [colors]);
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }, []);
 
   const [realmShape, setRealmShape] = useState<'hex' | 'square'>('square');
   const [realmRadius, setRealmRadius] = useState<number>(DEFAULT_GRID_SIZE);
@@ -609,13 +597,10 @@ export default function App() {
     []
   );
 
-  const handleResetTerrainColor = useCallback(
-    (terrainId: string) => {
-      const defaultColor = colors[`terrain-${terrainId}-base`] ?? TERRAIN_BASE_COLORS[terrainId];
-      if (defaultColor) setTerrainColors((prev) => ({ ...prev, [terrainId]: defaultColor }));
-    },
-    [colors]
-  );
+  const handleResetTerrainColor = useCallback((terrainId: string) => {
+    const defaultColor = getTerrainBaseColor(terrainId);
+    setTerrainColors((prev) => ({ ...prev, [terrainId]: defaultColor }));
+  }, []);
 
   /**
    * Opens a confirmation dialog to remove all barriers from the map.

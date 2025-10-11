@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file TerrainPainterSidebar.tsx
  * This component renders the sidebar for the Terrain Painter tool. It allows users
  * to select a terrain type to paint, customize terrain colors, and add or remove
@@ -7,13 +7,12 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Icon } from '../Icon';
-// FIX: Removed `DEFAULT_TERRAIN_COLORS` as it does not exist. Default colors are now handled by the theme context.
 import { TERRAIN_TYPES } from '@/features/realm/config/constants';
-import { resolvePaletteColor } from '@/app/theme/colors';
+import { resolveColorToken, getTerrainBaseColor } from '@/app/theme/colors';
 import type { TileSet } from '@/features/realm/types';
-// FIX: Added import for `useTheme` to access resolved CSS color variables for default terrain colors.
-import { useTheme } from '@/app/providers/ThemeProvider';
 import { InfoPopup } from '../ui/InfoPopup';
+import { AddTerrainForm } from './terrain/AddTerrainForm';
+import { useInfoPopup } from '@/shared/hooks/useInfoPopup';
 
 /**
  * Props for the TerrainPainterSidebar component.
@@ -51,59 +50,24 @@ export function TerrainPainterSidebar({
   onOpenSpraySettings,
 }: TerrainPainterSidebarProps) {
   const [newTerrainName, setNewTerrainName] = useState('');
-  const [newTerrainColor, setNewTerrainColor] = useState('#cccccc');
-  const [activeInfo, setActiveInfo] = useState<{
-    id: string;
-    anchor: HTMLElement;
-    locked: boolean;
-  } | null>(null);
+  const [newTerrainColor, setNewTerrainColor] = useState('#CCCCCC');
   const colorInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
-  // FIX: Added `useTheme` hook to get the resolved CSS variables.
-  const { colors } = useTheme();
-  const hoverOpenTimeout = useRef<number | null>(null);
-  const hoverCloseTimeout = useRef<number | null>(null);
-  const infoPopupOptions = { autoOpenOnHover: true, openDelay: 250, closeDelay: 200 };
+  const {
+    activeInfo,
+    handleInfoClick,
+    scheduleHoverOpen,
+    scheduleHoverClose,
+    cancelOpenTimeout,
+    cancelCloseTimeout,
+    closeInfo,
+  } = useInfoPopup();
 
-  const resolveColor = useCallback(
-    (value: string | undefined) => {
-      if (!value) {
-        return '#CCCCCC';
-      }
-      const varMatch = /^var\((--[^)]+)\)$/i.exec(value);
-      if (varMatch?.[1]) {
-        const resolved = resolvePaletteColor(colors, varMatch[1]);
-        if (resolved) {
-          return resolved.toUpperCase();
-        }
-      }
-      const paletteResolved = resolvePaletteColor(colors, value);
-      if (paletteResolved) {
-        return paletteResolved.toUpperCase();
-      }
-      return value.toUpperCase?.() ?? value;
-    },
-    [colors]
-  );
-
-  const cancelOpenTimeout = useCallback(() => {
-    if (hoverOpenTimeout.current !== null) {
-      window.clearTimeout(hoverOpenTimeout.current);
-      hoverOpenTimeout.current = null;
+  const resolveColor = useCallback((value?: string) => {
+    if (!value) {
+      return '#CCCCCC';
     }
+    return resolveColorToken(value);
   }, []);
-
-  const cancelCloseTimeout = useCallback(() => {
-    if (hoverCloseTimeout.current !== null) {
-      window.clearTimeout(hoverCloseTimeout.current);
-      hoverCloseTimeout.current = null;
-    }
-  }, []);
-
-  const closeInfo = useCallback(() => {
-    cancelOpenTimeout();
-    cancelCloseTimeout();
-    setActiveInfo(null);
-  }, [cancelCloseTimeout, cancelOpenTimeout]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -123,19 +87,13 @@ export function TerrainPainterSidebar({
     }
   }, [activeInfo, closeInfo, tileSets.terrain]);
 
-  useEffect(() => {
-    return () => {
-      cancelOpenTimeout();
-      cancelCloseTimeout();
-    };
-  }, [cancelCloseTimeout, cancelOpenTimeout]);
-
-  const handleAddSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newTerrainName.trim()) {
-      onAddTerrain(newTerrainName.trim(), newTerrainColor);
+  const handleAddSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    const name = newTerrainName.trim();
+    if (name) {
+      onAddTerrain(name, newTerrainColor.toUpperCase());
       setNewTerrainName('');
-      setNewTerrainColor('#cccccc');
+      setNewTerrainColor('#CCCCCC');
     }
   };
 
@@ -176,18 +134,15 @@ export function TerrainPainterSidebar({
         </p>
         <div className="space-y-2">
           {tileSets.terrain.map((terrain) => {
-            const color = terrainColors[terrain.id] || '#ccc';
+            const color = terrainColors[terrain.id] || '#CCCCCC';
+            const resolvedColor = resolveColor(color);
             const isSelected = paintTerrain === terrain.id;
             const isDefault = TERRAIN_TYPES.includes(terrain.id);
-            // FIX: Replaced non-existent `DEFAULT_TERRAIN_COLORS` with the `colors` map from the theme context.
-            const defaultColor =
-              resolvePaletteColor(colors, `--terrain-${terrain.id}`) ??
-              resolvePaletteColor(colors, `terrain-${terrain.id}-base`);
-            const isCustomColor = isDefault && defaultColor ? defaultColor !== color : false;
+            const defaultColor = isDefault ? getTerrainBaseColor(terrain.id) : undefined;
+            const isCustomColor = isDefault && defaultColor ? defaultColor !== resolvedColor : false;
             const infoDescription =
               terrain.description ?? 'Custom terrain created by the user. Add details in settings.';
             const isInfoOpen = activeInfo?.id === terrain.id;
-            const resolvedColor = resolveColor(color);
             const spraySummary = terrain.sprayIcons?.length
               ? `Signature icons: ${terrain.sprayIcons
                   .map((icon) => icon.replace(/-/g, ' '))
@@ -205,16 +160,15 @@ export function TerrainPainterSidebar({
                 }}
                 role="button"
                 tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
                     setPaintTerrain(terrain.id);
                     if (activeInfo) {
                       closeInfo();
                     }
                   }
                 }}
-                className={`relative group/item p-2 rounded-md transition-all duration-150 border-2 flex items-center gap-2 cursor-pointer
-                ${
+                className={`relative group/item p-2 rounded-md transition-all duration-150 border-2 flex items-center gap-2 cursor-pointer ${
                   isSelected
                     ? 'bg-actions-command-primary/20 border-actions-command-primary'
                     : 'bg-realm-map-viewport border-border-panel-divider hover:border-text-muted'
@@ -223,8 +177,9 @@ export function TerrainPainterSidebar({
               >
                 <div className="flex items-center gap-2 flex-grow min-w-0">
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
                       if (isCustomColor) {
                         onResetTerrainColor(terrain.id);
                       } else {
@@ -232,7 +187,7 @@ export function TerrainPainterSidebar({
                       }
                     }}
                     className="w-7 h-7 rounded-md flex-shrink-0 border border-white/80 relative group"
-                    style={{ backgroundColor: color }}
+                    style={{ backgroundColor: resolvedColor }}
                     title={isCustomColor ? 'Reset color to default' : 'Edit color'}
                     aria-label={
                       isCustomColor
@@ -241,24 +196,21 @@ export function TerrainPainterSidebar({
                     }
                   >
                     <input
-                      ref={(el) => {
-                        if (el) colorInputRefs.current[terrain.id] = el;
+                      ref={(element) => {
+                        if (element) colorInputRefs.current[terrain.id] = element;
                       }}
                       type="color"
-                      value={color}
-                      onChange={(e) => {
-                        e.stopPropagation();
-                        onUpdateTerrainColor(terrain.id, e.target.value);
+                      value={resolvedColor}
+                      onChange={(event) => {
+                        event.stopPropagation();
+                        onUpdateTerrainColor(terrain.id, event.target.value.toUpperCase());
                       }}
-                      onClick={(e) => e.stopPropagation()}
+                      onClick={(event) => event.stopPropagation()}
                       className="opacity-0 w-0 h-0 absolute pointer-events-none"
                       aria-label={`${terrain.label} color picker`}
                     />
                     <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <Icon
-                        name={isCustomColor ? 'reset' : 'pipette'}
-                        className="w-4 h-4 text-white"
-                      />
+                      <Icon name={isCustomColor ? 'reset' : 'pipette'} className="w-4 h-4 text-white" />
                     </div>
                   </button>
                   <span
@@ -270,66 +222,22 @@ export function TerrainPainterSidebar({
                   </span>
                   <div className="relative flex-shrink-0">
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
                         cancelOpenTimeout();
                         cancelCloseTimeout();
-                        const anchor = e.currentTarget as HTMLElement;
-                        setActiveInfo((prev) => {
-                          if (prev?.id === terrain.id) {
-                            if (prev.locked) {
-                              return { ...prev, anchor };
-                            }
-                            return { id: terrain.id, anchor, locked: true };
-                          }
-                          return { id: terrain.id, anchor, locked: true };
-                        });
+                        handleInfoClick(terrain.id, event.currentTarget as HTMLElement);
                       }}
-                      onMouseEnter={(e) => {
-                        if (!infoPopupOptions.autoOpenOnHover) {
-                          return;
-                        }
-                        const anchor = e.currentTarget as HTMLElement;
-                        cancelCloseTimeout();
-                        cancelOpenTimeout();
-                        hoverOpenTimeout.current = window.setTimeout(() => {
-                          setActiveInfo((prev) => {
-                            if (prev?.locked && prev.id !== terrain.id) {
-                              return prev;
-                            }
-                            if (prev?.id === terrain.id && prev.locked) {
-                              return { ...prev, anchor };
-                            }
-                            return { id: terrain.id, anchor, locked: false };
-                          });
-                          hoverOpenTimeout.current = null;
-                        }, infoPopupOptions.openDelay);
-                      }}
+                      onMouseEnter={(event) =>
+                        scheduleHoverOpen(terrain.id, event.currentTarget as HTMLElement)
+                      }
                       onMouseLeave={(event) => {
                         const nextTarget = event.relatedTarget as Node | null;
                         if (nextTarget && event.currentTarget.contains(nextTarget)) {
                           return;
                         }
-                        if (!infoPopupOptions.autoOpenOnHover) {
-                          return;
-                        }
-                        cancelOpenTimeout();
-                        cancelCloseTimeout();
-                        hoverCloseTimeout.current = window.setTimeout(() => {
-                          setActiveInfo((prev) => {
-                            if (!prev) {
-                              return null;
-                            }
-                            if (prev.locked) {
-                              return prev;
-                            }
-                            if (prev.id !== terrain.id) {
-                              return prev;
-                            }
-                            return null;
-                          });
-                          hoverCloseTimeout.current = null;
-                        }, infoPopupOptions.closeDelay);
+                        scheduleHoverClose(terrain.id);
                       }}
                       className={`w-6 h-6 flex items-center justify-center rounded-full transition-colors ${
                         isInfoOpen
@@ -340,7 +248,6 @@ export function TerrainPainterSidebar({
                       aria-label={`Terrain information for ${terrain.label}`}
                       aria-expanded={isInfoOpen}
                       aria-haspopup="dialog"
-                      type="button"
                     >
                       <Icon name="info" className="w-3.5 h-3.5" />
                     </button>
@@ -353,23 +260,7 @@ export function TerrainPainterSidebar({
                           if (activeInfo.locked) {
                             return;
                           }
-                          cancelOpenTimeout();
-                          cancelCloseTimeout();
-                          hoverCloseTimeout.current = window.setTimeout(() => {
-                            setActiveInfo((prev) => {
-                              if (!prev) {
-                                return null;
-                              }
-                              if (prev.locked) {
-                                return prev;
-                              }
-                              if (prev.id !== terrain.id) {
-                                return prev;
-                              }
-                              return null;
-                            });
-                            hoverCloseTimeout.current = null;
-                          }, infoPopupOptions.closeDelay);
+                          scheduleHoverClose(terrain.id);
                         }}
                       >
                         <p className="text-xs leading-relaxed text-text-muted">{infoDescription}</p>
@@ -377,10 +268,8 @@ export function TerrainPainterSidebar({
                           <span>Palette Swatch</span>
                           <span>{resolvedColor}</span>
                         </div>
-                        <div className="mt-1 h-2 rounded-full" style={{ backgroundColor: color }} />
-                        <p className="mt-2 text-[11px] text-text-muted leading-relaxed">
-                          {spraySummary}
-                        </p>
+                        <div className="mt-1 h-2 rounded-full" style={{ backgroundColor: resolvedColor }} />
+                        <p className="mt-2 text-[11px] text-text-muted leading-relaxed">{spraySummary}</p>
                       </InfoPopup>
                     )}
                   </div>
@@ -388,8 +277,9 @@ export function TerrainPainterSidebar({
 
                 <div className="flex items-center flex-shrink-0">
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
                       onOpenSpraySettings(terrain.id);
                       if (activeInfo?.id === terrain.id) {
                         closeInfo();
@@ -404,8 +294,9 @@ export function TerrainPainterSidebar({
 
                 {!isDefault && (
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
                       onRemoveTerrain(terrain.id);
                       if (activeInfo?.id === terrain.id) {
                         closeInfo();
@@ -423,58 +314,13 @@ export function TerrainPainterSidebar({
           })}
         </div>
 
-        <div className="mt-6 pt-4 border-t border-border-panel-divider">
-          <h3 className="text-lg font-bold mb-2">Add New Terrain</h3>
-          <form onSubmit={handleAddSubmit}>
-            <div className="mb-2">
-              <label
-                htmlFor="terrain-name"
-                className="block text-sm font-medium text-text-muted mb-1"
-              >
-                Name
-              </label>
-              <input
-                id="terrain-name"
-                type="text"
-                value={newTerrainName}
-                onChange={(e) => setNewTerrainName(e.target.value)}
-                className="w-full bg-realm-command-panel-surface p-2 text-sm font-medium text-text-muted focus:outline-none focus:ring-2 focus:ring-actions-command-primary rounded-md"
-                placeholder="e.g. Cursed Wastes"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label
-                htmlFor="terrain-color"
-                className="block text-sm font-medium text-text-muted mb-1"
-              >
-                Color
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  id="terrain-color"
-                  type="color"
-                  value={newTerrainColor}
-                  onChange={(e) => setNewTerrainColor(e.target.value)}
-                  className="h-10 p-1 bg-realm-command-panel-surface border border-border-panel-divider rounded-md cursor-pointer"
-                  title="Select color"
-                  aria-label="New terrain color picker"
-                />
-                <span className="p-2 bg-realm-command-panel-surface rounded-md text-sm font-mono flex-grow text-center">
-                  {newTerrainColor}
-                </span>
-              </div>
-            </div>
-            <button
-              type="submit"
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-text-high-contrast bg-feedback-success-highlight rounded-md hover:bg-actions-command-primary-hover transition-colors disabled:opacity-50"
-              disabled={!newTerrainName.trim()}
-            >
-              <Icon name="plus" className="w-4 h-4" />
-              Add Terrain
-            </button>
-          </form>
-        </div>
+        <AddTerrainForm
+          name={newTerrainName}
+          color={newTerrainColor}
+          onNameChange={setNewTerrainName}
+          onColorChange={(value) => setNewTerrainColor(value.toUpperCase())}
+          onSubmit={handleAddSubmit}
+        />
       </div>
     </aside>
   );

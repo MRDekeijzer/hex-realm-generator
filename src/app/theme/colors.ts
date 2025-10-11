@@ -110,7 +110,21 @@ export const flattenColorPalette = (
     return acc;
   }, {});
 
-export const legacyColorTokenMap: Record<string, string> = {
+export const tailwindColorPalette = flattenColorPalette(colorPalette);
+
+export type TailwindColorName = keyof typeof tailwindColorPalette;
+
+const CSS_VAR_PATTERN = /^var\((--[^)]+)\)$/i;
+const HEX_PATTERN = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
+
+const normalizeToken = (token: string): string => {
+  const trimmed = token.trim();
+  const varMatch = CSS_VAR_PATTERN.exec(trimmed);
+  const rawToken = varMatch?.[1] ?? trimmed;
+  return rawToken;
+};
+
+export const legacyColorTokenMap: Record<string, TailwindColorName> = {
   '--color-background-primary': 'realm-canvas-backdrop',
   '--color-background-secondary': 'realm-map-viewport',
   '--color-surface-primary': 'realm-command-panel-surface',
@@ -147,16 +161,21 @@ export const legacyColorTokenMap: Record<string, string> = {
   '--terrain-plain': 'terrain-plain-base',
 };
 
-export const resolvePaletteColor = (
-  palette: FlattenedColorPalette,
-  token: string
-): string | undefined => {
-  if (palette[token]) {
-    return palette[token];
+export const resolveColorToken = (token: string): string => {
+  const normalized = normalizeToken(token);
+  const lookupKey = legacyColorTokenMap[normalized] ?? normalized;
+  const paletteValue = tailwindColorPalette[lookupKey as TailwindColorName];
+  if (paletteValue) {
+    return paletteValue.toUpperCase();
   }
-  const legacyKey = legacyColorTokenMap[token];
-  if (legacyKey) {
-    return palette[legacyKey];
+  if (HEX_PATTERN.test(token)) {
+    return token.toUpperCase();
   }
-  return undefined;
+  return token;
 };
+
+export const getTerrainBaseToken = (terrainId: string): TailwindColorName =>
+  `terrain-${terrainId}-base` as TailwindColorName;
+
+export const getTerrainBaseColor = (terrainId: string): string =>
+  tailwindColorPalette[getTerrainBaseToken(terrainId)]?.toUpperCase() ?? '#CCCCCC';
