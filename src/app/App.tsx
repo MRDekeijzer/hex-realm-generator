@@ -374,7 +374,7 @@ export default function App() {
       let updatedHexWithoutMyth: Hex | undefined;
       const newHexes = realm.hexes.map((h) => {
         if (h.q === hex.q && h.r === hex.r) {
-          const { myth, ...rest } = h;
+          const { myth: _removedMyth, ...rest } = h;
           updatedHexWithoutMyth = rest;
           return rest;
         }
@@ -467,7 +467,7 @@ export default function App() {
       let updatedNewHexWithMyth: Hex | undefined;
       const newHexes = realm.hexes.map((h) => {
         if (h.q === oldHexCoords.q && h.r === oldHexCoords.r) {
-          const { myth, ...rest } = h;
+          const { myth: _removedMyth, ...rest } = h;
           return rest;
         }
         if (h.q === newHex.q && h.r === newHex.r) {

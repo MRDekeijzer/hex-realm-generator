@@ -3,7 +3,7 @@
  */
 
 import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
-import type { TileSet, SpraySettings, Tile } from '@/features/realm/types';
+import type { TileSet, SpraySettings, Tile, Point } from '@/features/realm/types';
 import {
   SPRAYABLE_ICONS,
   DEFAULT_SPRAY_SETTINGS,
@@ -14,6 +14,8 @@ import { SettingSlider } from '../ui/SettingSlider';
 import { Icon } from '../Icon';
 import { generateSprayIcons } from '@/features/realm/utils/sprayUtils';
 import { getHexCorners } from '@/features/realm/utils/hexUtils';
+
+const PREVIEW_HEX_SIZE: Point = { x: 50, y: 50 };
 
 // =================================================================================
 // --- Sub-component: IconGridSelector ---
@@ -170,8 +172,7 @@ interface HexSprayPreviewProps {
 }
 
 const HexSprayPreview = ({ terrain }: HexSprayPreviewProps) => {
-  const previewHexSize = { x: 50, y: 50 };
-  const hexCorners = useMemo(() => getHexCorners('pointy', previewHexSize), []);
+  const hexCorners = useMemo(() => getHexCorners('pointy', PREVIEW_HEX_SIZE), []);
 
   const iconsToRender = useMemo(() => {
     // We use a mock hex. Coordinates don't matter with the new seeding,
@@ -180,7 +181,7 @@ const HexSprayPreview = ({ terrain }: HexSprayPreviewProps) => {
 
     // Generate icons using the same function as the main map.
     // This guarantees the preview is an exact representation of a real hex.
-    return generateSprayIcons(mockHex, terrain, previewHexSize);
+    return generateSprayIcons(mockHex, terrain, PREVIEW_HEX_SIZE);
   }, [terrain]);
 
   return (

@@ -130,10 +130,13 @@ export interface TileSet {
 }
 
 /** A map of terrain IDs to their pre-rendered texture data URLs. */
-export type TerrainTextures = Record<string, {
+export type TerrainTextures = Record<
+  string,
+  {
     withSpray: string;
     withoutSpray: string;
-  }>;
+  }
+>;
 
 /** Options for specifying the number of each landmark type to generate. */
 export type LandmarkGenerationOptions = Record<string, number>;

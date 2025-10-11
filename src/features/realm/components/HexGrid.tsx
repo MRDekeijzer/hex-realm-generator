@@ -192,7 +192,7 @@ export function HexGrid({
           container.style.cursor = 'default';
       }
     }
-  }, [isPickingTile, isSpacePanActive, isPanning, relocatingMythId, activeTool]);
+  }, [isPickingTile, isSpacePanActive, isPanning, relocatingMythId, activeTool, containerRef]);
 
   /**
    * Memoized array of hexes to display, combining base realm hexes with
@@ -317,9 +317,14 @@ export function HexGrid({
 
       if (activeTool === 'poi' && paintPoi) {
         const [type, id] = paintPoi.split(':');
+        if (typeof id === 'undefined') return;
         if (type === 'action') {
           if (id === 'myth') {
-            currentHex.myth ? onRemoveMyth(currentHex) : onAddMyth(currentHex);
+            if (currentHex.myth) {
+              onRemoveMyth(currentHex);
+            } else {
+              onAddMyth(currentHex);
+            }
           } else if (id === 'seatOfPower') {
             if (currentHex.holding) {
               onSetSeatOfPower(currentHex);
@@ -336,11 +341,19 @@ export function HexGrid({
         } else {
           const updatedHex: Hex = { ...currentHex };
           if (type === 'holding') {
-            updatedHex.holding = updatedHex.holding === id ? undefined : id;
-            updatedHex.landmark = undefined;
+            if (updatedHex.holding === id) {
+              delete updatedHex.holding;
+            } else {
+              updatedHex.holding = id;
+            }
+            delete updatedHex.landmark;
           } else if (type === 'landmark') {
-            updatedHex.landmark = updatedHex.landmark === id ? undefined : id;
-            updatedHex.holding = undefined;
+            if (updatedHex.landmark === id) {
+              delete updatedHex.landmark;
+            } else {
+              updatedHex.landmark = id;
+            }
+            delete updatedHex.holding;
           }
           onUpdateHex([updatedHex]);
         }
@@ -466,8 +479,9 @@ export function HexGrid({
   const renderHexes = (layer: 'background' | 'foreground') => {
     return displayHexes.map((hex) => {
       const isSelected = selectedHex ? hex.q === selectedHex.q && hex.r === selectedHex.r : false;
-      const isSeatOfPower =
-        hex.holding && hex.q === realm.seatOfPower.q && hex.r === realm.seatOfPower.r;
+      const isSeatOfPower = Boolean(
+        hex.holding && hex.q === realm.seatOfPower.q && hex.r === realm.seatOfPower.r
+      );
       return (
         <Hexagon
           key={`hex-${layer}-${hex.q}-${hex.r}`}

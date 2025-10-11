@@ -124,9 +124,11 @@ export function TerrainPainterSidebar({
                 onClick={() => setPaintTerrain(terrain.id)}
                 role="button"
                 tabIndex={0}
-                onKeyDown={(e) =>
-                  (e.key === 'Enter' || e.key === ' ') && setPaintTerrain(terrain.id)
-                }
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    setPaintTerrain(terrain.id);
+                  }
+                }}
                 className={`relative group/item p-2 rounded-md transition-all duration-150 border-2 flex items-center gap-2 cursor-pointer
                 ${
                   isSelected
@@ -149,9 +151,11 @@ export function TerrainPainterSidebar({
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      isCustomColor
-                        ? onResetTerrainColor(terrain.id)
-                        : colorInputRefs.current[terrain.id]?.click();
+                      if (isCustomColor) {
+                        onResetTerrainColor(terrain.id);
+                      } else {
+                        colorInputRefs.current[terrain.id]?.click();
+                      }
                     }}
                     className="w-7 h-7 rounded-md flex-shrink-0 border border-white/80 relative group"
                     style={{ backgroundColor: color }}

@@ -5,7 +5,6 @@
 import React from 'react';
 import type { GenerationOptions, TileSet } from '@/features/realm/types';
 import { SettingsSection } from '../ui/SettingsSection';
-import { Icon } from '../Icon';
 
 /**
  * Props for the GeneralSettings component.

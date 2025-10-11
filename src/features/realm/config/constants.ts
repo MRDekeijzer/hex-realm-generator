@@ -462,7 +462,10 @@ export const DEFAULT_TERRAIN_BIASES: Record<string, number> = {
 /**
  * A collection of preset templates for terrain generation settings.
  */
-export const TERRAIN_TEMPLATES: Record<string, { name: string; options: Partial<GenerationOptions> }> = {
+export const TERRAIN_TEMPLATES: Record<
+  string,
+  { name: string; options: Partial<GenerationOptions> }
+> = {
   balanced: {
     name: 'Balanced Realm',
     options: {
