@@ -554,7 +554,14 @@ export default function App() {
         });
         return;
       }
-      const newTerrain = { id, label: name, icon: 'leaf', color, sprayIcons: [] };
+      const newTerrain = {
+        id,
+        label: name,
+        icon: 'leaf',
+        color,
+        description: 'Custom terrain created by the user.',
+        sprayIcons: [],
+      };
       setTileSets((prev) => ({ ...prev, terrain: [...prev.terrain, newTerrain] }));
       setTerrainColors((prev) => ({ ...prev, [id]: color }));
     },

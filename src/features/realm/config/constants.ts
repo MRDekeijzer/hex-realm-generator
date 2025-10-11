@@ -191,6 +191,8 @@ export const DEFAULT_TILE_SETS: TileSet = {
       label: 'Marsh',
       icon: 'droplet',
       color: 'var(--terrain-marsh)',
+      description:
+        'Sodden lowlands thick with reeds and standing water. Travel is slow, but the damp earth hides secrets and strange wildlife.',
       sprayIcons: ['droplet', 'feather', 'waves'],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
@@ -205,6 +207,8 @@ export const DEFAULT_TILE_SETS: TileSet = {
       label: 'Heath',
       icon: 'leaf',
       color: 'var(--terrain-heath)',
+      description:
+        'Open scrubland swept by relentless winds and hardy brush. A liminal place where travelers can see danger coming from afar.',
       sprayIcons: ['leaf', 'wind', 'flower'],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
@@ -219,6 +223,8 @@ export const DEFAULT_TILE_SETS: TileSet = {
       label: 'Crags',
       icon: 'triangle',
       color: 'var(--terrain-crags)',
+      description:
+        'Jagged highlands broken into cliffs of bare stone. Treacherous footing rewards climbers with stunning vantage points.',
       sprayIcons: ['triangle', 'mountain', 'rock'],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
@@ -233,6 +239,8 @@ export const DEFAULT_TILE_SETS: TileSet = {
       label: 'Peaks',
       icon: 'mountains',
       color: 'var(--terrain-peaks)',
+      description:
+        'Towering mountain summits often crowned with snow. Thin air and frigid winds shelter ancient shrines and nesting wyverns.',
       sprayIcons: ['triangle', 'flag', 'snowflake'],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
@@ -247,6 +255,8 @@ export const DEFAULT_TILE_SETS: TileSet = {
       label: 'Forest',
       icon: 'trees',
       color: 'var(--terrain-forest)',
+      description:
+        'Dense woodland of towering trunks and tangled undergrowth. Sunlight filters through the canopy, alive with birdsong and hidden paths.',
       sprayIcons: ['tree-pine', 'leaf', 'branch'],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
@@ -261,6 +271,8 @@ export const DEFAULT_TILE_SETS: TileSet = {
       label: 'Valley',
       icon: 'curve',
       color: 'var(--terrain-valley)',
+      description:
+        'Sheltered lowlands carved by rivers and gentle slopes. Trade roads follow the water, drawing settlements and fertile farms.',
       sprayIcons: ['river', 'path', 'leaf'],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
@@ -275,6 +287,8 @@ export const DEFAULT_TILE_SETS: TileSet = {
       label: 'Hills',
       icon: 'hill',
       color: 'var(--terrain-hills)',
+      description:
+        'Rolling uplands of ridgelines and wind-swept rises. Shepherds and watchtowers cling to the heights to guard the realm.',
       sprayIcons: ['wave-sine', 'chevron-up', 'rock'],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
@@ -289,6 +303,8 @@ export const DEFAULT_TILE_SETS: TileSet = {
       label: 'Meadow',
       icon: 'flower',
       color: 'var(--terrain-meadow)',
+      description:
+        'Lush grasslands dotted with bright wildflowers. Ideal for foraging and grazing, these fields invite festivals in the warm months.',
       sprayIcons: ['flower', 'sun', 'cloud'],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
@@ -303,6 +319,8 @@ export const DEFAULT_TILE_SETS: TileSet = {
       label: 'Bog',
       icon: 'droplets',
       color: 'var(--terrain-bog)',
+      description:
+        'Peat-choked wetlands that cling to unwary travelers. Lantern lights drift across the mist, not all of them friendly.',
       sprayIcons: ['droplet', 'skull', 'feather'],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
@@ -317,6 +335,8 @@ export const DEFAULT_TILE_SETS: TileSet = {
       label: 'Lakes',
       icon: 'waves',
       color: 'var(--terrain-lakes)',
+      description:
+        'Deep inland waters fed by streams and hidden springs. Fisherfolk ply their trade while legends speak of things beneath the surface.',
       sprayIcons: ['waves', 'droplet', 'fish'],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
@@ -331,6 +351,8 @@ export const DEFAULT_TILE_SETS: TileSet = {
       label: 'Glades',
       icon: 'sun',
       color: 'var(--terrain-glades)',
+      description:
+        'Sunlit clearings cradled within surrounding trees. Sacred stones and hidden gatherings are said to appear under moonlight.',
       sprayIcons: ['tree-deciduous', 'sparkles', 'sun'],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
@@ -345,6 +367,8 @@ export const DEFAULT_TILE_SETS: TileSet = {
       label: 'Plain',
       icon: 'wind',
       color: 'var(--terrain-plain)',
+      description:
+        'Wide, open flatlands stretching toward distant horizons. Armies march here, but so do caravans and migrating herds.',
       sprayIcons: ['wind', 'cloud', 'sun'],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,

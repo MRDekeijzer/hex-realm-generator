@@ -5,13 +5,14 @@
  * custom terrain types.
  */
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Icon } from '../Icon';
 // FIX: Removed `DEFAULT_TERRAIN_COLORS` as it does not exist. Default colors are now handled by the theme context.
 import { TERRAIN_TYPES } from '@/features/realm/config/constants';
 import type { TileSet } from '@/features/realm/types';
 // FIX: Added import for `useTheme` to access resolved CSS color variables for default terrain colors.
 import { useTheme } from '@/app/providers/ThemeProvider';
+import { InfoPopup } from '../ui/InfoPopup';
 
 /**
  * Props for the TerrainPainterSidebar component.
@@ -50,9 +51,53 @@ export function TerrainPainterSidebar({
 }: TerrainPainterSidebarProps) {
   const [newTerrainName, setNewTerrainName] = useState('');
   const [newTerrainColor, setNewTerrainColor] = useState('#cccccc');
+  const [activeInfo, setActiveInfo] = useState<{
+    id: string;
+    anchor: HTMLElement;
+    locked: boolean;
+  } | null>(null);
   const colorInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   // FIX: Added `useTheme` hook to get the resolved CSS variables.
   const { colors } = useTheme();
+  const hoverOpenTimeout = useRef<number | null>(null);
+  const hoverCloseTimeout = useRef<number | null>(null);
+  const infoPopupOptions = { autoOpenOnHover: true, openDelay: 250, closeDelay: 200 };
+
+  const resolveColor = useCallback(
+    (value: string | undefined) => {
+      if (!value) {
+        return '#CCCCCC';
+      }
+      const match = value.match(/^var\((--[^)]+)\)$/i);
+      if (match) {
+        const token = match[1];
+        const resolved = token ? colors[token] : undefined;
+        return resolved ? resolved.toUpperCase() : value;
+      }
+      return value.toUpperCase?.() ?? value;
+    },
+    [colors]
+  );
+
+  const cancelOpenTimeout = useCallback(() => {
+    if (hoverOpenTimeout.current !== null) {
+      window.clearTimeout(hoverOpenTimeout.current);
+      hoverOpenTimeout.current = null;
+    }
+  }, []);
+
+  const cancelCloseTimeout = useCallback(() => {
+    if (hoverCloseTimeout.current !== null) {
+      window.clearTimeout(hoverCloseTimeout.current);
+      hoverCloseTimeout.current = null;
+    }
+  }, []);
+
+  const closeInfo = useCallback(() => {
+    cancelOpenTimeout();
+    cancelCloseTimeout();
+    setActiveInfo(null);
+  }, [cancelCloseTimeout, cancelOpenTimeout]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -64,6 +109,20 @@ export function TerrainPainterSidebar({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onStartPicking]);
+
+  useEffect(() => {
+    if (!activeInfo) return;
+    if (!tileSets.terrain.some((terrain) => terrain.id === activeInfo.id)) {
+      closeInfo();
+    }
+  }, [activeInfo, closeInfo, tileSets.terrain]);
+
+  useEffect(() => {
+    return () => {
+      cancelOpenTimeout();
+      cancelCloseTimeout();
+    };
+  }, [cancelCloseTimeout, cancelOpenTimeout]);
 
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,16 +176,33 @@ export function TerrainPainterSidebar({
             // FIX: Replaced non-existent `DEFAULT_TERRAIN_COLORS` with the `colors` map from the theme context.
             const defaultColor = colors[`--terrain-${terrain.id}`];
             const isCustomColor = isDefault && defaultColor ? defaultColor !== color : false;
+            const infoDescription =
+              terrain.description ?? 'Custom terrain created by the user. Add details in settings.';
+            const isInfoOpen = activeInfo?.id === terrain.id;
+            const resolvedColor = resolveColor(color);
+            const spraySummary = terrain.sprayIcons?.length
+              ? `Signature icons: ${terrain.sprayIcons
+                  .map((icon) => icon.replace(/-/g, ' '))
+                  .join(', ')}`
+              : 'No spray icons configured yet.';
 
             return (
               <div
                 key={terrain.id}
-                onClick={() => setPaintTerrain(terrain.id)}
+                onClick={() => {
+                  setPaintTerrain(terrain.id);
+                  if (activeInfo) {
+                    closeInfo();
+                  }
+                }}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     setPaintTerrain(terrain.id);
+                    if (activeInfo) {
+                      closeInfo();
+                    }
                   }
                 }}
                 className={`relative group/item p-2 rounded-md transition-all duration-150 border-2 flex items-center gap-2 cursor-pointer
@@ -137,17 +213,7 @@ export function TerrainPainterSidebar({
                 }`}
                 title={`Paint ${terrain.label}`}
               >
-                <span
-                  className={`font-medium text-sm truncate flex-grow ${
-                    isSelected
-                      ? 'text-[var(--color-text-primary)]'
-                      : 'text-[var(--color-text-secondary)]'
-                  }`}
-                >
-                  {terrain.label}
-                </span>
-
-                <div className="flex items-center gap-1.5 flex-shrink-0">
+                <div className="flex items-center gap-2 flex-grow min-w-0">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -187,17 +253,148 @@ export function TerrainPainterSidebar({
                       />
                     </div>
                   </button>
+                  <span
+                    className={`font-medium text-sm truncate ${
+                      isSelected
+                        ? 'text-[var(--color-text-primary)]'
+                        : 'text-[var(--color-text-secondary)]'
+                    }`}
+                  >
+                    {terrain.label}
+                  </span>
+                  <div className="relative flex-shrink-0">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        cancelOpenTimeout();
+                        cancelCloseTimeout();
+                        const anchor = e.currentTarget as HTMLElement;
+                        setActiveInfo((prev) => {
+                          if (prev?.id === terrain.id) {
+                            if (prev.locked) {
+                              return { ...prev, anchor };
+                            }
+                            return { id: terrain.id, anchor, locked: true };
+                          }
+                          return { id: terrain.id, anchor, locked: true };
+                        });
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!infoPopupOptions.autoOpenOnHover) {
+                          return;
+                        }
+                        const anchor = e.currentTarget as HTMLElement;
+                        cancelCloseTimeout();
+                        cancelOpenTimeout();
+                        hoverOpenTimeout.current = window.setTimeout(() => {
+                          setActiveInfo((prev) => {
+                            if (prev?.locked && prev.id !== terrain.id) {
+                              return prev;
+                            }
+                            if (prev?.id === terrain.id && prev.locked) {
+                              return { ...prev, anchor };
+                            }
+                            return { id: terrain.id, anchor, locked: false };
+                          });
+                          hoverOpenTimeout.current = null;
+                        }, infoPopupOptions.openDelay);
+                      }}
+                      onMouseLeave={(event) => {
+                        const nextTarget = event.relatedTarget as Node | null;
+                        if (nextTarget && event.currentTarget.contains(nextTarget)) {
+                          return;
+                        }
+                        if (!infoPopupOptions.autoOpenOnHover) {
+                          return;
+                        }
+                        cancelOpenTimeout();
+                        cancelCloseTimeout();
+                        hoverCloseTimeout.current = window.setTimeout(() => {
+                          setActiveInfo((prev) => {
+                            if (!prev) {
+                              return null;
+                            }
+                            if (prev.locked) {
+                              return prev;
+                            }
+                            if (prev.id !== terrain.id) {
+                              return prev;
+                            }
+                            return null;
+                          });
+                          hoverCloseTimeout.current = null;
+                        }, infoPopupOptions.closeDelay);
+                      }}
+                      className={`w-6 h-6 flex items-center justify-center rounded-full transition-colors ${
+                        isInfoOpen
+                          ? 'bg-[var(--color-background-secondary)] text-[var(--color-text-primary)]'
+                          : 'text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] hover:bg-[var(--color-background-secondary)]'
+                      }`}
+                      title={`Learn more about ${terrain.label}`}
+                      aria-label={`Terrain information for ${terrain.label}`}
+                      aria-expanded={isInfoOpen}
+                      aria-haspopup="dialog"
+                      type="button"
+                    >
+                      <Icon name="info" className="w-3.5 h-3.5" />
+                    </button>
+                    {isInfoOpen && activeInfo?.anchor && (
+                      <InfoPopup
+                        anchor={activeInfo.anchor}
+                        onClose={closeInfo}
+                        onMouseEnter={cancelCloseTimeout}
+                        onMouseLeave={() => {
+                          if (activeInfo.locked) {
+                            return;
+                          }
+                          cancelOpenTimeout();
+                          cancelCloseTimeout();
+                          hoverCloseTimeout.current = window.setTimeout(() => {
+                            setActiveInfo((prev) => {
+                              if (!prev) {
+                                return null;
+                              }
+                              if (prev.locked) {
+                                return prev;
+                              }
+                              if (prev.id !== terrain.id) {
+                                return prev;
+                              }
+                              return null;
+                            });
+                            hoverCloseTimeout.current = null;
+                          }, infoPopupOptions.closeDelay);
+                        }}
+                      >
+                        <p className="text-xs leading-relaxed text-[var(--color-text-secondary)]">
+                          {infoDescription}
+                        </p>
+                        <div className="mt-2 flex items-center justify-between text-[var(--color-text-tertiary)] text-[11px] uppercase tracking-wide">
+                          <span>Palette Swatch</span>
+                          <span>{resolvedColor}</span>
+                        </div>
+                        <div className="mt-1 h-2 rounded-full" style={{ backgroundColor: color }} />
+                        <p className="mt-2 text-[11px] text-[var(--color-text-secondary)] leading-relaxed">
+                          {spraySummary}
+                        </p>
+                      </InfoPopup>
+                    )}
+                  </div>
+                </div>
 
+                <div className="flex items-center flex-shrink-0">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       onOpenSpraySettings(terrain.id);
+                      if (activeInfo?.id === terrain.id) {
+                        closeInfo();
+                      }
                     }}
-                    className="w-7 h-7 rounded-md flex-shrink-0 border border-white/80 bg-[var(--color-surface-primary)] flex items-center justify-center hover:bg-[var(--color-surface-secondary)] transition-colors"
                     title={`Edit ${terrain.label} spray settings`}
                     aria-label={`Edit ${terrain.label} spray settings`}
                   >
-                    <Icon name="spray-can" className="w-5 h-5 text-white" />
+                    <Icon name="settings" className="w-5 h-5 text-white" />
                   </button>
                 </div>
 
@@ -206,6 +403,9 @@ export function TerrainPainterSidebar({
                     onClick={(e) => {
                       e.stopPropagation();
                       onRemoveTerrain(terrain.id);
+                      if (activeInfo?.id === terrain.id) {
+                        closeInfo();
+                      }
                     }}
                     className="absolute -top-1.5 -right-1.5 p-1 text-[var(--color-text-primary)] bg-[var(--color-accent-danger)] rounded-full hover:bg-[var(--color-accent-danger-hover)] opacity-0 group-hover/item:opacity-100 transition-opacity z-10"
                     title={`Remove ${terrain.label}`}

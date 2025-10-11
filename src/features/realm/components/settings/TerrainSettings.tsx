@@ -14,6 +14,8 @@ import { SettingSlider } from '../ui/SettingSlider';
 import { Icon } from '../Icon';
 import { generateSprayIcons } from '@/features/realm/utils/sprayUtils';
 import { getHexCorners } from '@/features/realm/utils/hexUtils';
+import { InfoPopup } from '../ui/InfoPopup';
+import { useTheme } from '@/app/providers/ThemeProvider';
 
 const PREVIEW_HEX_SIZE: Point = { x: 50, y: 50 };
 
@@ -338,6 +340,51 @@ interface TerrainSettingsProps {
 export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSettingsProps) => {
   const colorInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const detailsRefs = useRef<Map<string, HTMLDetailsElement | null>>(new Map());
+  const [activeInfo, setActiveInfo] = useState<{
+    id: string;
+    anchor: HTMLElement;
+    locked: boolean;
+  } | null>(null);
+  const { colors } = useTheme();
+  const hoverOpenTimeout = useRef<number | null>(null);
+  const hoverCloseTimeout = useRef<number | null>(null);
+  const infoPopupOptions = { autoOpenOnHover: true, openDelay: 250, closeDelay: 200 };
+
+  const resolveColor = useCallback(
+    (value: string | undefined) => {
+      if (!value) {
+        return '#CCCCCC';
+      }
+      const match = value.match(/^var\((--[^)]+)\)$/i);
+      if (match) {
+        const token = match[1];
+        const resolved = token ? colors[token] : undefined;
+        return resolved ? resolved.toUpperCase() : value;
+      }
+      return value.toUpperCase?.() ?? value;
+    },
+    [colors]
+  );
+
+  const cancelOpenTimeout = useCallback(() => {
+    if (hoverOpenTimeout.current !== null) {
+      window.clearTimeout(hoverOpenTimeout.current);
+      hoverOpenTimeout.current = null;
+    }
+  }, []);
+
+  const cancelCloseTimeout = useCallback(() => {
+    if (hoverCloseTimeout.current !== null) {
+      window.clearTimeout(hoverCloseTimeout.current);
+      hoverCloseTimeout.current = null;
+    }
+  }, []);
+
+  const closeInfo = useCallback(() => {
+    cancelOpenTimeout();
+    cancelCloseTimeout();
+    setActiveInfo(null);
+  }, [cancelCloseTimeout, cancelOpenTimeout]);
 
   useEffect(() => {
     if (focusId) {
@@ -351,6 +398,23 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
       }
     }
   }, [focusId]);
+
+  useEffect(() => {
+    if (!activeInfo) {
+      return;
+    }
+    const terrainStillExists = tileSets.terrain.some((terrain) => terrain.id === activeInfo.id);
+    if (!terrainStillExists) {
+      closeInfo();
+    }
+  }, [activeInfo, closeInfo, tileSets.terrain]);
+
+  useEffect(() => {
+    return () => {
+      cancelOpenTimeout();
+      cancelCloseTimeout();
+    };
+  }, [cancelCloseTimeout, cancelOpenTimeout]);
 
   const handleSettingChange = (terrainId: string, settingKey: keyof SpraySettings, value: any) => {
     setTileSets((prev) => ({
@@ -395,6 +459,8 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
         <div className="space-y-4">
           {tileSets.terrain.map((terrain) => {
             const settings = terrain.spraySettings || DEFAULT_SPRAY_SETTINGS;
+            const resolvedTerrainColor = resolveColor(terrain.color);
+            const resolvedSprayColor = resolveColor(settings.color);
             return (
               <details
                 ref={(el) => {
@@ -405,12 +471,139 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
               >
                 <summary className="font-semibold text-md text-[var(--color-text-secondary)] list-none cursor-pointer flex items-center gap-2 hover:text-[var(--color-text-primary)]">
                   <Icon name={terrain.icon} className="w-5 h-5" />
-                  {terrain.label}
+                  <span className="flex items-center gap-2">
+                    {terrain.label}
+                    <button
+                      onClick={(event) => {
+                        cancelOpenTimeout();
+                        cancelCloseTimeout();
+                        event.preventDefault();
+                        event.stopPropagation();
+                        const anchor = event.currentTarget as HTMLElement;
+                        setActiveInfo((prev) => {
+                          if (prev?.id === terrain.id) {
+                            if (prev.locked) {
+                              return { ...prev, anchor };
+                            }
+                            return { id: terrain.id, anchor, locked: true };
+                          }
+                          return { id: terrain.id, anchor, locked: true };
+                        });
+                      }}
+                      onMouseEnter={(event) => {
+                        if (!infoPopupOptions.autoOpenOnHover) {
+                          return;
+                        }
+                        const anchor = event.currentTarget as HTMLElement;
+                        cancelCloseTimeout();
+                        cancelOpenTimeout();
+                        hoverOpenTimeout.current = window.setTimeout(() => {
+                          setActiveInfo((prev) => {
+                            if (prev?.locked && prev.id !== terrain.id) {
+                              return prev;
+                            }
+                            if (prev?.id === terrain.id && prev.locked) {
+                              return { ...prev, anchor };
+                            }
+                            return { id: terrain.id, anchor, locked: false };
+                          });
+                          hoverOpenTimeout.current = null;
+                        }, infoPopupOptions.openDelay);
+                      }}
+                      onMouseLeave={(event) => {
+                        const nextTarget = event.relatedTarget as Node | null;
+                        if (nextTarget && event.currentTarget.contains(nextTarget)) {
+                          return;
+                        }
+                        if (!infoPopupOptions.autoOpenOnHover) {
+                          return;
+                        }
+                        cancelOpenTimeout();
+                        cancelCloseTimeout();
+                        hoverCloseTimeout.current = window.setTimeout(() => {
+                          setActiveInfo((prev) => {
+                            if (!prev) {
+                              return null;
+                            }
+                            if (prev.locked) {
+                              return prev;
+                            }
+                            if (prev.id !== terrain.id) {
+                              return prev;
+                            }
+                            return null;
+                          });
+                          hoverCloseTimeout.current = null;
+                        }, infoPopupOptions.closeDelay);
+                      }}
+                      className={`w-6 h-6 flex items-center justify-center rounded-full transition-colors ${
+                        activeInfo?.id === terrain.id
+                          ? 'bg-[var(--color-background-secondary)] text-[var(--color-text-primary)]'
+                          : 'text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] hover:bg-[var(--color-background-secondary)]'
+                      }`}
+                      title={`Learn more about ${terrain.label}`}
+                      aria-label={`Terrain information for ${terrain.label}`}
+                      aria-expanded={activeInfo?.id === terrain.id}
+                      aria-haspopup="dialog"
+                      type="button"
+                    >
+                      <Icon name="info" className="w-3.5 h-3.5" />
+                    </button>
+                  </span>
                   <Icon
                     name="chevron-down"
                     className="w-4 h-4 ml-auto transition-transform duration-200 group-open/details:rotate-180"
                   />
                 </summary>
+                {activeInfo?.id === terrain.id && activeInfo.anchor && (
+                  <InfoPopup
+                    anchor={activeInfo.anchor}
+                    onClose={closeInfo}
+                    onMouseEnter={cancelCloseTimeout}
+                    onMouseLeave={() => {
+                      if (activeInfo.locked) {
+                        return;
+                      }
+                      cancelOpenTimeout();
+                      cancelCloseTimeout();
+                      hoverCloseTimeout.current = window.setTimeout(() => {
+                        setActiveInfo((prev) => {
+                          if (!prev) {
+                            return null;
+                          }
+                          if (prev.locked) {
+                            return prev;
+                          }
+                          if (prev.id !== terrain.id) {
+                            return prev;
+                          }
+                          return null;
+                        });
+                        hoverCloseTimeout.current = null;
+                      }, infoPopupOptions.closeDelay);
+                    }}
+                  >
+                    <p className="text-xs leading-relaxed text-[var(--color-text-secondary)]">
+                      {terrain.description ??
+                        'Custom terrain created by the user. Add details in settings.'}
+                    </p>
+                    <div className="mt-2 flex items-center justify-between text-[var(--color-text-tertiary)] text-[11px] uppercase tracking-wide">
+                      <span>Palette Swatch</span>
+                      <span>{resolvedTerrainColor}</span>
+                    </div>
+                    <div
+                      className="mt-1 h-2 rounded-full"
+                      style={{ backgroundColor: terrain.color || resolvedTerrainColor }}
+                    />
+                    <p className="mt-2 text-[11px] text-[var(--color-text-secondary)] leading-relaxed">
+                      {terrain.sprayIcons?.length
+                        ? `Signature icons: ${terrain.sprayIcons
+                            .map((icon) => icon.replace(/-/g, ' '))
+                            .join(', ')}`
+                        : 'No spray icons configured yet.'}
+                    </p>
+                  </InfoPopup>
+                )}
                 <div className="pl-7 mt-3 pt-3 border-t border-[var(--color-border-primary)]/50 space-y-4">
                   <HexSprayPreview terrain={terrain} />
                   <IconGridSelector
@@ -455,7 +648,7 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
                           </div>
                         </button>
                         <span className="p-2 bg-[var(--color-surface-primary)] rounded-md text-sm font-mono flex-grow text-center h-10 flex items-center justify-center">
-                          {settings.color.toUpperCase()}
+                          {resolvedSprayColor}
                         </span>
                       </div>
                     </div>

@@ -98,7 +98,7 @@ const jsRecommendedRules = normalizeRules(jsConfigs.recommended?.rules);
 // ESLint flat config aligned with TypeScript + React best practices
 export default [
   {
-    ignores: ['dist/**', 'node_modules/**', 'prettier.config.js'],
+    ignores: ['dist/**', 'node_modules/**', 'prettier.config.js', 'tailwind.config.ts'],
   },
   {
     files: ['**/*.{ts,tsx,js,jsx}'],
