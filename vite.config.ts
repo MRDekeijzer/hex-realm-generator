@@ -17,9 +17,8 @@ export default defineConfig(({ mode }) => {
       },
       resolve: {
         alias: {
-          // FIX: In an ES module, __dirname is not available. Using import.meta.url is the modern approach to get the current file's directory.
-          '@': path.dirname(fileURLToPath(import.meta.url)),
-        }
-      }
+          '@': path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'src'),
+        },
+      },
     };
 });
