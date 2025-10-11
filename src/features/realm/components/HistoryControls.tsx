@@ -44,4 +44,3 @@ export function HistoryControls({ onUndo, onRedo, canUndo, canRedo }: HistoryCon
     </div>
   );
 }
-

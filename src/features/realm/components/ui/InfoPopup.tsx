@@ -77,7 +77,7 @@ export const InfoPopup: React.FC<InfoPopupProps> = ({
       if (popupRef.current?.contains(target)) {
         return;
       }
-      if (anchor.contains(target as Node)) {
+      if (anchor.contains(target)) {
         return;
       }
       onClose();
@@ -110,4 +110,3 @@ export const InfoPopup: React.FC<InfoPopupProps> = ({
     document.body
   );
 };
-

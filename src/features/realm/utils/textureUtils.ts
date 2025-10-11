@@ -29,7 +29,6 @@ function drawSprayIcons(ctx: CanvasRenderingContext2D, terrain: Tile) {
     ctx.translate(icon.x, icon.y);
     ctx.rotate((icon.rotation * Math.PI) / 180);
 
-
     const fillColor = icon.color || '#FF00FF';
     ctx.fillStyle = fillColor;
     ctx.globalAlpha = icon.opacity;
@@ -111,4 +110,3 @@ export async function generateTerrainTextures(
 
   return textures;
 }
-

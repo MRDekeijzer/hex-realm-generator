@@ -35,9 +35,7 @@ const renderSelect = (
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
 ) => (
   <div className="mb-4">
-    <label className="block text-sm font-medium text-text-muted mb-1">
-      {label}
-    </label>
+    <label className="block text-sm font-medium text-text-muted mb-1">{label}</label>
     <select
       value={value}
       onChange={onChange}
@@ -71,9 +69,7 @@ export function SelectionSidebar({
       <aside className="w-80 bg-realm-canvas-backdrop border-l border-border-panel-divider p-4 flex flex-col items-center justify-center text-center">
         <Icon name="mouse-pointer-2" className="w-16 h-16 text-realm-command-panel-hover mb-4" />
         <h2 className="text-xl font-bold">Select a Hex</h2>
-        <p className="text-text-muted">
-          Click on any hex on the map to view and edit its details.
-        </p>
+        <p className="text-text-muted">Click on any hex on the map to view and edit its details.</p>
       </aside>
     );
   }
@@ -151,9 +147,7 @@ export function SelectionSidebar({
         )}
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-text-muted mb-1">
-            Holding
-          </label>
+          <label className="block text-sm font-medium text-text-muted mb-1">Holding</label>
           <select
             value={selectedHex.holding || ''}
             onChange={(e) => handleChange('holding', e.target.value)}
@@ -188,9 +182,7 @@ export function SelectionSidebar({
         )}
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-text-muted mb-1">
-            Landmark
-          </label>
+          <label className="block text-sm font-medium text-text-muted mb-1">Landmark</label>
           <select
             value={selectedHex.landmark || ''}
             onChange={(e) => handleChange('landmark', e.target.value)}
@@ -206,9 +198,7 @@ export function SelectionSidebar({
         </div>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-text-muted mb-1">
-            Myth
-          </label>
+          <label className="block text-sm font-medium text-text-muted mb-1">Myth</label>
           <button
             onClick={handleMythToggle}
             className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-text-muted bg-realm-command-panel-surface rounded-md hover:bg-realm-command-panel-hover transition-colors"
@@ -285,4 +275,3 @@ export function SelectionSidebar({
     </aside>
   );
 }
-

@@ -69,7 +69,7 @@ export function TerrainPainterSidebar({
       if (!value) {
         return '#CCCCCC';
       }
-      const varMatch = value.match(/^var\((--[^)]+)\)$/i);
+      const varMatch = /^var\((--[^)]+)\)$/i.exec(value);
       if (varMatch?.[1]) {
         const resolved = resolvePaletteColor(colors, varMatch[1]);
         if (resolved) {
@@ -263,9 +263,7 @@ export function TerrainPainterSidebar({
                   </button>
                   <span
                     className={`font-medium text-sm truncate ${
-                      isSelected
-                        ? 'text-text-high-contrast'
-                        : 'text-text-muted'
+                      isSelected ? 'text-text-high-contrast' : 'text-text-muted'
                     }`}
                   >
                     {terrain.label}
@@ -374,9 +372,7 @@ export function TerrainPainterSidebar({
                           }, infoPopupOptions.closeDelay);
                         }}
                       >
-                        <p className="text-xs leading-relaxed text-text-muted">
-                          {infoDescription}
-                        </p>
+                        <p className="text-xs leading-relaxed text-text-muted">{infoDescription}</p>
                         <div className="mt-2 flex items-center justify-between text-text-subtle text-[11px] uppercase tracking-wide">
                           <span>Palette Swatch</span>
                           <span>{resolvedColor}</span>
@@ -483,5 +479,3 @@ export function TerrainPainterSidebar({
     </aside>
   );
 }
-
-

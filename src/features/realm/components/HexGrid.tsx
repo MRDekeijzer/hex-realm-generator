@@ -562,4 +562,3 @@ export function HexGrid({
     </div>
   );
 }
-

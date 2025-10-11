@@ -179,9 +179,7 @@ export const GenerationSettings = ({
               >
                 <Icon name="grip-vertical" className="w-5 h-5 text-text-muted" />
                 <Icon name={terrain.icon} className="w-5 h-5 text-text-high-contrast" />
-                <span className="font-medium text-sm text-text-high-contrast">
-                  {terrain.label}
-                </span>
+                <span className="font-medium text-sm text-text-high-contrast">{terrain.label}</span>
               </li>
             );
           })}
@@ -262,12 +260,8 @@ export const GenerationSettings = ({
                 className="flex items-center justify-between pt-4 border-t border-border-panel-divider cursor-pointer"
               >
                 <div className="flex flex-col">
-                  <span className="text-sm font-medium text-text-muted">
-                    Invert Formation
-                  </span>
-                  <span className="text-xs text-text-muted">
-                    Flips highlands and lowlands.
-                  </span>
+                  <span className="text-sm font-medium text-text-muted">Invert Formation</span>
+                  <span className="text-xs text-text-muted">Flips highlands and lowlands.</span>
                 </div>
                 <div className="relative">
                   <input
@@ -403,4 +397,3 @@ export const GenerationSettings = ({
     </div>
   );
 };
-

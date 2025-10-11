@@ -156,9 +156,7 @@ export function Toolbar({
   return (
     <header className="flex items-center justify-between p-2 bg-realm-canvas-backdrop border-b border-border-panel-divider shadow-md z-10">
       <div className="flex items-center gap-2">
-        <h1 className="text-xl font-bold text-text-high-contrast mr-4">
-          Hex Realm Generator
-        </h1>
+        <h1 className="text-xl font-bold text-text-high-contrast mr-4">Hex Realm Generator</h1>
         <ToolbarButton onClick={onGenerate} icon="sparkles" title="Generate New Realm">
           Generate
         </ToolbarButton>
@@ -238,4 +236,3 @@ export function Toolbar({
     </header>
   );
 }
-

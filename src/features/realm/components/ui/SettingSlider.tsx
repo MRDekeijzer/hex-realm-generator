@@ -49,18 +49,12 @@ export const SettingSlider = ({
     <div>
       <div className="flex justify-between items-center mb-1">
         <div className="flex items-center gap-2">
-          <label
-            htmlFor={inputId}
-            className="text-sm font-medium text-text-muted"
-          >
+          <label htmlFor={inputId} className="text-sm font-medium text-text-muted">
             {label}
           </label>
           {tooltip && (
             <div className="relative group">
-              <Icon
-                name="help-circle"
-                className="w-4 h-4 text-text-muted cursor-help"
-              />
+              <Icon name="help-circle" className="w-4 h-4 text-text-muted cursor-help" />
               <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 w-64 p-2 bg-realm-map-viewport text-xs text-text-high-contrast rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 border border-border-panel-divider">
                 {tooltip}
               </div>
@@ -85,4 +79,3 @@ export const SettingSlider = ({
     </div>
   );
 };
-

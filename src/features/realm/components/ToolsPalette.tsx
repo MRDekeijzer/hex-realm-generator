@@ -70,4 +70,3 @@ export function ToolsPalette({ activeTool, setActiveTool }: ToolsPaletteProps) {
     </div>
   );
 }
-

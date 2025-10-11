@@ -611,8 +611,7 @@ export default function App() {
 
   const handleResetTerrainColor = useCallback(
     (terrainId: string) => {
-      const defaultColor =
-        colors[`terrain-${terrainId}-base`] ?? TERRAIN_BASE_COLORS[terrainId];
+      const defaultColor = colors[`terrain-${terrainId}-base`] ?? TERRAIN_BASE_COLORS[terrainId];
       if (defaultColor) setTerrainColors((prev) => ({ ...prev, [terrainId]: defaultColor }));
     },
     [colors]
@@ -787,7 +786,7 @@ export default function App() {
               onSetSeatOfPower={handleSetSeatOfPower}
               tileSets={tileSets}
               terrainColors={terrainColors}
-              barrierColor={barrierColor}
+              barrierColor={barrierColor ?? ''}
               isSettingsOpen={isSettingsOpen}
               isPickingTile={isPickingTile}
               onTilePick={handleTilePick}

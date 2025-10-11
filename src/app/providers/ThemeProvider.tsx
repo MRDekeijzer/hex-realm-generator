@@ -12,10 +12,7 @@ export const ThemeProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
     document.documentElement.setAttribute('data-theme', 'dark');
   }, []);
 
-  const value = useMemo(
-    () => ({ colors: flattenColorPalette(colorPalette) }),
-    []
-  );
+  const value = useMemo(() => ({ colors: flattenColorPalette(colorPalette) }), []);
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };

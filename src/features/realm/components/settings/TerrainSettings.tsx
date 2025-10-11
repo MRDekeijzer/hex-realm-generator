@@ -8,7 +8,6 @@ import {
   SPRAYABLE_ICONS,
   DEFAULT_SPRAY_SETTINGS,
   MASK_RESOLUTION,
-  SUCCESS_HIGHLIGHT_COLOR,
   BORDER_PANEL_DIVIDER_COLOR,
   TEXT_HIGH_CONTRAST_COLOR,
 } from '@/features/realm/config/constants';
@@ -34,9 +33,7 @@ interface IconGridSelectorProps {
 const IconGridSelector = ({ selectedIcons, onToggleIcon }: IconGridSelectorProps) => {
   return (
     <div>
-      <label className="block text-sm font-medium text-text-muted mb-1">
-        Spray Icons
-      </label>
+      <label className="block text-sm font-medium text-text-muted mb-1">Spray Icons</label>
       <div className="grid grid-cols-6 gap-1 p-2 bg-realm-map-viewport rounded-md max-h-48 overflow-y-auto">
         {SPRAYABLE_ICONS.sort().map((icon) => {
           const isSelected = selectedIcons.includes(icon);
@@ -124,9 +121,7 @@ const PlacementMaskEditor = ({ mask, onUpdateMask }: PlacementMaskEditorProps) =
 
   return (
     <div className="col-span-2">
-      <label className="block text-sm font-medium text-text-muted">
-        Placement Mask
-      </label>
+      <label className="block text-sm font-medium text-text-muted">Placement Mask</label>
       <p className="text-xs text-text-muted mt-1 mb-2">
         Click and drag to "paint" the green area where icons are allowed to appear. This defines the
         placement area within the hex.
@@ -354,7 +349,7 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
       if (!value) {
         return '#CCCCCC';
       }
-      const varMatch = value.match(/^var\((--[^)]+)\)$/i);
+      const varMatch = /^var\((--[^)]+)\)$/i.exec(value);
       if (varMatch?.[1]) {
         const resolved = resolvePaletteColor(colors, varMatch[1]);
         if (resolved) {
@@ -706,5 +701,3 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
     </div>
   );
 };
-
-

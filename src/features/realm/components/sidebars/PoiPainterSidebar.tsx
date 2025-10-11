@@ -53,11 +53,7 @@ const PoiButton: React.FC<PoiButtonProps> = ({ item, isSelected, onClick }) => {
       aria-label={`Select ${item.label} for placement`}
     >
       <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-realm-command-panel-surface">
-        <Icon
-          name={item.icon}
-          className="w-8 h-8 text-text-high-contrast"
-          strokeWidth={2}
-        />
+        <Icon name={item.icon} className="w-8 h-8 text-text-high-contrast" strokeWidth={2} />
       </div>
       <span className="text-xs font-medium">{item.label}</span>
     </button>
@@ -151,9 +147,7 @@ export function PoiPainterSidebar({
             Click on the map to pick a POI.
           </div>
         )}
-        <p className="text-sm text-text-muted">
-          Select an item, then click a hex to place it.
-        </p>
+        <p className="text-sm text-text-muted">Select an item, then click a hex to place it.</p>
         <PoiSection
           title="Actions"
           items={SPECIAL_POI_ICONS}
@@ -179,4 +173,3 @@ export function PoiPainterSidebar({
     </aside>
   );
 }
-

@@ -147,4 +147,3 @@ export const SettingsModal = ({ isOpen, onClose, settingsView, ...props }: Setti
     </div>
   );
 };
-

@@ -28,4 +28,3 @@ export const SettingsSection: React.FC<React.PropsWithChildren<SettingsSectionPr
     </div>
   </div>
 );
-

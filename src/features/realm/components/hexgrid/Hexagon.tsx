@@ -71,7 +71,8 @@ export const Hexagon = React.memo(
       [hex.landmark, tileSets.landmark]
     );
 
-    const activeTile: typeof holdingTile = holdingTile ?? (viewOptions.isGmView ? landmarkTile ?? null : null);
+    const activeTile: typeof holdingTile =
+      holdingTile ?? (viewOptions.isGmView ? (landmarkTile ?? null) : null);
     const isHolding = !!holdingTile;
 
     const textureSet = terrainTextures ? terrainTextures[hex.terrain] : null;

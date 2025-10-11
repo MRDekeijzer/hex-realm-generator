@@ -181,10 +181,7 @@ export const GridSettingsPopover = React.forwardRef<HTMLDivElement, GridSettings
             </div>
           </div>
           <div>
-            <label
-              htmlFor="grid-width"
-              className="block text-sm font-medium text-text-muted mb-1"
-            >
+            <label htmlFor="grid-width" className="block text-sm font-medium text-text-muted mb-1">
               Border Width
             </label>
             <input

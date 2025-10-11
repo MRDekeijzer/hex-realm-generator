@@ -54,10 +54,7 @@ export const GeneralSettings = ({
     <div className="space-y-6">
       <SettingsSection title="Map Shape &amp; Size">
         <div>
-          <label
-            htmlFor="realm-shape"
-            className="block text-sm font-medium text-text-muted mb-1"
-          >
+          <label htmlFor="realm-shape" className="block text-sm font-medium text-text-muted mb-1">
             Shape
           </label>
           <select
@@ -134,10 +131,7 @@ export const GeneralSettings = ({
         <div className="grid grid-cols-2 gap-x-4 gap-y-2">
           {tileSets.landmark.map((landmark) => (
             <div key={landmark.id} className="flex justify-between items-center">
-              <label
-                htmlFor={`landmark-${landmark.id}`}
-                className="text-sm text-text-muted"
-              >
+              <label htmlFor={`landmark-${landmark.id}`} className="text-sm text-text-muted">
                 {landmark.label}
               </label>
               <input
@@ -178,10 +172,7 @@ export const GeneralSettings = ({
             />
           </div>
           <div>
-            <label
-              htmlFor="num-myths"
-              className="block text-sm font-medium text-text-muted mb-1"
-            >
+            <label htmlFor="num-myths" className="block text-sm font-medium text-text-muted mb-1">
               Myths
             </label>
             <input
@@ -226,9 +217,7 @@ export const GeneralSettings = ({
           htmlFor="generate-barriers"
           className="flex items-center justify-between pt-4 border-t border-border-panel-divider cursor-pointer"
         >
-          <span className="text-sm font-medium text-text-muted">
-            Generate Barriers
-          </span>
+          <span className="text-sm font-medium text-text-muted">Generate Barriers</span>
           <div className="relative">
             <input
               id="generate-barriers"
@@ -246,4 +235,3 @@ export const GeneralSettings = ({
     </div>
   );
 };
-

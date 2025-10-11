@@ -36,4 +36,3 @@ export const SettingsTabButton = ({ icon, label, isActive, onClick }: SettingsTa
     <span className="font-medium">{label}</span>
   </button>
 );
-
