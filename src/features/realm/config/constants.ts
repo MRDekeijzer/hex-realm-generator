@@ -9,7 +9,7 @@ import type {
   TerrainClusteringMatrix,
   GenerationOptions,
   SpraySettings,
-} from './types';
+} from '../types/index.ts';
 
 // =================================================================================
 // --- COLOR SETTINGS ---

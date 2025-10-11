@@ -276,8 +276,11 @@ function placeHoldings(
       !hex.holding &&
       !placedHoldings.some((h) => getAxialDistance(h, hex) < sizeForDensity / 4)
     ) {
-      hex.holding = getRandomElement(HOLDING_TYPES);
-      placedHoldings.push(hex);
+      const holdingType = getRandomElement(HOLDING_TYPES);
+      if (holdingType !== undefined) {
+        hex.holding = holdingType;
+        placedHoldings.push(hex);
+      }
     }
   }
   const firstHolding = placedHoldings[0];

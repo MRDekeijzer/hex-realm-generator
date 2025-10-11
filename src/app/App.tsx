@@ -852,8 +852,8 @@ export default function App() {
           message={confirmation.message}
           onConfirm={confirmation.onConfirm}
           onCancel={handleCancelConfirmation}
-          confirmText={confirmation.confirmText}
-          isInfo={confirmation.isInfo}
+          confirmText={confirmation.confirmText ?? 'OK'}
+          isInfo={confirmation.isInfo ?? false}
         />
       )}
       {!isSettingsOpen && (

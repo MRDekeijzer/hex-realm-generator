@@ -71,15 +71,20 @@ export const Hexagon = React.memo(
       [hex.landmark, tileSets.landmark]
     );
 
-    const activeTile = holdingTile || (viewOptions.isGmView ? landmarkTile : null);
+    const activeTile: typeof holdingTile = holdingTile ?? (viewOptions.isGmView ? landmarkTile ?? null : null);
     const isHolding = !!holdingTile;
 
     const textureSet = terrainTextures ? terrainTextures[hex.terrain] : null;
-    const textureUrl = textureSet
-      ? viewOptions.showIconSpray
-        ? textureSet.withSpray
-        : textureSet.withoutSpray
-      : '';
+    let textureUrl = '';
+    if (textureSet) {
+      let selectedTexture;
+      if (viewOptions.showIconSpray) {
+        selectedTexture = textureSet.withSpray;
+      } else {
+        selectedTexture = textureSet.withoutSpray;
+      }
+      textureUrl = selectedTexture;
+    }
 
     return (
       <g

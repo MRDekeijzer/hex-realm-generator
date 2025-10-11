@@ -25,7 +25,7 @@ export interface Hex {
   /** The identifier for a holding (e.g., 'castle') located in the hex. */
   holding?: string;
   /** The numerical ID of a myth located in the hex. */
-  myth?: number;
+  myth?: number | undefined;
   /** The identifier for a landmark located in the hex. */
   landmark?: string;
   /** A flag indicating if the hex is a water body. (Not currently used in generation) */
