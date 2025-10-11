@@ -84,9 +84,9 @@ export default function App() {
   const [paintTerrain, setPaintTerrain] = useState<string>(TERRAIN_TYPES[0] ?? 'plain');
   const [paintPoi, setPaintPoi] = useState<string | null>('holding:castle');
   const [tileSets, setTileSets] = useState<TileSet>(DEFAULT_TILE_SETS);
-  const [terrainColors, setTerrainColors] = useState<Record<string, string>>({
-    ...TERRAIN_BASE_COLORS,
-  });
+  const [terrainColors, setTerrainColors] = useState<Record<string, string>>(
+    () => ({ ...TERRAIN_BASE_COLORS })
+  );
   const [barrierColor, setBarrierColor] = useState(BARRIER_COLOR);
 
   useEffect(() => {

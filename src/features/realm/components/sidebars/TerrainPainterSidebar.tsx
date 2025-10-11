@@ -9,11 +9,19 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Icon } from '../Icon';
 import { TERRAIN_TYPES } from '@/features/realm/config/constants';
 import { resolveColorToken, getTerrainBaseColor } from '@/app/theme/colors';
-import type { TileSet } from '@/features/realm/types';
+import type { TileSet, Tile } from '@/features/realm/types';
 import { InfoPopup } from '../ui/InfoPopup';
 import { AddTerrainForm } from './terrain/AddTerrainForm';
 import { useInfoPopup } from '@/shared/hooks/useInfoPopup';
 import { TerrainColorSwatch } from '../ui/TerrainColorSwatch';
+
+const describeTerrain = (terrain: Tile): string =>
+  terrain.description ?? 'Custom terrain created by the user. Add details in settings.';
+
+const buildSpraySummary = (terrain: Tile): string =>
+  terrain.sprayIcons?.length
+    ? `Signature icons: ${terrain.sprayIcons.map((icon) => icon.replace(/-/g, ' ')).join(', ')}`
+    : 'No spray icons configured yet.';
 
 /**
  * Props for the TerrainPainterSidebar component.
@@ -52,15 +60,8 @@ export function TerrainPainterSidebar({
 }: TerrainPainterSidebarProps) {
   const [newTerrainName, setNewTerrainName] = useState('');
   const [newTerrainColor, setNewTerrainColor] = useState('#CCCCCC');
-  const {
-    activeInfo,
-    handleInfoClick,
-    scheduleHoverOpen,
-    scheduleHoverClose,
-    cancelOpenTimeout,
-    cancelCloseTimeout,
-    closeInfo,
-  } = useInfoPopup();
+  const { activeInfo, handleInfoClick, scheduleHoverOpen, scheduleHoverClose, closeInfo } =
+    useInfoPopup();
 
   const resolveColor = useCallback((value?: string) => {
     if (!value) {
@@ -140,14 +141,9 @@ export function TerrainPainterSidebar({
             const isDefault = TERRAIN_TYPES.includes(terrain.id);
             const defaultColor = isDefault ? getTerrainBaseColor(terrain.id) : undefined;
             const isCustomColor = isDefault && defaultColor ? defaultColor !== resolvedColor : false;
-            const infoDescription =
-              terrain.description ?? 'Custom terrain created by the user. Add details in settings.';
             const isInfoOpen = activeInfo?.id === terrain.id;
-            const spraySummary = terrain.sprayIcons?.length
-              ? `Signature icons: ${terrain.sprayIcons
-                  .map((icon) => icon.replace(/-/g, ' '))
-                  .join(', ')}`
-              : 'No spray icons configured yet.';
+            const infoDescription = describeTerrain(terrain);
+            const spraySummary = buildSpraySummary(terrain);
 
             return (
               <div
@@ -202,8 +198,6 @@ export function TerrainPainterSidebar({
                       type="button"
                       onClick={(event) => {
                         event.stopPropagation();
-                        cancelOpenTimeout();
-                        cancelCloseTimeout();
                         handleInfoClick(terrain.id, event.currentTarget as HTMLElement);
                       }}
                       onMouseEnter={(event) =>
@@ -232,7 +226,9 @@ export function TerrainPainterSidebar({
                       <InfoPopup
                         anchor={activeInfo.anchor}
                         onClose={closeInfo}
-                        onMouseEnter={cancelCloseTimeout}
+                        onMouseEnter={() => {
+                          scheduleHoverOpen(terrain.id, activeInfo.anchor);
+                        }}
                         onMouseLeave={() => {
                           if (activeInfo.locked) {
                             return;

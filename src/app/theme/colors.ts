@@ -114,64 +114,18 @@ export const tailwindColorPalette = flattenColorPalette(colorPalette);
 
 export type TailwindColorName = keyof typeof tailwindColorPalette;
 
-const CSS_VAR_PATTERN = /^var\((--[^)]+)\)$/i;
 const HEX_PATTERN = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
 
-const normalizeToken = (token: string): string => {
-  const trimmed = token.trim();
-  const varMatch = CSS_VAR_PATTERN.exec(trimmed);
-  const rawToken = varMatch?.[1] ?? trimmed;
-  return rawToken;
-};
-
-export const legacyColorTokenMap: Record<string, TailwindColorName> = {
-  '--color-background-primary': 'realm-canvas-backdrop',
-  '--color-background-secondary': 'realm-map-viewport',
-  '--color-surface-primary': 'realm-command-panel-surface',
-  '--color-surface-secondary': 'realm-command-panel-hover',
-  '--color-surface-tertiary': 'realm-card-surface',
-  '--color-border-primary': 'border-panel-divider',
-  '--color-border-holding': 'border-holding-marker',
-  '--color-border-landmark': 'border-landmark-marker',
-  '--color-text-primary': 'text-high-contrast',
-  '--color-text-secondary': 'text-muted',
-  '--color-text-tertiary': 'text-subtle',
-  '--color-text-inverse': 'text-inverse',
-  '--color-text-accent': 'text-accent-headline',
-  '--color-accent-primary': 'actions-command-primary',
-  '--color-accent-primary-hover': 'actions-command-primary-hover',
-  '--color-accent-danger': 'actions-danger-base',
-  '--color-accent-danger-hover': 'actions-danger-hover',
-  '--color-accent-special': 'feedback-mystic-highlight',
-  '--color-accent-success': 'feedback-success-highlight',
-  '--color-accent-info': 'feedback-info-panel',
-  '--color-accent-myth': 'mythic-myth-glow',
-  '--color-accent-seat-of-power': 'mythic-seat-of-power',
-  '--terrain-marsh': 'terrain-marsh-base',
-  '--terrain-heath': 'terrain-heath-base',
-  '--terrain-crags': 'terrain-crags-base',
-  '--terrain-peaks': 'terrain-peaks-base',
-  '--terrain-forest': 'terrain-forest-base',
-  '--terrain-valley': 'terrain-valley-base',
-  '--terrain-hills': 'terrain-hills-base',
-  '--terrain-meadow': 'terrain-meadow-base',
-  '--terrain-bog': 'terrain-bog-base',
-  '--terrain-lakes': 'terrain-lakes-base',
-  '--terrain-glades': 'terrain-glades-base',
-  '--terrain-plain': 'terrain-plain-base',
-};
-
 export const resolveColorToken = (token: string): string => {
-  const normalized = normalizeToken(token);
-  const lookupKey = legacyColorTokenMap[normalized] ?? normalized;
+  const lookupKey = token.trim();
   const paletteValue = tailwindColorPalette[lookupKey as TailwindColorName];
   if (paletteValue) {
     return HEX_PATTERN.test(paletteValue) ? paletteValue.toUpperCase() : paletteValue;
   }
-  if (HEX_PATTERN.test(token)) {
-    return token.toUpperCase();
+  if (HEX_PATTERN.test(lookupKey)) {
+    return lookupKey.toUpperCase();
   }
-  return token;
+  return lookupKey;
 };
 
 export const getTerrainBaseToken = (terrainId: string): TailwindColorName =>

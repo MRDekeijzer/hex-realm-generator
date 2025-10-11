@@ -118,12 +118,9 @@ export const useInfoPopup = (options?: Partial<InfoPopupOptions>) => {
 
   return {
     activeInfo,
-    options: mergedOptions,
     handleInfoClick,
     scheduleHoverOpen,
     scheduleHoverClose,
-    cancelOpenTimeout,
-    cancelCloseTimeout,
     closeInfo,
   };
 };
