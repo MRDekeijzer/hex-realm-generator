@@ -22,8 +22,8 @@ interface IconGridSelectorProps {
 const IconGridSelector = ({ selectedIcons, onToggleIcon }: IconGridSelectorProps) => {
     return (
         <div>
-            <label className="block text-sm font-medium text-[#a7a984] mb-1">Spray Icons</label>
-            <div className="grid grid-cols-6 gap-1 p-2 bg-[#18272e] rounded-md max-h-48 overflow-y-auto">
+            <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">Spray Icons</label>
+            <div className="grid grid-cols-6 gap-1 p-2 bg-[var(--color-background-secondary)] rounded-md max-h-48 overflow-y-auto">
                 {SPRAYABLE_ICONS.sort().map(icon => {
                     const isSelected = selectedIcons.includes(icon);
                     return (
@@ -31,7 +31,7 @@ const IconGridSelector = ({ selectedIcons, onToggleIcon }: IconGridSelectorProps
                             key={icon}
                             onClick={() => onToggleIcon(icon)}
                             className={`flex flex-col items-center justify-center gap-1 p-1 rounded-md transition-all duration-150 border-2 text-center h-16
-                                ${isSelected ? 'bg-[#736b23]/30 border-[#736b23] text-[#eaebec]' : 'bg-[#324446] border-transparent hover:border-[#a7a984] text-[#a7a984]'}`}
+                                ${isSelected ? 'bg-[rgba(var(--color-accent-primary-rgb),0.3)] border-[var(--color-accent-primary)] text-[var(--color-text-primary)]' : 'bg-[var(--color-surface-primary)] border-transparent hover:border-[var(--color-text-secondary)] text-[var(--color-text-secondary)]'}`}
                             title={icon}
                         >
                             <Icon name={icon} className="w-6 h-6" />
@@ -107,11 +107,11 @@ const PlacementMaskEditor = ({ mask, onUpdateMask }: PlacementMaskEditorProps) =
 
     return (
         <div className="col-span-2">
-            <label className="block text-sm font-medium text-[#a7a984]">Placement Mask</label>
-            <p className="text-xs text-[#a7a984] mt-1 mb-2">Click and drag to "paint" the green area where icons are allowed to appear. This defines the placement area within the hex.</p>
+            <label className="block text-sm font-medium text-[var(--color-text-secondary)]">Placement Mask</label>
+            <p className="text-xs text-[var(--color-text-secondary)] mt-1 mb-2">Click and drag to "paint" the green area where icons are allowed to appear. This defines the placement area within the hex.</p>
             <div
                 ref={containerRef}
-                className="grid bg-[#41403f] rounded-md select-none cursor-pointer gap-px w-min"
+                className="grid bg-[var(--color-border-primary)] rounded-md select-none cursor-pointer gap-px w-min"
                 style={{ gridTemplateColumns: `repeat(${MASK_RESOLUTION}, 1fr)` }}
                 onMouseDown={handleMouseDown}
                 onMouseUp={() => setIsPainting(false)}
@@ -123,14 +123,14 @@ const PlacementMaskEditor = ({ mask, onUpdateMask }: PlacementMaskEditorProps) =
                         key={index}
                         className="w-5 h-5"
                         style={{ 
-                            backgroundColor: value ? '#777741' : '#324446',
+                            backgroundColor: value ? 'var(--color-accent-success)' : 'var(--color-surface-primary)',
                         }}
                     />
                 ))}
             </div>
             <div className="flex items-center gap-2 mt-2">
-                <button onClick={handleFill} className="px-2 py-0.5 text-xs bg-[#324446] hover:bg-[#435360] rounded-md text-[#a7a984] hover:text-[#eaebec] transition-colors">Fill</button>
-                <button onClick={handleEmpty} className="px-2 py-0.5 text-xs bg-[#324446] hover:bg-[#435360] rounded-md text-[#a7a984] hover:text-[#eaebec] transition-colors">Empty</button>
+                <button onClick={handleFill} className="px-2 py-0.5 text-xs bg-[var(--color-surface-primary)] hover:bg-[var(--color-surface-secondary)] rounded-md text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors">Fill</button>
+                <button onClick={handleEmpty} className="px-2 py-0.5 text-xs bg-[var(--color-surface-primary)] hover:bg-[var(--color-surface-secondary)] rounded-md text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors">Empty</button>
             </div>
         </div>
     );
@@ -161,7 +161,7 @@ const HexSprayPreview = ({ terrain }: HexSprayPreviewProps) => {
         <div className="flex flex-col items-center gap-2">
              <svg width="110" height="110" viewBox="-55 -55 110 110">
                 <g>
-                    <polygon points={hexCorners.map(p => `${p.x},${p.y}`).join(' ')} fill={terrain.color || '#ccc'} stroke="#41403f" strokeWidth="1" />
+                    <polygon points={hexCorners.map(p => `${p.x},${p.y}`).join(' ')} fill={terrain.color || '#ccc'} stroke="var(--color-border-primary)" strokeWidth="1" />
                     <g>
                         {iconsToRender.map((icon, i) => (
                             <g key={i} transform={`translate(${icon.x}, ${icon.y}) rotate(${icon.rotation})`}>
@@ -171,7 +171,7 @@ const HexSprayPreview = ({ terrain }: HexSprayPreviewProps) => {
                     </g>
                 </g>
             </svg>
-            <p className="text-xs text-center text-[#a7a984]">
+            <p className="text-xs text-center text-[var(--color-text-secondary)]">
                 This pattern is consistent for all '{terrain.label}' hexes.
             </p>
         </div>
@@ -221,8 +221,8 @@ const RangeSlider = ({ min, max, valueMin, valueMax, onChange, step = 1 }: Range
             <input type="range" min={min} max={max} step={step} value={valueMin} ref={minRef} onChange={(e) => { const value = Math.min(+e.target.value, valueMax - step); onChange(value, valueMax); }} className="absolute w-full h-2 bg-transparent pointer-events-none appearance-none z-20 thumb-slider" />
             <input type="range" min={min} max={max} step={step} value={valueMax} ref={maxRef} onChange={(e) => { const value = Math.max(+e.target.value, valueMin + step); onChange(valueMin, value); }} className="absolute w-full h-2 bg-transparent pointer-events-none appearance-none z-20 thumb-slider" />
             <div className="relative w-full">
-                <div className="absolute w-full rounded-lg h-2 bg-[#324446] z-0 top-1/2 -translate-y-1/2"></div>
-                <div ref={rangeRef} className="absolute rounded-lg h-2 bg-[#736b23] z-10 top-1/2 -translate-y-1/2"></div>
+                <div className="absolute w-full rounded-lg h-2 bg-[var(--color-surface-primary)] z-0 top-1/2 -translate-y-1/2"></div>
+                <div ref={rangeRef} className="absolute rounded-lg h-2 bg-[var(--color-accent-primary)] z-10 top-1/2 -translate-y-1/2"></div>
             </div>
              <style>{`
                 .thumb-slider::-webkit-slider-thumb {
@@ -231,7 +231,7 @@ const RangeSlider = ({ min, max, valueMin, valueMax, onChange, step = 1 }: Range
                     width: 16px;
                     height: 16px;
                     border-radius: 50%;
-                    background: #eaebec;
+                    background: var(--color-text-primary);
                     cursor: pointer;
                     pointer-events: auto;
                     margin-top: -7px;
@@ -240,7 +240,7 @@ const RangeSlider = ({ min, max, valueMin, valueMax, onChange, step = 1 }: Range
                     width: 16px;
                     height: 16px;
                     border-radius: 50%;
-                    background: #eaebec;
+                    background: var(--color-text-primary);
                     cursor: pointer;
                     pointer-events: auto;
                     border: none;
@@ -310,26 +310,26 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
     return (
         <div className="space-y-6">
             <SettingsSection title="Terrain Icon Spray">
-                <p className="text-xs text-[#a7a984] !mt-0">
+                <p className="text-xs text-[var(--color-text-secondary)] !mt-0">
                     Configure the small, semi-transparent icons that are procedurally scattered on each terrain type to add visual texture.
                 </p>
                 <div className="space-y-4">
                     {tileSets.terrain.map(terrain => {
                         const settings = terrain.spraySettings || DEFAULT_SPRAY_SETTINGS;
                         return (
-                        <details ref={el => { detailsRefs.current.set(terrain.id, el); }} key={terrain.id} className="p-3 bg-[#191f29] rounded-md border border-[#41403f]/50 open:border-[#736b23]/50 transition-colors group/details">
-                            <summary className="font-semibold text-md text-[#a7a984] list-none cursor-pointer flex items-center gap-2 hover:text-[#eaebec]">
+                        <details ref={el => { detailsRefs.current.set(terrain.id, el); }} key={terrain.id} className="p-3 bg-[var(--color-background-primary)] rounded-md border border-[var(--color-border-primary)]/50 open:border-[var(--color-accent-primary)]/50 transition-colors group/details">
+                            <summary className="font-semibold text-md text-[var(--color-text-secondary)] list-none cursor-pointer flex items-center gap-2 hover:text-[var(--color-text-primary)]">
                                 <Icon name={terrain.icon} className="w-5 h-5" />
                                 {terrain.label}
                                 <Icon name="chevron-down" className="w-4 h-4 ml-auto transition-transform duration-200 group-open/details:rotate-180" />
                             </summary>
-                            <div className="pl-7 mt-3 pt-3 border-t border-[#41403f]/50 space-y-4">
+                            <div className="pl-7 mt-3 pt-3 border-t border-[var(--color-border-primary)]/50 space-y-4">
                                <HexSprayPreview terrain={terrain} />
                                 <IconGridSelector selectedIcons={terrain.sprayIcons || []} onToggleIcon={(icon) => handleToggleSprayIcon(terrain.id, icon)} />
                                 <div className="pt-4 grid grid-cols-2 gap-4">
                                     <SettingSlider label="Density" value={settings.density} onChange={v => handleSettingChange(terrain.id, 'density', v)} min={0} max={128} step={1} displayMultiplier={1} displaySuffix=" icons" />
                                     <div>
-                                        <label className="block text-sm font-medium text-[#a7a984] mb-1">Color</label>
+                                        <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">Color</label>
                                          <div className="flex items-center gap-2">
                                             <button
                                                 onClick={() => colorInputRefs.current[terrain.id]?.click()}
@@ -348,19 +348,19 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
                                                     <Icon name="pipette" className="w-5 h-5 text-white" />
                                                 </div>
                                             </button>
-                                            <span className="p-2 bg-[#324446] rounded-md text-sm font-mono flex-grow text-center h-10 flex items-center justify-center">{settings.color.toUpperCase()}</span>
+                                            <span className="p-2 bg-[var(--color-surface-primary)] rounded-md text-sm font-mono flex-grow text-center h-10 flex items-center justify-center">{settings.color.toUpperCase()}</span>
                                         </div>
                                     </div>
 
                                     <div className="col-span-2">
-                                        <label className="block text-sm font-medium text-[#a7a984] mb-1">Size Range ({settings.sizeMin}px - {settings.sizeMax}px)</label>
+                                        <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">Size Range ({settings.sizeMin}px - {settings.sizeMax}px)</label>
                                         <RangeSlider min={0} max={100} valueMin={settings.sizeMin} valueMax={settings.sizeMax} onChange={(min, max) => {
                                             handleSettingChange(terrain.id, 'sizeMin', min);
                                             handleSettingChange(terrain.id, 'sizeMax', max);
                                         }}/>
                                     </div>
                                     <div className="col-span-2">
-                                        <label className="block text-sm font-medium text-[#a7a984] mb-1">Opacity Range ({Math.round(settings.opacityMin * 100)}% - {Math.round(settings.opacityMax * 100)}%)</label>
+                                        <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">Opacity Range ({Math.round(settings.opacityMin * 100)}% - {Math.round(settings.opacityMax * 100)}%)</label>
                                         <RangeSlider min={0.1} max={1.0} step={0.01} valueMin={settings.opacityMin} valueMax={settings.opacityMax} onChange={(min, max) => {
                                             handleSettingChange(terrain.id, 'opacityMin', min);
                                             handleSettingChange(terrain.id, 'opacityMax', max);

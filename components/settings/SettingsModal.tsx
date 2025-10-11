@@ -60,14 +60,14 @@ export const SettingsModal = ({ isOpen, onClose, settingsView, ...props }: Setti
   return (
     <div
       onClick={(e) => e.target === e.currentTarget && onClose()}
-      className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-[rgba(var(--color-black-rgb),0.7)] z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="settings-dialog-title"
     >
-      <div className="bg-[#191f29] w-full max-w-6xl h-[90vh] rounded-lg shadow-xl flex overflow-hidden border border-[#41403f] animate-fade-in">
+      <div className="bg-[var(--color-background-primary)] w-full max-w-6xl h-[90vh] rounded-lg shadow-xl flex overflow-hidden border border-[var(--color-border-primary)] animate-fade-in">
         {/* Left Sidebar for Tabs */}
-        <aside className="w-64 bg-[#18272e] p-6 border-r border-[#41403f] flex flex-col">
+        <aside className="w-64 bg-[var(--color-background-secondary)] p-6 border-r border-[var(--color-border-primary)] flex flex-col">
           <h2 id="settings-dialog-title" className="text-2xl font-bold mb-8">
             Settings
           </h2>
@@ -98,7 +98,7 @@ export const SettingsModal = ({ isOpen, onClose, settingsView, ...props }: Setti
           <div className="text-right p-4 flex-shrink-0">
             <button
               onClick={onClose}
-              className="p-1 text-[#a7a984] hover:text-[#eaebec] transition-colors"
+              className="p-1 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
               aria-label="Close settings"
             >
               <Icon name="close" className="w-6 h-6" />

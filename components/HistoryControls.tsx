@@ -24,11 +24,11 @@ interface HistoryControlsProps {
  */
 export function HistoryControls({ onUndo, onRedo, canUndo, canRedo }: HistoryControlsProps) {
   return (
-    <div className="absolute bottom-4 right-[21rem] bg-[#191f29]/80 border border-[#41403f] p-2 rounded-lg shadow-lg flex items-center gap-2 z-10">
+    <div className="absolute bottom-4 right-[21rem] bg-[rgba(var(--color-background-primary-rgb),0.8)] border border-[var(--color-border-primary)] p-2 rounded-lg shadow-lg flex items-center gap-2 z-10">
       <button
         onClick={onUndo}
         disabled={!canUndo}
-        className="p-2 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-[#a7a984] hover:bg-[#435360] enabled:hover:text-[#eaebec]"
+        className="p-2 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)] enabled:hover:text-[var(--color-text-primary)]"
         title="Undo (Ctrl+Z)"
       >
         <Icon name="undo" className="w-5 h-5" />
@@ -36,7 +36,7 @@ export function HistoryControls({ onUndo, onRedo, canUndo, canRedo }: HistoryCon
       <button
         onClick={onRedo}
         disabled={!canRedo}
-        className="p-2 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-[#a7a984] hover:bg-[#435360] enabled:hover:text-[#eaebec]"
+        className="p-2 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)] enabled:hover:text-[var(--color-text-primary)]"
         title="Redo (Ctrl+Y)"
       >
         <Icon name="redo" className="w-5 h-5" />

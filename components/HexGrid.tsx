@@ -20,7 +20,7 @@ import { SELECTION_COLOR } from '../constants';
 import { ToolsPalette } from './ToolsPalette';
 import { ShortcutTips } from './ShortcutTips';
 import type { ConfirmationState } from '../App';
-import { Hexagon } from './Hexagon';
+import { Hexagon } from './hexgrid/Hexagon';
 
 /**
  * Props for the HexGrid component.
@@ -220,7 +220,7 @@ export function HexGrid({
           const ctm = svgRef.current.getScreenCTM();
           if (!ctm) return prevPainted;
           const transformedPoint = svgPoint.matrixTransform(ctm.inverse());
-          // FIX: Explicitly cast to Number to avoid TS arithmetic errors.
+
           const relativePoint: Point = {
             x: Number(transformedPoint.x) - Number(center.x),
             y: Number(transformedPoint.y) - Number(center.y),
@@ -243,7 +243,6 @@ export function HexGrid({
           if (!neighborCoords) return newPainted;
           const neighborHex = getHex(neighborCoords.q, neighborCoords.r);
           if (neighborHex) {
-            // FIX: Explicitly cast to Number to avoid TS arithmetic errors.
             const oppositeEdge = (Number(edgeIndex) + 3) % 6;
             const newNeighborEdges = isAdding
               ? [...neighborHex.barrierEdges, oppositeEdge]
@@ -440,16 +439,45 @@ export function HexGrid({
 
   if (isLoadingTextures || !terrainTextures) {
     return (
-      <div className="flex items-center justify-center h-full text-[#a7a984]">
+      <div className="flex items-center justify-center h-full text-[var(--color-text-secondary)]">
         <p>Loading terrain textures...</p>
       </div>
     );
   }
 
+  const renderHexes = (layer: 'background' | 'foreground') => {
+    return displayHexes.map((hex) => {
+      const isSelected = selectedHex ? hex.q === selectedHex.q && hex.r === selectedHex.r : false;
+      const isSeatOfPower =
+        hex.holding && hex.q === realm.seatOfPower.q && hex.r === realm.seatOfPower.r;
+      return (
+        <Hexagon
+          key={`hex-${layer}-${hex.q}-${hex.r}`}
+          hex={hex}
+          viewOptions={viewOptions}
+          tileSets={tileSets}
+          terrainTextures={terrainTextures}
+          barrierColor={barrierColor}
+          isSelected={isSelected}
+          isSeatOfPower={isSeatOfPower}
+          isSpacePanActive={isSpacePanActive}
+          activeTool={activeTool}
+          isPickingTile={isPickingTile}
+          onMouseDown={handleHexMouseDown}
+          onMouseMove={handleHexMouseMove}
+          hexCorners={hexCorners}
+          hexCornersInnerHighlight={hexCornersInnerHighlight}
+          hexBoundingBox={hexBoundingBox}
+          layer={layer}
+        />
+      );
+    });
+  };
+
   return (
     <div
       ref={containerRef}
-      className="w-full h-full overflow-hidden bg-[#18272e] relative"
+      className="w-full h-full overflow-hidden bg-[var(--color-background-secondary)] relative"
       onWheel={onWheel}
     >
       <svg
@@ -470,33 +498,8 @@ export function HexGrid({
           </clipPath>
         </defs>
 
-        <g>
-          {displayHexes.map((hex) => {
-            const isSelected = selectedHex ? hex.q === selectedHex.q && hex.r === selectedHex.r : false;
-            const isSeatOfPower =
-              hex.holding && hex.q === realm.seatOfPower.q && hex.r === realm.seatOfPower.r;
-            return (
-              <Hexagon
-                key={`hex-${hex.q}-${hex.r}`}
-                hex={hex}
-                viewOptions={viewOptions}
-                tileSets={tileSets}
-                terrainTextures={terrainTextures}
-                barrierColor={barrierColor}
-                isSelected={isSelected}
-                isSeatOfPower={isSeatOfPower}
-                isSpacePanActive={isSpacePanActive}
-                activeTool={activeTool}
-                isPickingTile={isPickingTile}
-                onMouseDown={handleHexMouseDown}
-                onMouseMove={handleHexMouseMove}
-                hexCorners={hexCorners}
-                hexCornersInnerHighlight={hexCornersInnerHighlight}
-                hexBoundingBox={hexBoundingBox}
-              />
-            );
-          })}
-        </g>
+        <g>{renderHexes('background')}</g>
+        <g>{renderHexes('foreground')}</g>
 
         {/* Barrier Hover Highlight Layer */}
         {hoveredBarrier && activeTool === 'barrier' && !isPainting && (

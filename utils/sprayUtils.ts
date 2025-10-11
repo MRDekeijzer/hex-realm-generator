@@ -71,9 +71,9 @@ export const generateSprayIcons = (
     return [];
   }
 
-  // The seed is deterministically based on the terrain type, making the spray pattern
-  // consistent for all hexes of the same terrain.
-  const seed = stringToSeed(terrainTile.id);
+  // The seed is deterministically based on the hex coordinates and terrain type,
+  // making the spray pattern unique for each hex but consistent on regeneration.
+  const seed = hex.q * 1337 + hex.r * 31337 + stringToSeed(terrainTile.id);
   const random = mulberry32(seed);
 
   const finalIcons: SprayIcon[] = [];

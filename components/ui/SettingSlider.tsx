@@ -49,17 +49,17 @@ export const SettingSlider = ({
         <div>
             <div className="flex justify-between items-center mb-1">
                 <div className="flex items-center gap-2">
-                    <label htmlFor={inputId} className="text-sm font-medium text-[#a7a984]">{label}</label>
+                    <label htmlFor={inputId} className="text-sm font-medium text-[var(--color-text-secondary)]">{label}</label>
                     {tooltip && (
                         <div className="relative group">
-                            <Icon name="help-circle" className="w-4 h-4 text-[#a7a984] cursor-help" />
-                            <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 w-64 p-2 bg-[#18272e] text-xs text-[#eaebec] rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 border border-[#41403f]">
+                            <Icon name="help-circle" className="w-4 h-4 text-[var(--color-text-secondary)] cursor-help" />
+                            <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 w-64 p-2 bg-[var(--color-background-secondary)] text-xs text-[var(--color-text-primary)] rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 border border-[var(--color-border-primary)]">
                                 {tooltip}
                             </div>
                         </div>
                     )}
                 </div>
-                <span className="px-2 py-0.5 bg-[#324446] rounded-md text-xs">{Math.round(value * displayMultiplier)}{displaySuffix}</span>
+                <span className="px-2 py-0.5 bg-[var(--color-surface-primary)] rounded-md text-xs">{Math.round(value * displayMultiplier)}{displaySuffix}</span>
             </div>
             <input
                 id={inputId}
@@ -69,7 +69,7 @@ export const SettingSlider = ({
                 step={step}
                 value={value}
                 onChange={e => onChange(parseFloat(e.target.value))}
-                className="w-full h-2 bg-[#324446] rounded-lg appearance-none cursor-pointer accent-[#736b23]"
+                className="w-full h-2 bg-[var(--color-surface-primary)] rounded-lg appearance-none cursor-pointer accent-[var(--color-accent-primary)]"
             />
         </div>
     );

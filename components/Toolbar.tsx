@@ -11,6 +11,7 @@ import { ToolbarButton } from './ui/ToolbarButton';
 import { SettingsModal } from './settings/SettingsModal';
 import { GridSettingsPopover } from './GridSettingsPopover';
 import type { ConfirmationState } from '../App';
+import { ThemeToggle } from './ui/ThemeToggle';
 
 /**
  * Props for the Toolbar component.
@@ -149,9 +150,9 @@ export function Toolbar({
   };
 
   return (
-    <header className="flex items-center justify-between p-2 bg-[#191f29] border-b border-[#41403f] shadow-md z-10">
+    <header className="flex items-center justify-between p-2 bg-[var(--color-background-primary)] border-b border-[var(--color-border-primary)] shadow-md z-10">
       <div className="flex items-center gap-2">
-        <h1 className="text-xl font-bold text-[#eaebec] mr-4">Hex Realm Generator</h1>
+        <h1 className="text-xl font-bold text-[var(--color-text-primary)] mr-4">Hex Realm Generator</h1>
         <ToolbarButton onClick={onGenerate} icon="sparkles" title="Generate New Realm">
           Generate
         </ToolbarButton>
@@ -166,7 +167,7 @@ export function Toolbar({
           {...settingsProps}
         />
 
-        <div className="border-l border-[#41403f] h-6"></div>
+        <div className="border-l border-[var(--color-border-primary)] h-6"></div>
 
         <div className="relative">
           <ToolbarButton
@@ -204,6 +205,8 @@ export function Toolbar({
         </ToolbarButton>
       </div>
       <div className="flex items-center gap-2">
+        <ThemeToggle />
+        <div className="border-l border-[var(--color-border-primary)] h-6"></div>
         <input
           type="file"
           ref={fileInputRef}

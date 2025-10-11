@@ -19,8 +19,8 @@ interface SettingsSectionProps {
  */
 export const SettingsSection: React.FC<React.PropsWithChildren<SettingsSectionProps>> = ({ title, children }) => (
     <div>
-        <h3 className="text-md font-semibold text-[#eaebec] mb-2">{title}</h3>
-        <div className="space-y-4 p-4 bg-[#18272e] rounded-md border border-[#41403f]">
+        <h3 className="text-md font-semibold text-[var(--color-text-primary)] mb-2">{title}</h3>
+        <div className="space-y-4 p-4 bg-[var(--color-background-secondary)] rounded-md border border-[var(--color-border-primary)]">
             {children}
         </div>
     </div>

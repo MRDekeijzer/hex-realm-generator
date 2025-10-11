@@ -28,8 +28,8 @@ export const SettingsTabButton = ({ icon, label, isActive, onClick }: SettingsTa
         onClick={onClick}
         className={`flex items-center gap-3 w-full text-left p-3 rounded-md transition-colors ${
             isActive
-                ? 'bg-[#736b23] text-[#eaebec]'
-                : 'text-[#a7a984] hover:bg-[#324446]'
+                ? 'bg-[var(--color-accent-primary)] text-[var(--color-text-primary)]'
+                : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-primary)]'
         }`}
     >
         <Icon name={icon} className="w-5 h-5" />

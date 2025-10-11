@@ -34,8 +34,8 @@ export const ToolbarButton = React.forwardRef<HTMLButtonElement, ToolbarButtonPr
       onClick={onClick}
       className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
         isActive
-          ? 'bg-[#736b23] text-[#eaebec]'
-          : 'bg-[#324446] text-[#a7a984] hover:bg-[#435360]'
+          ? 'bg-[var(--color-accent-primary)] text-[var(--color-text-primary)]'
+          : 'bg-[var(--color-surface-primary)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)]'
       }`}
       disabled={disabled}
       title={title}

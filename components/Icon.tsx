@@ -55,6 +55,7 @@ import {
   Feather,
   Flower,
   Sun,
+  Moon,
   TreePine,
   Triangle,
   Wind,
@@ -91,6 +92,8 @@ const icons: { [key: string]: React.ElementType } = {
   upload: FileUp,
   download: FileDown,
   'image-down': ImageDown,
+  sun: Sun,
+  moon: Moon,
 
   // Tools
   'mouse-pointer-2': MousePointer2,
@@ -133,7 +136,6 @@ const icons: { [key: string]: React.ElementType } = {
   hill: Mountain,
   flower: Flower,
   droplets: Droplets,
-  sun: Sun,
   wind: Wind,
   'tree-pine': TreePine,
   curve: Spline,

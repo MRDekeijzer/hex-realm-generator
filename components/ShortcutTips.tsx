@@ -13,7 +13,7 @@ const Shortcut = ({ keys, description }: { keys: string[]; description: string }
     <div className="flex items-center">
       {keys.map((key, index) => (
         <React.Fragment key={key}>
-          <kbd className="px-1.5 py-0.5 rounded bg-[#324446] font-sans">{key}</kbd>
+          <kbd className="px-1.5 py-0.5 rounded bg-[var(--color-surface-primary)] font-sans">{key}</kbd>
           {index < keys.length - 1 && <span className="mx-1">+</span>}
         </React.Fragment>
       ))}
@@ -27,7 +27,7 @@ const Shortcut = ({ keys, description }: { keys: string[]; description: string }
  */
 export function ShortcutTips() {
   return (
-    <div className="absolute bottom-4 left-4 bg-[#191f29]/80 border border-[#41403f] p-3 rounded-lg shadow-lg text-xs text-[#a7a984] z-10 pointer-events-none space-y-2">
+    <div className="absolute bottom-4 left-4 bg-[rgba(var(--color-background-primary-rgb),0.8)] border border-[var(--color-border-primary)] p-3 rounded-lg shadow-lg text-xs text-[var(--color-text-secondary)] z-10 pointer-events-none space-y-2">
       <Shortcut keys={['Space']} description="Pan Map" />
       <Shortcut keys={['Ctrl', 'Z']} description="Undo" />
       <Shortcut keys={['Ctrl', 'Y']} description="Redo" />

@@ -9,10 +9,10 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { HexGrid } from './components/HexGrid';
 import { Toolbar } from './components/Toolbar';
-import { Sidebar } from './components/Sidebar';
-import { TerrainPainter } from './components/TerrainPainter';
-import { PoiPainter } from './components/PoiPainter';
-import { MythSidebar } from './components/MythSidebar';
+import { SelectionSidebar } from './components/sidebars/SelectionSidebar';
+import { TerrainPainterSidebar } from './components/sidebars/TerrainPainterSidebar';
+import { PoiPainterSidebar } from './components/sidebars/PoiPainterSidebar';
+import { MythSidebar } from './components/sidebars/MythSidebar';
 import { generateRealm } from './services/realmGenerator';
 import { exportRealmAsJson, exportSvgAsPng } from './services/fileService';
 import type {
@@ -30,7 +30,6 @@ import {
   DEFAULT_TILE_SETS,
   LANDMARK_TYPES,
   TERRAIN_TYPES,
-  DEFAULT_TERRAIN_COLORS,
   BARRIER_COLOR,
   DEFAULT_GRID_COLOR,
   DEFAULT_GRID_WIDTH,
@@ -39,10 +38,11 @@ import {
   DEFAULT_TERRAIN_HEIGHT_ORDER,
 } from './constants';
 import { useHistory } from './hooks/useHistory';
-import { BarrierPainter } from './components/BarrierPainter';
+import { BarrierPainterSidebar } from './components/sidebars/BarrierPainterSidebar';
 import { ConfirmationDialog } from './components/ConfirmationDialog';
 import { HistoryControls } from './components/HistoryControls';
 import { generateTerrainTextures } from './utils/textureUtils';
+import { useTheme } from './contexts/ThemeContext';
 
 /**
  * State for managing confirmation dialogs.
@@ -83,8 +83,26 @@ export default function App() {
   const [paintTerrain, setPaintTerrain] = useState<string>(TERRAIN_TYPES[0] ?? 'plain');
   const [paintPoi, setPaintPoi] = useState<string | null>('holding:castle');
   const [tileSets, setTileSets] = useState<TileSet>(DEFAULT_TILE_SETS);
-  const [terrainColors, setTerrainColors] = useState(DEFAULT_TERRAIN_COLORS);
+  const { colors } = useTheme();
+
+  const [terrainColors, setTerrainColors] = useState<{ [key: string]: string }>({});
   const [barrierColor, setBarrierColor] = useState(BARRIER_COLOR);
+  
+  useEffect(() => {
+    if (Object.keys(colors).length > 0) {
+        const initialTerrainColors: { [key: string]: string } = {};
+        TERRAIN_TYPES.forEach(id => {
+            const color = colors[`--terrain-${id}`];
+            if (color) {
+              initialTerrainColors[id] = color;
+            }
+        });
+        setTerrainColors(initialTerrainColors);
+        const newBarrierColor = colors['--color-accent-danger'];
+        if (newBarrierColor) setBarrierColor(newBarrierColor);
+    }
+  }, [colors]);
+
 
   const [realmShape, setRealmShape] = useState<'hex' | 'square'>('square');
   const [realmRadius, setRealmRadius] = useState<number>(DEFAULT_GRID_SIZE);
@@ -170,6 +188,8 @@ export default function App() {
    * Effect to regenerate terrain textures whenever terrain settings or colors change.
    */
   useEffect(() => {
+    if (Object.keys(terrainColors).length === 0) return;
+
     const generateAndSetTextures = async () => {
       setIsLoadingTextures(true);
       try {
@@ -577,10 +597,11 @@ export default function App() {
       setTerrainColors((prev) => ({ ...prev, [terrainId]: color })),
     []
   );
+
   const handleResetTerrainColor = useCallback((terrainId: string) => {
-    const defaultColor = DEFAULT_TERRAIN_COLORS[terrainId as keyof typeof DEFAULT_TERRAIN_COLORS];
+    const defaultColor = colors[`--terrain-${terrainId}`];
     if (defaultColor) setTerrainColors((prev) => ({ ...prev, [terrainId]: defaultColor }));
-  }, []);
+  }, [colors]);
 
   /**
    * Opens a confirmation dialog to remove all barriers from the map.
@@ -698,7 +719,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-[#191f2a] overflow-hidden">
+    <div className="flex flex-col h-screen w-screen bg-[var(--color-background-primary)] overflow-hidden">
       <Toolbar
         onGenerate={handleGenerateRealm}
         onExportJson={handleExportJson}
@@ -729,7 +750,7 @@ export default function App() {
         setConfirmation={setConfirmation}
       />
       <div className="flex flex-1 overflow-hidden">
-        <main className="flex-1 bg-[#18272e] relative">
+        <main className="flex-1 bg-[var(--color-background-secondary)] relative">
           {realm ? (
             <HexGrid
               realm={realm}
@@ -757,13 +778,13 @@ export default function App() {
               isLoadingTextures={isLoadingTextures}
             />
           ) : (
-            <div className="flex items-center justify-center h-full text-[#a7a984]">
+            <div className="flex items-center justify-center h-full text-[var(--color-text-secondary)]">
               <p>Generating initial realm...</p>
             </div>
           )}
         </main>
         {activeTool === 'terrain' ? (
-          <TerrainPainter
+          <TerrainPainterSidebar
             paintTerrain={paintTerrain}
             setPaintTerrain={setPaintTerrain}
             onClose={() => setActiveTool('select')}
@@ -778,7 +799,7 @@ export default function App() {
             onOpenSpraySettings={handleOpenSpraySettings}
           />
         ) : activeTool === 'poi' ? (
-          <PoiPainter
+          <PoiPainterSidebar
             paintPoi={paintPoi}
             setPaintPoi={setPaintPoi}
             onClose={() => setActiveTool('select')}
@@ -786,7 +807,7 @@ export default function App() {
             isPickingTile={isPickingTile}
           />
         ) : activeTool === 'barrier' ? (
-          <BarrierPainter
+          <BarrierPainterSidebar
             onRemoveAllBarriers={handleRequestRemoveAllBarriers}
             onClose={() => setActiveTool('select')}
             barrierColor={barrierColor}
@@ -804,7 +825,7 @@ export default function App() {
             onClose={() => setActiveTool('select')}
           />
         ) : activeTool === 'select' ? (
-          <Sidebar
+          <SelectionSidebar
             selectedHex={selectedHex}
             realm={realm}
             onUpdateHex={handleUpdateHex}

@@ -14,63 +14,32 @@ import type {
 // =================================================================================
 // --- COLOR SETTINGS ---
 // All application color constants are defined here for easy theming.
+// They reference the CSS variables defined in styles/tokens.css.
 // =================================================================================
 
-/**
- * The foundational color palette for the entire application theme.
- */
-export const PALETTE = {
-  columnBorders: '#41403f',
-  textColor: '#221f21',
-  lightColorImage: '#a7a984', // Used for valley, plain
-  darkerColorImage: '#324446', // Used for marsh
-  darkColorImage: '#18272e', // Used for crags, bog
-  darkBackground: '#191f29',
-  lightBackground: '#eaebec',
-  purpleHighlight: '#55375d',
-  yellowHighlight: '#736b23',
-  orangeHighlight: '#8a661a',
-  redHighlight: '#60131b',
-  blueHighlight: '#435360',
-  lightRedHighlight: '#692e2a',
-  lightBlue: '#3f6e66', // Used for lakes
-  yellowDarkHighlight: '#9d8940', // Used for hills
-  lightGreen: '#777741', // Used for heath, forest
-  lighterBlue: '#c5d2cb', // Used for glades
-  darkOrange: '#813a28',
-};
+/** A list of all CSS color variables used for theming. */
+export const colorTokenList = [
+  '--color-background-primary', '--color-background-secondary', '--color-surface-primary', '--color-surface-secondary',
+  '--color-surface-tertiary', '--color-border-primary', '--color-border-holding', '--color-border-landmark',
+  '--color-text-primary', '--color-text-secondary', '--color-text-tertiary', '--color-text-inverse', '--color-text-accent',
+  '--color-accent-primary', '--color-accent-primary-hover', '--color-accent-danger', '--color-accent-danger-hover',
+  '--color-accent-special', '--color-accent-success', '--color-accent-info', '--color-accent-myth', '--color-accent-seat-of-power',
+  '--terrain-marsh', '--terrain-heath', '--terrain-crags', '--terrain-peaks', '--terrain-forest', '--terrain-valley',
+  '--terrain-hills', '--terrain-meadow', '--terrain-bog', '--terrain-lakes', '--terrain-glades', '--terrain-plain',
+];
 
 // ---------------------------------------------------------------------------------
 // UI Element Colors
-// Specific color assignments for various parts of the UI, derived from the main palette.
+// Specific color assignments for various parts of the UI, derived from CSS variables.
 // ---------------------------------------------------------------------------------
-export const MYTH_COLOR = 'rgba(238, 206, 34, 0.8)';
-export const BARRIER_COLOR = PALETTE.redHighlight;
-export const SELECTION_COLOR = PALETTE.yellowHighlight;
-export const SEAT_OF_POWER_COLOR = 'rgba(238, 206, 34, 0.8)';
-export const HOLDING_ICON_BORDER_COLOR = PALETTE.darkOrange;
-export const LANDMARK_ICON_BORDER_COLOR = PALETTE.lightBlue;
+export const MYTH_COLOR = 'var(--color-accent-myth)';
+export const BARRIER_COLOR = 'var(--color-accent-danger)';
+export const SELECTION_COLOR = 'var(--color-accent-primary)';
+export const SEAT_OF_POWER_COLOR = 'var(--color-accent-seat-of-power)';
+export const HOLDING_ICON_BORDER_COLOR = 'var(--color-border-holding)';
+export const LANDMARK_ICON_BORDER_COLOR = 'var(--color-border-landmark)';
 export const DEFAULT_GRID_COLOR = 'rgba(234, 235, 236, 0.2)';
 export const DEFAULT_GRID_WIDTH = 1;
-
-// ---------------------------------------------------------------------------------
-// Default Terrain Colors
-// A curated set of default colors for the various terrain types.
-// ---------------------------------------------------------------------------------
-export const TERRAIN_COLORS = {
-  marsh: PALETTE.darkerColorImage,
-  heath: PALETTE.lightGreen,
-  crags: PALETTE.darkColorImage,
-  peaks: PALETTE.columnBorders,
-  forest: PALETTE.lightGreen,
-  valley: PALETTE.lightColorImage,
-  hills: PALETTE.yellowDarkHighlight,
-  meadow: PALETTE.lightBackground,
-  bog: PALETTE.darkColorImage,
-  lakes: PALETTE.lightBlue,
-  glades: PALETTE.lighterBlue,
-  plain: PALETTE.lightColorImage,
-};
 
 // =================================================================================
 // --- APPLICATION CONSTANTS ---
@@ -180,7 +149,7 @@ export const DEFAULT_SPRAY_SETTINGS: SpraySettings = {
   sizeMax: 9,
   opacityMin: 0.6,
   opacityMax: 0.8,
-  color: '#221f21',
+  color: 'var(--color-text-inverse)',
   placementMask: uniformMask,
 };
 
@@ -194,7 +163,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       id: 'marsh',
       label: 'Marsh',
       icon: 'droplet',
-      color: TERRAIN_COLORS.marsh,
+      color: 'var(--terrain-marsh)',
       sprayIcons: ['droplet', 'feather', 'waves'],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
@@ -208,7 +177,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       id: 'heath',
       label: 'Heath',
       icon: 'leaf',
-      color: TERRAIN_COLORS.heath,
+      color: 'var(--terrain-heath)',
       sprayIcons: ['leaf', 'wind', 'flower'],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
@@ -222,7 +191,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       id: 'crags',
       label: 'Crags',
       icon: 'triangle',
-      color: TERRAIN_COLORS.crags,
+      color: 'var(--terrain-crags)',
       sprayIcons: ['triangle', 'mountain', 'rock'],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
@@ -236,7 +205,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       id: 'peaks',
       label: 'Peaks',
       icon: 'mountains',
-      color: TERRAIN_COLORS.peaks,
+      color: 'var(--terrain-peaks)',
       sprayIcons: ['triangle', 'flag', 'snowflake'],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
@@ -250,7 +219,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       id: 'forest',
       label: 'Forest',
       icon: 'trees',
-      color: TERRAIN_COLORS.forest,
+      color: 'var(--terrain-forest)',
       sprayIcons: ['tree-pine', 'leaf', 'branch'],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
@@ -264,7 +233,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       id: 'valley',
       label: 'Valley',
       icon: 'curve',
-      color: TERRAIN_COLORS.valley,
+      color: 'var(--terrain-valley)',
       sprayIcons: ['river', 'path', 'leaf'],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
@@ -278,7 +247,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       id: 'hills',
       label: 'Hills',
       icon: 'hill',
-      color: TERRAIN_COLORS.hills,
+      color: 'var(--terrain-hills)',
       sprayIcons: ['wave-sine', 'chevron-up', 'rock'],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
@@ -292,7 +261,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       id: 'meadow',
       label: 'Meadow',
       icon: 'flower',
-      color: TERRAIN_COLORS.meadow,
+      color: 'var(--terrain-meadow)',
       sprayIcons: ['flower', 'sun', 'cloud'],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
@@ -306,7 +275,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       id: 'bog',
       label: 'Bog',
       icon: 'droplets',
-      color: TERRAIN_COLORS.bog,
+      color: 'var(--terrain-bog)',
       sprayIcons: ['droplet', 'skull', 'feather'],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
@@ -320,7 +289,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       id: 'lakes',
       label: 'Lakes',
       icon: 'waves',
-      color: TERRAIN_COLORS.lakes,
+      color: 'var(--terrain-lakes)',
       sprayIcons: ['waves', 'droplet', 'fish'],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
@@ -334,7 +303,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       id: 'glades',
       label: 'Glades',
       icon: 'sun',
-      color: TERRAIN_COLORS.glades,
+      color: 'var(--terrain-glades)',
       sprayIcons: ['tree-deciduous', 'sparkles', 'sun'],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
@@ -348,7 +317,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       id: 'plain',
       label: 'Plain',
       icon: 'wind',
-      color: TERRAIN_COLORS.plain,
+      color: 'var(--terrain-plain)',
       sprayIcons: ['wind', 'cloud', 'sun'],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
@@ -380,9 +349,6 @@ export const SPECIAL_POI_ICONS: Tile[] = [
   { id: 'myth', label: 'Myth', icon: 'sparkle' },
   { id: 'seatOfPower', label: 'Seat of Power', icon: 'crown' },
 ];
-
-/** An explicit mapping of terrain IDs to their default colors. */
-export const DEFAULT_TERRAIN_COLORS: { [key: string]: string } = TERRAIN_COLORS;
 
 // =================================================================================
 // --- GENERATION DEFAULTS ---

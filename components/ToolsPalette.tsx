@@ -33,7 +33,7 @@ const ToolButton: React.FC<ToolButtonProps> = ({ icon, label, isActive, onClick 
   <button
     onClick={onClick}
     className={`p-3 rounded-lg transition-colors duration-150 ${
-      isActive ? 'bg-[#736b23] text-[#eaebec]' : 'bg-[#324446] text-[#a7a984] hover:bg-[#435360]'
+      isActive ? 'bg-[var(--color-accent-primary)] text-[var(--color-text-primary)]' : 'bg-[var(--color-surface-primary)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-secondary)]'
     }`}
     aria-label={label}
     title={label}
@@ -55,7 +55,7 @@ export function ToolsPalette({ activeTool, setActiveTool }: ToolsPaletteProps) {
   ];
 
   return (
-    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 p-2 bg-[#191f29]/80 border border-[#41403f] rounded-xl shadow-lg z-10">
+    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 p-2 bg-[rgba(var(--color-background-primary-rgb),0.8)] border border-[var(--color-border-primary)] rounded-xl shadow-lg z-10">
       {tools.map((tool) => (
         <ToolButton
           key={tool.id}

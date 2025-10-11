@@ -45,21 +45,21 @@ export function ConfirmationDialog({
 
   return (
     <div
-      className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-[rgba(var(--color-black-rgb),0.7)] z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="confirmation-dialog-title"
     >
-      <div className="bg-[#18272e] border border-[#41403f] rounded-lg shadow-xl w-full max-w-md p-6 animate-fade-in">
-        <h2 id="confirmation-dialog-title" className="text-xl font-bold text-white text-center mb-4">
+      <div className="bg-[var(--color-background-secondary)] border border-[var(--color-border-primary)] rounded-lg shadow-xl w-full max-w-md p-6 animate-fade-in">
+        <h2 id="confirmation-dialog-title" className="text-xl font-bold text-[var(--color-text-primary)] text-center mb-4">
           {title}
         </h2>
-        <p className="text-[#a7a984] mb-6 text-center">{message}</p>
+        <p className="text-[var(--color-text-secondary)] mb-6 text-center">{message}</p>
         <div className="flex justify-center gap-4">
           {!isInfo && (
             <button
               onClick={onCancel}
-              className="px-4 py-2 text-sm font-medium text-[#eaebec] bg-[#324446] rounded-md hover:bg-[#435360] transition-colors"
+              className="px-4 py-2 text-sm font-medium text-[var(--color-text-primary)] bg-[var(--color-surface-primary)] rounded-md hover:bg-[var(--color-surface-secondary)] transition-colors"
             >
               {cancelText}
             </button>
@@ -68,8 +68,8 @@ export function ConfirmationDialog({
             onClick={onConfirm}
             className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors ${
               isInfo
-                ? 'bg-[#435360] hover:bg-[#55375d]'
-                : 'bg-[#60131b] hover:bg-[#8a2a34]'
+                ? 'bg-[var(--color-accent-info)] hover:bg-[var(--color-accent-special)]'
+                : 'bg-[var(--color-accent-danger)] hover:bg-[var(--color-accent-danger-hover)]'
             }`}
           >
             {isInfo ? 'OK' : confirmText}

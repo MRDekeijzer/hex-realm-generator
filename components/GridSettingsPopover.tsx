@@ -94,12 +94,12 @@ export const GridSettingsPopover = React.forwardRef<HTMLDivElement, GridSettings
     return (
       <div
         ref={ref}
-        className="absolute top-full mt-2 left-0 bg-[#18272e] border border-[#41403f] rounded-lg shadow-xl p-4 z-20 w-64"
+        className="absolute top-full mt-2 left-0 bg-[var(--color-background-secondary)] border border-[var(--color-border-primary)] rounded-lg shadow-xl p-4 z-20 w-64"
       >
         <div className="space-y-4">
           <label
             htmlFor="show-grid-toggle"
-            className="flex items-center justify-between gap-2 text-sm font-medium text-[#a7a984] cursor-pointer"
+            className="flex items-center justify-between gap-2 text-sm font-medium text-[var(--color-text-secondary)] cursor-pointer"
           >
             <span>Show Grid</span>
             <div className="relative">
@@ -110,12 +110,12 @@ export const GridSettingsPopover = React.forwardRef<HTMLDivElement, GridSettings
                 onChange={() => setViewOptions((v) => ({ ...v, showGrid: !v.showGrid }))}
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-[#324446] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#736b23]"></div>
+              <div className="w-11 h-6 bg-[var(--color-surface-primary)] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--color-accent-primary)]"></div>
             </div>
           </label>
-          <hr className="border-[#41403f]" />
+          <hr className="border-[var(--color-border-primary)]" />
           <div>
-            <label htmlFor="grid-color-btn" className="block text-sm font-medium text-[#a7a984] mb-1">
+            <label htmlFor="grid-color-btn" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
               Grid Color
             </label>
             <div className="flex items-center gap-2">
@@ -145,13 +145,13 @@ export const GridSettingsPopover = React.forwardRef<HTMLDivElement, GridSettings
                   <Icon name={isCustomGridColor ? 'reset' : 'pipette'} className="w-5 h-5 text-white" />
                 </div>
               </button>
-              <span className="p-2 bg-[#324446] rounded-md text-sm font-mono flex-grow text-center">
+              <span className="p-2 bg-[var(--color-surface-primary)] rounded-md text-sm font-mono flex-grow text-center">
                 {gridHexColor.toUpperCase()}
               </span>
             </div>
           </div>
           <div>
-            <label htmlFor="grid-opacity" className="block text-sm font-medium text-[#a7a984] mb-1">
+            <label htmlFor="grid-opacity" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
               Opacity
             </label>
             <div className="flex items-center gap-2">
@@ -163,16 +163,16 @@ export const GridSettingsPopover = React.forwardRef<HTMLDivElement, GridSettings
                 step="0.01"
                 value={gridOpacity}
                 onChange={handleGridOpacityChange}
-                className="w-full h-2 bg-[#324446] rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-[var(--color-surface-primary)] rounded-lg appearance-none cursor-pointer"
                 aria-label="Grid opacity"
               />
-              <span className="p-1 bg-[#324446] rounded-md text-xs w-16 text-center">
+              <span className="p-1 bg-[var(--color-surface-primary)] rounded-md text-xs w-16 text-center">
                 {Math.round(gridOpacity * 100)}%
               </span>
             </div>
           </div>
           <div>
-            <label htmlFor="grid-width" className="block text-sm font-medium text-[#a7a984] mb-1">
+            <label htmlFor="grid-width" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
               Border Width
             </label>
             <input
@@ -187,15 +187,15 @@ export const GridSettingsPopover = React.forwardRef<HTMLDivElement, GridSettings
               }
               min="0.1"
               step="0.1"
-              className="w-full bg-[#324446] p-2 text-sm font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
+              className="w-full bg-[var(--color-surface-primary)] p-2 text-sm font-medium text-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-primary)] rounded-md"
               aria-label="Grid border width"
             />
           </div>
         </div>
-        <div className="mt-4 pt-4 border-t border-[#41403f]">
+        <div className="mt-4 pt-4 border-t border-[var(--color-border-primary)]">
           <button
             onClick={handleResetGridSettings}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-[#a7a984] bg-[#324446] rounded-md hover:bg-[#435360] transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-[var(--color-text-secondary)] bg-[var(--color-surface-primary)] rounded-md hover:bg-[var(--color-surface-secondary)] transition-colors"
           >
             <Icon name="reset" className="w-4 h-4" />
             Reset All Grid Settings

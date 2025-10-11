@@ -139,7 +139,7 @@ export const GenerationSettings = ({
             <button
               key={template.name}
               onClick={() => onApplyTemplate(template.options)}
-              className="p-3 bg-[#324446] rounded-md hover:bg-[#435360] transition-colors text-center text-sm font-medium text-[#a7a984]"
+              className="p-3 bg-[var(--color-surface-primary)] rounded-md hover:bg-[var(--color-surface-secondary)] transition-colors text-center text-sm font-medium text-[var(--color-text-secondary)]"
             >
               {template.name}
             </button>
@@ -148,11 +148,11 @@ export const GenerationSettings = ({
       </SettingsSection>
 
       <SettingsSection title="Terrain Height">
-        <p className="text-xs text-[#a7a984] !mt-0">
+        <p className="text-xs text-[var(--color-text-secondary)] !mt-0">
           Drag and drop to reorder terrain types from highest (top) to lowest (bottom). This order
           determines elevation during map generation.
         </p>
-        <ol className="space-y-1 bg-[#191f29] p-2 rounded-md border border-[#41403f]">
+        <ol className="space-y-1 bg-[var(--color-background-primary)] p-2 rounded-md border border-[var(--color-border-primary)]">
           {generationOptions.terrainHeightOrder.map((terrainId) => {
             const terrain = getTerrainTile(terrainId);
             if (!terrain) return null;
@@ -167,13 +167,13 @@ export const GenerationSettings = ({
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, terrain.id)}
                 onDragEnd={handleDragEnd}
-                className={`flex items-center gap-3 p-2 rounded-md transition-all duration-150 cursor-grab active:cursor-grabbing bg-[#324446] border border-transparent ${
-                  isDragging ? 'opacity-50 border-dashed border-[#736b23]' : 'hover:bg-[#435360]'
+                className={`flex items-center gap-3 p-2 rounded-md transition-all duration-150 cursor-grab active:cursor-grabbing bg-[var(--color-surface-primary)] border border-transparent ${
+                  isDragging ? 'opacity-50 border-dashed border-[var(--color-accent-primary)]' : 'hover:bg-[var(--color-surface-secondary)]'
                 }`}
               >
-                <Icon name="grip-vertical" className="w-5 h-5 text-[#a7a984]" />
-                <Icon name={terrain.icon} className="w-5 h-5 text-[#eaebec]" />
-                <span className="font-medium text-sm text-[#eaebec]">{terrain.label}</span>
+                <Icon name="grip-vertical" className="w-5 h-5 text-[var(--color-text-secondary)]" />
+                <Icon name={terrain.icon} className="w-5 h-5 text-[var(--color-text-primary)]" />
+                <span className="font-medium text-sm text-[var(--color-text-primary)]">{terrain.label}</span>
               </li>
             );
           })}
@@ -188,8 +188,8 @@ export const GenerationSettings = ({
               onClick={() => onGenerationOptionChange('highlandFormation', option.id as HighlandFormation)}
               className={`p-4 rounded-md text-left transition-all duration-150 border-2 h-full ${
                 generationOptions.highlandFormation === option.id
-                  ? 'bg-[#736b23]/20 border-[#736b23] text-[#eaebec]'
-                  : 'bg-[#191f29] border-[#41403f] hover:border-[#a7a984] text-[#a7a984]'
+                  ? 'bg-[rgba(var(--color-accent-primary-rgb),0.2)] border-[var(--color-accent-primary)] text-[var(--color-text-primary)]'
+                  : 'bg-[var(--color-background-primary)] border-[var(--color-border-primary)] hover:border-[var(--color-text-secondary)] text-[var(--color-text-secondary)]'
               }`}
             >
               <div className="flex items-center gap-3 mb-2">
@@ -206,7 +206,7 @@ export const GenerationSettings = ({
         </div>
 
         {generationOptions.highlandFormation !== 'random' && (
-          <div className="space-y-4 pt-4 border-t border-[#41403f]">
+          <div className="space-y-4 pt-4 border-t border-[var(--color-border-primary)]">
             <SettingSlider
               label="Formation Strength"
               value={generationOptions.highlandFormationStrength}
@@ -215,7 +215,7 @@ export const GenerationSettings = ({
             />
             {(generationOptions.highlandFormation === 'linear' ||
               generationOptions.highlandFormation === 'triangle') && (
-              <div className="grid grid-cols-2 gap-4 items-center pt-4 border-t border-[#41403f]">
+              <div className="grid grid-cols-2 gap-4 items-center pt-4 border-t border-[var(--color-border-primary)]">
                 <div>
                   <SettingSlider
                     label="Formation Rotation"
@@ -232,10 +232,10 @@ export const GenerationSettings = ({
                 <div className="flex flex-col items-center justify-center text-center">
                   <Icon
                     name={generationOptions.highlandFormation === 'triangle' ? 'triangle' : 'arrow-up'}
-                    className="w-8 h-8 mx-auto mb-2 text-[#a7a984]"
+                    className="w-8 h-8 mx-auto mb-2 text-[var(--color-text-secondary)]"
                     style={{ transform: `rotate(${generationOptions.highlandFormationRotation}deg)` }}
                   />
-                  <p className="text-xs text-[#a7a984]">
+                  <p className="text-xs text-[var(--color-text-secondary)]">
                     Lowlands start at the base and highlands form towards the tip.
                   </p>
                 </div>
@@ -245,11 +245,11 @@ export const GenerationSettings = ({
               generationOptions.highlandFormation === 'triangle') && (
               <label
                 htmlFor="invert-formation"
-                className="flex items-center justify-between pt-4 border-t border-[#41403f] cursor-pointer"
+                className="flex items-center justify-between pt-4 border-t border-[var(--color-border-primary)] cursor-pointer"
               >
                 <div className="flex flex-col">
-                  <span className="text-sm font-medium text-[#a7a984]">Invert Formation</span>
-                  <span className="text-xs text-[#a7a984]">Flips highlands and lowlands.</span>
+                  <span className="text-sm font-medium text-[var(--color-text-secondary)]">Invert Formation</span>
+                  <span className="text-xs text-[var(--color-text-secondary)]">Flips highlands and lowlands.</span>
                 </div>
                 <div className="relative">
                   <input
@@ -259,7 +259,7 @@ export const GenerationSettings = ({
                     onChange={(e) => onGenerationOptionChange('highlandFormationInverse', e.target.checked)}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-[#324446] rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#736b23]"></div>
+                  <div className="w-11 h-6 bg-[var(--color-surface-primary)] rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--color-accent-primary)]"></div>
                 </div>
               </label>
             )}
@@ -268,7 +268,7 @@ export const GenerationSettings = ({
       </SettingsSection>
 
       <SettingsSection title="Terrain Biases">
-        <p className="text-xs text-[#a7a984] !mt-0">
+        <p className="text-xs text-[var(--color-text-secondary)] !mt-0">
           Set relative weights. Higher numbers mean more of that terrain.
         </p>
         <div className="grid grid-cols-3 gap-x-4 gap-y-2">
@@ -276,7 +276,7 @@ export const GenerationSettings = ({
             <div key={terrain.id} className="flex justify-between items-center">
               <label
                 htmlFor={`terrain-bias-${terrain.id}`}
-                className="text-sm text-[#a7a984] flex items-center gap-2"
+                className="text-sm text-[var(--color-text-secondary)] flex items-center gap-2"
               >
                 <Icon name={terrain.icon} className="w-4 h-4" />
                 {terrain.label}
@@ -287,7 +287,7 @@ export const GenerationSettings = ({
                 value={Math.round(generationOptions.terrainBiases[terrain.id] || 0)}
                 onChange={(e) => handleBiasInputChange(e, terrain.id)}
                 min="0"
-                className="w-20 bg-[#324446] p-1 text-sm text-center font-medium text-[#a7a984] focus:outline-none focus:ring-2 focus:ring-[#736b23] rounded-md"
+                className="w-20 bg-[var(--color-surface-primary)] p-1 text-sm text-center font-medium text-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-primary)] rounded-md"
                 aria-label={`Bias for ${terrain.label}`}
               />
             </div>
@@ -302,20 +302,20 @@ export const GenerationSettings = ({
           onChange={(v) => onGenerationOptionChange('terrainRoughness', 1 - v)}
           tooltip="Higher values create large, smooth regions. Lower values result in chaotic, mixed landscapes."
         />
-        <div className="pt-4 border-t border-[#41403f]">
-          <p className="text-sm text-[#a7a984]">
+        <div className="pt-4 border-t border-[var(--color-border-primary)]">
+          <p className="text-sm text-[var(--color-text-secondary)]">
             This matrix controls how terrain types attract each other. It is adjusted by the slider
             above.
           </p>
-          <div className="overflow-auto max-h-[calc(80vh-150px)] bg-[#191f29] rounded-md border border-[#41403f] mt-2">
+          <div className="overflow-auto max-h-[calc(80vh-150px)] bg-[var(--color-background-primary)] rounded-md border border-[var(--color-border-primary)] mt-2">
             <table className="w-full border-collapse text-xs whitespace-nowrap">
-              <thead className="sticky top-0 bg-[#191f29] z-20">
+              <thead className="sticky top-0 bg-[var(--color-background-primary)] z-20">
                 <tr>
-                  <th className="sticky left-0 bg-[#191f29] p-2 border-r border-b border-[#41403f] w-28 z-30"></th>
+                  <th className="sticky left-0 bg-[var(--color-background-primary)] p-2 border-r border-b border-[var(--color-border-primary)] w-28 z-30"></th>
                   {tileSets.terrain.map((t) => (
                     <th
                       key={t.id}
-                      className="p-1 border-b border-[#41403f] text-center font-medium"
+                      className="p-1 border-b border-[var(--color-border-primary)] text-center font-medium"
                       title={t.label}
                     >
                       <div className="flex justify-center items-center h-full w-8 mx-auto">
@@ -328,7 +328,7 @@ export const GenerationSettings = ({
               <tbody>
                 {tileSets.terrain.map((rowTerrain, rowIndex) => (
                   <tr key={rowTerrain.id}>
-                    <th className="sticky left-0 bg-[#18272e] p-0 border-r border-b border-[#41403f] text-left font-medium w-28 z-10">
+                    <th className="sticky left-0 bg-[var(--color-background-secondary)] p-0 border-r border-b border-[var(--color-border-primary)] text-left font-medium w-28 z-10">
                       <div className="flex items-center gap-2 p-2">
                         <Icon name={rowTerrain.icon} className="w-5 h-5 flex-shrink-0" />
                         <span className="truncate">{rowTerrain.label}</span>
@@ -339,14 +339,14 @@ export const GenerationSettings = ({
                         return (
                           <td
                             key={colTerrain.id}
-                            className="p-1 border-b border-[#41403f] bg-[#191f29]/50"
+                            className="p-1 border-b border-[var(--color-border-primary)] bg-[var(--color-background-primary)]/50"
                           ></td>
                         );
                       }
                       const value =
                         generationOptions.terrainClusteringMatrix[rowTerrain.id]?.[colTerrain.id] ?? 0.5;
                       return (
-                        <td key={colTerrain.id} className="p-1 border-b border-[#41403f] text-center">
+                        <td key={colTerrain.id} className="p-1 border-b border-[var(--color-border-primary)] text-center">
                           <input
                             type="number"
                             min="0"
@@ -361,7 +361,7 @@ export const GenerationSettings = ({
                                 Math.max(0, Math.min(100, v)) / 100
                               );
                             }}
-                            className="w-14 bg-[#324446] p-1 text-sm text-center font-medium text-[#a7a984] focus:outline-none focus:ring-1 focus:ring-[#736b23] rounded-md"
+                            className="w-14 bg-[var(--color-surface-primary)] p-1 text-sm text-center font-medium text-[var(--color-text-secondary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent-primary)] rounded-md"
                             title={`${rowTerrain.label} <> ${colTerrain.label}: ${Math.round(
                               value * 100
                             )}`}
