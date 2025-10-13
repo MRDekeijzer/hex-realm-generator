@@ -70,14 +70,16 @@ export type Tool = 'select' | 'terrain' | 'barrier' | 'poi' | 'myth';
 /** Defines the orientation of the hex grid. */
 export type HexOrientation = 'pointy' | 'flat';
 
-/** Controls which map layers are visible for a given audience. */
-export interface ViewVisibilitySettings {
-  /** Whether holdings (castles, cities, etc.) are shown. */
-  showHoldings: boolean;
-  /** Whether landmarks (monuments, sanctums, etc.) are shown. */
-  showLandmarks: boolean;
-  /** Whether myths are shown. */
-  showMyths: boolean;
+/** Knight-view visibility options for specific map elements. */
+export interface KnightVisibilitySettings {
+  /** Whether each holding type is visible. */
+  holdings: Record<string, boolean>;
+  /** Whether the Seat of Power highlight is visible. */
+  seatOfPower: boolean;
+  /** Whether each landmark type is visible. */
+  landmarks: Record<string, boolean>;
+  /** Whether each myth (by ID) is visible. */
+  myths: Record<number, boolean>;
   /** Whether barrier markers are shown. */
   showBarriers: boolean;
 }
@@ -98,10 +100,9 @@ export interface ViewOptions {
   gridWidth: number;
   /** Whether to display the procedural icon spray layer. */
   showIconSpray: boolean;
-  /** Per-audience visibility configuration for map layers. */
+  /** Knight view visibility configuration for map layers. */
   visibility: {
-    referee: ViewVisibilitySettings;
-    knight: ViewVisibilitySettings;
+    knight: KnightVisibilitySettings;
   };
 }
 

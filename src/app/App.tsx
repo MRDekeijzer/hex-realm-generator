@@ -81,8 +81,7 @@ export default function App() {
     gridWidth: DEFAULT_GRID_WIDTH,
     showIconSpray: true,
     visibility: {
-      referee: { ...DEFAULT_VIEW_VISIBILITY.referee },
-      knight: { ...DEFAULT_VIEW_VISIBILITY.knight },
+      knight: { ...DEFAULT_VIEW_VISIBILITY },
     },
   });
   const [activeTool, setActiveTool] = useState<Tool>('select');
@@ -755,6 +754,7 @@ export default function App() {
         settingsView={settingsView}
         setSettingsView={setSettingsView}
         setConfirmation={setConfirmation}
+        myths={realm?.myths ?? []}
       />
       <div className="flex flex-1 overflow-hidden">
         <main className="flex-1 bg-realm-map-viewport relative">

@@ -60,8 +60,8 @@ export const Hexagon = React.memo(
     layer,
   }: HexagonProps) => {
     const center = axialToPixel(hex, viewOptions.orientation, viewOptions.hexSize);
-    const activeVisibility =
-      viewOptions.visibility[viewOptions.isGmView ? 'referee' : 'knight'];
+    const knightVisibility = viewOptions.visibility.knight;
+    const isGmView = viewOptions.isGmView;
 
     const holdingTile = useMemo(
       () => (hex.holding ? tileSets.holding.find((t) => t.id === hex.holding) : null),
@@ -73,10 +73,20 @@ export const Hexagon = React.memo(
       [hex.landmark, tileSets.landmark]
     );
 
-    const displayHolding = activeVisibility.showHoldings ? holdingTile : null;
-    const displayLandmark = activeVisibility.showLandmarks ? landmarkTile : null;
+    const holdingVisibleSetting = holdingTile ? knightVisibility.holdings[holdingTile.id] : undefined;
+    const displayHolding =
+      holdingTile && (isGmView || (holdingVisibleSetting ?? true)) ? holdingTile : null;
+    const landmarkVisibleSetting = landmarkTile
+      ? knightVisibility.landmarks[landmarkTile.id]
+      : undefined;
+    const displayLandmark =
+      landmarkTile && (isGmView || (landmarkVisibleSetting ?? true)) ? landmarkTile : null;
     const activeTile = displayHolding ?? displayLandmark;
     const isHolding = Boolean(displayHolding);
+    const seatOfPowerVisible = isSeatOfPower && (isGmView || knightVisibility.seatOfPower);
+    const mythVisible =
+      isGmView || !hex.myth ? true : knightVisibility.myths[hex.myth] ?? true;
+    const barriersVisible = isGmView || knightVisibility.showBarriers;
 
     const textureSet = terrainTextures ? terrainTextures[hex.terrain] : null;
     let textureUrl = '';
@@ -113,12 +123,12 @@ export const Hexagon = React.memo(
               activeTile={activeTile}
               hexCorners={hexCorners}
               viewOptions={viewOptions}
-              isSeatOfPower={isSeatOfPower}
+              isSeatOfPower={seatOfPowerVisible}
               isHolding={isHolding}
             />
             <HexMyth
               mythId={hex.myth}
-              showMyths={activeVisibility.showMyths}
+              showMyths={mythVisible}
               hexSize={viewOptions.hexSize}
             />
           </>
@@ -146,7 +156,7 @@ export const Hexagon = React.memo(
               barrierEdges={hex.barrierEdges}
               hexCorners={hexCorners}
               barrierColor={barrierColor}
-              showBarriers={activeVisibility.showBarriers}
+              showBarriers={barriersVisible}
             />
           </>
         )}

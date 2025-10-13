@@ -3,7 +3,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import type { GenerationOptions, TileSet, ViewOptions } from '@/features/realm/types';
+import type { GenerationOptions, TileSet, ViewOptions, Myth } from '@/features/realm/types';
 import { Icon } from '../Icon';
 import { SettingsTabButton } from '../ui/SettingsTabButton';
 import { GeneralSettings } from './GeneralSettings';
@@ -42,6 +42,7 @@ interface SettingsModalProps {
   onApplyTemplate: (templateOptions: Partial<GenerationOptions>) => void;
   viewOptions: ViewOptions;
   setViewOptions: React.Dispatch<React.SetStateAction<ViewOptions>>;
+  myths: Myth[];
 }
 
 /**
@@ -130,7 +131,12 @@ export const SettingsModal = ({ isOpen, onClose, settingsView, ...props }: Setti
               />
             )}
             {activeTab === 'view' && (
-              <ViewSettings viewOptions={props.viewOptions} setViewOptions={props.setViewOptions} />
+              <ViewSettings
+                viewOptions={props.viewOptions}
+                setViewOptions={props.setViewOptions}
+                tileSets={props.tileSets}
+                myths={props.myths}
+              />
             )}
             {activeTab === 'generation' && (
               <GenerationSettings

@@ -6,7 +6,7 @@
  */
 
 import React, { useRef, useState, useEffect } from 'react';
-import type { ViewOptions, Realm, GenerationOptions, TileSet } from '@/features/realm/types';
+import type { ViewOptions, Realm, GenerationOptions, TileSet, Myth } from '@/features/realm/types';
 import { ToolbarButton } from './ui/ToolbarButton';
 import { SettingsModal } from './settings/SettingsModal';
 import { GridSettingsPopover } from './GridSettingsPopover';
@@ -49,6 +49,7 @@ interface ToolbarProps {
     React.SetStateAction<{ tab: 'general' | 'generation' | 'terrain' | 'view'; focusId: string | null }>
   >;
   setConfirmation: React.Dispatch<React.SetStateAction<ConfirmationState | null>>;
+  myths: Myth[];
 }
 
 /**
