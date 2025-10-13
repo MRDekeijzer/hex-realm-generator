@@ -11,6 +11,7 @@ import { ToolbarButton } from './ui/ToolbarButton';
 import { SettingsModal } from './settings/SettingsModal';
 import { GridSettingsPopover } from './GridSettingsPopover';
 import type { ConfirmationState } from '@/app/App';
+import { Icon } from './Icon';
 
 /**
  * Props for the Toolbar component.
@@ -153,6 +154,11 @@ export function Toolbar({
     setIsSettingsOpen(true);
   };
 
+  const handleOpenViewSettings = () => {
+    setSettingsView({ tab: 'view', focusId: null });
+    setIsSettingsOpen(true);
+  };
+
   return (
     <header className="flex items-center justify-between p-2 bg-realm-canvas-backdrop border-b border-border-panel-divider shadow-md z-10">
       <div className="flex items-center gap-2">
@@ -203,14 +209,25 @@ export function Toolbar({
         >
           Icon Spray
         </ToolbarButton>
-        <ToolbarButton
-          onClick={() => setViewOptions((v) => ({ ...v, isGmView: !v.isGmView }))}
-          icon="eye"
-          isActive={viewOptions.isGmView}
-          title={viewOptions.isGmView ? 'Referee View' : 'Knight View'}
-        >
-          {viewOptions.isGmView ? 'Referee View' : 'Knight View'}
-        </ToolbarButton>
+        <div className="flex items-center gap-1">
+          <ToolbarButton
+            onClick={() => setViewOptions((v) => ({ ...v, isGmView: !v.isGmView }))}
+            icon="eye"
+            isActive={viewOptions.isGmView}
+            title={viewOptions.isGmView ? 'Referee View' : 'Knight View'}
+          >
+            {viewOptions.isGmView ? 'Referee View' : 'Knight View'}
+          </ToolbarButton>
+          <button
+            type="button"
+            onClick={handleOpenViewSettings}
+            className="flex h-9 items-center justify-center px-2 rounded-md bg-realm-command-panel-surface text-text-muted hover:text-text-high-contrast hover:bg-realm-command-panel-hover transition-colors border border-transparent hover:border-border-panel-divider"
+            title="Open view visibility settings"
+            aria-label="Open view visibility settings"
+          >
+            <Icon name="sliders" className="w-4 h-4" />
+          </button>
+        </div>
       </div>
       <div className="flex items-center gap-2">
         <input

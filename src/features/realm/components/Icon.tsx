@@ -76,6 +76,7 @@ import {
   Fish,
   Gem,
   GripVertical,
+  SlidersHorizontal,
 } from 'lucide-react';
 
 /**
@@ -123,6 +124,7 @@ const icons: Record<string, React.ElementType> = {
   circle: Circle,
   'spray-can': SprayCan,
   'grip-vertical': GripVertical,
+  sliders: SlidersHorizontal,
 
   // Terrain & Spray Icons
   trees: Trees,
