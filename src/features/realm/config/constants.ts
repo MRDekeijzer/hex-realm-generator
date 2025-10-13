@@ -9,6 +9,7 @@ import type {
   TerrainClusteringMatrix,
   GenerationOptions,
   SpraySettings,
+  ViewVisibilitySettings,
 } from '../types/index.ts';
 import { colorPalette, tailwindColorPalette } from '@/app/theme/colors';
 
@@ -39,6 +40,23 @@ export const COMMAND_PANEL_SURFACE_COLOR = flattenedColors['realm-command-panel-
 export const SUCCESS_HIGHLIGHT_COLOR = flattenedColors['feedback-success-highlight'];
 export const DEFAULT_GRID_COLOR = 'rgba(234, 235, 236, 0.2)';
 export const DEFAULT_GRID_WIDTH = 1;
+export const DEFAULT_VIEW_VISIBILITY: Record<
+  'referee' | 'knight',
+  ViewVisibilitySettings
+> = {
+  referee: {
+    showHoldings: true,
+    showLandmarks: true,
+    showMyths: true,
+    showBarriers: true,
+  },
+  knight: {
+    showHoldings: true,
+    showLandmarks: false,
+    showMyths: false,
+    showBarriers: false,
+  },
+};
 
 // =================================================================================
 // --- APPLICATION CONSTANTS ---

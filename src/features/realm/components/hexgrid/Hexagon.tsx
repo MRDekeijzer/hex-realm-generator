@@ -60,6 +60,8 @@ export const Hexagon = React.memo(
     layer,
   }: HexagonProps) => {
     const center = axialToPixel(hex, viewOptions.orientation, viewOptions.hexSize);
+    const activeVisibility =
+      viewOptions.visibility[viewOptions.isGmView ? 'referee' : 'knight'];
 
     const holdingTile = useMemo(
       () => (hex.holding ? tileSets.holding.find((t) => t.id === hex.holding) : null),
@@ -71,9 +73,10 @@ export const Hexagon = React.memo(
       [hex.landmark, tileSets.landmark]
     );
 
-    const activeTile: typeof holdingTile =
-      holdingTile ?? (viewOptions.isGmView ? (landmarkTile ?? null) : null);
-    const isHolding = !!holdingTile;
+    const displayHolding = activeVisibility.showHoldings ? holdingTile : null;
+    const displayLandmark = activeVisibility.showLandmarks ? landmarkTile : null;
+    const activeTile = displayHolding ?? displayLandmark;
+    const isHolding = Boolean(displayHolding);
 
     const textureSet = terrainTextures ? terrainTextures[hex.terrain] : null;
     let textureUrl = '';
@@ -115,7 +118,7 @@ export const Hexagon = React.memo(
             />
             <HexMyth
               mythId={hex.myth}
-              isGmView={viewOptions.isGmView}
+              showMyths={activeVisibility.showMyths}
               hexSize={viewOptions.hexSize}
             />
           </>
@@ -143,7 +146,7 @@ export const Hexagon = React.memo(
               barrierEdges={hex.barrierEdges}
               hexCorners={hexCorners}
               barrierColor={barrierColor}
-              isGmView={viewOptions.isGmView}
+              showBarriers={activeVisibility.showBarriers}
             />
           </>
         )}

@@ -118,7 +118,7 @@ const HEX_PATTERN = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
 
 export const resolveColorToken = (token: string): string => {
   const lookupKey = token.trim();
-  const paletteValue = tailwindColorPalette[lookupKey as TailwindColorName];
+  const paletteValue = tailwindColorPalette[lookupKey];
   if (paletteValue) {
     return HEX_PATTERN.test(paletteValue) ? paletteValue.toUpperCase() : paletteValue;
   }
@@ -129,7 +129,7 @@ export const resolveColorToken = (token: string): string => {
 };
 
 export const getTerrainBaseToken = (terrainId: string): TailwindColorName =>
-  `terrain-${terrainId}-base` as TailwindColorName;
+  `terrain-${terrainId}-base`;
 
 export const getTerrainBaseColor = (terrainId: string): string =>
   tailwindColorPalette[getTerrainBaseToken(terrainId)]?.toUpperCase() ?? '#CCCCCC';

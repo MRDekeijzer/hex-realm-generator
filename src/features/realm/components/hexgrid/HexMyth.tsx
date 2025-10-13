@@ -8,12 +8,12 @@ import { MYTH_COLOR, TEXT_INVERSE_COLOR } from '@/features/realm/config/constant
 
 interface HexMythProps {
   mythId: number | undefined;
-  isGmView: boolean;
+  showMyths: boolean;
   hexSize: Point;
 }
 
-export const HexMyth = ({ mythId, isGmView, hexSize }: HexMythProps) => {
-  if (!isGmView || !mythId) {
+export const HexMyth = ({ mythId, showMyths, hexSize }: HexMythProps) => {
+  if (!showMyths || !mythId) {
     return null;
   }
 

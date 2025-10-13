@@ -43,9 +43,9 @@ interface ToolbarProps {
   setTileSets: React.Dispatch<React.SetStateAction<TileSet>>;
   isSettingsOpen: boolean;
   setIsSettingsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  settingsView: { tab: 'general' | 'generation' | 'terrain'; focusId: string | null };
+  settingsView: { tab: 'general' | 'generation' | 'terrain' | 'view'; focusId: string | null };
   setSettingsView: React.Dispatch<
-    React.SetStateAction<{ tab: 'general' | 'generation' | 'terrain'; focusId: string | null }>
+    React.SetStateAction<{ tab: 'general' | 'generation' | 'terrain' | 'view'; focusId: string | null }>
   >;
   setConfirmation: React.Dispatch<React.SetStateAction<ConfirmationState | null>>;
 }
@@ -168,6 +168,8 @@ export function Toolbar({
           isOpen={isSettingsOpen}
           onClose={() => setIsSettingsOpen(false)}
           settingsView={settingsView}
+          viewOptions={viewOptions}
+          setViewOptions={setViewOptions}
           {...settingsProps}
         />
 

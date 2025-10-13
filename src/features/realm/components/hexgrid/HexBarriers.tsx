@@ -10,16 +10,16 @@ interface HexBarriersProps {
   barrierEdges: number[];
   hexCorners: Point[];
   barrierColor: string;
-  isGmView: boolean;
+  showBarriers: boolean;
 }
 
 export const HexBarriers = ({
   barrierEdges,
   hexCorners,
   barrierColor,
-  isGmView,
+  showBarriers,
 }: HexBarriersProps) => {
-  if (!isGmView || barrierEdges.length === 0) {
+  if (!showBarriers || barrierEdges.length === 0) {
     return null;
   }
 

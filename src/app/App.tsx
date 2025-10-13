@@ -37,6 +37,7 @@ import {
   DEFAULT_TERRAIN_BIASES,
   DEFAULT_TERRAIN_HEIGHT_ORDER,
   TERRAIN_BASE_COLORS,
+  DEFAULT_VIEW_VISIBILITY,
 } from '@/features/realm/config/constants';
 import { useHistory } from '@/shared/hooks/useHistory';
 import { BarrierPainterSidebar } from '@/features/realm/components/sidebars/BarrierPainterSidebar';
@@ -79,6 +80,10 @@ export default function App() {
     gridColor: DEFAULT_GRID_COLOR,
     gridWidth: DEFAULT_GRID_WIDTH,
     showIconSpray: true,
+    visibility: {
+      referee: { ...DEFAULT_VIEW_VISIBILITY.referee },
+      knight: { ...DEFAULT_VIEW_VISIBILITY.knight },
+    },
   });
   const [activeTool, setActiveTool] = useState<Tool>('select');
   const [paintTerrain, setPaintTerrain] = useState<string>(TERRAIN_TYPES[0] ?? 'plain');
@@ -101,7 +106,7 @@ export default function App() {
   const [confirmation, setConfirmation] = useState<ConfirmationState | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [settingsView, setSettingsView] = useState<{
-    tab: 'general' | 'generation' | 'terrain';
+    tab: 'general' | 'generation' | 'terrain' | 'view';
     focusId: string | null;
   }>({ tab: 'general', focusId: null });
   const [isPickingTile, setIsPickingTile] = useState(false);

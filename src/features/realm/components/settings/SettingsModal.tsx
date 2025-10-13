@@ -3,12 +3,13 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import type { GenerationOptions, TileSet } from '@/features/realm/types';
+import type { GenerationOptions, TileSet, ViewOptions } from '@/features/realm/types';
 import { Icon } from '../Icon';
 import { SettingsTabButton } from '../ui/SettingsTabButton';
 import { GeneralSettings } from './GeneralSettings';
 import { GenerationSettings } from './GenerationSettings';
 import { TerrainSettings } from './TerrainSettings';
+import { ViewSettings } from './ViewSettings';
 
 /**
  * Props for the SettingsModal component.
@@ -16,7 +17,7 @@ import { TerrainSettings } from './TerrainSettings';
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  settingsView: { tab: 'general' | 'generation' | 'terrain'; focusId: string | null };
+  settingsView: { tab: 'general' | 'generation' | 'terrain' | 'view'; focusId: string | null };
   // Props for GeneralSettings
   realmShape: 'hex' | 'square';
   setRealmShape: React.Dispatch<React.SetStateAction<'hex' | 'square'>>;
@@ -39,13 +40,15 @@ interface SettingsModalProps {
   handleClusteringChange: (terrainA: string, terrainB: string, value: number) => void;
   handleTerrainBiasChange: (terrainId: string, value: number) => void;
   onApplyTemplate: (templateOptions: Partial<GenerationOptions>) => void;
+  viewOptions: ViewOptions;
+  setViewOptions: React.Dispatch<React.SetStateAction<ViewOptions>>;
 }
 
 /**
  * A full-screen modal that houses all application settings, organized into tabs.
  */
 export const SettingsModal = ({ isOpen, onClose, settingsView, ...props }: SettingsModalProps) => {
-  const [activeTab, setActiveTab] = useState<'general' | 'generation' | 'terrain'>(
+  const [activeTab, setActiveTab] = useState<'general' | 'generation' | 'terrain' | 'view'>(
     settingsView.tab
   );
 
@@ -77,6 +80,12 @@ export const SettingsModal = ({ isOpen, onClose, settingsView, ...props }: Setti
               label="General"
               isActive={activeTab === 'general'}
               onClick={() => setActiveTab('general')}
+            />
+            <SettingsTabButton
+              icon="eye"
+              label="View"
+              isActive={activeTab === 'view'}
+              onClick={() => setActiveTab('view')}
             />
             <SettingsTabButton
               icon="network"
@@ -119,6 +128,9 @@ export const SettingsModal = ({ isOpen, onClose, settingsView, ...props }: Setti
                 setGenerationOptions={props.setGenerationOptions}
                 tileSets={props.tileSets}
               />
+            )}
+            {activeTab === 'view' && (
+              <ViewSettings viewOptions={props.viewOptions} setViewOptions={props.setViewOptions} />
             )}
             {activeTab === 'generation' && (
               <GenerationSettings
