@@ -106,8 +106,13 @@ export interface ViewOptions {
   };
 }
 
+/** Ways that spray icons can be deployed on a hex. */
+export type SprayDeploymentMode = 'random' | 'grid';
+
 /** Detailed settings for the procedural Icon Spray feature. */
 export interface SpraySettings {
+  /** Placement mode for the spray icons. */
+  mode: SprayDeploymentMode;
   /** The number of icons to place per hex. */
   density: number;
   /** The minimum size of a spray icon in pixels. */
@@ -122,6 +127,20 @@ export interface SpraySettings {
   color: string;
   /** A grid mask defining where icons can be placed. */
   placementMask: number[];
+  /** Bias (0-1) that nudges random placements toward the center. */
+  centerBias: number;
+  /** Minimum distance in pixels between random-mode icons. */
+  minSeparation: number;
+  /** Number of cells per side when laying out a grid. */
+  gridDensity: number;
+  /** Portion (0-1) of the hex radius that the grid should occupy. */
+  gridSize: number;
+  /** Amount of positional jitter (0-1) applied to each grid cell. */
+  gridJitter: number;
+  /** Fraction (0-1) of the size range used for grid variance. */
+  gridScaleVariance: number;
+  /** Maximum degrees of rotation variation (+/-) for grid icons. */
+  gridRotationRange: number;
 }
 
 /** Represents a single paintable or placeable item. */

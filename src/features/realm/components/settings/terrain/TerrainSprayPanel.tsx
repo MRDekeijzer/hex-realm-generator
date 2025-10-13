@@ -1,5 +1,5 @@
 import React from 'react';
-import type { SpraySettings, Tile } from '@/features/realm/types';
+import type { SprayDeploymentMode, SpraySettings, Tile } from '@/features/realm/types';
 import type { InfoPopupState } from '@/shared/hooks/useInfoPopup';
 import { Icon } from '../../Icon';
 import { InfoPopup } from '../../ui/InfoPopup';
@@ -50,6 +50,18 @@ export const TerrainSprayPanel: React.FC<TerrainSprayPanelProps> = ({
   const spraySummary = getSpraySummary(terrain);
   const infoDescription =
     terrain.description ?? 'Custom terrain created by the user. Add details in settings.';
+  const isGridMode = settings.mode === 'grid';
+  const modeButtonClass = (mode: SprayDeploymentMode) =>
+    `flex-1 rounded-md border px-3 py-2 text-sm font-medium transition-colors ${
+      settings.mode === mode
+        ? 'border-transparent bg-actions-command-primary text-text-high-contrast shadow-sm'
+        : 'border-border-panel-divider text-text-muted hover:text-text-high-contrast hover:border-actions-command-primary/40'
+    }`;
+  const handleModeChange = (mode: SprayDeploymentMode) => {
+    if (settings.mode !== mode) {
+      onSettingChange('mode', mode);
+    }
+  };
 
   return (
     <details
@@ -123,17 +135,132 @@ export const TerrainSprayPanel: React.FC<TerrainSprayPanelProps> = ({
         <HexSprayPreview terrain={terrain} />
         <IconGridSelector selectedIcons={terrain.sprayIcons || []} onToggleIcon={onToggleIcon} />
         <div className="pt-4 grid grid-cols-2 gap-4">
-          <SettingSlider
-            label="Density"
-            value={settings.density}
-            onChange={(value) => onSettingChange('density', value)}
-            min={0}
-            max={128}
-            step={1}
-            displayMultiplier={1}
-            displaySuffix=" icons"
-          />
-          <div>
+          <div className="col-span-2">
+            <label className="block text-sm font-medium text-text-muted mb-2">Deployment Mode</label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                className={modeButtonClass('random')}
+                onClick={() => handleModeChange('random')}
+                aria-pressed={settings.mode === 'random'}
+              >
+                Random
+              </button>
+              <button
+                type="button"
+                className={modeButtonClass('grid')}
+                onClick={() => handleModeChange('grid')}
+                aria-pressed={settings.mode === 'grid'}
+              >
+                Grid
+              </button>
+            </div>
+          </div>
+
+          {isGridMode ? (
+            <>
+              <div>
+                <SettingSlider
+                  label="Grid Density"
+                  tooltip="Controls how many grid points per side receive an icon."
+                  value={settings.gridDensity}
+                  onChange={(value) => onSettingChange('gridDensity', Math.round(value))}
+                  min={1}
+                  max={12}
+                  step={1}
+                  displayMultiplier={1}
+                  displaySuffix=" cells"
+                />
+              </div>
+              <div>
+                <SettingSlider
+                  label="Grid Size"
+                  tooltip="Scales the grid span relative to the hex radius."
+                  value={settings.gridSize}
+                  onChange={(value) => onSettingChange('gridSize', value)}
+                  min={0.2}
+                  max={1}
+                  step={0.05}
+                />
+              </div>
+              <div>
+                <SettingSlider
+                  label="Grid Jitter"
+                  tooltip="Adds a small random offset inside each grid cell to keep placements organic."
+                  value={settings.gridJitter}
+                  onChange={(value) => onSettingChange('gridJitter', value)}
+                  min={0}
+                  max={1}
+                  step={0.05}
+                />
+              </div>
+              <div>
+                <SettingSlider
+                  label="Scale Variance"
+                  tooltip="Introduces size variation for grid icons around the base size."
+                  value={settings.gridScaleVariance}
+                  onChange={(value) => onSettingChange('gridScaleVariance', value)}
+                  min={0}
+                  max={1}
+                  step={0.05}
+                />
+              </div>
+              <div className="col-span-2">
+                <SettingSlider
+                  label="Rotation Range"
+                  tooltip="Defines the maximum random rotation applied to grid icons."
+                  value={settings.gridRotationRange}
+                  onChange={(value) => onSettingChange('gridRotationRange', value)}
+                  min={0}
+                  max={180}
+                  step={1}
+                  displayMultiplier={1}
+                  displaySuffix="°"
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <SettingSlider
+                  label="Density"
+                  value={settings.density}
+                  onChange={(value) => onSettingChange('density', value)}
+                  min={0}
+                  max={128}
+                  step={1}
+                  displayMultiplier={1}
+                  displaySuffix=" icons"
+                />
+              </div>
+              <div>
+                <SettingSlider
+                  label="Center Bias"
+                  tooltip="Higher values pull random placements toward the center of the hex."
+                  value={settings.centerBias}
+                  onChange={(value) => onSettingChange('centerBias', value)}
+                  min={0}
+                  max={1}
+                  step={0.05}
+                />
+              </div>
+              <div className="col-span-2">
+                <SettingSlider
+                  label="Min Separation"
+                  tooltip="Prevents new icons from spawning within this many pixels of another icon."
+                  value={settings.minSeparation}
+                  onChange={(value) => onSettingChange('minSeparation', value)}
+                  min={0}
+                  max={60}
+                  step={1}
+                  displayMultiplier={1}
+                  displaySuffix="px"
+                />
+              </div>
+            </>
+          )}
+
+          <div className="col-span-2">
             <label className="block text-sm font-medium text-text-muted mb-1">Color</label>
             <div className="flex items-center gap-2">
               <TerrainColorSwatch

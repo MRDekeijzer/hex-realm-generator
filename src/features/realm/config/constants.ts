@@ -151,6 +151,7 @@ export const uniformMask = createMask(() => true);
 
 /** Default settings for the procedural icon spray. */
 export const DEFAULT_SPRAY_SETTINGS: SpraySettings = {
+  mode: 'random',
   density: 3,
   sizeMin: 7,
   sizeMax: 9,
@@ -158,6 +159,13 @@ export const DEFAULT_SPRAY_SETTINGS: SpraySettings = {
   opacityMax: 0.8,
   color: flattenedColors['text-inverse'],
   placementMask: uniformMask,
+  centerBias: 0,
+  minSeparation: 0,
+  gridDensity: 3,
+  gridSize: 0.75,
+  gridJitter: 0.1,
+  gridScaleVariance: 0.6,
+  gridRotationRange: 20,
 };
 
 /**

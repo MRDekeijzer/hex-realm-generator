@@ -2,7 +2,7 @@
  * @file sprayUtils.ts
  * This file contains the core logic for the procedural "Icon Spray" feature.
  */
-import type { Hex, Point, Tile } from '@/features/realm/types';
+import type { Hex, Point, Tile, SpraySettings } from '@/features/realm/types';
 import { DEFAULT_SPRAY_SETTINGS, MASK_RESOLUTION } from '@/features/realm/config/constants';
 
 interface SprayIcon {
@@ -14,6 +14,26 @@ interface SprayIcon {
   opacity: number;
   color: string;
 }
+
+const clamp = (value: number, min: number, max: number): number =>
+  Math.min(max, Math.max(min, value));
+
+const isPointAllowedByMask = (
+  normX: number,
+  normY: number,
+  mask: number[] | undefined
+): boolean => {
+  if (!mask || mask.length === 0) {
+    return true;
+  }
+
+  // Convert [-1, 1] space to mask indices [0, MASK_RESOLUTION - 1]
+  const maskX = clamp(Math.floor(((normX + 1) / 2) * MASK_RESOLUTION), 0, MASK_RESOLUTION - 1);
+  const maskY = clamp(Math.floor(((normY + 1) / 2) * MASK_RESOLUTION), 0, MASK_RESOLUTION - 1);
+  const maskIndex = maskY * MASK_RESOLUTION + maskX;
+
+  return mask[maskIndex] === 1;
+};
 
 /**
  * A simple, high-quality pseudo-random number generator.
@@ -44,97 +64,216 @@ function stringToSeed(str: string): number {
   return hash;
 }
 
-/**
- * Generates a set of procedural icons to spray onto a hex tile for added texture.
- * The generation is deterministic based on the hex coordinates.
- */
-export const generateSprayIcons = (hex: Hex, terrainTile: Tile, hexSize: Point): SprayIcon[] => {
-  const settings = terrainTile.spraySettings || DEFAULT_SPRAY_SETTINGS;
-  if (!terrainTile.sprayIcons || terrainTile.sprayIcons.length === 0 || settings.density === 0) {
-    return [];
+const generateGridModeIcons = (
+  settings: SpraySettings,
+  availableIcons: string[],
+  random: () => number,
+  hexRadius: number
+): SprayIcon[] => {
+  const icons: SprayIcon[] = [];
+  if (availableIcons.length === 0) {
+    return icons;
   }
 
-  // Find all valid cells in the placement mask.
+  const gridDensity = Math.max(1, Math.round(settings.gridDensity));
+  const gridExtentScalar = clamp(settings.gridSize, 0.1, 1);
+  const jitterAmount = clamp(settings.gridJitter, 0, 1);
+  const scaleVariance = clamp(settings.gridScaleVariance, 0, 1);
+  const rotationRange = Math.max(0, settings.gridRotationRange);
+
+  const gridSpan = hexRadius * 2 * gridExtentScalar;
+  const step = gridDensity > 1 ? gridSpan / (gridDensity - 1) : 0;
+  const halfSpan = gridSpan / 2;
+  const cellSize = gridDensity > 1 ? step : gridSpan;
+
+  const baseSize = (settings.sizeMin + settings.sizeMax) / 2;
+  const sizeRange = settings.sizeMax - settings.sizeMin;
+  const effectiveRange = sizeRange * scaleVariance;
+  const varianceMin = clamp(baseSize - effectiveRange / 2, settings.sizeMin, settings.sizeMax);
+  const varianceMax = clamp(baseSize + effectiveRange / 2, settings.sizeMin, settings.sizeMax);
+
+  for (let row = 0; row < gridDensity; row++) {
+    for (let col = 0; col < gridDensity; col++) {
+      let x = gridDensity > 1 ? -halfSpan + col * step : 0;
+      let y = gridDensity > 1 ? -halfSpan + row * step : 0;
+
+      if (cellSize > 0 && jitterAmount > 0) {
+        const jitterOffset = () => (random() * 2 - 1) * cellSize * 0.5 * jitterAmount;
+        x += jitterOffset();
+        y += jitterOffset();
+      }
+
+      if (Math.sqrt(x * x + y * y) > hexRadius) {
+        continue;
+      }
+
+      const normX = x / hexRadius;
+      const normY = y / hexRadius;
+      if (!isPointAllowedByMask(normX, normY, settings.placementMask)) {
+        continue;
+      }
+
+      const chosenIconName = availableIcons[Math.floor(random() * availableIcons.length)];
+      if (!chosenIconName) {
+        continue;
+      }
+
+      let size = clamp(baseSize, settings.sizeMin, settings.sizeMax);
+      if (effectiveRange > 0) {
+        size = varianceMin + random() * (varianceMax - varianceMin);
+      }
+
+      const rotation = rotationRange > 0 ? (random() * 2 - 1) * rotationRange : 0;
+      const opacity = random() * (settings.opacityMax - settings.opacityMin) + settings.opacityMin;
+
+      icons.push({
+        name: chosenIconName,
+        x,
+        y,
+        size,
+        rotation,
+        opacity,
+        color: settings.color,
+      });
+    }
+  }
+
+  return icons;
+};
+
+const generateRandomModeIcons = (
+  settings: SpraySettings,
+  availableIcons: string[],
+  random: () => number,
+  hexRadius: number
+): SprayIcon[] => {
+  const icons: SprayIcon[] = [];
+  if (availableIcons.length === 0) {
+    return icons;
+  }
+
   const validMaskIndices: number[] = [];
-  settings.placementMask.forEach((value, index) => {
+  settings.placementMask?.forEach((value, index) => {
     if (value === 1) {
       validMaskIndices.push(index);
     }
   });
 
-  // If mask is empty, no icons can be placed.
   if (validMaskIndices.length === 0) {
-    return [];
+    return icons;
   }
 
-  // The seed is deterministically based on the hex coordinates and terrain type,
-  // making the spray pattern unique for each hex but consistent on regeneration.
-  const seed = hex.q * 1337 + hex.r * 31337 + stringToSeed(terrainTile.id);
-  const random = mulberry32(seed);
-
-  const finalIcons: SprayIcon[] = [];
-  const availableIcons = terrainTile.sprayIcons;
-
-  // Use the hex's outer radius (center to corner) for the placement area.
-  // The SVG clipping path in the renderer will handle the precise hexagonal shape.
-  const hexRadius = hexSize.x;
+  const desiredCount = Math.max(0, Math.floor(settings.density));
+  const maxAttempts = Math.max(1, desiredCount * 50);
+  const minSeparation = Math.max(0, settings.minSeparation);
+  const centerBias = clamp(settings.centerBias, 0, 1);
+  const biasExponent = 1 + centerBias * 2;
 
   let attempts = 0;
-  const maxAttempts = settings.density * 50; // Safety break
-
-  // Attempt to place icons until the desired density is met
-  while (finalIcons.length < settings.density && attempts < maxAttempts) {
+  while (icons.length < desiredCount && attempts < maxAttempts) {
     attempts++;
 
-    // 1. Pick a random valid mask cell
     const chosenMaskIndex = validMaskIndices[Math.floor(random() * validMaskIndices.length)];
     if (chosenMaskIndex === undefined) {
-      // This should be unreachable due to the length check, but satisfies the compiler.
       continue;
     }
+
     const maskY = Math.floor(chosenMaskIndex / MASK_RESOLUTION);
     const maskX = chosenMaskIndex % MASK_RESOLUTION;
 
-    // 2. Generate a random point *within* that cell
     const cellSize = 1 / MASK_RESOLUTION;
-    // Convert mask coords [0, MASK_RESOLUTION-1] to normalized coords [-1, 1]
     const cellXStart = maskX * cellSize * 2 - 1;
     const cellYStart = maskY * cellSize * 2 - 1;
 
-    const ptNormX = cellXStart + random() * cellSize * 2;
-    const ptNormY = cellYStart + random() * cellSize * 2;
+    let normX = cellXStart + random() * cellSize * 2;
+    let normY = cellYStart + random() * cellSize * 2;
 
-    const pt = {
-      x: ptNormX * hexRadius,
-      y: ptNormY * hexRadius,
-    };
+    if (centerBias > 0) {
+      const distance = Math.sqrt(normX * normX + normY * normY);
+      if (distance > 0) {
+        const normalizedDistance = Math.min(1, distance);
+        const biasedDistance = Math.pow(normalizedDistance, biasExponent);
+        const scale = biasedDistance / normalizedDistance;
+        normX *= scale;
+        normY *= scale;
+      }
+    }
 
-    // Optimization: Ensure the icon's center is within the hex's circumscribing circle.
-    // This prevents generating icons that would be almost entirely clipped away.
-    if (Math.sqrt(pt.x * pt.x + pt.y * pt.y) > hexRadius) {
+    if (!isPointAllowedByMask(normX, normY, settings.placementMask)) {
+      continue;
+    }
+
+    const x = normX * hexRadius;
+    const y = normY * hexRadius;
+
+    if (Math.sqrt(x * x + y * y) > hexRadius) {
+      continue;
+    }
+
+    if (
+      minSeparation > 0 &&
+      icons.some((icon) => {
+        const dx = icon.x - x;
+        const dy = icon.y - y;
+        return Math.sqrt(dx * dx + dy * dy) < minSeparation;
+      })
+    ) {
+      continue;
+    }
+
+    const chosenIconName = availableIcons[Math.floor(random() * availableIcons.length)];
+    if (!chosenIconName) {
       continue;
     }
 
     const size = random() * (settings.sizeMax - settings.sizeMin) + settings.sizeMin;
+    const opacity = random() * (settings.opacityMax - settings.opacityMin) + settings.opacityMin;
 
-    const chosenIconName = availableIcons[Math.floor(random() * availableIcons.length)];
-    if (chosenIconName === undefined) {
-      // Also unreachable due to length check
-      continue;
-    }
-
-    const newIcon: SprayIcon = {
+    icons.push({
       name: chosenIconName,
-      x: pt.x,
-      y: pt.y,
-      size: size,
-      rotation: 0, // No rotation
-      opacity: random() * (settings.opacityMax - settings.opacityMin) + settings.opacityMin,
+      x,
+      y,
+      size,
+      rotation: 0,
+      opacity,
       color: settings.color,
-    };
-
-    finalIcons.push(newIcon);
+    });
   }
 
-  return finalIcons;
+  return icons;
+};
+
+/**
+ * Generates a set of procedural icons to spray onto a hex tile for added texture.
+ * The generation is deterministic based on the hex coordinates.
+ */
+export const generateSprayIcons = (hex: Hex, terrainTile: Tile, hexSize: Point): SprayIcon[] => {
+  const rawSettings = terrainTile.spraySettings || DEFAULT_SPRAY_SETTINGS;
+  const settings: SpraySettings = {
+    ...DEFAULT_SPRAY_SETTINGS,
+    ...rawSettings,
+    placementMask: rawSettings.placementMask ?? DEFAULT_SPRAY_SETTINGS.placementMask,
+  };
+
+  if (!terrainTile.sprayIcons || terrainTile.sprayIcons.length === 0) {
+    return [];
+  }
+
+  const hexRadius = hexSize.x;
+  if (hexRadius <= 0) {
+    return [];
+  }
+
+  const seed = hex.q * 1337 + hex.r * 31337 + stringToSeed(terrainTile.id);
+  const random = mulberry32(seed);
+
+  if (settings.mode === 'grid') {
+    return generateGridModeIcons(settings, terrainTile.sprayIcons, random, hexRadius);
+  }
+
+  if (settings.density <= 0) {
+    return [];
+  }
+
+  return generateRandomModeIcons(settings, terrainTile.sprayIcons, random, hexRadius);
 };
