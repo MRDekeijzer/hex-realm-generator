@@ -19,14 +19,15 @@ interface DragState {
   pointerId: number;
 }
 
-const clamp = (value: number, min: number, max: number): number => Math.min(max, Math.max(min, value));
+const clamp = (value: number, min: number, max: number): number =>
+  Math.min(max, Math.max(min, value));
 
 const getStepPrecision = (step: number | undefined): number => {
   if (!step || step <= 0) {
     return 0;
   }
   const stepString = step.toString();
-  return stepString.includes('.') ? stepString.split('.')[1]?.length ?? 0 : 0;
+  return stepString.includes('.') ? (stepString.split('.')[1]?.length ?? 0) : 0;
 };
 
 export const RangeSlider: React.FC<RangeSliderProps> = ({
@@ -195,7 +196,11 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
       event.preventDefault();
 
       if (handle === 'min') {
-        const next = clamp(roundToStep(valueMin + delta), min, Math.max(min, valueMax - effectiveStep));
+        const next = clamp(
+          roundToStep(valueMin + delta),
+          min,
+          Math.max(min, valueMax - effectiveStep)
+        );
         if (next !== valueMin) {
           onChange(next, valueMax);
         }

@@ -75,8 +75,7 @@ interface SizeBounds {
 const computeSizeBounds = (settings: SpraySettings): SizeBounds => {
   const base = (settings.sizeMin + settings.sizeMax) / 2;
   const legacyHalfRange = Math.abs(settings.sizeMax - settings.sizeMin) / 2;
-  const varianceHalfRange =
-    Math.max(0, base) * clamp(settings.scaleVariance ?? 0, 0, 1) * 0.5;
+  const varianceHalfRange = Math.max(0, base) * clamp(settings.scaleVariance ?? 0, 0, 1) * 0.5;
   const half = Math.max(legacyHalfRange, varianceHalfRange);
   const min = Math.max(0, base - half);
   const max = Math.max(min, base + half);
@@ -141,9 +140,7 @@ const generateGridModeIcons = (
       }
 
       const size =
-        range > 0
-          ? clamp(baseSize + (random() * 2 - 1) * halfRange, minSize, maxSize)
-          : baseSize;
+        range > 0 ? clamp(baseSize + (random() * 2 - 1) * halfRange, minSize, maxSize) : baseSize;
 
       const rotation = rotationRange > 0 ? (random() * 2 - 1) * rotationRange : 0;
       const opacity = random() * (settings.opacityMax - settings.opacityMin) + settings.opacityMin;
@@ -250,8 +247,7 @@ const generateRandomModeIcons = (
       continue;
     }
 
-    const size =
-      sizeRange > 0 ? minSize + random() * sizeRange : baseSize;
+    const size = sizeRange > 0 ? minSize + random() * sizeRange : baseSize;
     const opacity = random() * (settings.opacityMax - settings.opacityMin) + settings.opacityMin;
 
     icons.push({

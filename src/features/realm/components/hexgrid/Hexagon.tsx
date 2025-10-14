@@ -73,7 +73,9 @@ export const Hexagon = React.memo(
       [hex.landmark, tileSets.landmark]
     );
 
-    const holdingVisibleSetting = holdingTile ? knightVisibility.holdings[holdingTile.id] : undefined;
+    const holdingVisibleSetting = holdingTile
+      ? knightVisibility.holdings[holdingTile.id]
+      : undefined;
     const displayHolding =
       holdingTile && (isGmView || (holdingVisibleSetting ?? true)) ? holdingTile : null;
     const landmarkVisibleSetting = landmarkTile
@@ -84,8 +86,7 @@ export const Hexagon = React.memo(
     const activeTile = displayHolding ?? displayLandmark;
     const isHolding = Boolean(displayHolding);
     const seatOfPowerVisible = isSeatOfPower && (isGmView || knightVisibility.seatOfPower);
-    const mythVisible =
-      isGmView || !hex.myth ? true : knightVisibility.myths[hex.myth] ?? true;
+    const mythVisible = isGmView || !hex.myth ? true : (knightVisibility.myths[hex.myth] ?? true);
     const barriersVisible = isGmView || knightVisibility.showBarriers;
 
     const textureSet = terrainTextures ? terrainTextures[hex.terrain] : null;
@@ -126,11 +127,7 @@ export const Hexagon = React.memo(
               isSeatOfPower={seatOfPowerVisible}
               isHolding={isHolding}
             />
-            <HexMyth
-              mythId={hex.myth}
-              showMyths={mythVisible}
-              hexSize={viewOptions.hexSize}
-            />
+            <HexMyth mythId={hex.myth} showMyths={mythVisible} hexSize={viewOptions.hexSize} />
           </>
         )}
 

@@ -82,7 +82,10 @@ export const normalizeKnightVisibility = (
     }
   }
 
-  const [seatOfPower, seatChanged] = ensureBoolean(base.seatOfPower, DEFAULT_VIEW_VISIBILITY.seatOfPower);
+  const [seatOfPower, seatChanged] = ensureBoolean(
+    base.seatOfPower,
+    DEFAULT_VIEW_VISIBILITY.seatOfPower
+  );
   const [showBarriers, barrierChanged] = ensureBoolean(
     base.showBarriers,
     DEFAULT_VIEW_VISIBILITY.showBarriers

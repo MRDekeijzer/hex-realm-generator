@@ -23,10 +23,7 @@ export const AddTerrainForm: React.FC<AddTerrainFormProps> = ({
       <h3 className="text-lg font-bold mb-2">Add New Terrain</h3>
       <form onSubmit={onSubmit}>
         <div className="mb-2">
-          <label
-            htmlFor="terrain-name"
-            className="block text-sm font-medium text-text-muted mb-1"
-          >
+          <label htmlFor="terrain-name" className="block text-sm font-medium text-text-muted mb-1">
             Name
           </label>
           <input
@@ -40,10 +37,7 @@ export const AddTerrainForm: React.FC<AddTerrainFormProps> = ({
           />
         </div>
         <div className="mb-4">
-          <label
-            htmlFor="terrain-color"
-            className="block text-sm font-medium text-text-muted mb-1"
-          >
+          <label htmlFor="terrain-color" className="block text-sm font-medium text-text-muted mb-1">
             Color
           </label>
           <div className="flex items-center gap-2">

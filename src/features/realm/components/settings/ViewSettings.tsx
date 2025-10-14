@@ -3,12 +3,7 @@
  */
 
 import React, { useMemo } from 'react';
-import type {
-  ViewOptions,
-  TileSet,
-  Myth,
-  KnightVisibilitySettings,
-} from '@/features/realm/types';
+import type { ViewOptions, TileSet, Myth, KnightVisibilitySettings } from '@/features/realm/types';
 import { SettingsSection } from '../ui/SettingsSection';
 import { DEFAULT_VIEW_VISIBILITY } from '@/features/realm/config/constants';
 import { Icon } from '../Icon';
@@ -337,9 +332,7 @@ export const ViewSettings = ({
               );
             })}
             {tileSets.landmark.length === 0 ? (
-              <p className="text-xs text-text-muted">
-                No landmark types are currently configured.
-              </p>
+              <p className="text-xs text-text-muted">No landmark types are currently configured.</p>
             ) : null}
           </div>
         </VisibilityDropdown>

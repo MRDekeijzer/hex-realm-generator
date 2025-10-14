@@ -46,7 +46,10 @@ interface ToolbarProps {
   setIsSettingsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   settingsView: { tab: 'general' | 'generation' | 'terrain' | 'view'; focusId: string | null };
   setSettingsView: React.Dispatch<
-    React.SetStateAction<{ tab: 'general' | 'generation' | 'terrain' | 'view'; focusId: string | null }>
+    React.SetStateAction<{
+      tab: 'general' | 'generation' | 'terrain' | 'view';
+      focusId: string | null;
+    }>
   >;
   setConfirmation: React.Dispatch<React.SetStateAction<ConfirmationState | null>>;
   myths: Myth[];

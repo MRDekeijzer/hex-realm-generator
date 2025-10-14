@@ -140,7 +140,8 @@ export function TerrainPainterSidebar({
             const isSelected = paintTerrain === terrain.id;
             const isDefault = TERRAIN_TYPES.includes(terrain.id);
             const defaultColor = isDefault ? getTerrainBaseColor(terrain.id) : undefined;
-            const isCustomColor = isDefault && defaultColor ? defaultColor !== resolvedColor : false;
+            const isCustomColor =
+              isDefault && defaultColor ? defaultColor !== resolvedColor : false;
             const isInfoOpen = activeInfo?.id === terrain.id;
             const infoDescription = describeTerrain(terrain);
             const spraySummary = buildSpraySummary(terrain);
@@ -241,8 +242,13 @@ export function TerrainPainterSidebar({
                           <span>Palette Swatch</span>
                           <span>{resolvedColor}</span>
                         </div>
-                        <div className="mt-1 h-2 rounded-full" style={{ backgroundColor: resolvedColor }} />
-                        <p className="mt-2 text-[11px] text-text-muted leading-relaxed">{spraySummary}</p>
+                        <div
+                          className="mt-1 h-2 rounded-full"
+                          style={{ backgroundColor: resolvedColor }}
+                        />
+                        <p className="mt-2 text-[11px] text-text-muted leading-relaxed">
+                          {spraySummary}
+                        </p>
                       </InfoPopup>
                     )}
                   </div>

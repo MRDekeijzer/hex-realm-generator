@@ -45,8 +45,8 @@ export const TerrainSprayPanel: React.FC<TerrainSprayPanelProps> = ({
   onSettingChange,
 }) => {
   const isInfoActive = activeInfo?.id === terrain.id;
-  const infoAnchor = isInfoActive ? activeInfo?.anchor ?? null : null;
-  const infoLocked = isInfoActive ? activeInfo?.locked ?? false : false;
+  const infoAnchor = isInfoActive ? (activeInfo?.anchor ?? null) : null;
+  const infoLocked = isInfoActive ? (activeInfo?.locked ?? false) : false;
   const spraySummary = getSpraySummary(terrain);
   const infoDescription =
     terrain.description ?? 'Custom terrain created by the user. Add details in settings.';
@@ -137,10 +137,15 @@ export const TerrainSprayPanel: React.FC<TerrainSprayPanelProps> = ({
             <HexSprayPreview terrain={terrain} />
           </div>
           <div className="md:col-span-2">
-            <IconGridSelector selectedIcons={terrain.sprayIcons || []} onToggleIcon={onToggleIcon} />
+            <IconGridSelector
+              selectedIcons={terrain.sprayIcons || []}
+              onToggleIcon={onToggleIcon}
+            />
           </div>
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-text-muted mb-2">Deployment Mode</label>
+            <label className="block text-sm font-medium text-text-muted mb-2">
+              Deployment Mode
+            </label>
             <div className="flex gap-2">
               <button
                 type="button"

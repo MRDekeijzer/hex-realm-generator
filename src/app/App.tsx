@@ -37,7 +37,6 @@ import {
   DEFAULT_TERRAIN_BIASES,
   DEFAULT_TERRAIN_HEIGHT_ORDER,
   TERRAIN_BASE_COLORS,
-  DEFAULT_VIEW_VISIBILITY,
 } from '@/features/realm/config/constants';
 import { useHistory } from '@/shared/hooks/useHistory';
 import { BarrierPainterSidebar } from '@/features/realm/components/sidebars/BarrierPainterSidebar';
@@ -95,9 +94,9 @@ export default function App() {
   const [paintTerrain, setPaintTerrain] = useState<string>(TERRAIN_TYPES[0] ?? 'plain');
   const [paintPoi, setPaintPoi] = useState<string | null>('holding:castle');
   const [tileSets, setTileSets] = useState<TileSet>(DEFAULT_TILE_SETS);
-  const [terrainColors, setTerrainColors] = useState<Record<string, string>>(
-    () => ({ ...TERRAIN_BASE_COLORS })
-  );
+  const [terrainColors, setTerrainColors] = useState<Record<string, string>>(() => ({
+    ...TERRAIN_BASE_COLORS,
+  }));
   const [barrierColor, setBarrierColor] = useState(BARRIER_COLOR);
 
   useEffect(() => {
@@ -107,7 +106,11 @@ export default function App() {
   useEffect(() => {
     const myths = realm?.myths ?? [];
     setViewOptions((prev) => {
-      const { visibility, changed } = normalizeKnightVisibility(prev.visibility.knight, tileSets, myths);
+      const { visibility, changed } = normalizeKnightVisibility(
+        prev.visibility.knight,
+        tileSets,
+        myths
+      );
       if (!changed) {
         return prev;
       }
@@ -841,7 +844,7 @@ export default function App() {
           <BarrierPainterSidebar
             onRemoveAllBarriers={handleRequestRemoveAllBarriers}
             onClose={() => setActiveTool('select')}
-            barrierColor={barrierColor}
+            barrierColor={barrierColor ?? ''}
             onColorChange={setBarrierColor}
           />
         ) : activeTool === 'myth' && realm ? (
