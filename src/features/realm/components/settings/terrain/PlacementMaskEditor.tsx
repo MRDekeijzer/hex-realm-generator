@@ -65,34 +65,36 @@ export const PlacementMaskEditor: React.FC<PlacementMaskEditorProps> = ({ mask, 
   const handleEmpty = () => onUpdateMask(new Array(GRID_AREA).fill(0));
 
   return (
-    <div className="col-span-2">
+    <div>
       <label className="block text-sm font-medium text-text-muted">Placement Mask</label>
       <p className="text-xs text-text-muted mt-1 mb-2">
         Click and drag to paint the green area where icons are allowed to appear. This defines the
         placement area within the hex.
       </p>
-      <div
-        ref={containerRef}
-        className="relative bg-realm-command-panel-surface rounded-md overflow-hidden select-none aspect-square"
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={() => setIsPainting(false)}
-        onMouseLeave={() => setIsPainting(false)}
-      >
+      <div className="flex justify-center">
         <div
-          className="grid h-full"
-          style={{ gridTemplateColumns: `repeat(${MASK_RESOLUTION}, minmax(0, 1fr))` }}
+          ref={containerRef}
+          className="relative w-full max-w-[140px] md:max-w-[180px] bg-realm-command-panel-surface rounded-md overflow-hidden select-none aspect-square"
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={() => setIsPainting(false)}
+          onMouseLeave={() => setIsPainting(false)}
         >
-          {mask.map((value, index) => (
-            <div
-              key={index}
-              className={`border border-border-panel-divider/40 transition-colors ${
-                value ? 'bg-feedback-success-highlight/60' : 'bg-transparent'
-              }`}
-            />
-          ))}
+          <div
+            className="grid h-full"
+            style={{ gridTemplateColumns: `repeat(${MASK_RESOLUTION}, minmax(0, 1fr))` }}
+          >
+            {mask.map((value, index) => (
+              <div
+                key={index}
+                className={`border border-border-panel-divider/40 transition-colors ${
+                  value ? 'bg-feedback-success-highlight/60' : 'bg-transparent'
+                }`}
+              />
+            ))}
+          </div>
+          <div className="absolute inset-0 pointer-events-none border border-border-panel-divider rounded-md" />
         </div>
-        <div className="absolute inset-0 pointer-events-none border border-border-panel-divider rounded-md" />
       </div>
       <div className="flex justify-end gap-2 mt-2">
         <button

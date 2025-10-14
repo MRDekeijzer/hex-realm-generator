@@ -278,6 +278,7 @@ export const generateSprayIcons = (hex: Hex, terrainTile: Tile, hexSize: Point):
       rawSettings.scaleVariance ??
       (rawSettings as Partial<SpraySettings> & { gridScaleVariance?: number }).gridScaleVariance ??
       DEFAULT_SPRAY_SETTINGS.scaleVariance,
+    seedOffset: rawSettings.seedOffset ?? DEFAULT_SPRAY_SETTINGS.seedOffset,
   };
 
   if (!terrainTile.sprayIcons || terrainTile.sprayIcons.length === 0) {
@@ -289,7 +290,7 @@ export const generateSprayIcons = (hex: Hex, terrainTile: Tile, hexSize: Point):
     return [];
   }
 
-  const seed = hex.q * 1337 + hex.r * 31337 + stringToSeed(terrainTile.id);
+  const seed = hex.q * 1337 + hex.r * 31337 + stringToSeed(terrainTile.id) + (settings.seedOffset ?? 0);
   const random = mulberry32(seed);
   const sizeBounds = computeSizeBounds(settings);
 

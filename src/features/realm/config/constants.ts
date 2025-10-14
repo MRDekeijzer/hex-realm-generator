@@ -166,6 +166,7 @@ export const DEFAULT_SPRAY_SETTINGS: SpraySettings = {
   gridJitter: 0.1,
   scaleVariance: 0.4,
   gridRotationRange: 20,
+  seedOffset: 0,
 };
 
 /**

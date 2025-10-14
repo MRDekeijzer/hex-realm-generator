@@ -62,6 +62,15 @@ export const TerrainSprayPanel: React.FC<TerrainSprayPanelProps> = ({
       onSettingChange('mode', mode);
     }
   };
+  const handleReroll = () => {
+    let nextSeed = Math.floor(Math.random() * 0xffffffff);
+    if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+      const buffer = new Uint32Array(1);
+      crypto.getRandomValues(buffer);
+      nextSeed = buffer[0] ?? nextSeed;
+    }
+    onSettingChange('seedOffset', nextSeed);
+  };
 
   return (
     <details
@@ -134,7 +143,7 @@ export const TerrainSprayPanel: React.FC<TerrainSprayPanelProps> = ({
       <div className="pl-7 mt-3 pt-3 border-t border-border-panel-divider/50">
         <div className="grid gap-4 md:grid-cols-2 auto-rows-min">
           <div className="md:col-span-2">
-            <HexSprayPreview terrain={terrain} />
+            <HexSprayPreview terrain={terrain} onReroll={handleReroll} />
           </div>
           <div className="md:col-span-2">
             <IconGridSelector
@@ -143,9 +152,9 @@ export const TerrainSprayPanel: React.FC<TerrainSprayPanelProps> = ({
             />
           </div>
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-text-muted mb-2">
+            <p className="block text-sm font-medium text-text-muted mb-2">
               Deployment Mode
-            </label>
+            </p>
             <div className="flex gap-2">
               <button
                 type="button"

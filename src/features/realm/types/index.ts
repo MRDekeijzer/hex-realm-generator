@@ -141,6 +141,8 @@ export interface SpraySettings {
   scaleVariance: number;
   /** Maximum degrees of rotation variation (+/-) for grid icons. */
   gridRotationRange: number;
+  /** Additional seed offset applied when generating random placements. */
+  seedOffset: number;
 }
 
 /** Represents a single paintable or placeable item. */
