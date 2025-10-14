@@ -44,9 +44,21 @@ export const TerrainColorSwatch: React.FC<TerrainColorSwatchProps> = ({
     inputRef.current?.click();
   };
 
+  const normalizeColor = (value: string) =>
+    HEX_PATTERN.test(value) ? value.toUpperCase() : value;
+
+  const handleColorUpdate = (value: string) => {
+    onChange(normalizeColor(value));
+  };
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const nextValue = event.target.value;
-    onChange(HEX_PATTERN.test(nextValue) ? nextValue.toUpperCase() : nextValue);
+    handleColorUpdate(nextValue);
+  };
+
+  const handleInput = (event: React.FormEvent<HTMLInputElement>) => {
+    const nextValue = event.currentTarget.value;
+    handleColorUpdate(nextValue);
   };
 
   return (
@@ -63,6 +75,7 @@ export const TerrainColorSwatch: React.FC<TerrainColorSwatchProps> = ({
         type="color"
         value={inputValue}
         onChange={handleChange}
+        onInput={handleInput}
         className="opacity-0 w-0 h-0 absolute pointer-events-none"
         aria-hidden
       />

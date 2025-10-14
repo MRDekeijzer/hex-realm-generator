@@ -147,6 +147,214 @@ export const edgeMask = createMask(
 );
 export const flowMask = createMask((x, y) => Math.abs(y - center) <= 1);
 export const uniformMask = createMask(() => true);
+
+interface TerrainSprayPreset {
+  icons: string[];
+  settings: Partial<SpraySettings>;
+}
+
+export const TERRAIN_SPRAY_DEFAULTS: Record<string, TerrainSprayPreset> = {
+  marsh: {
+    icons: ['droplet', 'feather', 'waves'],
+    settings: {
+      mode: 'random',
+      density: 5,
+      sizeMin: 10,
+      sizeMax: 14,
+      opacityMin: 0.75,
+      opacityMax: 0.95,
+      color: 'text-high-contrast',
+      placementMask: uniformMask,
+      centerBias: 0.1,
+      minSeparation: 5,
+      scaleVariance: 0.5,
+    },
+  },
+  heath: {
+    icons: ['leaf', 'grass', 'wind'],
+    settings: {
+      density: 3,
+      sizeMin: 10,
+      sizeMax: 12,
+      opacityMin: 0.55,
+      opacityMax: 0.85,
+      color: 'text-inverse',
+      placementMask: uniformMask,
+      centerBias: 0.05,
+      minSeparation: 8,
+      scaleVariance: 0.35,
+    },
+  },
+  crags: {
+    icons: ['triangle', 'rock', 'flag'],
+    settings: {
+      mode: 'grid',
+      sizeMin: 12,
+      sizeMax: 16,
+      opacityMin: 0.8,
+      opacityMax: 0.9,
+      color: 'text-high-contrast',
+      placementMask: edgeMask,
+      gridDensity: 3,
+      gridSize: 0.85,
+      gridJitter: 0.15,
+      gridBaseRotation: -20,
+      gridRotationRange: 8,
+      iconBaseRotation: -5,
+      scaleVariance: 0.25,
+    },
+  },
+  peaks: {
+    icons: ['triangle', 'flag', 'snowflake'],
+    settings: {
+      mode: 'grid',
+      sizeMin: 14,
+      sizeMax: 18,
+      opacityMin: 0.75,
+      opacityMax: 0.95,
+      color: 'text-high-contrast',
+      placementMask: edgeMask,
+      gridDensity: 2,
+      gridSize: 0.9,
+      gridJitter: 0.05,
+      gridBaseRotation: 12,
+      gridRotationRange: 12,
+      iconBaseRotation: 0,
+      scaleVariance: 0.2,
+    },
+  },
+  forest: {
+    icons: ['tree-pine', 'leaf', 'branch'],
+    settings: {
+      density: 6,
+      sizeMin: 11,
+      sizeMax: 13,
+      opacityMin: 0.85,
+      opacityMax: 1,
+      color: 'text-inverse',
+      placementMask: uniformMask,
+      centerBias: 0.2,
+      minSeparation: 5,
+      scaleVariance: 0.45,
+    },
+  },
+  valley: {
+    icons: ['river', 'path', 'sprout'],
+    settings: {
+      density: 3,
+      sizeMin: 10,
+      sizeMax: 12,
+      opacityMin: 0.65,
+      opacityMax: 0.85,
+      color: 'text-inverse',
+      placementMask: flowMask,
+      centerBias: 0.4,
+      minSeparation: 6,
+      scaleVariance: 0.4,
+    },
+  },
+  hills: {
+    icons: ['wave-sine', 'chevron-up', 'rock'],
+    settings: {
+      density: 3,
+      sizeMin: 11,
+      sizeMax: 14,
+      opacityMin: 0.7,
+      opacityMax: 0.9,
+      color: 'text-inverse',
+      placementMask: uniformMask,
+      centerBias: 0.15,
+      minSeparation: 7,
+      scaleVariance: 0.35,
+    },
+  },
+  meadow: {
+    icons: ['flower', 'grass', 'sun'],
+    settings: {
+      density: 2,
+      sizeMin: 12,
+      sizeMax: 14,
+      opacityMin: 0.55,
+      opacityMax: 0.75,
+      color: 'text-inverse',
+      placementMask: centerMask,
+      centerBias: 0.3,
+      minSeparation: 10,
+      scaleVariance: 0.4,
+    },
+  },
+  bog: {
+    icons: ['droplet', 'skull', 'feather'],
+    settings: {
+      density: 4,
+      sizeMin: 10,
+      sizeMax: 13,
+      opacityMin: 0.6,
+      opacityMax: 0.85,
+      color: 'text-high-contrast',
+      placementMask: edgeMask,
+      centerBias: 0.05,
+      minSeparation: 6,
+      scaleVariance: 0.45,
+    },
+  },
+  lakes: {
+    icons: ['waves', 'droplet', 'fish'],
+    settings: {
+      mode: 'grid',
+      density: 3,
+      sizeMin: 12,
+      sizeMax: 16,
+      opacityMin: 0.55,
+      opacityMax: 0.75,
+      color: 'text-high-contrast',
+      placementMask: centerMask,
+      gridDensity: 3,
+      gridSize: 0.8,
+      gridJitter: 0.1,
+      gridBaseRotation: 0,
+      gridRotationRange: 6,
+      iconBaseRotation: 0,
+      scaleVariance: 0.3,
+    },
+  },
+  glades: {
+    icons: ['tree-deciduous', 'sparkles', 'sun'],
+    settings: {
+      mode: 'grid',
+      density: 3,
+      sizeMin: 11,
+      sizeMax: 13,
+      opacityMin: 0.65,
+      opacityMax: 0.85,
+      color: 'text-inverse',
+      placementMask: centerMask,
+      gridDensity: 3,
+      gridSize: 0.7,
+      gridJitter: 0.2,
+      gridBaseRotation: 0,
+      gridRotationRange: 10,
+      iconBaseRotation: 0,
+      centerBias: 0.2,
+      scaleVariance: 0.35,
+    },
+  },
+  plain: {
+    icons: ['wind', 'cloud', 'grass'],
+    settings: {
+      density: 2,
+      sizeMin: 10,
+      sizeMax: 12,
+      opacityMin: 0.5,
+      opacityMax: 0.7,
+      color: 'text-inverse',
+      placementMask: centerMask,
+      centerBias: 0.2,
+      minSeparation: 12,
+      scaleVariance: 0.3,
+    },
+  },
+} as const;
 // ---------------------------------------------------------------------------------
 
 /** Default settings for the procedural icon spray. */
@@ -184,13 +392,10 @@ export const DEFAULT_TILE_SETS: TileSet = {
       color: TERRAIN_BASE_COLORS.marsh,
       description:
         'Sodden lowlands thick with reeds and standing water. Travel is slow, but the damp earth hides secrets and strange wildlife.',
-      sprayIcons: ['droplet', 'feather', 'waves'],
+      sprayIcons: [...TERRAIN_SPRAY_DEFAULTS.marsh.icons],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
-        density: 3,
-        sizeMin: 8,
-        sizeMax: 8,
-        placementMask: uniformMask,
+        ...TERRAIN_SPRAY_DEFAULTS.marsh.settings,
       },
     },
     {
@@ -200,13 +405,10 @@ export const DEFAULT_TILE_SETS: TileSet = {
       color: TERRAIN_BASE_COLORS.heath,
       description:
         'Open scrubland swept by relentless winds and hardy brush. A liminal place where travelers can see danger coming from afar.',
-      sprayIcons: ['leaf', 'wind', 'flower'],
+      sprayIcons: [...TERRAIN_SPRAY_DEFAULTS.heath.icons],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
-        density: 3,
-        sizeMin: 8,
-        sizeMax: 8,
-        placementMask: uniformMask,
+        ...TERRAIN_SPRAY_DEFAULTS.heath.settings,
       },
     },
     {
@@ -216,13 +418,10 @@ export const DEFAULT_TILE_SETS: TileSet = {
       color: TERRAIN_BASE_COLORS.crags,
       description:
         'Jagged highlands broken into cliffs of bare stone. Treacherous footing rewards climbers with stunning vantage points.',
-      sprayIcons: ['triangle', 'mountain', 'rock'],
+      sprayIcons: [...TERRAIN_SPRAY_DEFAULTS.crags.icons],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
-        density: 4,
-        sizeMin: 9,
-        sizeMax: 9,
-        placementMask: edgeMask,
+        ...TERRAIN_SPRAY_DEFAULTS.crags.settings,
       },
     },
     {
@@ -232,13 +431,10 @@ export const DEFAULT_TILE_SETS: TileSet = {
       color: TERRAIN_BASE_COLORS.peaks,
       description:
         'Towering mountain summits often crowned with snow. Thin air and frigid winds shelter ancient shrines and nesting wyverns.',
-      sprayIcons: ['triangle', 'flag', 'snowflake'],
+      sprayIcons: [...TERRAIN_SPRAY_DEFAULTS.peaks.icons],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
-        density: 3,
-        sizeMin: 10,
-        sizeMax: 10,
-        placementMask: edgeMask,
+        ...TERRAIN_SPRAY_DEFAULTS.peaks.settings,
       },
     },
     {
@@ -248,13 +444,10 @@ export const DEFAULT_TILE_SETS: TileSet = {
       color: TERRAIN_BASE_COLORS.forest,
       description:
         'Dense woodland of towering trunks and tangled undergrowth. Sunlight filters through the canopy, alive with birdsong and hidden paths.',
-      sprayIcons: ['tree-pine', 'leaf', 'branch'],
+      sprayIcons: [...TERRAIN_SPRAY_DEFAULTS.forest.icons],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
-        density: 4,
-        sizeMin: 8,
-        sizeMax: 8,
-        placementMask: uniformMask,
+        ...TERRAIN_SPRAY_DEFAULTS.forest.settings,
       },
     },
     {
@@ -264,13 +457,10 @@ export const DEFAULT_TILE_SETS: TileSet = {
       color: TERRAIN_BASE_COLORS.valley,
       description:
         'Sheltered lowlands carved by rivers and gentle slopes. Trade roads follow the water, drawing settlements and fertile farms.',
-      sprayIcons: ['river', 'path', 'leaf'],
+      sprayIcons: [...TERRAIN_SPRAY_DEFAULTS.valley.icons],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
-        density: 3,
-        sizeMin: 8,
-        sizeMax: 8,
-        placementMask: flowMask,
+        ...TERRAIN_SPRAY_DEFAULTS.valley.settings,
       },
     },
     {
@@ -280,13 +470,10 @@ export const DEFAULT_TILE_SETS: TileSet = {
       color: TERRAIN_BASE_COLORS.hills,
       description:
         'Rolling uplands of ridgelines and wind-swept rises. Shepherds and watchtowers cling to the heights to guard the realm.',
-      sprayIcons: ['wave-sine', 'chevron-up', 'rock'],
+      sprayIcons: [...TERRAIN_SPRAY_DEFAULTS.hills.icons],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
-        density: 3,
-        sizeMin: 8,
-        sizeMax: 8,
-        placementMask: uniformMask,
+        ...TERRAIN_SPRAY_DEFAULTS.hills.settings,
       },
     },
     {
@@ -296,13 +483,10 @@ export const DEFAULT_TILE_SETS: TileSet = {
       color: TERRAIN_BASE_COLORS.meadow,
       description:
         'Lush grasslands dotted with bright wildflowers. Ideal for foraging and grazing, these fields invite festivals in the warm months.',
-      sprayIcons: ['flower', 'sun', 'cloud'],
+      sprayIcons: [...TERRAIN_SPRAY_DEFAULTS.meadow.icons],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
-        density: 3,
-        sizeMin: 8,
-        sizeMax: 8,
-        placementMask: uniformMask,
+        ...TERRAIN_SPRAY_DEFAULTS.meadow.settings,
       },
     },
     {
@@ -312,13 +496,10 @@ export const DEFAULT_TILE_SETS: TileSet = {
       color: TERRAIN_BASE_COLORS.bog,
       description:
         'Peat-choked wetlands that cling to unwary travelers. Lantern lights drift across the mist, not all of them friendly.',
-      sprayIcons: ['droplet', 'skull', 'feather'],
+      sprayIcons: [...TERRAIN_SPRAY_DEFAULTS.bog.icons],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
-        density: 3,
-        sizeMin: 8,
-        sizeMax: 8,
-        placementMask: edgeMask,
+        ...TERRAIN_SPRAY_DEFAULTS.bog.settings,
       },
     },
     {
@@ -328,13 +509,10 @@ export const DEFAULT_TILE_SETS: TileSet = {
       color: TERRAIN_BASE_COLORS.lakes,
       description:
         'Deep inland waters fed by streams and hidden springs. Fisherfolk ply their trade while legends speak of things beneath the surface.',
-      sprayIcons: ['waves', 'droplet', 'fish'],
+      sprayIcons: [...TERRAIN_SPRAY_DEFAULTS.lakes.icons],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
-        density: 3,
-        sizeMin: 9,
-        sizeMax: 9,
-        placementMask: centerMask,
+        ...TERRAIN_SPRAY_DEFAULTS.lakes.settings,
       },
     },
     {
@@ -344,13 +522,10 @@ export const DEFAULT_TILE_SETS: TileSet = {
       color: TERRAIN_BASE_COLORS.glades,
       description:
         'Sunlit clearings cradled within surrounding trees. Sacred stones and hidden gatherings are said to appear under moonlight.',
-      sprayIcons: ['tree-deciduous', 'sparkles', 'sun'],
+      sprayIcons: [...TERRAIN_SPRAY_DEFAULTS.glades.icons],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
-        density: 3,
-        sizeMin: 8,
-        sizeMax: 8,
-        placementMask: centerMask,
+        ...TERRAIN_SPRAY_DEFAULTS.glades.settings,
       },
     },
     {
@@ -360,13 +535,10 @@ export const DEFAULT_TILE_SETS: TileSet = {
       color: TERRAIN_BASE_COLORS.plain,
       description:
         'Wide, open flatlands stretching toward distant horizons. Armies march here, but so do caravans and migrating herds.',
-      sprayIcons: ['wind', 'cloud', 'sun'],
+      sprayIcons: [...TERRAIN_SPRAY_DEFAULTS.plain.icons],
       spraySettings: {
         ...DEFAULT_SPRAY_SETTINGS,
-        density: 2,
-        sizeMin: 7,
-        sizeMax: 7,
-        placementMask: centerMask,
+        ...TERRAIN_SPRAY_DEFAULTS.plain.settings,
       },
     },
   ],

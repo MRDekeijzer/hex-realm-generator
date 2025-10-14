@@ -4,7 +4,7 @@
 
 import React, { useRef, useCallback, useEffect, useState, useMemo } from 'react';
 import type { TileSet, SpraySettings, Tile } from '@/features/realm/types';
-import { DEFAULT_SPRAY_SETTINGS } from '@/features/realm/config/constants';
+import { DEFAULT_SPRAY_SETTINGS, TERRAIN_SPRAY_DEFAULTS } from '@/features/realm/config/constants';
 import { resolveColorToken } from '@/app/theme/colors';
 import { SettingsSection } from '../ui/SettingsSection';
 import { useInfoPopup } from '@/shared/hooks/useInfoPopup';
@@ -36,16 +36,33 @@ const normalizeSpraySettings = (settings: SpraySettings): SpraySettings => {
   return normalized;
 };
 
+const resolveTerrainPreset = (terrainId: string) => TERRAIN_SPRAY_DEFAULTS[terrainId];
+
+const resolveSpraySettingsWithPreset = (terrain: Tile): SpraySettings => {
+  const preset = resolveTerrainPreset(terrain.id);
+  return normalizeSpraySettings({
+    ...DEFAULT_SPRAY_SETTINGS,
+    ...(preset?.settings ?? {}),
+    ...(terrain.spraySettings ?? {}),
+  } as SpraySettings);
+};
+
+const resolveSprayIconsWithPreset = (terrain: Tile): string[] => {
+  if (terrain.sprayIcons && terrain.sprayIcons.length > 0) {
+    return [...terrain.sprayIcons];
+  }
+  const presetIcons = resolveTerrainPreset(terrain.id)?.icons ?? [];
+  return [...presetIcons];
+};
+
+const buildBaselineDraft = (terrain: Tile): DraftSprayConfig => ({
+  spraySettings: cloneSpraySettings(resolveSpraySettingsWithPreset(terrain)),
+  sprayIcons: resolveSprayIconsWithPreset(terrain),
+});
+
 const buildDraftFromTerrains = (terrains: Tile[]): Record<string, DraftSprayConfig> =>
   terrains.reduce<Record<string, DraftSprayConfig>>((acc, terrain) => {
-    const spraySettings = normalizeSpraySettings({
-      ...DEFAULT_SPRAY_SETTINGS,
-      ...(terrain.spraySettings ?? {}),
-    } as SpraySettings);
-    acc[terrain.id] = {
-      spraySettings: cloneSpraySettings(spraySettings),
-      sprayIcons: [...(terrain.sprayIcons ?? [])],
-    };
+    acc[terrain.id] = buildBaselineDraft(terrain);
     return acc;
   }, {});
 
@@ -166,10 +183,7 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
       const next: Record<string, DraftSprayConfig> = {};
 
       tileSets.terrain.forEach((terrain) => {
-        const baseline: DraftSprayConfig = {
-          spraySettings: cloneSpraySettings(terrain.spraySettings ?? DEFAULT_SPRAY_SETTINGS),
-          sprayIcons: [...(terrain.sprayIcons ?? [])],
-        };
+        const baseline = buildBaselineDraft(terrain);
 
         const existing = prev[terrain.id];
 
@@ -247,15 +261,11 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
       if (!draft) {
         continue;
       }
-      const baselineSettings = normalizeSpraySettings({
-        ...DEFAULT_SPRAY_SETTINGS,
-        ...(terrain.spraySettings ?? {}),
-      } as SpraySettings);
-      const baselineIcons = terrain.sprayIcons ?? [];
+      const baseline = buildBaselineDraft(terrain);
 
       if (
-        !areSpraySettingsEqual(draft.spraySettings, baselineSettings) ||
-        !areSprayIconsEqual(draft.sprayIcons, baselineIcons)
+        !areSpraySettingsEqual(draft.spraySettings, baseline.spraySettings) ||
+        !areSprayIconsEqual(draft.sprayIcons, baseline.sprayIcons)
       ) {
         dirty.add(terrain.id);
       }
@@ -333,10 +343,7 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
         </p>
         <div className="space-y-4">
           {tileSets.terrain.map((terrain) => {
-            const draft = draftSprayConfigs[terrain.id] ?? {
-              spraySettings: cloneSpraySettings(terrain.spraySettings ?? DEFAULT_SPRAY_SETTINGS),
-              sprayIcons: [...(terrain.sprayIcons ?? [])],
-            };
+            const draft = draftSprayConfigs[terrain.id] ?? buildBaselineDraft(terrain);
             const previewTerrain: Tile = {
               ...terrain,
               spraySettings: draft.spraySettings,

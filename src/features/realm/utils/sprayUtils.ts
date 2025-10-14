@@ -3,7 +3,11 @@
  * This file contains the core logic for the procedural "Icon Spray" feature.
  */
 import type { Hex, Point, Tile, SpraySettings } from '@/features/realm/types';
-import { DEFAULT_SPRAY_SETTINGS, MASK_RESOLUTION } from '@/features/realm/config/constants';
+import {
+  DEFAULT_SPRAY_SETTINGS,
+  MASK_RESOLUTION,
+  TERRAIN_SPRAY_DEFAULTS,
+} from '@/features/realm/config/constants';
 
 interface SprayIcon {
   name: string;
@@ -201,7 +205,7 @@ const generateRandomModeIcons = (
   const minSeparation = Math.max(0, settings.minSeparation);
   const centerBias = clamp(settings.centerBias, 0, 1);
   const biasExponent = 1 + centerBias * 2;
-  const { min: minSize, max: maxSize, range: sizeRange, base: baseSize } = sizeBounds;
+  const { min: minSize, range: sizeRange, base: baseSize } = sizeBounds;
   const iconBaseRotation = settings.iconBaseRotation ?? 0;
   const rotationVarianceRange = Math.max(0, settings.gridRotationRange);
 
@@ -287,16 +291,26 @@ const generateRandomModeIcons = (
  * The generation is deterministic based on the hex coordinates.
  */
 export const generateSprayIcons = (hex: Hex, terrainTile: Tile, hexSize: Point): SprayIcon[] => {
-  const rawSettings = terrainTile.spraySettings || DEFAULT_SPRAY_SETTINGS;
+  const preset = TERRAIN_SPRAY_DEFAULTS[terrainTile.id];
+  const presetSettings = (preset?.settings ?? {}) as Partial<
+    SpraySettings & { gridScaleVariance?: number }
+  >;
+  const terrainSettings = (terrainTile.spraySettings ??
+    {}) as Partial<SpraySettings> & { gridScaleVariance?: number };
+  const mergedInput = { ...presetSettings, ...terrainSettings };
   const settings: SpraySettings = {
     ...DEFAULT_SPRAY_SETTINGS,
-    ...rawSettings,
-    placementMask: rawSettings.placementMask ?? DEFAULT_SPRAY_SETTINGS.placementMask,
+    ...presetSettings,
+    ...terrainSettings,
+    placementMask:
+      terrainSettings.placementMask ??
+      presetSettings.placementMask ??
+      DEFAULT_SPRAY_SETTINGS.placementMask,
     scaleVariance:
-      rawSettings.scaleVariance ??
-      (rawSettings as Partial<SpraySettings> & { gridScaleVariance?: number }).gridScaleVariance ??
+      mergedInput.scaleVariance ??
+      mergedInput.gridScaleVariance ??
       DEFAULT_SPRAY_SETTINGS.scaleVariance,
-    seedOffset: rawSettings.seedOffset ?? DEFAULT_SPRAY_SETTINGS.seedOffset,
+    seedOffset: mergedInput.seedOffset ?? DEFAULT_SPRAY_SETTINGS.seedOffset,
   };
   settings.sizeMin = Math.max(10, settings.sizeMin);
   settings.sizeMax = Math.max(settings.sizeMin, settings.sizeMax);
@@ -305,7 +319,12 @@ export const generateSprayIcons = (hex: Hex, terrainTile: Tile, hexSize: Point):
   settings.iconBaseRotation = settings.iconBaseRotation ?? 0;
   settings.gridBaseRotation = settings.gridBaseRotation ?? 0;
 
-  if (!terrainTile.sprayIcons || terrainTile.sprayIcons.length === 0) {
+  const availableIcons =
+    terrainTile.sprayIcons && terrainTile.sprayIcons.length > 0
+      ? terrainTile.sprayIcons
+      : preset?.icons ?? [];
+
+  if (availableIcons.length === 0) {
     return [];
   }
 
@@ -319,12 +338,12 @@ export const generateSprayIcons = (hex: Hex, terrainTile: Tile, hexSize: Point):
   const sizeBounds = computeSizeBounds(settings);
 
   if (settings.mode === 'grid') {
-    return generateGridModeIcons(settings, terrainTile.sprayIcons, random, hexRadius, sizeBounds);
+    return generateGridModeIcons(settings, availableIcons, random, hexRadius, sizeBounds);
   }
 
   if (settings.density <= 0) {
     return [];
   }
 
-  return generateRandomModeIcons(settings, terrainTile.sprayIcons, random, hexRadius, sizeBounds);
+  return generateRandomModeIcons(settings, availableIcons, random, hexRadius, sizeBounds);
 };
