@@ -6,7 +6,6 @@ import { InfoPopup } from '../../ui/InfoPopup';
 import { HexSprayPreview } from './HexSprayPreview';
 import { IconGridSelector } from './IconGridSelector';
 import { PlacementMaskEditor } from './PlacementMaskEditor';
-import { RangeSlider } from './RangeSlider';
 import { SettingSlider } from '../../ui/SettingSlider';
 import { TerrainColorSwatch } from '../../ui/TerrainColorSwatch';
 
@@ -74,6 +73,32 @@ export const TerrainSprayPanel: React.FC<TerrainSprayPanelProps> = ({
       nextSeed = buffer[0] ?? nextSeed;
     }
     onSettingChange('seedOffset', nextSeed);
+  };
+  const baseOpacityPercent = Math.round(
+    ((settings.opacityMin + settings.opacityMax) / 2) * 100
+  );
+  const opacityVariancePercent = Math.round(
+    ((settings.opacityMax - settings.opacityMin) / 2) * 100
+  );
+
+  const updateOpacity = (basePercent: number, variancePercent: number) => {
+    const clampedBase = Math.max(0, Math.min(100, basePercent));
+    const maxAllowedVariance = Math.min(clampedBase, 100 - clampedBase);
+    const clampedVariance = Math.max(0, Math.min(maxAllowedVariance, variancePercent));
+    const base = clampedBase / 100;
+    const variance = clampedVariance / 100;
+    const newMin = Math.max(0, base - variance);
+    const newMax = Math.min(1, base + variance);
+    onSettingChange('opacityMin', parseFloat(newMin.toFixed(4)));
+    onSettingChange('opacityMax', parseFloat(newMax.toFixed(4)));
+  };
+
+  const handleBaseOpacityChange = (value: number) => {
+    updateOpacity(value, opacityVariancePercent);
+  };
+
+  const handleOpacityVarianceChange = (value: number) => {
+    updateOpacity(baseOpacityPercent, value);
   };
 
   return (
@@ -238,18 +263,31 @@ export const TerrainSprayPanel: React.FC<TerrainSprayPanelProps> = ({
                     />
                   </div>
                   <div className="col-span-1">
-                    <SettingSlider
-                      label="Rotation Range"
-                      tooltip="Defines the maximum random rotation applied to grid icons."
-                      value={settings.gridRotationRange}
-                      onChange={(value) => onSettingChange('gridRotationRange', value)}
-                      min={0}
-                      max={180}
-                      step={1}
-                      displayMultiplier={1}
-                      displaySuffix="°"
-                    />
-                  </div>
+                  <SettingSlider
+                    label="Grid Rotation"
+                    tooltip="Rotates the entire grid layout around the hex center."
+                    value={settings.gridBaseRotation ?? 0}
+                    onChange={(value) => onSettingChange('gridBaseRotation', value)}
+                    min={-180}
+                    max={180}
+                    step={1}
+                    displayMultiplier={1}
+                    displaySuffix="°"
+                  />
+                </div>
+                <div className="col-span-1">
+                  <SettingSlider
+                    label="Rotation Variance"
+                    tooltip="Defines how much each grid icon can randomly rotate around its base orientation."
+                    value={settings.gridRotationRange}
+                    onChange={(value) => onSettingChange('gridRotationRange', value)}
+                    min={0}
+                    max={180}
+                    step={1}
+                    displayMultiplier={1}
+                    displaySuffix="°"
+                  />
+                </div>
                 </>
               ) : (
                 <>
@@ -296,12 +334,13 @@ export const TerrainSprayPanel: React.FC<TerrainSprayPanelProps> = ({
                 <SettingSlider
                   label="Base Size"
                   tooltip="Sets the central size for sprayed icons."
-                  value={settings.sizeMin}
+                  value={Math.max(10, settings.sizeMin)}
                   onChange={(value) => {
-                    onSettingChange('sizeMin', value);
-                    onSettingChange('sizeMax', value);
+                    const clampedValue = Math.max(10, value);
+                    onSettingChange('sizeMin', clampedValue);
+                    onSettingChange('sizeMax', clampedValue);
                   }}
-                  min={2}
+                  min={10}
                   max={64}
                   step={1}
                   displayMultiplier={1}
@@ -319,6 +358,19 @@ export const TerrainSprayPanel: React.FC<TerrainSprayPanelProps> = ({
                   step={0.05}
                   displayMultiplier={100}
                   displaySuffix="%"
+                />
+              </div>
+              <div className="col-span-1">
+                <SettingSlider
+                  label="Icon Rotation"
+                  tooltip="Applies a consistent rotation to every sprayed icon."
+                  value={settings.iconBaseRotation ?? 0}
+                  onChange={(value) => onSettingChange('iconBaseRotation', value)}
+                  min={-180}
+                  max={180}
+                  step={1}
+                  displayMultiplier={1}
+                  displaySuffix="°"
                 />
               </div>
 
@@ -340,22 +392,30 @@ export const TerrainSprayPanel: React.FC<TerrainSprayPanelProps> = ({
               </div>
 
               <div className="col-span-1">
-                <label className="block text-sm font-medium text-text-muted mb-1">
-                  Opacity Range ({Math.round(settings.opacityMin * 100)}% -{' '}
-                  {Math.round(settings.opacityMax * 100)}%)
-                </label>
-                <RangeSlider
-                  min={0.1}
-                  max={1.0}
-                  step={0.01}
-                  valueMin={settings.opacityMin}
-                  valueMax={settings.opacityMax}
-                  ariaLabelMin="Minimum opacity"
-                  ariaLabelMax="Maximum opacity"
-                  onChange={(min, max) => {
-                    onSettingChange('opacityMin', min);
-                    onSettingChange('opacityMax', max);
-                  }}
+                <SettingSlider
+                  label="Base Opacity"
+                  tooltip="Sets the core opacity for sprayed icons."
+                  value={baseOpacityPercent}
+                  onChange={handleBaseOpacityChange}
+                  min={0}
+                  max={100}
+                  step={1}
+                  displayMultiplier={1}
+                  displaySuffix="%"
+                />
+              </div>
+
+              <div className="col-span-1">
+                <SettingSlider
+                  label="Opacity Variance"
+                  tooltip="Adds variation by increasing and decreasing opacity around the base value."
+                  value={opacityVariancePercent}
+                  onChange={handleOpacityVarianceChange}
+                  min={0}
+                  max={100}
+                  step={1}
+                  displayMultiplier={1}
+                  displaySuffix="%"
                 />
               </div>
 

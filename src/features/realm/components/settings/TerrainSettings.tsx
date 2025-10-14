@@ -25,9 +25,23 @@ const cloneDraftConfig = (config: DraftSprayConfig): DraftSprayConfig => ({
   sprayIcons: [...config.sprayIcons],
 });
 
+const normalizeSpraySettings = (settings: SpraySettings): SpraySettings => {
+  const normalized = { ...settings };
+  normalized.sizeMin = Math.max(10, normalized.sizeMin);
+  normalized.sizeMax = Math.max(normalized.sizeMin, normalized.sizeMax);
+  normalized.opacityMin = Math.max(0, Math.min(1, normalized.opacityMin));
+  normalized.opacityMax = Math.max(normalized.opacityMin, Math.min(1, normalized.opacityMax));
+  normalized.iconBaseRotation = normalized.iconBaseRotation ?? 0;
+  normalized.gridBaseRotation = normalized.gridBaseRotation ?? 0;
+  return normalized;
+};
+
 const buildDraftFromTerrains = (terrains: Tile[]): Record<string, DraftSprayConfig> =>
   terrains.reduce<Record<string, DraftSprayConfig>>((acc, terrain) => {
-    const spraySettings = terrain.spraySettings ?? DEFAULT_SPRAY_SETTINGS;
+    const spraySettings = normalizeSpraySettings({
+      ...DEFAULT_SPRAY_SETTINGS,
+      ...(terrain.spraySettings ?? {}),
+    } as SpraySettings);
     acc[terrain.id] = {
       spraySettings: cloneSpraySettings(spraySettings),
       sprayIcons: [...(terrain.sprayIcons ?? [])],
@@ -62,8 +76,10 @@ const areSpraySettingsEqual = (a: SpraySettings, b: SpraySettings): boolean => {
     'gridDensity',
     'gridSize',
     'gridJitter',
+    'gridBaseRotation',
     'scaleVariance',
     'gridRotationRange',
+    'iconBaseRotation',
     'seedOffset',
   ]);
 
@@ -231,7 +247,10 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
       if (!draft) {
         continue;
       }
-      const baselineSettings = terrain.spraySettings ?? DEFAULT_SPRAY_SETTINGS;
+      const baselineSettings = normalizeSpraySettings({
+        ...DEFAULT_SPRAY_SETTINGS,
+        ...(terrain.spraySettings ?? {}),
+      } as SpraySettings);
       const baselineIcons = terrain.sprayIcons ?? [];
 
       if (

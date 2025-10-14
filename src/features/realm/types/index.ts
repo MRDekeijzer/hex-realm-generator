@@ -137,10 +137,14 @@ export interface SpraySettings {
   gridSize: number;
   /** Amount of positional jitter (0-1) applied to each grid cell. */
   gridJitter: number;
+  /** Base rotation (degrees) applied to the entire grid layout. */
+  gridBaseRotation: number;
   /** Fraction (0-1) of the size variation applied around the base size. */
   scaleVariance: number;
   /** Maximum degrees of rotation variation (+/-) for grid icons. */
   gridRotationRange: number;
+  /** Base rotation (degrees) applied to each icon prior to variance. */
+  iconBaseRotation: number;
   /** Additional seed offset applied when generating random placements. */
   seedOffset: number;
 }

@@ -105,6 +105,11 @@ const generateGridModeIcons = (
   const gridExtentScalar = clamp(settings.gridSize, 0.1, 1);
   const jitterAmount = clamp(settings.gridJitter, 0, 1);
   const rotationRange = Math.max(0, settings.gridRotationRange);
+  const iconBaseRotation = settings.iconBaseRotation ?? 0;
+  const baseRotationRadians = ((settings.gridBaseRotation ?? 0) * Math.PI) / 180;
+  const hasBaseRotation = Math.abs(baseRotationRadians) > 0.0001;
+  const cosBase = hasBaseRotation ? Math.cos(baseRotationRadians) : 1;
+  const sinBase = hasBaseRotation ? Math.sin(baseRotationRadians) : 0;
 
   const gridSpan = hexRadius * 2 * gridExtentScalar;
   const step = gridDensity > 1 ? gridSpan / (gridDensity - 1) : 0;
@@ -124,12 +129,19 @@ const generateGridModeIcons = (
         y += jitterOffset();
       }
 
-      if (Math.sqrt(x * x + y * y) > hexRadius) {
+      let rotatedX = x;
+      let rotatedY = y;
+      if (hasBaseRotation) {
+        rotatedX = x * cosBase - y * sinBase;
+        rotatedY = x * sinBase + y * cosBase;
+      }
+
+      if (Math.sqrt(rotatedX * rotatedX + rotatedY * rotatedY) > hexRadius) {
         continue;
       }
 
-      const normX = x / hexRadius;
-      const normY = y / hexRadius;
+      const normX = rotatedX / hexRadius;
+      const normY = rotatedY / hexRadius;
       if (!isPointAllowedByMask(normX, normY, settings.placementMask)) {
         continue;
       }
@@ -142,13 +154,14 @@ const generateGridModeIcons = (
       const size =
         range > 0 ? clamp(baseSize + (random() * 2 - 1) * halfRange, minSize, maxSize) : baseSize;
 
-      const rotation = rotationRange > 0 ? (random() * 2 - 1) * rotationRange : 0;
+      const rotationVariance = rotationRange > 0 ? (random() * 2 - 1) * rotationRange : 0;
+      const rotation = iconBaseRotation + rotationVariance;
       const opacity = random() * (settings.opacityMax - settings.opacityMin) + settings.opacityMin;
 
       icons.push({
         name: chosenIconName,
-        x,
-        y,
+        x: rotatedX,
+        y: rotatedY,
         size,
         rotation,
         opacity,
@@ -189,6 +202,8 @@ const generateRandomModeIcons = (
   const centerBias = clamp(settings.centerBias, 0, 1);
   const biasExponent = 1 + centerBias * 2;
   const { min: minSize, max: maxSize, range: sizeRange, base: baseSize } = sizeBounds;
+  const iconBaseRotation = settings.iconBaseRotation ?? 0;
+  const rotationVarianceRange = Math.max(0, settings.gridRotationRange);
 
   let attempts = 0;
   while (icons.length < desiredCount && attempts < maxAttempts) {
@@ -249,13 +264,16 @@ const generateRandomModeIcons = (
 
     const size = sizeRange > 0 ? minSize + random() * sizeRange : baseSize;
     const opacity = random() * (settings.opacityMax - settings.opacityMin) + settings.opacityMin;
+    const rotationVariance =
+      rotationVarianceRange > 0 ? (random() * 2 - 1) * rotationVarianceRange : 0;
+    const rotation = iconBaseRotation + rotationVariance;
 
     icons.push({
       name: chosenIconName,
       x,
       y,
       size,
-      rotation: 0,
+      rotation,
       opacity,
       color: settings.color,
     });
@@ -280,6 +298,12 @@ export const generateSprayIcons = (hex: Hex, terrainTile: Tile, hexSize: Point):
       DEFAULT_SPRAY_SETTINGS.scaleVariance,
     seedOffset: rawSettings.seedOffset ?? DEFAULT_SPRAY_SETTINGS.seedOffset,
   };
+  settings.sizeMin = Math.max(10, settings.sizeMin);
+  settings.sizeMax = Math.max(settings.sizeMin, settings.sizeMax);
+  settings.opacityMin = Math.max(0, Math.min(1, settings.opacityMin));
+  settings.opacityMax = Math.max(settings.opacityMin, Math.min(1, settings.opacityMax));
+  settings.iconBaseRotation = settings.iconBaseRotation ?? 0;
+  settings.gridBaseRotation = settings.gridBaseRotation ?? 0;
 
   if (!terrainTile.sprayIcons || terrainTile.sprayIcons.length === 0) {
     return [];

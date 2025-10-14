@@ -153,10 +153,10 @@ export const uniformMask = createMask(() => true);
 export const DEFAULT_SPRAY_SETTINGS: SpraySettings = {
   mode: 'random',
   density: 3,
-  sizeMin: 8,
-  sizeMax: 8,
-  opacityMin: 0.6,
-  opacityMax: 0.8,
+  sizeMin: 10,
+  sizeMax: 10,
+  opacityMin: 1,
+  opacityMax: 1,
   color: flattenedColors['text-inverse'],
   placementMask: uniformMask,
   centerBias: 0,
@@ -164,8 +164,10 @@ export const DEFAULT_SPRAY_SETTINGS: SpraySettings = {
   gridDensity: 3,
   gridSize: 0.75,
   gridJitter: 0.1,
+  gridBaseRotation: 0,
   scaleVariance: 0.4,
   gridRotationRange: 20,
+  iconBaseRotation: 0,
   seedOffset: 0,
 };
 
