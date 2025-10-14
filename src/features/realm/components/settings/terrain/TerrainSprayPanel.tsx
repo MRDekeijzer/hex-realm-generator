@@ -15,6 +15,8 @@ interface TerrainSprayPanelProps {
   settings: SpraySettings;
   resolvedTerrainColor: string;
   resolvedSprayColor: string;
+  hasUnsavedChanges: boolean;
+  onSave: () => void;
   activeInfo: InfoPopupState | null;
   registerDetailsRef: (element: HTMLDetailsElement | null) => void;
   onInfoClick: (anchor: HTMLElement) => void;
@@ -35,6 +37,8 @@ export const TerrainSprayPanel: React.FC<TerrainSprayPanelProps> = ({
   settings,
   resolvedTerrainColor,
   resolvedSprayColor,
+  hasUnsavedChanges,
+  onSave,
   activeInfo,
   registerDetailsRef,
   onInfoClick,
@@ -81,6 +85,11 @@ export const TerrainSprayPanel: React.FC<TerrainSprayPanelProps> = ({
         <Icon name={terrain.icon} className="w-5 h-5" />
         <span className="flex items-center gap-2">
           {terrain.label}
+          {hasUnsavedChanges ? (
+            <span className="text-[10px] uppercase tracking-wide bg-actions-command-primary/20 text-actions-command-primary border border-actions-command-primary/40 rounded-sm px-2 py-0.5">
+              Unsaved
+            </span>
+          ) : null}
           <button
             onClick={(event) => {
               event.preventDefault();
@@ -141,6 +150,20 @@ export const TerrainSprayPanel: React.FC<TerrainSprayPanelProps> = ({
         </InfoPopup>
       )}
       <div className="pl-7 mt-3 pt-3 border-t border-border-panel-divider/50">
+        <div className="flex justify-end mb-3">
+          <button
+            type="button"
+            onClick={onSave}
+            disabled={!hasUnsavedChanges}
+            className={`inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
+              hasUnsavedChanges
+                ? 'bg-actions-command-primary text-text-high-contrast hover:bg-actions-command-primary/90'
+                : 'bg-realm-command-panel-hover text-text-subtle cursor-not-allowed'
+            }`}
+          >
+            Save Changes
+          </button>
+        </div>
         <div className="grid gap-4 md:grid-cols-2 auto-rows-min">
           <div className="md:col-span-2">
             <HexSprayPreview terrain={terrain} onReroll={handleReroll} />
