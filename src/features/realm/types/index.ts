@@ -137,8 +137,8 @@ export interface SpraySettings {
   gridSize: number;
   /** Amount of positional jitter (0-1) applied to each grid cell. */
   gridJitter: number;
-  /** Fraction (0-1) of the size range used for grid variance. */
-  gridScaleVariance: number;
+  /** Fraction (0-1) of the size variation applied around the base size. */
+  scaleVariance: number;
   /** Maximum degrees of rotation variation (+/-) for grid icons. */
   gridRotationRange: number;
 }

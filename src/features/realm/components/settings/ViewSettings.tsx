@@ -2,7 +2,7 @@
  * @file Component for configuring how the Knight view differs from the Referee view.
  */
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import type {
   ViewOptions,
   TileSet,
@@ -91,84 +91,10 @@ export const ViewSettings = ({
   tileSets,
   myths,
 }: ViewSettingsProps) => {
-  const knightVisibility = viewOptions.visibility.knight;
-
-  useEffect(() => {
-    setViewOptions((prev) => {
-      const current = prev.visibility.knight ?? DEFAULT_VIEW_VISIBILITY;
-      let changed = false;
-
-      const normalizedHoldings = tileSets.holding.reduce<Record<string, boolean>>((acc, holding) => {
-        const nextValue = current.holdings?.[holding.id] ?? true;
-        acc[holding.id] = nextValue;
-        if (current.holdings?.[holding.id] === undefined) {
-          changed = true;
-        }
-        return acc;
-      }, {});
-      if (Object.keys(current.holdings ?? {}).length !== Object.keys(normalizedHoldings).length) {
-        changed = true;
-      }
-
-      const normalizedLandmarks = tileSets.landmark.reduce<Record<string, boolean>>(
-        (acc, landmark) => {
-          const nextValue = current.landmarks?.[landmark.id] ?? false;
-          acc[landmark.id] = nextValue;
-          if (current.landmarks?.[landmark.id] === undefined) {
-            changed = true;
-          }
-          return acc;
-        },
-        {}
-      );
-      if (
-        Object.keys(current.landmarks ?? {}).length !== Object.keys(normalizedLandmarks).length
-      ) {
-        changed = true;
-      }
-
-      const normalizedMyths = myths.reduce<Record<number, boolean>>((acc, myth) => {
-        const nextValue = current.myths?.[myth.id] ?? false;
-        acc[myth.id] = nextValue;
-        if (current.myths?.[myth.id] === undefined) {
-          changed = true;
-        }
-        return acc;
-      }, {});
-      if (Object.keys(current.myths ?? {}).length !== Object.keys(normalizedMyths).length) {
-        changed = true;
-      }
-
-      const seatOfPower = current.seatOfPower ?? true;
-      if (current.seatOfPower === undefined) {
-        changed = true;
-      }
-
-      const showBarriers =
-        current.showBarriers ?? DEFAULT_VIEW_VISIBILITY.showBarriers;
-      if (current.showBarriers === undefined) {
-        changed = true;
-      }
-
-      if (!changed) {
-        return prev;
-      }
-
-      return {
-        ...prev,
-        visibility: {
-          ...prev.visibility,
-          knight: {
-            holdings: normalizedHoldings,
-            seatOfPower,
-            landmarks: normalizedLandmarks,
-            myths: normalizedMyths,
-            showBarriers,
-          },
-        },
-      };
-    });
-  }, [tileSets, myths, setViewOptions]);
+  const knightVisibility = useMemo(
+    () => viewOptions.visibility.knight ?? buildDefaultVisibility(tileSets, myths),
+    [viewOptions.visibility.knight, tileSets, myths]
+  );
 
   const holdingsSummary = useMemo(() => {
     const hiddenCount = tileSets.holding.filter(
@@ -213,14 +139,19 @@ export const ViewSettings = ({
       : `${hiddenCount} myth${hiddenCount > 1 ? 's' : ''} hidden`;
   }, [myths, knightVisibility.myths]);
 
-  const handleHoldingsUpdate = (updater: (current: KnightVisibilitySettings) => KnightVisibilitySettings) => {
-    setViewOptions((prev) => ({
-      ...prev,
-      visibility: {
-        ...prev.visibility,
-        knight: updater(prev.visibility.knight),
-      },
-    }));
+  const handleHoldingsUpdate = (
+    updater: (current: KnightVisibilitySettings) => KnightVisibilitySettings
+  ) => {
+    setViewOptions((prev) => {
+      const current = prev.visibility.knight ?? buildDefaultVisibility(tileSets, myths);
+      return {
+        ...prev,
+        visibility: {
+          ...prev.visibility,
+          knight: updater(current),
+        },
+      };
+    });
   };
 
   const handleHoldingToggle = (id: string, value: boolean) => {

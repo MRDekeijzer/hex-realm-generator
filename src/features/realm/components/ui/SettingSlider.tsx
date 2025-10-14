@@ -2,8 +2,9 @@
  * @file A reusable slider component for settings panels.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Icon } from '../Icon';
+import { resolveColorToken } from '@/app/theme/colors';
 
 /**
  * Props for the SettingSlider component.
@@ -45,6 +46,34 @@ export const SettingSlider = ({
   displaySuffix = '%',
 }: SettingSliderProps) => {
   const inputId = `slider-${label.toLowerCase().replace(/\s+/g, '-')}`;
+  const range = max - min;
+  const safeRange = range === 0 ? 1 : range;
+  const percent = useMemo(() => {
+    const rawPercent = ((value - min) / safeRange) * 100;
+    return Math.min(100, Math.max(0, rawPercent));
+  }, [value, min, safeRange]);
+  const accentColor = resolveColorToken('actions-command-primary');
+  const trackColor = resolveColorToken('realm-command-panel-surface');
+  const thumbBg = resolveColorToken('realm-command-panel-surface');
+  const thumbBorder = resolveColorToken('border-panel-divider');
+  const displayValue = Math.round(value * displayMultiplier);
+
+  const sliderStyle = useMemo(
+    () => ({
+      background: `linear-gradient(90deg, ${accentColor} 0%, ${accentColor} ${percent}%, ${trackColor} ${percent}%, ${trackColor} 100%)`,
+      '--slider-thumb-bg': thumbBg,
+      '--slider-thumb-border': thumbBorder,
+    }),
+    [accentColor, trackColor, thumbBg, thumbBorder, percent]
+  );
+
+  const handleValueChange = (nextValue: string) => {
+    const numericValue = parseFloat(nextValue);
+    if (!Number.isNaN(numericValue)) {
+      onChange(numericValue);
+    }
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-1">
@@ -62,7 +91,7 @@ export const SettingSlider = ({
           )}
         </div>
         <span className="px-2 py-0.5 bg-realm-command-panel-surface rounded-md text-xs">
-          {Math.round(value * displayMultiplier)}
+          {displayValue}
           {displaySuffix}
         </span>
       </div>
@@ -73,8 +102,10 @@ export const SettingSlider = ({
         max={max}
         step={step}
         value={value}
-        onChange={(e) => onChange(parseFloat(e.target.value))}
-        className="w-full h-2 bg-realm-command-panel-surface rounded-lg appearance-none cursor-pointer accent-actions-command-primary"
+        onChange={(event) => handleValueChange(event.target.value)}
+        onInput={(event) => handleValueChange((event.target as HTMLInputElement).value)}
+        className="realm-slider"
+        style={sliderStyle}
       />
     </div>
   );

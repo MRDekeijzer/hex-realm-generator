@@ -44,7 +44,14 @@ import { BarrierPainterSidebar } from '@/features/realm/components/sidebars/Barr
 import { ConfirmationDialog } from '@/features/realm/components/ConfirmationDialog';
 import { HistoryControls } from '@/features/realm/components/HistoryControls';
 import { generateTerrainTextures } from '@/features/realm/utils/textureUtils';
+import { normalizeKnightVisibility } from '@/features/realm/utils/visibilityUtils';
 import { getTerrainBaseColor } from '@/app/theme/colors';
+
+const INITIAL_KNIGHT_VISIBILITY = normalizeKnightVisibility(
+  undefined,
+  DEFAULT_TILE_SETS,
+  []
+).visibility;
 
 /**
  * State for managing confirmation dialogs.
@@ -81,7 +88,7 @@ export default function App() {
     gridWidth: DEFAULT_GRID_WIDTH,
     showIconSpray: true,
     visibility: {
-      knight: { ...DEFAULT_VIEW_VISIBILITY },
+      knight: INITIAL_KNIGHT_VISIBILITY,
     },
   });
   const [activeTool, setActiveTool] = useState<Tool>('select');
@@ -96,6 +103,23 @@ export default function App() {
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', 'dark');
   }, []);
+
+  useEffect(() => {
+    const myths = realm?.myths ?? [];
+    setViewOptions((prev) => {
+      const { visibility, changed } = normalizeKnightVisibility(prev.visibility.knight, tileSets, myths);
+      if (!changed) {
+        return prev;
+      }
+      return {
+        ...prev,
+        visibility: {
+          ...prev.visibility,
+          knight: visibility,
+        },
+      };
+    });
+  }, [realm?.myths, tileSets, setViewOptions]);
 
   const [realmShape, setRealmShape] = useState<'hex' | 'square'>('square');
   const [realmRadius, setRealmRadius] = useState<number>(DEFAULT_GRID_SIZE);

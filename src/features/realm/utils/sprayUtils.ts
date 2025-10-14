@@ -64,11 +64,38 @@ function stringToSeed(str: string): number {
   return hash;
 }
 
+interface SizeBounds {
+  base: number;
+  min: number;
+  max: number;
+  range: number;
+  half: number;
+}
+
+const computeSizeBounds = (settings: SpraySettings): SizeBounds => {
+  const base = (settings.sizeMin + settings.sizeMax) / 2;
+  const legacyHalfRange = Math.abs(settings.sizeMax - settings.sizeMin) / 2;
+  const varianceHalfRange =
+    Math.max(0, base) * clamp(settings.scaleVariance ?? 0, 0, 1) * 0.5;
+  const half = Math.max(legacyHalfRange, varianceHalfRange);
+  const min = Math.max(0, base - half);
+  const max = Math.max(min, base + half);
+
+  return {
+    base,
+    min,
+    max,
+    range: max - min,
+    half,
+  };
+};
+
 const generateGridModeIcons = (
   settings: SpraySettings,
   availableIcons: string[],
   random: () => number,
-  hexRadius: number
+  hexRadius: number,
+  sizeBounds: SizeBounds
 ): SprayIcon[] => {
   const icons: SprayIcon[] = [];
   if (availableIcons.length === 0) {
@@ -78,7 +105,6 @@ const generateGridModeIcons = (
   const gridDensity = Math.max(1, Math.round(settings.gridDensity));
   const gridExtentScalar = clamp(settings.gridSize, 0.1, 1);
   const jitterAmount = clamp(settings.gridJitter, 0, 1);
-  const scaleVariance = clamp(settings.gridScaleVariance, 0, 1);
   const rotationRange = Math.max(0, settings.gridRotationRange);
 
   const gridSpan = hexRadius * 2 * gridExtentScalar;
@@ -86,11 +112,7 @@ const generateGridModeIcons = (
   const halfSpan = gridSpan / 2;
   const cellSize = gridDensity > 1 ? step : gridSpan;
 
-  const baseSize = (settings.sizeMin + settings.sizeMax) / 2;
-  const sizeRange = settings.sizeMax - settings.sizeMin;
-  const effectiveRange = sizeRange * scaleVariance;
-  const varianceMin = clamp(baseSize - effectiveRange / 2, settings.sizeMin, settings.sizeMax);
-  const varianceMax = clamp(baseSize + effectiveRange / 2, settings.sizeMin, settings.sizeMax);
+  const { base: baseSize, min: minSize, max: maxSize, half: halfRange, range } = sizeBounds;
 
   for (let row = 0; row < gridDensity; row++) {
     for (let col = 0; col < gridDensity; col++) {
@@ -118,10 +140,10 @@ const generateGridModeIcons = (
         continue;
       }
 
-      let size = clamp(baseSize, settings.sizeMin, settings.sizeMax);
-      if (effectiveRange > 0) {
-        size = varianceMin + random() * (varianceMax - varianceMin);
-      }
+      const size =
+        range > 0
+          ? clamp(baseSize + (random() * 2 - 1) * halfRange, minSize, maxSize)
+          : baseSize;
 
       const rotation = rotationRange > 0 ? (random() * 2 - 1) * rotationRange : 0;
       const opacity = random() * (settings.opacityMax - settings.opacityMin) + settings.opacityMin;
@@ -145,7 +167,8 @@ const generateRandomModeIcons = (
   settings: SpraySettings,
   availableIcons: string[],
   random: () => number,
-  hexRadius: number
+  hexRadius: number,
+  sizeBounds: SizeBounds
 ): SprayIcon[] => {
   const icons: SprayIcon[] = [];
   if (availableIcons.length === 0) {
@@ -168,6 +191,7 @@ const generateRandomModeIcons = (
   const minSeparation = Math.max(0, settings.minSeparation);
   const centerBias = clamp(settings.centerBias, 0, 1);
   const biasExponent = 1 + centerBias * 2;
+  const { min: minSize, max: maxSize, range: sizeRange, base: baseSize } = sizeBounds;
 
   let attempts = 0;
   while (icons.length < desiredCount && attempts < maxAttempts) {
@@ -226,7 +250,8 @@ const generateRandomModeIcons = (
       continue;
     }
 
-    const size = random() * (settings.sizeMax - settings.sizeMin) + settings.sizeMin;
+    const size =
+      sizeRange > 0 ? minSize + random() * sizeRange : baseSize;
     const opacity = random() * (settings.opacityMax - settings.opacityMin) + settings.opacityMin;
 
     icons.push({
@@ -253,6 +278,10 @@ export const generateSprayIcons = (hex: Hex, terrainTile: Tile, hexSize: Point):
     ...DEFAULT_SPRAY_SETTINGS,
     ...rawSettings,
     placementMask: rawSettings.placementMask ?? DEFAULT_SPRAY_SETTINGS.placementMask,
+    scaleVariance:
+      rawSettings.scaleVariance ??
+      (rawSettings as Partial<SpraySettings> & { gridScaleVariance?: number }).gridScaleVariance ??
+      DEFAULT_SPRAY_SETTINGS.scaleVariance,
   };
 
   if (!terrainTile.sprayIcons || terrainTile.sprayIcons.length === 0) {
@@ -266,14 +295,15 @@ export const generateSprayIcons = (hex: Hex, terrainTile: Tile, hexSize: Point):
 
   const seed = hex.q * 1337 + hex.r * 31337 + stringToSeed(terrainTile.id);
   const random = mulberry32(seed);
+  const sizeBounds = computeSizeBounds(settings);
 
   if (settings.mode === 'grid') {
-    return generateGridModeIcons(settings, terrainTile.sprayIcons, random, hexRadius);
+    return generateGridModeIcons(settings, terrainTile.sprayIcons, random, hexRadius, sizeBounds);
   }
 
   if (settings.density <= 0) {
     return [];
   }
 
-  return generateRandomModeIcons(settings, terrainTile.sprayIcons, random, hexRadius);
+  return generateRandomModeIcons(settings, terrainTile.sprayIcons, random, hexRadius, sizeBounds);
 };

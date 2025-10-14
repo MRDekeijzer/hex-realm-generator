@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import type { SprayDeploymentMode, SpraySettings, Tile } from '@/features/realm/types';
 import type { InfoPopupState } from '@/shared/hooks/useInfoPopup';
 import { Icon } from '../../Icon';
@@ -131,11 +131,15 @@ export const TerrainSprayPanel: React.FC<TerrainSprayPanelProps> = ({
           <p className="mt-2 text-[11px] text-text-muted leading-relaxed">{spraySummary}</p>
         </InfoPopup>
       )}
-      <div className="pl-7 mt-3 pt-3 border-t border-border-panel-divider/50 space-y-4">
-        <HexSprayPreview terrain={terrain} />
-        <IconGridSelector selectedIcons={terrain.sprayIcons || []} onToggleIcon={onToggleIcon} />
-        <div className="pt-4 grid grid-cols-2 gap-4">
-          <div className="col-span-2">
+      <div className="pl-7 mt-3 pt-3 border-t border-border-panel-divider/50">
+        <div className="grid gap-4 md:grid-cols-2 auto-rows-min">
+          <div className="md:col-span-2">
+            <HexSprayPreview terrain={terrain} />
+          </div>
+          <div className="md:col-span-2">
+            <IconGridSelector selectedIcons={terrain.sprayIcons || []} onToggleIcon={onToggleIcon} />
+          </div>
+          <div className="md:col-span-2">
             <label className="block text-sm font-medium text-text-muted mb-2">Deployment Mode</label>
             <div className="flex gap-2">
               <button
@@ -157,163 +161,175 @@ export const TerrainSprayPanel: React.FC<TerrainSprayPanelProps> = ({
             </div>
           </div>
 
-          {isGridMode ? (
-            <>
-              <div>
+          <div className="md:col-span-2">
+            <div className="grid gap-4 md:grid-cols-2">
+              {isGridMode ? (
+                <>
+                  <div className="col-span-1">
+                    <SettingSlider
+                      label="Grid Density"
+                      tooltip="Controls how many grid points per side receive an icon."
+                      value={settings.gridDensity}
+                      onChange={(value) => onSettingChange('gridDensity', Math.round(value))}
+                      min={1}
+                      max={12}
+                      step={1}
+                      displayMultiplier={1}
+                      displaySuffix=" cells"
+                    />
+                  </div>
+                  <div className="col-span-1">
+                    <SettingSlider
+                      label="Grid Size"
+                      tooltip="Scales the grid span relative to the hex radius."
+                      value={settings.gridSize}
+                      onChange={(value) => onSettingChange('gridSize', value)}
+                      min={0.2}
+                      max={1}
+                      step={0.05}
+                    />
+                  </div>
+                  <div className="col-span-1">
+                    <SettingSlider
+                      label="Grid Jitter"
+                      tooltip="Adds a small random offset inside each grid cell to keep placements organic."
+                      value={settings.gridJitter}
+                      onChange={(value) => onSettingChange('gridJitter', value)}
+                      min={0}
+                      max={1}
+                      step={0.05}
+                    />
+                  </div>
+                  <div className="col-span-1">
+                    <SettingSlider
+                      label="Rotation Range"
+                      tooltip="Defines the maximum random rotation applied to grid icons."
+                      value={settings.gridRotationRange}
+                      onChange={(value) => onSettingChange('gridRotationRange', value)}
+                      min={0}
+                      max={180}
+                      step={1}
+                      displayMultiplier={1}
+                      displaySuffix="°"
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="col-span-1">
+                    <SettingSlider
+                      label="Density"
+                      value={settings.density}
+                      onChange={(value) => onSettingChange('density', value)}
+                      min={0}
+                      max={128}
+                      step={1}
+                      displayMultiplier={1}
+                      displaySuffix=" icons"
+                    />
+                  </div>
+                  <div className="col-span-1">
+                    <SettingSlider
+                      label="Center Bias"
+                      tooltip="Higher values pull random placements toward the center of the hex."
+                      value={settings.centerBias}
+                      onChange={(value) => onSettingChange('centerBias', value)}
+                      min={0}
+                      max={1}
+                      step={0.05}
+                    />
+                  </div>
+                  <div className="col-span-1">
+                    <SettingSlider
+                      label="Min Separation"
+                      tooltip="Prevents new icons from spawning within this many pixels of another icon."
+                      value={settings.minSeparation}
+                      onChange={(value) => onSettingChange('minSeparation', value)}
+                      min={0}
+                      max={60}
+                      step={1}
+                      displayMultiplier={1}
+                      displaySuffix="px"
+                    />
+                  </div>
+                </>
+              )}
+
+              <div className="col-span-1">
                 <SettingSlider
-                  label="Grid Density"
-                  tooltip="Controls how many grid points per side receive an icon."
-                  value={settings.gridDensity}
-                  onChange={(value) => onSettingChange('gridDensity', Math.round(value))}
-                  min={1}
-                  max={12}
+                  label="Base Size"
+                  tooltip="Sets the central size for sprayed icons."
+                  value={settings.sizeMin}
+                  onChange={(value) => {
+                    onSettingChange('sizeMin', value);
+                    onSettingChange('sizeMax', value);
+                  }}
+                  min={2}
+                  max={64}
                   step={1}
                   displayMultiplier={1}
-                  displaySuffix=" cells"
+                  displaySuffix=" px"
                 />
               </div>
-              <div>
-                <SettingSlider
-                  label="Grid Size"
-                  tooltip="Scales the grid span relative to the hex radius."
-                  value={settings.gridSize}
-                  onChange={(value) => onSettingChange('gridSize', value)}
-                  min={0.2}
-                  max={1}
-                  step={0.05}
-                />
-              </div>
-              <div>
-                <SettingSlider
-                  label="Grid Jitter"
-                  tooltip="Adds a small random offset inside each grid cell to keep placements organic."
-                  value={settings.gridJitter}
-                  onChange={(value) => onSettingChange('gridJitter', value)}
-                  min={0}
-                  max={1}
-                  step={0.05}
-                />
-              </div>
-              <div>
+              <div className="col-span-1">
                 <SettingSlider
                   label="Scale Variance"
-                  tooltip="Introduces size variation for grid icons around the base size."
-                  value={settings.gridScaleVariance}
-                  onChange={(value) => onSettingChange('gridScaleVariance', value)}
+                  tooltip="Controls how much icon sizes vary around the base size."
+                  value={settings.scaleVariance}
+                  onChange={(value) => onSettingChange('scaleVariance', value)}
                   min={0}
                   max={1}
                   step={0.05}
+                  displayMultiplier={100}
+                  displaySuffix="%"
                 />
               </div>
-              <div className="col-span-2">
-                <SettingSlider
-                  label="Rotation Range"
-                  tooltip="Defines the maximum random rotation applied to grid icons."
-                  value={settings.gridRotationRange}
-                  onChange={(value) => onSettingChange('gridRotationRange', value)}
-                  min={0}
-                  max={180}
-                  step={1}
-                  displayMultiplier={1}
-                  displaySuffix="°"
-                />
-              </div>
-            </>
-          ) : (
-            <>
-              <div>
-                <SettingSlider
-                  label="Density"
-                  value={settings.density}
-                  onChange={(value) => onSettingChange('density', value)}
-                  min={0}
-                  max={128}
-                  step={1}
-                  displayMultiplier={1}
-                  displaySuffix=" icons"
-                />
-              </div>
-              <div>
-                <SettingSlider
-                  label="Center Bias"
-                  tooltip="Higher values pull random placements toward the center of the hex."
-                  value={settings.centerBias}
-                  onChange={(value) => onSettingChange('centerBias', value)}
-                  min={0}
-                  max={1}
-                  step={0.05}
-                />
-              </div>
-              <div className="col-span-2">
-                <SettingSlider
-                  label="Min Separation"
-                  tooltip="Prevents new icons from spawning within this many pixels of another icon."
-                  value={settings.minSeparation}
-                  onChange={(value) => onSettingChange('minSeparation', value)}
-                  min={0}
-                  max={60}
-                  step={1}
-                  displayMultiplier={1}
-                  displaySuffix="px"
-                />
-              </div>
-            </>
-          )}
 
-          <div className="col-span-2">
-            <label className="block text-sm font-medium text-text-muted mb-1">Color</label>
-            <div className="flex items-center gap-2">
-              <TerrainColorSwatch
-                color={resolvedSprayColor}
-                ariaLabel={`Select spray color for ${terrain.label}`}
-                tooltip="Edit color"
-                onChange={(value) => onSettingChange('color', value)}
-                className="w-10 h-10 rounded-md flex-shrink-0 border border-black/20"
-                iconClassName="w-5 h-5 text-white"
-              />
-              <span className="p-2 bg-realm-command-panel-surface rounded-md text-sm font-mono flex-grow text-center h-10 flex items-center justify-center">
-                {resolvedSprayColor}
-              </span>
+              <div className="col-span-1">
+                <label className="block text-sm font-medium text-text-muted mb-1">Icon Color</label>
+                <div className="flex items-center gap-2">
+                  <TerrainColorSwatch
+                    color={resolvedSprayColor}
+                    ariaLabel={`Select icon color for ${terrain.label}`}
+                    tooltip="Edit color"
+                    onChange={(value) => onSettingChange('color', value)}
+                    className="w-10 h-10 rounded-md flex-shrink-0 border border-black/20"
+                    iconClassName="w-5 h-5 text-white"
+                  />
+                  <span className="p-2 bg-realm-command-panel-surface rounded-md text-sm font-mono flex-grow text-center h-10 flex items-center justify-center">
+                    {resolvedSprayColor}
+                  </span>
+                </div>
+              </div>
+
+              <div className="col-span-1">
+                <label className="block text-sm font-medium text-text-muted mb-1">
+                  Opacity Range ({Math.round(settings.opacityMin * 100)}% -{' '}
+                  {Math.round(settings.opacityMax * 100)}%)
+                </label>
+                <RangeSlider
+                  min={0.1}
+                  max={1.0}
+                  step={0.01}
+                  valueMin={settings.opacityMin}
+                  valueMax={settings.opacityMax}
+                  ariaLabelMin="Minimum opacity"
+                  ariaLabelMax="Maximum opacity"
+                  onChange={(min, max) => {
+                    onSettingChange('opacityMin', min);
+                    onSettingChange('opacityMax', max);
+                  }}
+                />
+              </div>
+
+              <div className="col-span-1 md:col-span-1">
+                <PlacementMaskEditor
+                  mask={settings.placementMask}
+                  onUpdateMask={(mask) => onSettingChange('placementMask', mask)}
+                />
+              </div>
             </div>
           </div>
-
-          <div className="col-span-2">
-            <label className="block text-sm font-medium text-text-muted mb-1">
-              Size Range ({settings.sizeMin}px - {settings.sizeMax}px)
-            </label>
-            <RangeSlider
-              min={0}
-              max={100}
-              valueMin={settings.sizeMin}
-              valueMax={settings.sizeMax}
-              onChange={(min, max) => {
-                onSettingChange('sizeMin', min);
-                onSettingChange('sizeMax', max);
-              }}
-            />
-          </div>
-          <div className="col-span-2">
-            <label className="block text-sm font-medium text-text-muted mb-1">
-              Opacity Range ({Math.round(settings.opacityMin * 100)}% -{' '}
-              {Math.round(settings.opacityMax * 100)}%)
-            </label>
-            <RangeSlider
-              min={0.1}
-              max={1.0}
-              step={0.01}
-              valueMin={settings.opacityMin}
-              valueMax={settings.opacityMax}
-              onChange={(min, max) => {
-                onSettingChange('opacityMin', min);
-                onSettingChange('opacityMax', max);
-              }}
-            />
-          </div>
-
-          <PlacementMaskEditor
-            mask={settings.placementMask}
-            onUpdateMask={(mask) => onSettingChange('placementMask', mask)}
-          />
         </div>
       </div>
     </details>
