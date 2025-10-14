@@ -9,17 +9,18 @@ import { getHexCorners } from './hexUtils';
 import { generateSprayIcons } from './sprayUtils';
 import { iconPaths } from './iconPaths';
 
-const TEXTURE_SIZE = 256; // Use a high-resolution power-of-two for good quality and performance.
-const TEXTURE_HEX_SIZE: Point = { x: TEXTURE_SIZE / 2, y: TEXTURE_SIZE / 2 };
+const DEFAULT_TEXTURE_HEX_SIZE: Point = { x: 50, y: 50 };
+const RESOLUTION_SCALE = 4; // Oversample to keep textures crisp when zooming.
+
 /**
  * Renders the spray icons for a given terrain onto a canvas context.
  * @param ctx The 2D rendering context of the canvas.
  * @param terrain The terrain tile definition.
  */
-function drawSprayIcons(ctx: CanvasRenderingContext2D, terrain: Tile) {
+function drawSprayIcons(ctx: CanvasRenderingContext2D, terrain: Tile, hexSize: Point) {
   // Use a mock hex; the coordinates don't matter as the pattern is deterministic by terrain ID.
   const mockHex = { q: 0, r: 0, s: 0, terrain: terrain.id, barrierEdges: [] };
-  const iconsToRender = generateSprayIcons(mockHex, terrain, TEXTURE_HEX_SIZE);
+  const iconsToRender = generateSprayIcons(mockHex, terrain, hexSize);
 
   for (const icon of iconsToRender) {
     const paths = iconPaths[icon.name];
@@ -29,8 +30,11 @@ function drawSprayIcons(ctx: CanvasRenderingContext2D, terrain: Tile) {
     ctx.translate(icon.x, icon.y);
     ctx.rotate((icon.rotation * Math.PI) / 180);
 
-    const fillColor = icon.color || '#FF00FF';
-    ctx.fillStyle = fillColor;
+    const strokeColor = icon.color || '#FF00FF';
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = 2.5;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
     ctx.globalAlpha = icon.opacity;
 
     // The icon paths from lucide are for a 24x24 viewport. We need to scale them to the desired size.
@@ -41,7 +45,7 @@ function drawSprayIcons(ctx: CanvasRenderingContext2D, terrain: Tile) {
     for (const pathData of paths) {
       try {
         const path2d = new Path2D(pathData);
-        ctx.fill(path2d);
+        ctx.stroke(path2d);
       } catch (e) {
         console.warn(`Could not draw path for icon '${icon.name}':`, e);
       }
@@ -59,34 +63,40 @@ function drawSprayIcons(ctx: CanvasRenderingContext2D, terrain: Tile) {
  */
 export async function generateTerrainTextures(
   tileSets: TileSet,
-  terrainColors: Record<string, string>
+  terrainColors: Record<string, string>,
+  hexSize: Point = DEFAULT_TEXTURE_HEX_SIZE
 ): Promise<TerrainTextures> {
   const textures: TerrainTextures = {};
 
   const canvas = document.createElement('canvas');
   const hexBoundingBox = {
-    width: TEXTURE_HEX_SIZE.x * Math.sqrt(3),
-    height: TEXTURE_HEX_SIZE.y * 2,
+    width: hexSize.x * Math.sqrt(3),
+    height: hexSize.y * 2,
   };
-  canvas.width = hexBoundingBox.width;
-  canvas.height = hexBoundingBox.height;
+  const devicePixelRatio = typeof window !== 'undefined' ? window.devicePixelRatio ?? 1 : 1;
+  const scaleFactor = RESOLUTION_SCALE * devicePixelRatio;
+  canvas.width = Math.round(hexBoundingBox.width * scaleFactor);
+  canvas.height = Math.round(hexBoundingBox.height * scaleFactor);
+  canvas.style.width = `${hexBoundingBox.width}px`;
+  canvas.style.height = `${hexBoundingBox.height}px`;
 
   const ctx = canvas.getContext('2d');
   if (!ctx) {
     throw new Error('Could not get 2D rendering context');
   }
+  ctx.scale(scaleFactor, scaleFactor);
 
-  const hexCorners = getHexCorners('pointy', TEXTURE_HEX_SIZE);
+  const hexCorners = getHexCorners('pointy', hexSize);
 
   for (const terrain of tileSets.terrain) {
     const color = terrainColors[terrain.id] || '#cccccc';
 
     // Reset canvas for the next texture
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, hexBoundingBox.width, hexBoundingBox.height);
     ctx.save();
 
     // Center the hex in the canvas
-    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.translate(hexBoundingBox.width / 2, hexBoundingBox.height / 2);
 
     // --- Generate texture WITHOUT spray ---
     ctx.beginPath();
@@ -101,7 +111,7 @@ export async function generateTerrainTextures(
     const withoutSpray = canvas.toDataURL('image/png');
 
     // --- Generate texture WITH spray ---
-    drawSprayIcons(ctx, terrain);
+    drawSprayIcons(ctx, terrain, hexSize);
     const withSpray = canvas.toDataURL('image/png');
 
     textures[terrain.id] = { withSpray, withoutSpray };

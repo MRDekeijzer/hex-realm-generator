@@ -213,7 +213,7 @@ export default function App() {
     const generateAndSetTextures = async () => {
       setIsLoadingTextures(true);
       try {
-        const textures = await generateTerrainTextures(tileSets, terrainColors);
+        const textures = await generateTerrainTextures(tileSets, terrainColors, viewOptions.hexSize);
         setTerrainTextures(textures);
       } catch (error) {
         console.error('Failed to generate terrain textures:', error);
@@ -229,7 +229,7 @@ export default function App() {
       }
     };
     generateAndSetTextures();
-  }, [tileSets, terrainColors]);
+  }, [tileSets, terrainColors, viewOptions.hexSize]);
 
   /**
    * Effect to handle tool-specific state changes when the active tool is switched.
