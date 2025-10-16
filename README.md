@@ -68,15 +68,6 @@ Open the code to find exact components such as `HexGrid.tsx`, `TerrainPainter.ts
 
 If you later integrate external services, keep any keys out of source control and add them to a `.env.local` if needed.
 
-## Contributing
-
-Contributions, issues, and feature requests are welcome. If you'd like to contribute:
-
-1. Fork the repo
-2. Create a feature branch: `git checkout -b feat/your-feature`
-3. Make changes and add tests where appropriate
-4. Submit a PR and describe the use-case
-
 ## Credits
 
 - Author: https://github.com/MRDekeijzer
