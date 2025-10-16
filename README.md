@@ -74,5 +74,7 @@ If you later integrate external services, keep any keys out of source control an
 
 - Author: https://github.com/MRDekeijzer
 - Mythic Bastionland (design inspiration and intended playstyle): https://chrismcdee.itch.io/mythic-bastionland
-- Google Gemini Pro 2.5 (acknowledged tool used with this project)
+- Google Gemini Pro 2.5, Github Copilot, OpenAI Codex
 - Icons by Lucide
+
+Readme written with the help of AI.
