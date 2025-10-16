@@ -5,7 +5,8 @@
 Hex Realm Generator is a browser-based tool to quickly create hex-based realms and encounter sites for TTRPGs, built specifically to support Mythic Bastionland-style play. Use it to procedurally generate terrain, paint points-of-interest (POIs), draw barriers, tweak generation settings, and export maps for use at the table.
 
 Author: https://github.com/MRDekeijzer
-View on: https://mrdekeijzer.github.io/hex-realm-generator/
+
+View on: [Github Pages: Hex Realm Generator](https://mrdekeijzer.github.io/hex-realm-generator/)
 
 ## What this does
 
