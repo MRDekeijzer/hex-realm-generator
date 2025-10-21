@@ -4,13 +4,144 @@
  * for performance optimization.
  */
 
+import type { IconNode } from 'lucide-react';
+
 import type { TileSet, TerrainTextures, Point, Tile } from '@/features/realm/types';
 import { getHexCorners } from './hexUtils';
 import { generateSprayIcons } from './sprayUtils';
-import { iconPaths } from './iconPaths';
+import { getIconNode } from './iconPaths';
 
 const DEFAULT_TEXTURE_HEX_SIZE: Point = { x: 50, y: 50 };
 const RESOLUTION_SCALE = 4; // Oversample to keep textures crisp when zooming.
+
+const toNumber = (value: string | number | undefined): number | null => {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : null;
+  }
+
+  if (typeof value === 'string') {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  return null;
+};
+
+const parsePoints = (points: string | undefined): { x: number; y: number }[] => {
+  if (!points) {
+    return [];
+  }
+
+  const values = points.trim().split(/[\s,]+/);
+  const coordinates: { x: number; y: number }[] = [];
+  for (let i = 0; i + 1 < values.length; i += 2) {
+    const x = Number(values[i]);
+    const y = Number(values[i + 1]);
+    if (Number.isFinite(x) && Number.isFinite(y)) {
+      coordinates.push({ x, y });
+    }
+  }
+  return coordinates;
+};
+
+const createPathFromNode = (tag: string, attrs: Record<string, string>): Path2D | null => {
+  switch (tag) {
+    case 'path': {
+      const pathData = attrs.d;
+      if (!pathData) {
+        return null;
+      }
+      return new Path2D(pathData);
+    }
+    case 'line': {
+      const x1 = toNumber(attrs.x1);
+      const y1 = toNumber(attrs.y1);
+      const x2 = toNumber(attrs.x2);
+      const y2 = toNumber(attrs.y2);
+      if (x1 === null || y1 === null || x2 === null || y2 === null) {
+        return null;
+      }
+      const path = new Path2D();
+      path.moveTo(x1, y1);
+      path.lineTo(x2, y2);
+      return path;
+    }
+    case 'polyline':
+    case 'polygon': {
+      const points = parsePoints(attrs.points);
+      if (points.length < 2) {
+        return null;
+      }
+      const path = new Path2D();
+      path.moveTo(points[0]?.x ?? 0, points[0]?.y ?? 0);
+      for (let i = 1; i < points.length; i++) {
+        path.lineTo(points[i]?.x ?? 0, points[i]?.y ?? 0);
+      }
+      if (tag === 'polygon') {
+        path.closePath();
+      }
+      return path;
+    }
+    case 'rect': {
+      const x = toNumber(attrs.x) ?? 0;
+      const y = toNumber(attrs.y) ?? 0;
+      const width = toNumber(attrs.width);
+      const height = toNumber(attrs.height);
+      if (width === null || height === null) {
+        return null;
+      }
+      const path = new Path2D();
+      path.rect(x, y, width, height);
+      return path;
+    }
+    case 'circle': {
+      const cx = toNumber(attrs.cx) ?? 0;
+      const cy = toNumber(attrs.cy) ?? 0;
+      const radius = toNumber(attrs.r);
+      if (radius === null) {
+        return null;
+      }
+      const path = new Path2D();
+      path.arc(cx, cy, radius, 0, Math.PI * 2);
+      return path;
+    }
+    case 'ellipse': {
+      const cx = toNumber(attrs.cx) ?? 0;
+      const cy = toNumber(attrs.cy) ?? 0;
+      const rx = toNumber(attrs.rx);
+      const ry = toNumber(attrs.ry);
+      if (rx === null || ry === null) {
+        return null;
+      }
+      const path = new Path2D();
+      path.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+      return path;
+    }
+    default:
+      return null;
+  }
+};
+
+const renderIconNode = (ctx: CanvasRenderingContext2D, iconNode: IconNode) => {
+  for (const [tag, attrs] of iconNode) {
+    const path = createPathFromNode(tag, attrs);
+    if (!path) {
+      continue;
+    }
+
+    const fillValue = attrs.fill;
+    if (fillValue && fillValue !== 'none') {
+      const previousFill = ctx.fillStyle;
+      const resolvedFill =
+        fillValue === 'currentColor' ? ctx.strokeStyle : fillValue;
+      ctx.fillStyle = resolvedFill;
+      ctx.fill(path);
+      ctx.fillStyle = previousFill;
+    }
+
+    ctx.stroke(path);
+  }
+};
 
 /**
  * Renders the spray icons for a given terrain onto a canvas context.
@@ -23,8 +154,10 @@ function drawSprayIcons(ctx: CanvasRenderingContext2D, terrain: Tile, hexSize: P
   const iconsToRender = generateSprayIcons(mockHex, terrain, hexSize);
 
   for (const icon of iconsToRender) {
-    const paths = iconPaths[icon.name];
-    if (!paths) continue;
+    const iconNode = getIconNode(icon.name);
+    if (!iconNode || iconNode.length === 0) {
+      continue;
+    }
 
     ctx.save();
     ctx.translate(icon.x, icon.y);
@@ -32,24 +165,18 @@ function drawSprayIcons(ctx: CanvasRenderingContext2D, terrain: Tile, hexSize: P
 
     const strokeColor = icon.color || '#FF00FF';
     ctx.strokeStyle = strokeColor;
+    ctx.fillStyle = strokeColor;
     ctx.lineWidth = 2.5;
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
     ctx.globalAlpha = icon.opacity;
 
-    // The icon paths from lucide are for a 24x24 viewport. We need to scale them to the desired size.
+    // The icon definitions from lucide use a 24x24 viewport. Scale to the desired size.
     const scale = icon.size / 24;
     ctx.scale(scale, scale);
     ctx.translate(-12, -12); // Center the 24x24 viewport
 
-    for (const pathData of paths) {
-      try {
-        const path2d = new Path2D(pathData);
-        ctx.stroke(path2d);
-      } catch (e) {
-        console.warn(`Could not draw path for icon '${icon.name}':`, e);
-      }
-    }
+    renderIconNode(ctx, iconNode);
 
     ctx.restore();
   }

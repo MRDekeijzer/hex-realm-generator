@@ -83,7 +83,7 @@ import {
  * A mapping of string names to Lucide icon components.
  * This allows icons to be referenced by a simple string name throughout the app.
  */
-const icons: Record<string, React.ElementType> = {
+export const iconComponentMap: Record<string, React.ElementType> = {
   // Toolbar
   sparkles: Sparkles,
   settings: Settings,
@@ -177,7 +177,7 @@ const icons: Record<string, React.ElementType> = {
  */
 // FIX: Changed interface with extends to a type intersection to resolve issues with TS not recognizing SVG attributes.
 type IconProps = {
-  /** The string name of the icon to render. Must exist in the `icons` map. */
+  /** The string name of the icon to render. Must exist in the `iconComponentMap` map. */
   name: string;
 } & React.SVGAttributes<SVGSVGElement>;
 
@@ -187,7 +187,7 @@ type IconProps = {
  * @returns A Lucide icon component or null if the name is not found.
  */
 export const Icon = ({ name, ...props }: IconProps) => {
-  const LucideIcon = icons[name];
+  const LucideIcon = iconComponentMap[name];
   if (!LucideIcon) {
     return null;
   }

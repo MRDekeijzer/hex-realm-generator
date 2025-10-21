@@ -1,156 +1,46 @@
 /**
  * @file utils/iconPaths.ts
- * This file contains raw SVG path data for icons used in the Icon Spray feature.
- * This is necessary because the canvas rendering context cannot execute React components
- * like those from `lucide-react`. This provides a direct way to access vector data
- * for the performance-critical texture generation process.
+ * Provides access to Lucide icon node definitions so they can be rendered outside
+ * the React component tree (e.g., onto a canvas for the icon spray textures).
  */
+import type { IconNode } from 'lucide-react';
+import type { ForwardRefExoticComponent, ReactElement, Ref, SVGProps } from 'react';
+
+import { iconComponentMap } from '@/features/realm/components/Icon';
+
+type LucideForwardRefComponent = ForwardRefExoticComponent<SVGProps<SVGSVGElement>> & {
+  render?: (
+    props: Record<string, unknown>,
+    ref: Ref<SVGSVGElement> | null
+  ) => ReactElement<{ iconNode: IconNode }>;
+};
+
+const iconNodeCache = new Map<string, IconNode | null>();
 
 /**
- * A map of icon names to their SVG path data.
- * Each key is an icon name, and the value is an array of SVG path 'd' attributes.
- * Some icons may consist of multiple paths.
+ * Resolves the Lucide icon node data for a given icon name.
+ * The result is cached so the icon definition is only extracted once.
  */
-export const iconPaths: Record<string, string[]> = {
-  'tree-pine': [
-    'M12 22v-3',
-    'M12 9c3.3 0 6-2.7 6-6s-2.7-6-6-6-6 2.7-6 6 2.7 6 6 6z',
-    'm14 14-2 2-2-2',
-    'm12 19-2 2-2-2',
-  ],
-  leaf: [
-    'M11 20A7 7 0 0 1 4 13V7a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V7a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v6a7 7 0 0 1-7 7z',
-    'M12 20v-2',
-  ],
-  feather: ['M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z', 'M16 8L2 22', 'M17.5 15H9'],
-  flower: [
-    'M12 7.5a4.5 4.5 0 1 1 4.5 4.5',
-    'M12 7.5A4.5 4.5 0 1 0 7.5 12',
-    'M16.5 12a4.5 4.5 0 1 1-4.5 4.5',
-    'M7.5 12A4.5 4.5 0 1 0 12 16.5',
-    'M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0-6 0',
-  ],
-  grass: [
-    'M2 22v-2c2.2-1.3 4.5-2.5 6.8-3.5C11.5 15 12.5 15 13.2 15h0c.7 0 1.7 0 4-1.5c2.3-1.5 4.5-2.7 6.8-3.5v2c-2.2 1.3-4.5 2.5-6.8 3.5C14.5 17 13.5 17 12.8 17h0c-.7 0-1.7 0-4 1.5C6.5 20 4.2 21.2 2 22Z',
-    'M11 15v7',
-    'M11 8v2',
-  ],
-  sprout: [
-    'M7 20h10',
-    'M10 20v-3a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v3',
-    'M12 15s2-2 2-3c0-1.1-1-2-2-2-1 0-2 .9-2 2 0 1 2 3 2 3Z',
-    'M12 3v1',
-  ],
-  shrub: [
-    'M12 22v-6',
-    'M12 8V2',
-    'M6 12H2',
-    'M22 12h-4',
-    'M15 5.09a7 7 0 0 1 0 13.82',
-    'M9 18.91A7 7 0 0 1 9 5.08',
-  ],
-  triangle: ['M13.73 4a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 3.73 21h16a2 2 0 0 0 1.73-3Z'],
-  waves: [
-    'M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1',
-    'M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1',
-    'M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1',
-  ],
-  droplet: [
-    'M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z',
-  ],
-  sun: [
-    'M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0-8 0',
-    'M12 2v2',
-    'M12 20v2',
-    'M5 5l1.5 1.5',
-    'M17.5 17.5L19 19',
-    'M2 12h2',
-    'M20 12h2',
-    'M5 19l1.5-1.5',
-    'M17.5 6.5L19 5',
-  ],
-  wind: [
-    'M17.7 7.7a2.5 2.5 0 1 0-3.54 0L12 10l-2.12-2.12a2.5 2.5 0 1 0-3.54 0L6 8.17',
-    'M12 12l-2.12 2.12a2.5 2.5 0 1 0 3.54 0L14.12 12',
-    'M18.17 12l-2.12-2.12a2.5 2.5 0 1 0-3.54 0L12 10',
-    'M7 12l2.12 2.12a2.5 2.5 0 1 0 3.54 0L12 12.01',
-  ],
-  star: [
-    'M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.77 5.82 22 7 14.14 2 9.27l6.91-1.01L12 2z',
-  ],
-  sparkle: [
-    'M9.9 2.1c.2-.4.7-.4 1 0l1.2 2.5c.1.2.4.3.6.3h2.7c.5 0 .7.5.3.8l-2.2 1.6c-.2.1-.3.4-.2.6l1 2.7c.1.5-.3.9-.8.6l-2.3-1.7c-.2-.1-.5-.1-.7 0l-2.3 1.7c-.5.3-1-.1-.8-.6l1-2.7c.1-.2 0-.5-.2-.6L3.3 5.7c-.4-.3-.2-.8.3-.8H6c.3 0 .5-.1.6-.3l1.2-2.5z',
-  ],
-  cloud: ['M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z'],
-  rock: [
-    'M12 22l-4-4',
-    'm-4 0l-4-4',
-    'M4 14l4-4',
-    'm4 0l4-4',
-    'M12 6l4 4',
-    'm4 0l4 4',
-    'M20 18l-4-4',
-    'm-4 4l-4 4',
-  ],
-  flag: ['M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z', 'M4 22v-7'],
-  snowflake: [
-    'M10 2l-2.5 4.5',
-    'M14 2l2.5 4.5',
-    'M12 2V8',
-    'm-4.5 2.5L2 10',
-    'm15.5 2.5L22 10',
-    'M16 8H8',
-    'M2 14l5.5 2.5',
-    'M22 14l-5.5 2.5',
-    'M8 16h8',
-    'M10 22l2.5-4.5',
-    'M14 22l-2.5-4.5',
-    'M12 16v6',
-  ],
-  branch: [
-    'M5 22h14',
-    'M12 22V6',
-    'M12 6H8.5a2.5 2.5 0 0 1 0-5H12',
-    'M12 6h3.5a2.5 2.5 0 1 0 0-5H12',
-  ],
-  river: ['M3 17l6-6 4 4 6-6'],
-  path: ['M3 17l4-4 4 4 4-4', 'M3 7l4 4 4-4 4 4'],
-  'wave-sine': ['M2 12h3l3 3 3-6 3 3h2'],
-  'chevron-up': ['M18 15l-6-6-6 6'],
-  skull: [
-    'M20 20a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z',
-    'M8 12h8',
-    'M9 16h6',
-    'M9 8h.01',
-    'M15 8h.01',
-  ],
-  fish: [
-    'M6.5 13.5v-11',
-    'M10 12v-1.5',
-    'm10 3v1.5',
-    'M15.5 13.5v-11',
-    'M18 12v-1.5',
-    'm0 3v1.5',
-    'M2 13.5h20',
-    'M2 5.5h20',
-    'M13.5 12h-3',
-    'm0 3h3',
-    'M11 2v20',
-    'M15.5 5.5v-4',
-    'M6.5 5.5v-4',
-    'M6.5 13.5v8',
-    'M15.5 13.5v8',
-    'M4 12v1.5',
-    'M4 9v1.5',
-  ],
-  'tree-deciduous': [
-    'M12 22v-6',
-    'M6 16H4.2c-1.2 0-2.2-1-2.2-2.2V12c0-1.2 1-2.2 2.2-2.2H6',
-    'M18 16h1.8c1.2 0 2.2-1 2.2-2.2V12c0-1.2-1-2.2-2.2-2.2H18',
-    'M12 16a6 6 0 0 0 6-6h-2a4 4 0 0 1-4 4V4a2 2 0 1 0-4 0v6a4 4 0 0 1-4-4H6a6 6 0 0 0 6 6z',
-  ],
-  sparkles: [
-    'M9.5 2.1c.2-.4.7-.4 1 0l1.2 2.5c.1.2.4.3.6.3h2.7c.5 0 .7.5.3.8l-2.2 1.6c-.2.1-.3.4-.2.6l1 2.7c.1.5-.3.9-.8.6l-2.3-1.7c-.2-.1-.5-.1-.7 0l-2.3 1.7c-.5.3-1-.1-.8-.6l1-2.7c.1-.2 0-.5-.2-.6L3 5.7c-.4-.3-.2-.8.3-.8H6c.3 0 .5-.1.6-.3l1.2-2.5z',
-    'M15 15.3c.2-.4.7-.4 1 0l.6 1.2c.1.2.4.3.6.3h1.4c.5 0 .7.5.3.8l-1.1 1c-.2.1-.3.4-.2.6l.5 1.4c.1.5-.3.9-.8.6l-1.2-.9c-.2-.1-.5-.1-.7 0l-1.2.9c-.5.3-1-.1-.8-.6l.5-1.4c.1-.2 0-.5-.2-.6l-1.1-1c-.4-.3-.2-.8.3-.8H15c.3 0 .5-.1.6-.3l.6-1.2z',
-  ],
+export const getIconNode = (iconName: string): IconNode | null => {
+  if (iconNodeCache.has(iconName)) {
+    return iconNodeCache.get(iconName) ?? null;
+  }
+
+  const component = iconComponentMap[iconName] as LucideForwardRefComponent | undefined;
+  if (!component || typeof component.render !== 'function') {
+    iconNodeCache.set(iconName, null);
+    return null;
+  }
+
+  try {
+    const element = component.render({}, null);
+    const iconNode = (element?.props?.iconNode ?? null) as IconNode | null;
+    iconNodeCache.set(iconName, iconNode);
+    return iconNode;
+  } catch (error) {
+    console.warn(`Failed to extract Lucide icon node for '${iconName}'`, error);
+  }
+
+  iconNodeCache.set(iconName, null);
+  return null;
 };
