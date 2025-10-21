@@ -158,7 +158,7 @@ export interface Tile {
   /** The name of the icon used to represent the tile. */
   icon: string;
   /** The color associated with the tile (primarily for terrain). */
-  color?: string;
+  color: string;
   /** A short description used to explain the tile's thematic role. */
   description?: string;
   /** An array of icon names to be used by the Icon Spray feature. */

@@ -7,6 +7,7 @@
 import type { IconNode } from 'lucide-react';
 
 import type { TileSet, TerrainTextures, Point, Tile } from '@/features/realm/types';
+import { resolveColorToken } from '@/app/theme/colors';
 import { getHexCorners } from './hexUtils';
 import { generateSprayIcons } from './sprayUtils';
 import { getIconNode } from './iconPaths';
@@ -162,7 +163,8 @@ function drawSprayIcons(ctx: CanvasRenderingContext2D, terrain: Tile, hexSize: P
     ctx.translate(icon.x, icon.y);
     ctx.rotate((icon.rotation * Math.PI) / 180);
 
-    const strokeColor = icon.color || '#FF00FF';
+    const fallbackColor = '#FF00FF';
+    const strokeColor = resolveColorToken(icon.color ?? fallbackColor) || fallbackColor;
     ctx.strokeStyle = strokeColor;
     ctx.fillStyle = strokeColor;
     ctx.lineWidth = 2.5;

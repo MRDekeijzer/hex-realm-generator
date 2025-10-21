@@ -15,11 +15,10 @@ const rgbaToHexOpacity = (rgba: string): { hex: string; opacity: number } => {
   const match = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/.exec(rgba);
   if (!match) return { hex: '#eaebec', opacity: 0.2 };
   const toHex = (c: number) => ('0' + c.toString(16)).slice(-2);
-  const r = match[1];
-  const g = match[2];
-  const b = match[3];
-  const o = match[4];
-  if (!r || !g || !b) return { hex: '#eaebec', opacity: 0.2 };
+  const [, r, g, b, o] = match;
+  if (r === undefined || g === undefined || b === undefined) {
+    return { hex: '#eaebec', opacity: 0.2 };
+  }
   return {
     hex: `#${toHex(parseInt(r, 10))}${toHex(parseInt(g, 10))}${toHex(parseInt(b, 10))}`,
     opacity: o !== undefined ? parseFloat(o) : 1,
@@ -32,11 +31,11 @@ const rgbaToHexOpacity = (rgba: string): { hex: string; opacity: number } => {
 const hexToRgb = (hex: string): { r: number; g: number; b: number } | null => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   if (!result) return null;
-  const r = result[1];
-  const g = result[2];
-  const b = result[3];
-  if (!r || !g || !b) return null;
-  return result ? { r: parseInt(r, 16), g: parseInt(g, 16), b: parseInt(b, 16) } : null;
+  const [, r, g, b] = result;
+  if (r === undefined || g === undefined || b === undefined) {
+    return null;
+  }
+  return { r: parseInt(r, 16), g: parseInt(g, 16), b: parseInt(b, 16) };
 };
 
 /**

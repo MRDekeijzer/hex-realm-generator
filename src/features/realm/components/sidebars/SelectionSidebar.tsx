@@ -11,6 +11,34 @@ import { BARRIER_COLOR, SELECTION_COLOR } from '@/features/realm/config/constant
 import { Icon } from '../Icon';
 import { getHexCorners, getBarrierPath, getNeighbors } from '@/features/realm/utils/hexUtils';
 
+const hexToRgbaWithAlpha = (hex: string, alphaMultiplier = 1): string => {
+  if (!hex.startsWith('#')) {
+    return hex;
+  }
+
+  let normalized = hex.slice(1);
+  if (normalized.length === 3 || normalized.length === 4) {
+    normalized = normalized
+      .split('')
+      .map((char) => char + char)
+      .join('');
+  }
+
+  if (normalized.length !== 6 && normalized.length !== 8) {
+    return hex;
+  }
+
+  const r = parseInt(normalized.slice(0, 2), 16);
+  const g = parseInt(normalized.slice(2, 4), 16);
+  const b = parseInt(normalized.slice(4, 6), 16);
+  const alphaByte = normalized.length === 8 ? parseInt(normalized.slice(6, 8), 16) : 0xff;
+  const baseAlpha = alphaByte / 255;
+  const finalAlpha = Math.max(0, Math.min(1, baseAlpha * alphaMultiplier));
+
+  const formatAlpha = (value: number) => Number(value.toFixed(3));
+  return `rgba(${r}, ${g}, ${b}, ${formatAlpha(finalAlpha)})`;
+};
+
 /**
  * Props for the SelectionSidebar component.
  */
@@ -75,7 +103,7 @@ export function SelectionSidebar({
   }
 
   const selectionStrokeColor = SELECTION_COLOR;
-  const selectionStrokeFaintColor = `${SELECTION_COLOR}99`;
+  const selectionStrokeFaintColor = hexToRgbaWithAlpha(SELECTION_COLOR, 0.6);
   const handleChange = <K extends keyof Hex>(key: K, value: Hex[K]) => {
     onUpdateHex({ ...selectedHex, [key]: value });
   };
