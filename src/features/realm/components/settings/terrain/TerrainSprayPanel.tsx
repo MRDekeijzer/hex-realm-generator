@@ -74,9 +74,7 @@ export const TerrainSprayPanel: React.FC<TerrainSprayPanelProps> = ({
     }
     onSettingChange('seedOffset', nextSeed);
   };
-  const baseOpacityPercent = Math.round(
-    ((settings.opacityMin + settings.opacityMax) / 2) * 100
-  );
+  const baseOpacityPercent = Math.round(((settings.opacityMin + settings.opacityMax) / 2) * 100);
   const opacityVariancePercent = Math.round(
     ((settings.opacityMax - settings.opacityMin) / 2) * 100
   );
@@ -200,9 +198,7 @@ export const TerrainSprayPanel: React.FC<TerrainSprayPanelProps> = ({
             />
           </div>
           <div className="md:col-span-2">
-            <p className="block text-sm font-medium text-text-muted mb-2">
-              Deployment Mode
-            </p>
+            <p className="block text-sm font-medium text-text-muted mb-2">Deployment Mode</p>
             <div className="flex gap-2">
               <button
                 type="button"
@@ -263,31 +259,31 @@ export const TerrainSprayPanel: React.FC<TerrainSprayPanelProps> = ({
                     />
                   </div>
                   <div className="col-span-1">
-                  <SettingSlider
-                    label="Grid Rotation"
-                    tooltip="Rotates the entire grid layout around the hex center."
-                    value={settings.gridBaseRotation ?? 0}
-                    onChange={(value) => onSettingChange('gridBaseRotation', value)}
-                    min={-180}
-                    max={180}
-                    step={1}
-                    displayMultiplier={1}
-                    displaySuffix="°"
-                  />
-                </div>
-                <div className="col-span-1">
-                  <SettingSlider
-                    label="Rotation Variance"
-                    tooltip="Defines how much each grid icon can randomly rotate around its base orientation."
-                    value={settings.gridRotationRange}
-                    onChange={(value) => onSettingChange('gridRotationRange', value)}
-                    min={0}
-                    max={180}
-                    step={1}
-                    displayMultiplier={1}
-                    displaySuffix="°"
-                  />
-                </div>
+                    <SettingSlider
+                      label="Grid Rotation"
+                      tooltip="Rotates the entire grid layout around the hex center."
+                      value={settings.gridBaseRotation ?? 0}
+                      onChange={(value) => onSettingChange('gridBaseRotation', value)}
+                      min={-180}
+                      max={180}
+                      step={1}
+                      displayMultiplier={1}
+                      displaySuffix="°"
+                    />
+                  </div>
+                  <div className="col-span-1">
+                    <SettingSlider
+                      label="Rotation Variance"
+                      tooltip="Defines how much each grid icon can randomly rotate around its base orientation."
+                      value={settings.gridRotationRange}
+                      onChange={(value) => onSettingChange('gridRotationRange', value)}
+                      min={0}
+                      max={180}
+                      step={1}
+                      displayMultiplier={1}
+                      displaySuffix="°"
+                    />
+                  </div>
                 </>
               ) : (
                 <>

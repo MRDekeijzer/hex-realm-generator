@@ -228,8 +228,7 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
 
   const handleSettingChange = (terrainId: string, settingKey: keyof SpraySettings, value: any) => {
     updateDraftConfig(terrainId, (draft) => {
-      const nextValue =
-        settingKey === 'placementMask' && Array.isArray(value) ? [...value] : value;
+      const nextValue = settingKey === 'placementMask' && Array.isArray(value) ? [...value] : value;
 
       return {
         ...draft,

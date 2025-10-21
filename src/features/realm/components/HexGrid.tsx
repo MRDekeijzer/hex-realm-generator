@@ -134,8 +134,7 @@ export function HexGrid({
     if (isInteractive) {
       return null;
     }
-    const paddingValue =
-      staticPadding ?? Math.max(viewOptions.hexSize.x, viewOptions.hexSize.y);
+    const paddingValue = staticPadding ?? Math.max(viewOptions.hexSize.x, viewOptions.hexSize.y);
 
     if (!realm.hexes.length) {
       return `${hexBoundingBox.x - paddingValue} ${hexBoundingBox.y - paddingValue} ${
@@ -187,7 +186,7 @@ export function HexGrid({
     viewOptions.hexSize,
     viewOptions.orientation,
   ]);
-  const svgViewBox = isInteractive ? viewbox : staticViewBox ?? viewbox;
+  const svgViewBox = isInteractive ? viewbox : (staticViewBox ?? viewbox);
   const svgRef = useRef<SVGSVGElement>(null);
   const [isSpacePanActive, setIsSpacePanActive] = useState(false);
   const [hoveredBarrier, setHoveredBarrier] = useState<{

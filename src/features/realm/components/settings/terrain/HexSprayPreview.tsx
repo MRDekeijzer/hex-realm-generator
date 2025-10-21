@@ -33,7 +33,7 @@ export const HexSprayPreview: React.FC<HexSprayPreviewProps> = ({ terrain, onRer
             ? 'hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-actions-command-primary focus-visible:ring-offset-2 focus-visible:ring-offset-realm-command-panel-surface'
             : 'cursor-default'
         }`}
-        >
+      >
         <svg width="110" height="110" viewBox="-55 -55 110 110">
           <g>
             <polygon
@@ -44,7 +44,10 @@ export const HexSprayPreview: React.FC<HexSprayPreviewProps> = ({ terrain, onRer
             />
             <g>
               {iconsToRender.map((icon, index) => (
-                <g key={index} transform={`translate(${icon.x}, ${icon.y}) rotate(${icon.rotation})`}>
+                <g
+                  key={index}
+                  transform={`translate(${icon.x}, ${icon.y}) rotate(${icon.rotation})`}
+                >
                   <Icon
                     name={icon.name}
                     style={{ opacity: icon.opacity, color: icon.color }}

@@ -11,7 +11,6 @@ import { ToolbarButton } from './ui/ToolbarButton';
 import { SettingsModal } from './settings/SettingsModal';
 import { GridSettingsPopover } from './GridSettingsPopover';
 import type { ConfirmationState } from '@/app/App';
-import { Icon } from './Icon';
 
 function ToolbarDivider() {
   return <div className="border-l border-border-panel-divider h-6" aria-hidden="true" />;
@@ -179,12 +178,9 @@ export function Toolbar({
         />
 
         <h1 className="text-xl font-bold text-text-high-contrast mr-4">Hex Realm Generator</h1>
-        <ToolbarButton
-          onClick={onGenerate}
-          icon="sparkles"
-          title="Generate New Realm"
-          children="Generate"
-        />
+        <ToolbarButton onClick={onGenerate} icon="sparkles" title="Generate New Realm">
+          Generate
+        </ToolbarButton>
         <ToolbarButton
           onClick={handleOpenSettings}
           icon="settings"
@@ -199,8 +195,9 @@ export function Toolbar({
             onClick={() => setIsGridSettingsOpen((prev) => !prev)}
             icon="grid"
             title="Grid Settings"
-            children="Grid"
-          />
+          >
+            Grid
+          </ToolbarButton>
           {isGridSettingsOpen && (
             <GridSettingsPopover
               ref={gridSettingsPopoverRef}
@@ -217,8 +214,9 @@ export function Toolbar({
           icon="spray-can"
           isActive={viewOptions.showIconSpray}
           title="Toggle Icon Spray"
-          children="Icon Spray"
-        />
+        >
+          Icon Spray
+        </ToolbarButton>
 
         <ToolbarDivider />
 
@@ -227,8 +225,9 @@ export function Toolbar({
           icon="eye"
           isActive={viewOptions.isGmView}
           title={viewOptions.isGmView ? 'Referee View' : 'Knight View'}
-          children={viewOptions.isGmView ? 'Referee View' : 'Knight View'}
-        />
+        >
+          {viewOptions.isGmView ? 'Referee View' : 'Knight View'}
+        </ToolbarButton>
         <ToolbarButton
           onClick={handleOpenViewSettings}
           icon="settings"
@@ -249,20 +248,15 @@ export function Toolbar({
           onClick={() => fileInputRef.current?.click()}
           icon="upload"
           title="Import from JSON file"
-          children="Import JSON"
-        />
-        <ToolbarButton
-          onClick={onExportJson}
-          icon="download"
-          title="Export as JSON file"
-          children="Export JSON"
-        />
-        <ToolbarButton
-          onClick={onExportPng}
-          icon="image-down"
-          title="Export as PNG image"
-          children="Export PNG"
-        />
+        >
+          Import JSON
+        </ToolbarButton>
+        <ToolbarButton onClick={onExportJson} icon="download" title="Export as JSON file">
+          Export JSON
+        </ToolbarButton>
+        <ToolbarButton onClick={onExportPng} icon="image-down" title="Export as PNG image">
+          Export PNG
+        </ToolbarButton>
       </div>
     </header>
   );

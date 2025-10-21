@@ -66,9 +66,7 @@ export function rasterizeSvgToPng(
   const clone = svgElement.cloneNode(true) as SVGElement;
 
   if (hideSelectionHighlights) {
-    clone
-      .querySelectorAll('.hex-selection-highlight, .hex-hover-highlight')
-      .forEach((element) => {
+    clone.querySelectorAll('.hex-selection-highlight, .hex-hover-highlight').forEach((element) => {
       element.remove();
     });
   }

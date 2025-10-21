@@ -225,7 +225,11 @@ export default function App() {
     const generateAndSetTextures = async () => {
       setIsLoadingTextures(true);
       try {
-        const textures = await generateTerrainTextures(tileSets, terrainColors, viewOptions.hexSize);
+        const textures = await generateTerrainTextures(
+          tileSets,
+          terrainColors,
+          viewOptions.hexSize
+        );
         setTerrainTextures(textures);
       } catch (error) {
         console.error('Failed to generate terrain textures:', error);
@@ -571,40 +575,42 @@ export default function App() {
   ]);
 
   const handleConfirmExport = useCallback(
-    async (settings: ExportSettings) => {
+    (settings: ExportSettings) => {
       if (!realm || isExporting) return;
       setIsExporting(true);
-      try {
-        const fileName =
-          settings.viewMode === 'referee' ? 'realm-map-referee.png' : 'realm-map-knight.png';
-        await exportSvgAsPng(EXPORT_PREVIEW_SVG_ID, fileName, {
-          scale: EXPORT_IMAGE_SCALE,
-          hideSelectionHighlights: true,
-        });
-        setIsExportModalOpen(false);
-      } catch (error) {
-        console.error('Failed to export PNG', error);
-        setConfirmation({
-          isOpen: true,
-          title: 'Export Failed',
-          message:
-            'Something went wrong while exporting the PNG. Please try again or report the issue if it persists.',
-          onConfirm: () => setConfirmation(null),
-          isInfo: true,
-        });
-      } finally {
-        setIsExporting(false);
-      }
+
+      const runExport = async () => {
+        try {
+          const fileName =
+            settings.viewMode === 'referee' ? 'realm-map-referee.png' : 'realm-map-knight.png';
+          await exportSvgAsPng(EXPORT_PREVIEW_SVG_ID, fileName, {
+            scale: EXPORT_IMAGE_SCALE,
+            hideSelectionHighlights: true,
+          });
+          setIsExportModalOpen(false);
+        } catch (error) {
+          console.error('Failed to export PNG', error);
+          setConfirmation({
+            isOpen: true,
+            title: 'Export Failed',
+            message:
+              'Something went wrong while exporting the PNG. Please try again or report the issue if it persists.',
+            onConfirm: () => setConfirmation(null),
+            isInfo: true,
+          });
+        } finally {
+          setIsExporting(false);
+        }
+      };
+
+      void runExport();
     },
     [realm, isExporting, setConfirmation, setIsExportModalOpen]
   );
 
-  const handleExportSettingsChange = useCallback(
-    (next: ExportSettings) => {
-      setExportSettings(next);
-    },
-    []
-  );
+  const handleExportSettingsChange = useCallback((next: ExportSettings) => {
+    setExportSettings(next);
+  }, []);
 
   /**
    * Designates a hex with a holding as the Seat of Power.
@@ -948,6 +954,7 @@ export default function App() {
         barrierColor={barrierColor ?? ''}
         previewSvgId={EXPORT_PREVIEW_SVG_ID}
         isExporting={isExporting}
+        terrainColors={terrainColors}
         previewPadding={Math.max(viewOptions.hexSize.x, viewOptions.hexSize.y)}
       />
       {confirmation?.isOpen && (

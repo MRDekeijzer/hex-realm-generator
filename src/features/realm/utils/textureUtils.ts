@@ -132,8 +132,7 @@ const renderIconNode = (ctx: CanvasRenderingContext2D, iconNode: IconNode) => {
     const fillValue = attrs.fill;
     if (fillValue && fillValue !== 'none') {
       const previousFill = ctx.fillStyle;
-      const resolvedFill =
-        fillValue === 'currentColor' ? ctx.strokeStyle : fillValue;
+      const resolvedFill = fillValue === 'currentColor' ? ctx.strokeStyle : fillValue;
       ctx.fillStyle = resolvedFill;
       ctx.fill(path);
       ctx.fillStyle = previousFill;
@@ -200,7 +199,7 @@ export async function generateTerrainTextures(
     width: hexSize.x * Math.sqrt(3),
     height: hexSize.y * 2,
   };
-  const devicePixelRatio = typeof window !== 'undefined' ? window.devicePixelRatio ?? 1 : 1;
+  const devicePixelRatio = typeof window !== 'undefined' ? (window.devicePixelRatio ?? 1) : 1;
   const scaleFactor = RESOLUTION_SCALE * devicePixelRatio;
   canvas.width = Math.round(hexBoundingBox.width * scaleFactor);
   canvas.height = Math.round(hexBoundingBox.height * scaleFactor);

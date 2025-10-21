@@ -30,12 +30,13 @@ interface ExportModalProps {
   previewSvgId: string;
   isExporting: boolean;
   previewPadding?: number;
+  terrainColors: Record<string, string>;
 }
 
-const noop = () => {};
-const noopConfirmationDispatch = (() => {}) as React.Dispatch<
-  React.SetStateAction<ConfirmationState | null>
->;
+const noop = (): void => undefined;
+const noopConfirmationDispatch: React.Dispatch<React.SetStateAction<ConfirmationState | null>> = (
+  _value
+) => undefined;
 
 export function ExportModal({
   isOpen,
@@ -52,6 +53,7 @@ export function ExportModal({
   previewSvgId,
   isExporting,
   previewPadding = 40,
+  terrainColors,
 }: ExportModalProps) {
   const previewViewOptions = useMemo(() => {
     return {
@@ -149,7 +151,6 @@ export function ExportModal({
                 </label>
               </div>
             </div>
-
           </section>
 
           <section aria-label="Export preview" className="flex flex-col gap-3">
@@ -180,6 +181,7 @@ export function ExportModal({
                     onRelocateMyth={noop}
                     onSetSeatOfPower={noop}
                     tileSets={tileSets}
+                    terrainColors={terrainColors}
                     barrierColor={barrierColor}
                     isSettingsOpen={true}
                     isPickingTile={false}

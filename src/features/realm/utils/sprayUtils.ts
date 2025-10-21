@@ -295,8 +295,9 @@ export const generateSprayIcons = (hex: Hex, terrainTile: Tile, hexSize: Point):
   const presetSettings = (preset?.settings ?? {}) as Partial<
     SpraySettings & { gridScaleVariance?: number }
   >;
-  const terrainSettings = (terrainTile.spraySettings ??
-    {}) as Partial<SpraySettings> & { gridScaleVariance?: number };
+  const terrainSettings = (terrainTile.spraySettings ?? {}) as Partial<SpraySettings> & {
+    gridScaleVariance?: number;
+  };
   const mergedInput = { ...presetSettings, ...terrainSettings };
   const settings: SpraySettings = {
     ...DEFAULT_SPRAY_SETTINGS,
@@ -322,7 +323,7 @@ export const generateSprayIcons = (hex: Hex, terrainTile: Tile, hexSize: Point):
   const availableIcons =
     terrainTile.sprayIcons && terrainTile.sprayIcons.length > 0
       ? terrainTile.sprayIcons
-      : preset?.icons ?? [];
+      : (preset?.icons ?? []);
 
   if (availableIcons.length === 0) {
     return [];
@@ -333,7 +334,8 @@ export const generateSprayIcons = (hex: Hex, terrainTile: Tile, hexSize: Point):
     return [];
   }
 
-  const seed = hex.q * 1337 + hex.r * 31337 + stringToSeed(terrainTile.id) + (settings.seedOffset ?? 0);
+  const seed =
+    hex.q * 1337 + hex.r * 31337 + stringToSeed(terrainTile.id) + (settings.seedOffset ?? 0);
   const random = mulberry32(seed);
   const sizeBounds = computeSizeBounds(settings);
 

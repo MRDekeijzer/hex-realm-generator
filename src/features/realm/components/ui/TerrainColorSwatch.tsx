@@ -44,8 +44,7 @@ export const TerrainColorSwatch: React.FC<TerrainColorSwatchProps> = ({
     inputRef.current?.click();
   };
 
-  const normalizeColor = (value: string) =>
-    HEX_PATTERN.test(value) ? value.toUpperCase() : value;
+  const normalizeColor = (value: string) => (HEX_PATTERN.test(value) ? value.toUpperCase() : value);
 
   const handleColorUpdate = (value: string) => {
     onChange(normalizeColor(value));
