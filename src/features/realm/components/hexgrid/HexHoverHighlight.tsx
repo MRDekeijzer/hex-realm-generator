@@ -27,7 +27,7 @@ export const HexHoverHighlight = ({
       strokeOpacity="0.8"
       strokeWidth="2.5"
       strokeLinejoin="round"
-      className={`opacity-0 ${
+      className={`hex-hover-highlight opacity-0 ${
         shouldShowHover ? 'group-hover:opacity-100' : ''
       } transition-opacity duration-150`}
       style={{ pointerEvents: 'none' }}

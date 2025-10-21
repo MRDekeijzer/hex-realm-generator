@@ -14,6 +14,7 @@ interface PanAndZoomOptions {
   initialHeight: number;
   minZoom?: number;
   maxZoom?: number;
+  enabled?: boolean;
 }
 
 /**
@@ -27,6 +28,7 @@ export function usePanAndZoom({
   initialHeight,
   minZoom = 0.1,
   maxZoom = 10,
+  enabled = true,
 }: PanAndZoomOptions) {
   const [viewbox, setViewbox] = useState(
     `${-initialWidth / 2} ${-initialHeight / 2} ${initialWidth} ${initialHeight}`
@@ -48,11 +50,12 @@ export function usePanAndZoom({
 
   const onMouseDown = useCallback(
     (e: React.MouseEvent<SVGElement>) => {
+      if (!enabled) return;
       e.preventDefault();
       setPanningState(true);
       lastPoint.current = { x: e.clientX, y: e.clientY };
     },
-    [setPanningState]
+    [enabled, setPanningState]
   );
 
   const onMouseMove = useCallback(
@@ -82,6 +85,7 @@ export function usePanAndZoom({
 
   const onWheel = useCallback(
     (event: WheelEvent) => {
+      if (!enabled) return;
       event.preventDefault();
       const container = containerRef.current;
       if (!container) return;
@@ -114,10 +118,11 @@ export function usePanAndZoom({
         return nextZoom;
       });
     },
-    [clampZoom]
+    [clampZoom, enabled]
   );
 
   useEffect(() => {
+    if (!enabled) return;
     const handleMouseMove = (e: MouseEvent) => onMouseMove(e);
     const handleMouseUp = () => onMouseUp();
 
@@ -127,9 +132,10 @@ export function usePanAndZoom({
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [onMouseMove, onMouseUp]);
+  }, [enabled, onMouseMove, onMouseUp]);
 
   useEffect(() => {
+    if (!enabled) return;
     const container = containerRef.current;
     if (!container) return;
 
@@ -137,7 +143,7 @@ export function usePanAndZoom({
     return () => {
       container.removeEventListener('wheel', onWheel);
     };
-  }, [onWheel]);
+  }, [enabled, onWheel]);
 
-  return { viewbox, containerRef, onMouseDown, isPanning };
+  return { viewbox, containerRef, onMouseDown, isPanning: enabled ? isPanning : false };
 }

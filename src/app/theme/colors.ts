@@ -21,7 +21,7 @@ export const colorPalette = {
     'accent-headline': '#736b23',
   },
   actions: {
-    'command-primary': '#736b23',
+    'command-primary': '#736b23ff',
     'command-primary-hover': '#9d8940',
     'danger-base': '#60131b',
     'danger-hover': '#8a2a34',

@@ -15,6 +15,7 @@ import { PoiPainterSidebar } from '@/features/realm/components/sidebars/PoiPaint
 import { MythSidebar } from '@/features/realm/components/sidebars/MythSidebar';
 import { generateRealm } from '@/features/realm/services/realmGenerator';
 import { exportRealmAsJson, exportSvgAsPng } from '@/features/realm/services/fileService';
+import { ExportModal } from '@/features/realm/components/export/ExportModal';
 import type {
   Realm,
   Hex,
@@ -24,6 +25,7 @@ import type {
   Myth,
   TileSet,
   TerrainTextures,
+  ExportSettings,
 } from '@/features/realm/types';
 import {
   DEFAULT_GRID_SIZE,
@@ -51,6 +53,9 @@ const INITIAL_KNIGHT_VISIBILITY = normalizeKnightVisibility(
   DEFAULT_TILE_SETS,
   []
 ).visibility;
+
+const EXPORT_PREVIEW_SVG_ID = 'hex-grid-export-preview';
+const EXPORT_IMAGE_SCALE = 6;
 
 /**
  * State for managing confirmation dialogs.
@@ -90,6 +95,11 @@ export default function App() {
       knight: INITIAL_KNIGHT_VISIBILITY,
     },
   });
+  const [exportSettings, setExportSettings] = useState<ExportSettings>(() => ({
+    viewMode: 'referee',
+    includeGrid: true,
+    includeIconSpray: true,
+  }));
   const [activeTool, setActiveTool] = useState<Tool>('select');
   const [paintTerrain, setPaintTerrain] = useState<string>(TERRAIN_TYPES[0] ?? 'plain');
   const [paintPoi, setPaintPoi] = useState<string | null>('holding:castle');
@@ -98,6 +108,8 @@ export default function App() {
     ...TERRAIN_BASE_COLORS,
   }));
   const [barrierColor, setBarrierColor] = useState(BARRIER_COLOR);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', 'dark');
@@ -540,8 +552,59 @@ export default function App() {
     if (realm) exportRealmAsJson(realm);
   }, [realm]);
   const handleExportPng = useCallback(() => {
-    exportSvgAsPng('hex-grid-svg', 'realm-map.png');
-  }, []);
+    setExportSettings((prev) => {
+      const next = {
+        ...prev,
+        includeGrid: viewOptions.showGrid,
+        includeIconSpray: viewOptions.showIconSpray,
+        viewMode: viewOptions.isGmView ? 'referee' : 'knight',
+      };
+      return next;
+    });
+    setIsExportModalOpen(true);
+  }, [
+    setExportSettings,
+    setIsExportModalOpen,
+    viewOptions.isGmView,
+    viewOptions.showGrid,
+    viewOptions.showIconSpray,
+  ]);
+
+  const handleConfirmExport = useCallback(
+    async (settings: ExportSettings) => {
+      if (!realm || isExporting) return;
+      setIsExporting(true);
+      try {
+        const fileName =
+          settings.viewMode === 'referee' ? 'realm-map-referee.png' : 'realm-map-knight.png';
+        await exportSvgAsPng(EXPORT_PREVIEW_SVG_ID, fileName, {
+          scale: EXPORT_IMAGE_SCALE,
+          hideSelectionHighlights: true,
+        });
+        setIsExportModalOpen(false);
+      } catch (error) {
+        console.error('Failed to export PNG', error);
+        setConfirmation({
+          isOpen: true,
+          title: 'Export Failed',
+          message:
+            'Something went wrong while exporting the PNG. Please try again or report the issue if it persists.',
+          onConfirm: () => setConfirmation(null),
+          isInfo: true,
+        });
+      } finally {
+        setIsExporting(false);
+      }
+    },
+    [realm, isExporting, setConfirmation, setIsExportModalOpen]
+  );
+
+  const handleExportSettingsChange = useCallback(
+    (next: ExportSettings) => {
+      setExportSettings(next);
+    },
+    []
+  );
 
   /**
    * Designates a hex with a holding as the Seat of Power.
@@ -871,6 +934,22 @@ export default function App() {
           />
         ) : null}
       </div>
+      <ExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        onExport={handleConfirmExport}
+        settings={exportSettings}
+        onSettingsChange={handleExportSettingsChange}
+        realm={realm}
+        tileSets={tileSets}
+        baseViewOptions={viewOptions}
+        terrainTextures={terrainTextures}
+        isLoadingTextures={isLoadingTextures}
+        barrierColor={barrierColor ?? ''}
+        previewSvgId={EXPORT_PREVIEW_SVG_ID}
+        isExporting={isExporting}
+        previewPadding={Math.max(viewOptions.hexSize.x, viewOptions.hexSize.y)}
+      />
       {confirmation?.isOpen && (
         <ConfirmationDialog
           isOpen={confirmation.isOpen}

@@ -28,6 +28,7 @@ export const HexSelectionHighlight = ({
       stroke={SELECTION_COLOR}
       strokeWidth={4}
       strokeLinejoin="round"
+      className="hex-selection-highlight"
       style={{ pointerEvents: 'none' }}
     />
   );

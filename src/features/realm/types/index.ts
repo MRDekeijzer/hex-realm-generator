@@ -221,3 +221,13 @@ export interface GenerationOptions {
   /** An ordered array of terrain IDs from highest to lowest elevation. */
   terrainHeightOrder: string[];
 }
+
+/** User-configurable options for exporting the realm map. */
+export interface ExportSettings {
+  /** Which perspective to render, Referee (GM) or Knight (player). */
+  viewMode: 'referee' | 'knight';
+  /** Whether to include hex grid lines in the exported image. */
+  includeGrid: boolean;
+  /** Whether to include the icon spray overlay in the exported image. */
+  includeIconSpray: boolean;
+}

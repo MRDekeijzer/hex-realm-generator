@@ -57,6 +57,9 @@ interface HexGridProps {
   setConfirmation: React.Dispatch<React.SetStateAction<ConfirmationState | null>>;
   terrainTextures: TerrainTextures | null;
   isLoadingTextures: boolean;
+  svgId?: string;
+  isInteractive?: boolean;
+  staticPadding?: number;
 }
 
 /**
@@ -85,12 +88,16 @@ export function HexGrid({
   setConfirmation,
   terrainTextures,
   isLoadingTextures,
+  svgId = 'hex-grid-svg',
+  isInteractive = true,
+  staticPadding,
 }: HexGridProps) {
   const { viewbox, containerRef, onMouseDown, isPanning } = usePanAndZoom({
     initialWidth: 1000,
     initialHeight: 800,
     minZoom: 0.2,
     maxZoom: 5,
+    enabled: isInteractive,
   });
 
   const hexCorners = useMemo(
@@ -123,6 +130,64 @@ export function HexGrid({
     () => new Map(realm.hexes.map((h) => [`${h.q},${h.r}`, h])),
     [realm.hexes]
   );
+  const staticViewBox = useMemo(() => {
+    if (isInteractive) {
+      return null;
+    }
+    const paddingValue =
+      staticPadding ?? Math.max(viewOptions.hexSize.x, viewOptions.hexSize.y);
+
+    if (!realm.hexes.length) {
+      return `${hexBoundingBox.x - paddingValue} ${hexBoundingBox.y - paddingValue} ${
+        hexBoundingBox.width + paddingValue * 2
+      } ${hexBoundingBox.height + paddingValue * 2}`;
+    }
+
+    let minX = Number.POSITIVE_INFINITY;
+    let minY = Number.POSITIVE_INFINITY;
+    let maxX = Number.NEGATIVE_INFINITY;
+    let maxY = Number.NEGATIVE_INFINITY;
+
+    realm.hexes.forEach((hex) => {
+      const center = axialToPixel(hex, viewOptions.orientation, viewOptions.hexSize);
+      const hexMinX = center.x + hexBoundingBox.x;
+      const hexMaxX = hexMinX + hexBoundingBox.width;
+      const hexMinY = center.y + hexBoundingBox.y;
+      const hexMaxY = hexMinY + hexBoundingBox.height;
+      if (hexMinX < minX) minX = hexMinX;
+      if (hexMinY < minY) minY = hexMinY;
+      if (hexMaxX > maxX) maxX = hexMaxX;
+      if (hexMaxY > maxY) maxY = hexMaxY;
+    });
+
+    if (
+      !Number.isFinite(minX) ||
+      !Number.isFinite(minY) ||
+      !Number.isFinite(maxX) ||
+      !Number.isFinite(maxY)
+    ) {
+      return `${hexBoundingBox.x - paddingValue} ${hexBoundingBox.y - paddingValue} ${
+        hexBoundingBox.width + paddingValue * 2
+      } ${hexBoundingBox.height + paddingValue * 2}`;
+    }
+
+    const width = maxX - minX;
+    const height = maxY - minY;
+    return `${minX - paddingValue} ${minY - paddingValue} ${width + paddingValue * 2} ${
+      height + paddingValue * 2
+    }`;
+  }, [
+    hexBoundingBox.height,
+    hexBoundingBox.width,
+    hexBoundingBox.x,
+    hexBoundingBox.y,
+    isInteractive,
+    realm.hexes,
+    staticPadding,
+    viewOptions.hexSize,
+    viewOptions.orientation,
+  ]);
+  const svgViewBox = isInteractive ? viewbox : staticViewBox ?? viewbox;
   const svgRef = useRef<SVGSVGElement>(null);
   const [isSpacePanActive, setIsSpacePanActive] = useState(false);
   const [hoveredBarrier, setHoveredBarrier] = useState<{
@@ -135,6 +200,10 @@ export function HexGrid({
    * Effect to enable panning with the spacebar.
    */
   useEffect(() => {
+    if (!isInteractive) {
+      setIsSpacePanActive(false);
+      return;
+    }
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement).tagName === 'INPUT') return;
       if (e.code === 'Space' && !e.repeat) {
@@ -154,7 +223,7 @@ export function HexGrid({
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, []);
+  }, [isInteractive]);
 
   /**
    * Effect to apply the correct cursor class or style to the main container.
@@ -168,6 +237,10 @@ export function HexGrid({
     const customCursorClasses = ['cursor-pipette', 'cursor-terrain-hover'];
     container.classList.remove(...customCursorClasses);
     container.style.cursor = '';
+
+    if (!isInteractive) {
+      return;
+    }
 
     if (isPickingTile) {
       container.classList.add('cursor-pipette');
@@ -192,7 +265,15 @@ export function HexGrid({
           container.style.cursor = 'default';
       }
     }
-  }, [isPickingTile, isSpacePanActive, isPanning, relocatingMythId, activeTool, containerRef]);
+  }, [
+    isInteractive,
+    isPickingTile,
+    isSpacePanActive,
+    isPanning,
+    relocatingMythId,
+    activeTool,
+    containerRef,
+  ]);
 
   /**
    * Memoized array of hexes to display, combining base realm hexes with
@@ -210,6 +291,7 @@ export function HexGrid({
    */
   const handlePaint = useCallback(
     (hex: Hex, e?: React.MouseEvent) => {
+      if (!isInteractive) return;
       if (activeTool !== 'terrain' && activeTool !== 'barrier') return;
 
       setPaintedHexes((prevPainted) => {
@@ -267,6 +349,7 @@ export function HexGrid({
       });
     },
     [
+      isInteractive,
       activeTool,
       paintTerrain,
       realmHexesMap,
@@ -281,6 +364,7 @@ export function HexGrid({
    */
   const handleHexMouseDown = useCallback(
     (hex: Hex, e: React.MouseEvent) => {
+      if (!isInteractive) return;
       if (e.button !== 0) return;
 
       if (isPickingTile) {
@@ -384,6 +468,7 @@ export function HexGrid({
       }
     },
     [
+      isInteractive,
       isPickingTile,
       onTilePick,
       relocatingMythId,
@@ -410,19 +495,21 @@ export function HexGrid({
    * Handles mouse up events to finalize a painting action.
    */
   const handleMouseUp = useCallback(() => {
+    if (!isInteractive) return;
     if (!isPainting) return;
     setIsPainting(false);
     if (paintedHexes.size > 0) {
       onUpdateHex(Array.from(paintedHexes.values()));
     }
     setPaintedHexes(new Map());
-  }, [isPainting, onUpdateHex, paintedHexes]);
+  }, [isInteractive, isPainting, onUpdateHex, paintedHexes]);
 
   /**
    * Handles mouse move events for painting and barrier hover previews.
    */
   const handleHexMouseMove = useCallback(
     (hex: Hex, e: React.MouseEvent) => {
+      if (!isInteractive) return;
       // Robust painting on drag
       if (isPainting) {
         handlePaint(hex, e);
@@ -459,6 +546,7 @@ export function HexGrid({
     },
     [
       activeTool,
+      isInteractive,
       isPainting,
       viewOptions.orientation,
       viewOptions.hexSize,
@@ -513,15 +601,19 @@ export function HexGrid({
     >
       <svg
         ref={svgRef}
-        id="hex-grid-svg"
+        id={svgId}
         className="w-full h-full"
-        viewBox={viewbox}
-        onMouseDown={isPickingTile ? undefined : onMouseDown}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={() => {
-          handleMouseUp();
-          setHoveredBarrier(null);
-        }}
+        viewBox={svgViewBox}
+        onMouseDown={!isInteractive || isPickingTile ? undefined : onMouseDown}
+        onMouseUp={isInteractive ? handleMouseUp : undefined}
+        onMouseLeave={
+          isInteractive
+            ? () => {
+                handleMouseUp();
+                setHoveredBarrier(null);
+              }
+            : undefined
+        }
       >
         <defs>
           <clipPath id="hex-clip-path">
@@ -533,7 +625,7 @@ export function HexGrid({
         <g>{renderHexes('foreground')}</g>
 
         {/* Barrier Hover Highlight Layer */}
-        {hoveredBarrier && activeTool === 'barrier' && !isPainting && (
+        {isInteractive && hoveredBarrier && activeTool === 'barrier' && !isPainting && (
           <g style={{ pointerEvents: 'none' }}>
             {(() => {
               const hex = realmHexesMap.get(`${hoveredBarrier.q},${hoveredBarrier.r}`);

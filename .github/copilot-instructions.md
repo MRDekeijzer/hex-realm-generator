@@ -1,0 +1,29 @@
+# Hex Realm Generator – Copilot Guide
+
+- **Purpose**: Browser-based hex realm builder for Mythic Bastionland-style play; everything runs client-side in React.
+- **Stack**: React 19 + TypeScript + Vite + Tailwind; execution flows `src/main.tsx` → `src/app/App.tsx`.
+- **Dev Scripts**: `npm run dev` (Vite on port 3000), `npm run build` (sets `ROLLUP_SKIP_NATIVE=1`), `npm run preview`, `npm run check` (eslint + prettier).
+- **State Hub**: `src/app/App.tsx` wraps realm data in `useHistory<Realm | null>`; always guard `realm` for null before mutating and call `setRealm` so undo/redo works.
+- **Types**: Use definitions from `src/features/realm/types/index.ts` (`Hex`, `Realm`, `Tool`, `GenerationOptions`, etc.) instead of ad-hoc shapes.
+- **Generation Pipeline**: `src/features/realm/services/realmGenerator.ts` builds grids, assigns terrain via noise + clustering, places holdings/myths/barriers, and throws if myths cannot be placed—bubble errors into `setConfirmation` dialogs.
+- **Terrain Tuning**: `GenerationOptions` live in `App.tsx`; roughness auto-regenerates `terrainClusteringMatrix` (see effect near file end). Deep-clone the matrix (`JSON.parse(JSON.stringify(...))`) when adjusting cells.
+- **Tool Modes**: `Tool` union drives which sidebar renders; `paintPoi` strings follow `'type:id'` (e.g. `holding:castle`, `action:seatOfPower`). Update `PoiPainterSidebar` and `handleTilePick` together when adding new tokens.
+- **Myth Handling**: Myths exist both on hexes and in `realm.myths`; reuse `handleAddMyth`, `handleRemoveMyth`, `handleRelocateMyth` patterns to keep IDs sequential and selections in sync.
+- **Seat of Power**: `handleSetSeatOfPower` requires an existing holding; invalid actions surface through `ConfirmationDialog` via shared `setConfirmation` state.
+- **View Options**: `viewOptions.visibility.knight` stays synchronized through `normalizeKnightVisibility`; when introducing new holdings/landmarks ensure they appear in tile sets so visibility maps populate.
+- **Textures & Performance**: `generateTerrainTextures` (in `textureUtils.ts`) pre-renders canvases whenever tile sets, colors, or hex size change; provide colors for new terrain IDs or the renderer will fall back to gray.
+- **Icon Spray**: Defaults in `TERRAIN_SPRAY_DEFAULTS` plus per-tile overrides feed `sprayUtils.ts`; add both a preset and `sprayIcons`/`spraySettings` on the tile to get deterministic sprays.
+- **Color Tokens**: Palette and helpers in `src/app/theme/colors.ts`; use utilities like `getTerrainBaseColor` to keep uppercase hex values and rely on Tailwind tokens (e.g. `bg-realm-map-viewport`).
+- **Hex Rendering**: `HexGrid.tsx` renders each hex twice via `Hexagon` (background terrain/backplate + foreground hover/selection/barriers). Preserve layer separation to avoid blocking pointer events.
+- **Painting Preview**: `HexGrid` stores in-progress edits in `paintedHexes`; commit final values through `onUpdateHex` so history stacks capture the change once the gesture completes.
+- **Barrier Symmetry**: `handlePaint` mirrors barrier edges to neighbors using `getNeighbors`; keep the neighbor update when altering barrier logic.
+- **Pan/Zoom**: `usePanAndZoom` (in `hooks/usePanAndZoom.ts`) supplies `containerRef`, `viewbox`, and wheel/mouse handlers; the SVG wrapper (`HexGrid`) must attach `onMouseDown` and pass `containerRef` to the scroll container.
+- **Toolbar and Settings**: `Toolbar.tsx` manages import/export, settings modal, and grid popover with document-level listeners; clean up listeners on unmount to avoid duplicate handlers.
+- **Export Flow**: Exports use `ExportModal` + `exportSvgAsPng` targeting `EXPORT_PREVIEW_SVG_ID`; new preview surfaces must pass the same ID through `HexGrid`’s `svgId` prop.
+- **History UI**: `HistoryControls` only renders when the settings modal is closed; hook new undoable actions into `useHistory` rather than standalone `useState`.
+- **Path Aliases**: Imports use `@/` (configured in `tsconfig.json` + `vite.config.ts`); keep paths absolute from `src/` for consistency.
+- **Icons**: Use the `Icon` wrapper (`components/Icon.tsx`) with names registered in its `icons` map before referencing them elsewhere.
+- **Styling**: Tailwind config extends colors/fonts from `tailwindColorPalette`; prefer utility classes over bespoke CSS except where shared styles live in `src/app/styles/index.css`.
+- **Confirmation UX**: All blocking/informational prompts go through `ConfirmationDialog`; set `isInfo` for informational modals and provide closures to reset the shared `confirmation` state.
+- **Environment**: No backend; `vite.config.ts` injects `process.env.GEMINI_API_KEY` for optional integrations—avoid hardcoding secrets in source.
+- **Deployment**: Production builds serve from `/hex-realm-generator/`; keep asset paths relative or update `vite.config.ts` if changing directory structure.
