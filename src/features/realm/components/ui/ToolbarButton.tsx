@@ -32,7 +32,7 @@ export const ToolbarButton = React.forwardRef<HTMLButtonElement, ToolbarButtonPr
     <button
       ref={ref}
       onClick={onClick}
-      className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+      className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[2.34rem] ${
         isActive
           ? 'bg-actions-command-primary text-text-high-contrast'
           : 'bg-realm-command-panel-surface text-text-muted hover:bg-realm-command-panel-hover'

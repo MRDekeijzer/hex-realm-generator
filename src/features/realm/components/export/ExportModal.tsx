@@ -158,7 +158,7 @@ export function ExportModal({
                 Preview
               </h3>
               <span className="text-xs text-text-subtle">
-                Export uses the preview exactly as shown (selection outlines hidden).
+                Export uses the preview exactly as shown.
               </span>
             </div>
             <div className="relative h-80 overflow-hidden rounded-md border border-border-panel-divider bg-realm-map-viewport">
@@ -202,9 +202,6 @@ export function ExportModal({
         </div>
 
         <div className="flex flex-col gap-3 border-t border-border-panel-divider px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <span className="text-sm text-text-muted">
-            The exported PNG hides selection outlines and uses the maximum resolution.
-          </span>
           <div className="flex gap-2">
             <button
               type="button"

@@ -13,6 +13,10 @@ import { GridSettingsPopover } from './GridSettingsPopover';
 import type { ConfirmationState } from '@/app/App';
 import { Icon } from './Icon';
 
+function ToolbarDivider() {
+  return <div className="border-l border-border-panel-divider h-6" aria-hidden="true" />;
+}
+
 /**
  * Props for the Toolbar component.
  */
@@ -147,7 +151,6 @@ export function Toolbar({
       };
       reader.readAsText(file);
     }
-    // Reset file input to allow re-uploading the same file
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -166,14 +169,6 @@ export function Toolbar({
   return (
     <header className="flex items-center justify-between p-2 bg-realm-canvas-backdrop border-b border-border-panel-divider shadow-md z-10">
       <div className="flex items-center gap-2">
-        <h1 className="text-xl font-bold text-text-high-contrast mr-4">Hex Realm Generator</h1>
-        <ToolbarButton onClick={onGenerate} icon="sparkles" title="Generate New Realm">
-          Generate
-        </ToolbarButton>
-        <ToolbarButton onClick={handleOpenSettings} icon="settings" title="Settings">
-          Settings
-        </ToolbarButton>
-
         <SettingsModal
           isOpen={isSettingsOpen}
           onClose={() => setIsSettingsOpen(false)}
@@ -183,7 +178,20 @@ export function Toolbar({
           {...settingsProps}
         />
 
-        <div className="border-l border-border-panel-divider h-6"></div>
+        <h1 className="text-xl font-bold text-text-high-contrast mr-4">Hex Realm Generator</h1>
+        <ToolbarButton
+          onClick={onGenerate}
+          icon="sparkles"
+          title="Generate New Realm"
+          children="Generate"
+        />
+        <ToolbarButton
+          onClick={handleOpenSettings}
+          icon="settings"
+          title="Open generation settings"
+        />
+
+        <ToolbarDivider />
 
         <div className="relative">
           <ToolbarButton
@@ -191,9 +199,8 @@ export function Toolbar({
             onClick={() => setIsGridSettingsOpen((prev) => !prev)}
             icon="grid"
             title="Grid Settings"
-          >
-            Grid
-          </ToolbarButton>
+            children="Grid"
+          />
           {isGridSettingsOpen && (
             <GridSettingsPopover
               ref={gridSettingsPopoverRef}
@@ -203,36 +210,32 @@ export function Toolbar({
           )}
         </div>
 
-        <div className="border-l border-border-panel-divider h-6"></div>
+        <ToolbarDivider />
 
         <ToolbarButton
           onClick={() => setViewOptions((v) => ({ ...v, showIconSpray: !v.showIconSpray }))}
           icon="spray-can"
           isActive={viewOptions.showIconSpray}
           title="Toggle Icon Spray"
-        >
-          Icon Spray
-        </ToolbarButton>
-        <div className="flex items-center gap-1">
-          <ToolbarButton
-            onClick={() => setViewOptions((v) => ({ ...v, isGmView: !v.isGmView }))}
-            icon="eye"
-            isActive={viewOptions.isGmView}
-            title={viewOptions.isGmView ? 'Referee View' : 'Knight View'}
-          >
-            {viewOptions.isGmView ? 'Referee View' : 'Knight View'}
-          </ToolbarButton>
-          <button
-            type="button"
-            onClick={handleOpenViewSettings}
-            className="flex h-9 items-center justify-center px-2 rounded-md bg-realm-command-panel-surface text-text-muted hover:text-text-high-contrast hover:bg-realm-command-panel-hover transition-colors border border-transparent hover:border-border-panel-divider"
-            title="Open view visibility settings"
-            aria-label="Open view visibility settings"
-          >
-            <Icon name="sliders" className="w-4 h-4" />
-          </button>
-        </div>
+          children="Icon Spray"
+        />
+
+        <ToolbarDivider />
+
+        <ToolbarButton
+          onClick={() => setViewOptions((v) => ({ ...v, isGmView: !v.isGmView }))}
+          icon="eye"
+          isActive={viewOptions.isGmView}
+          title={viewOptions.isGmView ? 'Referee View' : 'Knight View'}
+          children={viewOptions.isGmView ? 'Referee View' : 'Knight View'}
+        />
+        <ToolbarButton
+          onClick={handleOpenViewSettings}
+          icon="settings"
+          title="Open view visibility settings"
+        />
       </div>
+
       <div className="flex items-center gap-2">
         <input
           type="file"
@@ -246,15 +249,20 @@ export function Toolbar({
           onClick={() => fileInputRef.current?.click()}
           icon="upload"
           title="Import from JSON file"
-        >
-          Import JSON
-        </ToolbarButton>
-        <ToolbarButton onClick={onExportJson} icon="download" title="Export as JSON file">
-          Export JSON
-        </ToolbarButton>
-        <ToolbarButton onClick={onExportPng} icon="image-down" title="Export as PNG image">
-          Export PNG
-        </ToolbarButton>
+          children="Import JSON"
+        />
+        <ToolbarButton
+          onClick={onExportJson}
+          icon="download"
+          title="Export as JSON file"
+          children="Export JSON"
+        />
+        <ToolbarButton
+          onClick={onExportPng}
+          icon="image-down"
+          title="Export as PNG image"
+          children="Export PNG"
+        />
       </div>
     </header>
   );
