@@ -4,7 +4,7 @@
  */
 import React from 'react';
 import type { Point, Tool } from '@/features/realm/types';
-import { SELECTION_COLOR } from '@/features/realm/config/constants';
+import { HEX_HOVER_COLOR } from '@/features/realm/config/constants';
 
 interface HexHoverHighlightProps {
   points: Point[];
@@ -23,7 +23,7 @@ export const HexHoverHighlight = ({
     <polygon
       points={points.map((p) => `${p.x},${p.y}`).join(' ')}
       fill="none"
-      stroke={SELECTION_COLOR}
+      stroke={HEX_HOVER_COLOR}
       strokeOpacity="0.8"
       strokeWidth="2.5"
       strokeLinejoin="round"

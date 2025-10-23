@@ -4,7 +4,7 @@
  */
 import React from 'react';
 import type { Point, Tool } from '@/features/realm/types';
-import { SELECTION_COLOR } from '@/features/realm/config/constants';
+import { HEX_SELECTED_COLOR } from '@/features/realm/config/constants';
 
 interface HexSelectionHighlightProps {
   points: Point[];
@@ -25,7 +25,7 @@ export const HexSelectionHighlight = ({
     <polygon
       points={points.map((p) => `${p.x},${p.y}`).join(' ')}
       fill="none"
-      stroke={SELECTION_COLOR}
+      stroke={HEX_SELECTED_COLOR}
       strokeWidth={4}
       strokeLinejoin="round"
       className="hex-selection-highlight"

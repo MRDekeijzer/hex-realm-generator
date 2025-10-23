@@ -24,7 +24,7 @@ import {
   getNeighbors,
 } from '@/features/realm/utils/hexUtils';
 import { usePanAndZoom } from '@/features/realm/hooks/usePanAndZoom';
-import { SELECTION_COLOR } from '@/features/realm/config/constants';
+import { HEX_SELECTED_COLOR } from '@/features/realm/config/constants';
 import { ToolsPalette } from './ToolsPalette';
 import { ShortcutTips } from './ShortcutTips';
 import type { ConfirmationState } from '@/app/App';
@@ -637,7 +637,7 @@ export function HexGrid({
                 >
                   <path
                     d={getBarrierPath(hoveredBarrier.edge, hexCorners)}
-                    stroke={SELECTION_COLOR}
+                    stroke={HEX_SELECTED_COLOR}
                     strokeOpacity="0.8"
                     strokeWidth="8"
                     strokeLinecap="round"

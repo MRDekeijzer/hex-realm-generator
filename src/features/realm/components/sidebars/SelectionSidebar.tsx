@@ -7,7 +7,7 @@
 
 import React from 'react';
 import type { Hex, Realm, TileSet } from '@/features/realm/types';
-import { BARRIER_COLOR, SELECTION_COLOR } from '@/features/realm/config/constants';
+import { BARRIER_COLOR, HEX_SELECTED_COLOR } from '@/features/realm/config/constants';
 import { Icon } from '../Icon';
 import { getHexCorners, getBarrierPath, getNeighbors } from '@/features/realm/utils/hexUtils';
 
@@ -102,8 +102,8 @@ export function SelectionSidebar({
     );
   }
 
-  const selectionStrokeColor = SELECTION_COLOR;
-  const selectionStrokeFaintColor = hexToRgbaWithAlpha(SELECTION_COLOR, 0.6);
+  const selectionStrokeColor = HEX_SELECTED_COLOR;
+  const selectionStrokeFaintColor = hexToRgbaWithAlpha(HEX_SELECTED_COLOR, 0.6);
   const handleChange = <K extends keyof Hex>(key: K, value: Hex[K]) => {
     onUpdateHex({ ...selectedHex, [key]: value });
   };
