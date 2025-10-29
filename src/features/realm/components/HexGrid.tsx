@@ -15,6 +15,7 @@ import type {
   TileSet,
   TerrainTextures,
   Point,
+  TerrainBrushCharacter,
 } from '@/features/realm/types';
 import {
   axialToPixel,
@@ -42,6 +43,7 @@ interface HexGridProps {
   activeTool: Tool;
   setActiveTool: (tool: Tool) => void;
   paintTerrain: string;
+  paintCharacter: TerrainBrushCharacter;
   paintPoi: string | null;
   onAddMyth: (hex: Hex, andSelect?: boolean) => void;
   onRemoveMyth: (hex: Hex) => void;
@@ -74,6 +76,7 @@ export function HexGrid({
   activeTool,
   setActiveTool,
   paintTerrain,
+  paintCharacter,
   paintPoi,
   onAddMyth,
   onRemoveMyth,
@@ -301,8 +304,28 @@ export function HexGrid({
 
         const newPainted = new Map(prevPainted);
         if (activeTool === 'terrain') {
-          if (currentHex.terrain === paintTerrain) return prevPainted;
-          newPainted.set(`${hex.q},${hex.r}`, { ...currentHex, terrain: paintTerrain });
+          const shouldUpdateTerrain = currentHex.terrain !== paintTerrain;
+          let shouldUpdateCharacter = false;
+          if (paintCharacter === 'none') {
+            shouldUpdateCharacter = currentHex.character !== undefined;
+          } else if (paintCharacter === 'preserve') {
+            shouldUpdateCharacter = false;
+          } else {
+            shouldUpdateCharacter = currentHex.character !== paintCharacter;
+          }
+
+          if (!shouldUpdateTerrain && !shouldUpdateCharacter) {
+            return prevPainted;
+          }
+
+          const updatedHex: Hex = { ...currentHex, terrain: paintTerrain };
+          if (paintCharacter === 'none') {
+            delete updatedHex.character;
+          } else if (paintCharacter !== 'preserve') {
+            updatedHex.character = paintCharacter;
+          }
+
+          newPainted.set(`${hex.q},${hex.r}`, updatedHex);
         } else if (activeTool === 'barrier' && e && svgRef.current) {
           const center = axialToPixel(hex, viewOptions.orientation, viewOptions.hexSize);
           const svgPoint = svgRef.current.createSVGPoint();
@@ -351,6 +374,7 @@ export function HexGrid({
       isInteractive,
       activeTool,
       paintTerrain,
+      paintCharacter,
       realmHexesMap,
       viewOptions.orientation,
       viewOptions.hexSize,

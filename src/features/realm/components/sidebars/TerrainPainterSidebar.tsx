@@ -7,9 +7,9 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Icon } from '../Icon';
-import { TERRAIN_TYPES } from '@/features/realm/config/constants';
+import { TERRAIN_TYPES, TILE_CHARACTERS } from '@/features/realm/config/constants';
 import { resolveColorToken, getTerrainBaseColor } from '@/app/theme/colors';
-import type { TileSet, Tile } from '@/features/realm/types';
+import type { TileSet, Tile, TerrainBrushCharacter } from '@/features/realm/types';
 import { InfoPopup } from '../ui/InfoPopup';
 import { AddTerrainForm } from './terrain/AddTerrainForm';
 import { useInfoPopup } from '@/shared/hooks/useInfoPopup';
@@ -23,12 +23,26 @@ const buildSpraySummary = (terrain: Tile): string =>
     ? `Signature icons: ${terrain.sprayIcons.map((icon) => icon.replace(/-/g, ' ')).join(', ')}`
     : 'No spray icons configured yet.';
 
+const formatCharacterLabel = (value: string): string =>
+  value.charAt(0).toUpperCase() + value.slice(1);
+
+const BRUSH_CHARACTER_OPTIONS: { value: TerrainBrushCharacter; label: string }[] = [
+  { value: 'preserve', label: 'Preserve existing' },
+  { value: 'none', label: 'No character' },
+  ...TILE_CHARACTERS.map((value) => ({
+    value,
+    label: formatCharacterLabel(value),
+  })),
+];
+
 /**
  * Props for the TerrainPainterSidebar component.
  */
 interface TerrainPainterSidebarProps {
   paintTerrain: string;
+  paintCharacter: TerrainBrushCharacter;
   setPaintTerrain: (terrain: string) => void;
+  setPaintCharacter: (character: TerrainBrushCharacter) => void;
   onClose: () => void;
   tileSets: TileSet;
   terrainColors: Record<string, string>;
@@ -46,7 +60,9 @@ interface TerrainPainterSidebarProps {
  */
 export function TerrainPainterSidebar({
   paintTerrain,
+  paintCharacter,
   setPaintTerrain,
+  setPaintCharacter,
   onClose,
   tileSets,
   terrainColors,
@@ -125,6 +141,26 @@ export function TerrainPainterSidebar({
         </div>
       </div>
       <div className="flex-grow overflow-y-auto pr-2">
+        <div className="mb-4">
+          <label
+            htmlFor="terrain-brush-character"
+            className="block text-sm font-medium text-text-muted mb-1"
+          >
+            Brush Character
+          </label>
+          <select
+            id="terrain-brush-character"
+            value={paintCharacter}
+            onChange={(event) => setPaintCharacter(event.target.value as TerrainBrushCharacter)}
+            className="w-full p-2 bg-realm-command-panel-surface border border-border-panel-divider rounded-md focus:outline-none focus:ring-2 focus:ring-actions-command-primary text-sm"
+          >
+            {BRUSH_CHARACTER_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
         {isPickingTile && (
           <div className="bg-feedback-info-panel/50 text-center text-sm text-text-subtle p-2 rounded-md mb-4 animate-pulse">
             Click on the map to pick a terrain.

@@ -174,6 +174,7 @@ export function ExportModal({
                     activeTool="select"
                     setActiveTool={noop}
                     paintTerrain="plain"
+                    paintCharacter="preserve"
                     paintPoi={null}
                     onAddMyth={noop}
                     onRemoveMyth={noop}

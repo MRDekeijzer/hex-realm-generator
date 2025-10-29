@@ -28,6 +28,8 @@ export interface Hex {
   myth?: number | undefined;
   /** The identifier for a landmark located in the hex. */
   landmark?: string;
+  /** The thematic character assigned to this hex's terrain. */
+  character?: TileCharacter;
   /** A flag indicating if the hex is a water body. (Not currently used in generation) */
   isWater?: boolean;
   /** A flag indicating if the hex contains a river. (Not currently used in generation) */
@@ -69,6 +71,24 @@ export type Tool = 'select' | 'terrain' | 'barrier' | 'poi' | 'myth';
 
 /** Defines the orientation of the hex grid. */
 export type HexOrientation = 'pointy' | 'flat';
+
+/** All possible characters that can be assigned to a terrain hex. */
+export type TileCharacter =
+  | 'barren'
+  | 'dry'
+  | 'grey'
+  | 'sparse'
+  | 'sharp'
+  | 'teeming'
+  | 'still'
+  | 'soft'
+  | 'overgrown'
+  | 'vivid'
+  | 'sodden'
+  | 'lush';
+
+/** Brush modes for applying tile characters with the terrain painter. */
+export type TerrainBrushCharacter = TileCharacter | 'preserve' | 'none';
 
 /** Knight-view visibility options for specific map elements. */
 export interface KnightVisibilitySettings {

@@ -26,6 +26,7 @@ import type {
   TileSet,
   TerrainTextures,
   ExportSettings,
+  TerrainBrushCharacter,
 } from '@/features/realm/types';
 import {
   DEFAULT_GRID_SIZE,
@@ -102,6 +103,7 @@ export default function App() {
   }));
   const [activeTool, setActiveTool] = useState<Tool>('select');
   const [paintTerrain, setPaintTerrain] = useState<string>(TERRAIN_TYPES[0] ?? 'plain');
+  const [paintCharacter, setPaintCharacter] = useState<TerrainBrushCharacter>('preserve');
   const [paintPoi, setPaintPoi] = useState<string | null>('holding:castle');
   const [tileSets, setTileSets] = useState<TileSet>(DEFAULT_TILE_SETS);
   const [terrainColors, setTerrainColors] = useState<Record<string, string>>(() => ({
@@ -779,6 +781,7 @@ export default function App() {
 
       if (activeTool === 'terrain') {
         setPaintTerrain(hex.terrain);
+        setPaintCharacter(hex.character ?? 'none');
       } else if (activeTool === 'poi') {
         if (hex.holding) setPaintPoi(`holding:${hex.holding}`);
         else if (hex.landmark) setPaintPoi(`landmark:${hex.landmark}`);
@@ -864,6 +867,7 @@ export default function App() {
               activeTool={activeTool}
               setActiveTool={setActiveTool}
               paintTerrain={paintTerrain}
+              paintCharacter={paintCharacter}
               paintPoi={paintPoi}
               onAddMyth={handleAddMyth}
               onRemoveMyth={handleRemoveMyth}
@@ -889,7 +893,9 @@ export default function App() {
         {activeTool === 'terrain' ? (
           <TerrainPainterSidebar
             paintTerrain={paintTerrain}
+            paintCharacter={paintCharacter}
             setPaintTerrain={setPaintTerrain}
+            setPaintCharacter={setPaintCharacter}
             onClose={() => setActiveTool('select')}
             tileSets={tileSets}
             terrainColors={terrainColors}

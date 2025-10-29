@@ -6,8 +6,8 @@
  */
 
 import React from 'react';
-import type { Hex, Realm, TileSet } from '@/features/realm/types';
-import { BARRIER_COLOR, HEX_SELECTED_COLOR } from '@/features/realm/config/constants';
+import type { Hex, Realm, TileSet, TileCharacter } from '@/features/realm/types';
+import { BARRIER_COLOR, HEX_SELECTED_COLOR, TILE_CHARACTERS } from '@/features/realm/config/constants';
 import { Icon } from '../Icon';
 import { getHexCorners, getBarrierPath, getNeighbors } from '@/features/realm/utils/hexUtils';
 
@@ -38,6 +38,14 @@ const hexToRgbaWithAlpha = (hex: string, alphaMultiplier = 1): string => {
   const formatAlpha = (value: number) => Number(value.toFixed(3));
   return `rgba(${r}, ${g}, ${b}, ${formatAlpha(finalAlpha)})`;
 };
+
+const formatCharacterLabel = (value: string): string =>
+  value.charAt(0).toUpperCase() + value.slice(1);
+
+const CHARACTER_OPTIONS = TILE_CHARACTERS.map((value) => ({
+  id: value,
+  label: formatCharacterLabel(value),
+}));
 
 /**
  * Props for the SelectionSidebar component.
@@ -173,6 +181,17 @@ export function SelectionSidebar({
         {renderSelect('Terrain', selectedHex.terrain, tileSets.terrain, (e) =>
           handleChange('terrain', e.target.value)
         )}
+
+        {renderSelect('Character', selectedHex.character ?? '', CHARACTER_OPTIONS, (e) => {
+          const rawValue = e.target.value;
+          const updatedHex: Hex = { ...selectedHex };
+          if (!rawValue) {
+            delete updatedHex.character;
+          } else {
+            updatedHex.character = rawValue as TileCharacter;
+          }
+          onUpdateHex(updatedHex);
+        })}
 
         <div className="mb-4">
           <label className="block text-sm font-medium text-text-muted mb-1">Holding</label>

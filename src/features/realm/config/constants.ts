@@ -10,6 +10,7 @@ import type {
   GenerationOptions,
   SpraySettings,
   KnightVisibilitySettings,
+  TileCharacter,
 } from '../types/index.ts';
 import { colorPalette, tailwindColorPalette } from '@/app/theme/colors';
 
@@ -72,6 +73,22 @@ export const TERRAIN_TYPES = [
   'lakes',
   'glades',
   'plain',
+];
+
+/** The list of descriptive characters that can be assigned to terrain hexes. */
+export const TILE_CHARACTERS: TileCharacter[] = [
+  'barren',
+  'dry',
+  'grey',
+  'sparse',
+  'sharp',
+  'teeming',
+  'still',
+  'soft',
+  'overgrown',
+  'vivid',
+  'sodden',
+  'lush',
 ];
 /** The default order of terrain types from highest elevation to lowest. */
 export const DEFAULT_TERRAIN_HEIGHT_ORDER = [
