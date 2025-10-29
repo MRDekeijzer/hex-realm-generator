@@ -6,7 +6,7 @@
  */
 
 import type { Realm, Hex, GenerationOptions, Myth } from '@/features/realm/types';
-import { HOLDING_TYPES, BARRIER_CHANCE } from '@/features/realm/config/constants';
+import { HOLDING_TYPES, BARRIER_CHANCE, TILE_CHARACTERS } from '@/features/realm/config/constants';
 import { getAxialDistance, getNeighbors } from '@/features/realm/utils/hexUtils';
 import { PerlinNoise } from './perlin';
 
@@ -224,6 +224,8 @@ function generateTerrain(hexes: Hex[], options: GenerationOptions): void {
   const finalHexesMap = new Map(currentHexes.map((h) => [`${h.q},${h.r}`, h]));
   hexes.forEach((h) => {
     h.terrain = finalHexesMap.get(`${h.q},${h.r}`)?.terrain || h.terrain;
+    const randomCharacter = getRandomElement(TILE_CHARACTERS);
+    h.character = randomCharacter ?? undefined;
   });
 }
 

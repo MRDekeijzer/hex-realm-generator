@@ -796,9 +796,11 @@ export function HexGrid({
             <div>
               <p className="text-xs uppercase tracking-wide text-text-subtle">Terrain</p>
               <p className="font-semibold">{hoveredHexTooltipData.terrainLabel}</p>
-              <p className="text-xs text-text-muted">
-                Character: {hoveredHexTooltipData.characterLabel}
-              </p>
+              {hoveredHexTooltipData.characterLabel && (
+                <p className="text-xs text-text-muted">
+                  Character: {hoveredHexTooltipData.characterLabel}
+                </p>
+              )}
             </div>
             {hoveredHexTooltipData.featureValue && (
               <div>
