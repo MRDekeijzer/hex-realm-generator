@@ -1,17 +1,19 @@
 /**
  * @file TerrainPainterSidebar.tsx
  * This component renders the sidebar for the Terrain Painter tool. It allows users
- * to select a terrain type to paint, customize terrain colors, and add or remove
- * custom terrain types.
+ * to select a terrain type to paint and customize terrain colors and primary icons.
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useRef } from 'react';
 import { Icon } from '../Icon';
-import { TERRAIN_TYPES, TILE_CHARACTERS } from '@/features/realm/config/constants';
+import {
+  TERRAIN_TYPES,
+  TILE_CHARACTERS,
+  DEFAULT_TERRAIN_ICONS,
+} from '@/features/realm/config/constants';
 import { resolveColorToken, getTerrainBaseColor } from '@/app/theme/colors';
 import type { TileSet, Tile, TerrainBrushCharacter } from '@/features/realm/types';
 import { InfoPopup } from '../ui/InfoPopup';
-import { AddTerrainForm } from './terrain/AddTerrainForm';
 import { useInfoPopup } from '@/shared/hooks/useInfoPopup';
 import { TerrainColorSwatch } from '../ui/TerrainColorSwatch';
 
@@ -46,10 +48,9 @@ interface TerrainPainterSidebarProps {
   onClose: () => void;
   tileSets: TileSet;
   terrainColors: Record<string, string>;
-  onAddTerrain: (name: string, color: string) => void;
-  onRemoveTerrain: (id: string) => void;
   onUpdateTerrainColor: (id: string, color: string) => void;
   onResetTerrainColor: (id: string) => void;
+  onUpdateTerrainIcon: (id: string, iconDataUrl: string) => void;
   onStartPicking: () => void;
   isPickingTile: boolean;
   onOpenSpraySettings: (id: string) => void;
@@ -66,18 +67,43 @@ export function TerrainPainterSidebar({
   onClose,
   tileSets,
   terrainColors,
-  onAddTerrain,
-  onRemoveTerrain,
   onUpdateTerrainColor,
   onResetTerrainColor,
+  onUpdateTerrainIcon,
   onStartPicking,
   isPickingTile,
   onOpenSpraySettings,
 }: TerrainPainterSidebarProps) {
-  const [newTerrainName, setNewTerrainName] = useState('');
-  const [newTerrainColor, setNewTerrainColor] = useState('#CCCCCC');
   const { activeInfo, handleInfoClick, scheduleHoverOpen, scheduleHoverClose, closeInfo } =
     useInfoPopup();
+  const iconInputsRef = useRef<Record<string, HTMLInputElement | null>>({});
+
+  const handleIconButtonClick = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>, terrainId: string) => {
+      event.stopPropagation();
+      const input = iconInputsRef.current[terrainId];
+      input?.click();
+    },
+    []
+  );
+
+  const handleIconInputChange = useCallback(
+    (terrainId: string, event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) {
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          onUpdateTerrainIcon(terrainId, reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+      event.target.value = '';
+    },
+    [onUpdateTerrainIcon]
+  );
 
   const resolveColor = useCallback((value?: string) => {
     if (!value) {
@@ -103,16 +129,6 @@ export function TerrainPainterSidebar({
       closeInfo();
     }
   }, [activeInfo, closeInfo, tileSets.terrain]);
-
-  const handleAddSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    const name = newTerrainName.trim();
-    if (name) {
-      onAddTerrain(name, newTerrainColor.toUpperCase());
-      setNewTerrainName('');
-      setNewTerrainColor('#CCCCCC');
-    }
-  };
 
   return (
     <aside className="w-80 bg-realm-canvas-backdrop border-l border-border-panel-divider p-4 flex flex-col">
@@ -181,6 +197,10 @@ export function TerrainPainterSidebar({
             const isInfoOpen = activeInfo?.id === terrain.id;
             const infoDescription = describeTerrain(terrain);
             const spraySummary = buildSpraySummary(terrain);
+            const defaultIcon = DEFAULT_TERRAIN_ICONS[terrain.id];
+            const terrainIconSrc = terrain.terrainIcon ?? defaultIcon ?? '';
+            const hasCustomIcon =
+              Boolean(terrain.terrainIcon) && terrain.terrainIcon !== defaultIcon;
 
             return (
               <div
@@ -209,6 +229,43 @@ export function TerrainPainterSidebar({
                 title={`Paint ${terrain.label}`}
               >
                 <div className="flex items-center gap-2 flex-grow min-w-0">
+                  <button
+                    type="button"
+                    onClick={(event) => handleIconButtonClick(event, terrain.id)}
+                    className={`group relative flex h-7 w-7 flex-shrink-0 items-center justify-center overflow-hidden rounded-md border transition-colors ${
+                      isSelected ? 'border-actions-command-primary' : 'border-border-panel-divider'
+                    } ${hasCustomIcon ? 'ring-1 ring-actions-command-primary/60' : ''} bg-white hover:border-actions-command-primary`}
+                    title={`Upload icon for ${terrain.label}`}
+                    aria-label={`Upload icon for ${terrain.label}`}
+                  >
+                    {terrainIconSrc ? (
+                      <img
+                        src={terrainIconSrc}
+                        alt={`${terrain.label} terrain icon`}
+                        className="h-full w-full object-contain pointer-events-none"
+                      />
+                    ) : (
+                      <span className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+                        Upload
+                      </span>
+                    )}
+                    <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/35 opacity-0 transition-opacity group-hover:opacity-100">
+                      <Icon name="upload" className="w-4 h-4 text-white" />
+                    </div>
+                  </button>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    ref={(element) => {
+                      if (element) {
+                        iconInputsRef.current[terrain.id] = element;
+                      } else {
+                        delete iconInputsRef.current[terrain.id];
+                      }
+                    }}
+                    onChange={(event) => handleIconInputChange(terrain.id, event)}
+                  />
                   <TerrainColorSwatch
                     color={resolvedColor}
                     ariaLabel={
@@ -306,36 +363,10 @@ export function TerrainPainterSidebar({
                     <Icon name="settings" className="w-5 h-5 text-white" />
                   </button>
                 </div>
-
-                {!isDefault && (
-                  <button
-                    type="button"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      onRemoveTerrain(terrain.id);
-                      if (activeInfo?.id === terrain.id) {
-                        closeInfo();
-                      }
-                    }}
-                    className="absolute -top-1.5 -right-1.5 p-1 text-text-high-contrast bg-actions-danger-base rounded-full hover:bg-actions-danger-hover opacity-0 group-hover/item:opacity-100 transition-opacity z-10"
-                    title={`Remove ${terrain.label}`}
-                    aria-label={`Remove ${terrain.label}`}
-                  >
-                    <Icon name="close" className="w-3.5 h-3.5" />
-                  </button>
-                )}
               </div>
             );
           })}
         </div>
-
-        <AddTerrainForm
-          name={newTerrainName}
-          color={newTerrainColor}
-          onNameChange={setNewTerrainName}
-          onColorChange={(value) => setNewTerrainColor(value.toUpperCase())}
-          onSubmit={handleAddSubmit}
-        />
       </div>
     </aside>
   );

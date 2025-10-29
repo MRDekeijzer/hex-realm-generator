@@ -60,9 +60,16 @@ export function ExportModal({
       ...baseViewOptions,
       showGrid: settings.includeGrid,
       showIconSpray: settings.includeIconSpray,
+      showTerrainIcons: settings.includeTerrainIcons,
       isGmView: settings.viewMode === 'referee',
     };
-  }, [baseViewOptions, settings.includeGrid, settings.includeIconSpray, settings.viewMode]);
+  }, [
+    baseViewOptions,
+    settings.includeGrid,
+    settings.includeIconSpray,
+    settings.includeTerrainIcons,
+    settings.viewMode,
+  ]);
 
   if (!isOpen) {
     return null;
@@ -148,6 +155,17 @@ export function ExportModal({
                     className="h-4 w-4 rounded border-border-panel-divider bg-realm-command-panel-surface text-actions-command-primary focus:ring-actions-command-primary"
                   />
                   <span>Include icon spray</span>
+                </label>
+                <label className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={settings.includeTerrainIcons}
+                    onChange={(event) =>
+                      onSettingsChange({ ...settings, includeTerrainIcons: event.target.checked })
+                    }
+                    className="h-4 w-4 rounded border-border-panel-divider bg-realm-command-panel-surface text-actions-command-primary focus:ring-actions-command-primary"
+                  />
+                  <span>Include terrain icons</span>
                 </label>
               </div>
             </div>

@@ -75,6 +75,17 @@ export const TERRAIN_TYPES = [
   'plain',
 ];
 
+const TERRAIN_ICON_OVERRIDES: Partial<Record<string, string>> = {
+  plain: 'plains',
+};
+
+export const DEFAULT_TERRAIN_ICONS: Record<string, string> = Object.fromEntries(
+  TERRAIN_TYPES.map((terrainId) => {
+    const iconName = TERRAIN_ICON_OVERRIDES[terrainId] ?? terrainId;
+    return [terrainId, `/Icons/${iconName}.svg`];
+  })
+);
+
 /** The list of descriptive characters that can be assigned to terrain hexes. */
 export const TILE_CHARACTERS: TileCharacter[] = [
   'barren',
@@ -409,6 +420,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       label: 'Marsh',
       icon: 'droplet',
       color: TERRAIN_BASE_COLORS.marsh,
+      terrainIcon: DEFAULT_TERRAIN_ICONS.marsh,
       description:
         'Sodden lowlands thick with reeds and standing water. Travel is slow, but the damp earth hides secrets and strange wildlife.',
       sprayIcons: [...TERRAIN_SPRAY_DEFAULTS.marsh.icons],
@@ -422,6 +434,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       label: 'Heath',
       icon: 'leaf',
       color: TERRAIN_BASE_COLORS.heath,
+      terrainIcon: DEFAULT_TERRAIN_ICONS.heath,
       description:
         'Open scrubland swept by relentless winds and hardy brush. A liminal place where travelers can see danger coming from afar.',
       sprayIcons: [...TERRAIN_SPRAY_DEFAULTS.heath.icons],
@@ -435,6 +448,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       label: 'Crags',
       icon: 'triangle',
       color: TERRAIN_BASE_COLORS.crags,
+      terrainIcon: DEFAULT_TERRAIN_ICONS.crags,
       description:
         'Jagged highlands broken into cliffs of bare stone. Treacherous footing rewards climbers with stunning vantage points.',
       sprayIcons: [...TERRAIN_SPRAY_DEFAULTS.crags.icons],
@@ -448,6 +462,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       label: 'Peaks',
       icon: 'mountains',
       color: TERRAIN_BASE_COLORS.peaks,
+      terrainIcon: DEFAULT_TERRAIN_ICONS.peaks,
       description:
         'Towering mountain summits often crowned with snow. Thin air and frigid winds shelter ancient shrines and nesting wyverns.',
       sprayIcons: [...TERRAIN_SPRAY_DEFAULTS.peaks.icons],
@@ -461,6 +476,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       label: 'Forest',
       icon: 'trees',
       color: TERRAIN_BASE_COLORS.forest,
+      terrainIcon: DEFAULT_TERRAIN_ICONS.forest,
       description:
         'Dense woodland of towering trunks and tangled undergrowth. Sunlight filters through the canopy, alive with birdsong and hidden paths.',
       sprayIcons: [...TERRAIN_SPRAY_DEFAULTS.forest.icons],
@@ -474,6 +490,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       label: 'Valley',
       icon: 'curve',
       color: TERRAIN_BASE_COLORS.valley,
+      terrainIcon: DEFAULT_TERRAIN_ICONS.valley,
       description:
         'Sheltered lowlands carved by rivers and gentle slopes. Trade roads follow the water, drawing settlements and fertile farms.',
       sprayIcons: [...TERRAIN_SPRAY_DEFAULTS.valley.icons],
@@ -487,6 +504,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       label: 'Hills',
       icon: 'hill',
       color: TERRAIN_BASE_COLORS.hills,
+      terrainIcon: DEFAULT_TERRAIN_ICONS.hills,
       description:
         'Rolling uplands of ridgelines and wind-swept rises. Shepherds and watchtowers cling to the heights to guard the realm.',
       sprayIcons: [...TERRAIN_SPRAY_DEFAULTS.hills.icons],
@@ -500,6 +518,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       label: 'Meadow',
       icon: 'flower',
       color: TERRAIN_BASE_COLORS.meadow,
+      terrainIcon: DEFAULT_TERRAIN_ICONS.meadow,
       description:
         'Lush grasslands dotted with bright wildflowers. Ideal for foraging and grazing, these fields invite festivals in the warm months.',
       sprayIcons: [...TERRAIN_SPRAY_DEFAULTS.meadow.icons],
@@ -513,6 +532,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       label: 'Bog',
       icon: 'droplets',
       color: TERRAIN_BASE_COLORS.bog,
+      terrainIcon: DEFAULT_TERRAIN_ICONS.bog,
       description:
         'Peat-choked wetlands that cling to unwary travelers. Lantern lights drift across the mist, not all of them friendly.',
       sprayIcons: [...TERRAIN_SPRAY_DEFAULTS.bog.icons],
@@ -526,6 +546,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       label: 'Lakes',
       icon: 'waves',
       color: TERRAIN_BASE_COLORS.lakes,
+      terrainIcon: DEFAULT_TERRAIN_ICONS.lakes,
       description:
         'Deep inland waters fed by streams and hidden springs. Fisherfolk ply their trade while legends speak of things beneath the surface.',
       sprayIcons: [...TERRAIN_SPRAY_DEFAULTS.lakes.icons],
@@ -539,6 +560,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       label: 'Glades',
       icon: 'sun',
       color: TERRAIN_BASE_COLORS.glades,
+      terrainIcon: DEFAULT_TERRAIN_ICONS.glades,
       description:
         'Sunlit clearings cradled within surrounding trees. Sacred stones and hidden gatherings are said to appear under moonlight.',
       sprayIcons: [...TERRAIN_SPRAY_DEFAULTS.glades.icons],
@@ -552,6 +574,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
       label: 'Plain',
       icon: 'wind',
       color: TERRAIN_BASE_COLORS.plain,
+      terrainIcon: DEFAULT_TERRAIN_ICONS.plain,
       description:
         'Wide, open flatlands stretching toward distant horizons. Armies march here, but so do caravans and migrating herds.',
       sprayIcons: [...TERRAIN_SPRAY_DEFAULTS.plain.icons],

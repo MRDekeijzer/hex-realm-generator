@@ -93,6 +93,7 @@ export default function App() {
     gridColor: DEFAULT_GRID_COLOR,
     gridWidth: DEFAULT_GRID_WIDTH,
     showIconSpray: true,
+    showTerrainIcons: true,
     visibility: {
       knight: INITIAL_KNIGHT_VISIBILITY,
     },
@@ -101,6 +102,7 @@ export default function App() {
     viewMode: 'referee',
     includeGrid: true,
     includeIconSpray: true,
+    includeTerrainIcons: true,
   }));
   const [activeTool, setActiveTool] = useState<Tool>('select');
   const [paintTerrain, setPaintTerrain] = useState<string>(TERRAIN_TYPES[0] ?? 'plain');
@@ -564,6 +566,7 @@ export default function App() {
         ...prev,
         includeGrid: viewOptions.showGrid,
         includeIconSpray: viewOptions.showIconSpray,
+        includeTerrainIcons: viewOptions.showTerrainIcons,
         viewMode: viewOptions.isGmView ? 'referee' : 'knight',
       };
       return next;
@@ -575,6 +578,7 @@ export default function App() {
     viewOptions.isGmView,
     viewOptions.showGrid,
     viewOptions.showIconSpray,
+    viewOptions.showTerrainIcons,
   ]);
 
   const handleConfirmExport = useCallback(
@@ -627,73 +631,6 @@ export default function App() {
     [realm, setRealm]
   );
 
-  /**
-   * Adds a new custom terrain type.
-   * @param name The name of the new terrain.
-   * @param color The hex color code for the new terrain.
-   */
-  const handleAddTerrain = useCallback(
-    (name: string, color: string) => {
-      const id = name.toLowerCase().replace(/\s+/g, '-');
-      if (
-        tileSets.terrain.some((t) => t.id === id || t.label.toLowerCase() === name.toLowerCase())
-      ) {
-        setConfirmation({
-          isOpen: true,
-          title: 'Duplicate Terrain',
-          message: 'A terrain with this name already exists.',
-          onConfirm: () => setConfirmation(null),
-          isInfo: true,
-        });
-        return;
-      }
-      const newTerrain = {
-        id,
-        label: name,
-        icon: 'leaf',
-        color,
-        description: 'Custom terrain created by the user.',
-        sprayIcons: [],
-      };
-      setTileSets((prev) => ({ ...prev, terrain: [...prev.terrain, newTerrain] }));
-      setTerrainColors((prev) => ({ ...prev, [id]: color }));
-    },
-    [tileSets.terrain]
-  );
-
-  /**
-   * Removes a custom terrain type.
-   * @param terrainId The ID of the terrain to remove.
-   */
-  const handleRemoveTerrain = useCallback(
-    (terrainId: string) => {
-      if (TERRAIN_TYPES.includes(terrainId)) {
-        setConfirmation({
-          isOpen: true,
-          title: 'Action Blocked',
-          message: 'Cannot remove default terrain types.',
-          onConfirm: () => setConfirmation(null),
-          isInfo: true,
-        });
-        return;
-      }
-      setTileSets((prev) => ({ ...prev, terrain: prev.terrain.filter((t) => t.id !== terrainId) }));
-      setTerrainColors((prev) => {
-        const newColors = { ...prev };
-        delete newColors[terrainId];
-        return newColors;
-      });
-      if (realm) {
-        setRealm({
-          ...realm,
-          hexes: realm.hexes.map((h) => (h.terrain === terrainId ? { ...h, terrain: 'plain' } : h)),
-        });
-      }
-      if (paintTerrain === terrainId) setPaintTerrain(TERRAIN_TYPES[0] ?? 'plain');
-    },
-    [realm, setRealm, paintTerrain]
-  );
-
   const handleUpdateTerrainColor = useCallback(
     (terrainId: string, color: string) =>
       setTerrainColors((prev) => ({ ...prev, [terrainId]: color })),
@@ -703,6 +640,15 @@ export default function App() {
   const handleResetTerrainColor = useCallback((terrainId: string) => {
     const defaultColor = getTerrainBaseColor(terrainId);
     setTerrainColors((prev) => ({ ...prev, [terrainId]: defaultColor }));
+  }, []);
+
+  const handleUpdateTerrainIcon = useCallback((terrainId: string, iconDataUrl: string) => {
+    setTileSets((prev) => ({
+      ...prev,
+      terrain: prev.terrain.map((terrain) =>
+        terrain.id === terrainId ? { ...terrain, terrainIcon: iconDataUrl } : terrain
+      ),
+    }));
   }, []);
 
   /**
@@ -900,10 +846,9 @@ export default function App() {
             onClose={() => setActiveTool('select')}
             tileSets={tileSets}
             terrainColors={terrainColors}
-            onAddTerrain={handleAddTerrain}
-            onRemoveTerrain={handleRemoveTerrain}
             onUpdateTerrainColor={handleUpdateTerrainColor}
             onResetTerrainColor={handleResetTerrainColor}
+            onUpdateTerrainIcon={handleUpdateTerrainIcon}
             onStartPicking={handleStartPicking}
             isPickingTile={isPickingTile}
             onOpenSpraySettings={handleOpenSpraySettings}

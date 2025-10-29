@@ -122,6 +122,8 @@ export interface ViewOptions {
   gridWidth: number;
   /** Whether to display the procedural icon spray layer. */
   showIconSpray: boolean;
+  /** Whether to display the singular terrain icons layer. */
+  showTerrainIcons: boolean;
   /** Knight view visibility configuration for map layers. */
   visibility: {
     knight: KnightVisibilitySettings;
@@ -187,6 +189,8 @@ export interface Tile {
   sprayIcons?: string[];
   /** Detailed settings for the procedural icon spray on this tile. */
   spraySettings?: SpraySettings;
+  /** Path or data URL for the primary terrain icon rendered inside hexes. */
+  terrainIcon?: string;
 }
 
 /** A collection of all available tile types, categorized. */
@@ -252,4 +256,6 @@ export interface ExportSettings {
   includeGrid: boolean;
   /** Whether to include the icon spray overlay in the exported image. */
   includeIconSpray: boolean;
+  /** Whether to include the terrain icon overlay in the exported image. */
+  includeTerrainIcons: boolean;
 }

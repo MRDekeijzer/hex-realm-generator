@@ -217,6 +217,14 @@ export function Toolbar({
         >
           Icon Spray
         </ToolbarButton>
+        <ToolbarButton
+          onClick={() => setViewOptions((v) => ({ ...v, showTerrainIcons: !v.showTerrainIcons }))}
+          icon="mountain"
+          isActive={viewOptions.showTerrainIcons}
+          title="Toggle Terrain Icons"
+        >
+          Terrain Icons
+        </ToolbarButton>
 
         <ToolbarDivider />
 

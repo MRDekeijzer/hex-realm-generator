@@ -20,6 +20,7 @@ import { HexSelectionHighlight } from './HexSelectionHighlight';
 import { HexMyth } from './HexMyth';
 import { HexBarriers } from './HexBarriers';
 import { HexTerrain } from './HexTerrain';
+import { HexTerrainIcon } from './HexTerrainIcon';
 
 interface HexagonProps {
   hex: Hex;
@@ -67,6 +68,11 @@ export const Hexagon = React.memo(
     const knightVisibility = viewOptions.visibility.knight;
     const isGmView = viewOptions.isGmView;
 
+    const terrainTile = useMemo(
+      () => tileSets.terrain.find((terrain) => terrain.id === hex.terrain) ?? null,
+      [hex.terrain, tileSets.terrain]
+    );
+
     const holdingTile = useMemo(
       () => (hex.holding ? tileSets.holding.find((t) => t.id === hex.holding) : null),
       [hex.holding, tileSets.holding]
@@ -104,6 +110,7 @@ export const Hexagon = React.memo(
       }
       textureUrl = selectedTexture;
     }
+    const terrainIconUrl = terrainTile?.terrainIcon;
 
     return (
       <g
@@ -131,6 +138,9 @@ export const Hexagon = React.memo(
               gridColor={viewOptions.gridColor}
               gridWidth={viewOptions.gridWidth}
             />
+            {viewOptions.showTerrainIcons && (
+              <HexTerrainIcon iconUrl={terrainIconUrl ?? undefined} hexBoundingBox={hexBoundingBox} />
+            )}
 
             <HexBackplate
               activeTile={activeTile}
