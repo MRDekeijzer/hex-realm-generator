@@ -91,6 +91,13 @@ export const ViewSettings = ({
     [viewOptions.visibility.knight, tileSets, myths]
   );
 
+  const handleHoverTooltipToggle = (value: boolean) => {
+    setViewOptions((prev) => ({
+      ...prev,
+      showTerrainTooltip: value,
+    }));
+  };
+
   const holdingsSummary = useMemo(() => {
     const hiddenCount = tileSets.holding.filter(
       (holding) => !(knightVisibility.holdings[holding.id] ?? true)
@@ -221,6 +228,29 @@ export const ViewSettings = ({
 
   return (
     <div className="space-y-6">
+      <SettingsSection title="General Display">
+        <div className="rounded-md border border-border-panel-divider bg-realm-command-panel-surface px-4 py-3">
+          <label
+            htmlFor="view-hover-tooltip-toggle"
+            className="flex cursor-pointer items-center justify-between gap-3"
+          >
+            <div>
+              <span className="block text-sm font-semibold text-text-high-contrast">
+                Hover Terrain Details
+              </span>
+              <span className="block text-xs text-text-muted">
+                Show the terrain tooltip while hovering hexes with the select tool.
+              </span>
+            </div>
+            <Switch
+              id="view-hover-tooltip-toggle"
+              checked={viewOptions.showTerrainTooltip}
+              onChange={handleHoverTooltipToggle}
+            />
+          </label>
+        </div>
+      </SettingsSection>
+
       <SettingsSection title="Knight View Visibility">
         <p className="text-xs text-text-muted !mt-0">
           Choose which elements stay visible when you switch to the Knight (player-facing) view.

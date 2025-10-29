@@ -86,6 +86,7 @@ export default function App() {
   const [relocatingMythId, setRelocatingMythId] = useState<number | null>(null);
   const [viewOptions, setViewOptions] = useState<ViewOptions>({
     showGrid: true,
+    showTerrainTooltip: true,
     isGmView: true,
     orientation: 'pointy',
     hexSize: { x: 50, y: 50 },
@@ -943,6 +944,10 @@ export default function App() {
             onAddMyth={handleAddMyth}
             onRemoveMyth={handleRemoveMyth}
             tileSets={tileSets}
+            showTerrainTooltip={viewOptions.showTerrainTooltip}
+            onToggleTerrainTooltip={(value) =>
+              setViewOptions((prev) => ({ ...prev, showTerrainTooltip: value }))
+            }
           />
         ) : null}
       </div>

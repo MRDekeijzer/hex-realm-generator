@@ -2,7 +2,7 @@
 import { createPortal } from 'react-dom';
 
 interface InfoPopupProps {
-  anchor: HTMLElement;
+  anchor: Element;
   onClose: () => void;
   children: React.ReactNode;
   onMouseEnter?: () => void;
@@ -46,7 +46,7 @@ export const InfoPopup: React.FC<InfoPopupProps> = ({
       top = rect.bottom + scrollY + 12;
     }
 
-    let left = rect.right + scrollX - popupRect.width;
+    let left = rect.left + scrollX + rect.width / 2 - popupRect.width / 2;
     const minLeft = scrollX + 12;
     const maxLeft = scrollX + viewportWidth - popupRect.width - 12;
     left = clamp(left, minLeft, Math.max(minLeft, maxLeft));

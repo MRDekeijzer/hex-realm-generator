@@ -30,6 +30,13 @@ import { ToolsPalette } from './ToolsPalette';
 import { ShortcutTips } from './ShortcutTips';
 import type { ConfirmationState } from '@/app/App';
 import { Hexagon } from './hexgrid/Hexagon';
+import { InfoPopup } from './ui/InfoPopup';
+
+const toTitleCase = (value: string): string =>
+  value.length ? value.charAt(0).toUpperCase() + value.slice(1) : value;
+
+const humanizeId = (value: string): string =>
+  value.replace(/[-_]+/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 
 /**
  * Props for the HexGrid component.
@@ -133,6 +140,22 @@ export function HexGrid({
     () => new Map(realm.hexes.map((h) => [`${h.q},${h.r}`, h])),
     [realm.hexes]
   );
+  const terrainTileMap = useMemo(
+    () => new Map(tileSets.terrain.map((tile) => [tile.id, tile])),
+    [tileSets.terrain]
+  );
+  const holdingTileMap = useMemo(
+    () => new Map(tileSets.holding.map((tile) => [tile.id, tile])),
+    [tileSets.holding]
+  );
+  const landmarkTileMap = useMemo(
+    () => new Map(tileSets.landmark.map((tile) => [tile.id, tile])),
+    [tileSets.landmark]
+  );
+  const mythMap = useMemo(
+    () => new Map(realm.myths.map((myth) => [myth.id, myth])),
+    [realm.myths]
+  );
   const staticViewBox = useMemo(() => {
     if (isInteractive) {
       return null;
@@ -197,6 +220,11 @@ export function HexGrid({
     r: number;
     edge: number;
   } | null>(null);
+  const [hoveredHexTooltip, setHoveredHexTooltip] = useState<{
+    q: number;
+    r: number;
+    anchor: Element;
+  } | null>(null);
 
   /**
    * Effect to enable panning with the spacebar.
@@ -226,6 +254,18 @@ export function HexGrid({
       window.removeEventListener('keyup', handleKeyUp);
     };
   }, [isInteractive]);
+
+  useEffect(() => {
+    if (!isInteractive || isPickingTile || activeTool !== 'select' || !viewOptions.showTerrainTooltip) {
+      setHoveredHexTooltip(null);
+    }
+  }, [activeTool, isInteractive, isPickingTile, viewOptions.showTerrainTooltip]);
+
+  useEffect(() => {
+    if (isPainting) {
+      setHoveredHexTooltip(null);
+    }
+  }, [isPainting]);
 
   /**
    * Effect to apply the correct cursor class or style to the main container.
@@ -405,6 +445,8 @@ export function HexGrid({
         return;
       }
 
+      setHoveredHexTooltip(null);
+
       if (activeTool === 'select') {
         onHexClick(hex);
         return;
@@ -579,6 +621,77 @@ export function HexGrid({
     ]
   );
 
+  const handleHexHoverStart = useCallback(
+    (hex: Hex, target: Element) => {
+      if (!isInteractive) return;
+      if (isPainting) return;
+      if (isPickingTile) return;
+      if (activeTool !== 'select') return;
+      if (!viewOptions.showTerrainTooltip) return;
+      setHoveredHexTooltip({ q: hex.q, r: hex.r, anchor: target });
+    },
+    [activeTool, isInteractive, isPainting, isPickingTile, viewOptions.showTerrainTooltip]
+  );
+
+  const handleHexHoverEnd = useCallback(() => {
+    setHoveredHexTooltip(null);
+  }, []);
+
+  const hoveredHexTooltipData = useMemo(() => {
+    if (!hoveredHexTooltip) return null;
+    const key = `${hoveredHexTooltip.q},${hoveredHexTooltip.r}`;
+    const baseHex = paintedHexes.get(key) || realmHexesMap.get(key);
+    if (!baseHex) return null;
+
+    const terrainTile = terrainTileMap.get(baseHex.terrain);
+    const terrainLabel = terrainTile?.label ?? humanizeId(baseHex.terrain);
+    const characterLabel = baseHex.character ? toTitleCase(baseHex.character) : null;
+
+    const knightVisibility = viewOptions.visibility.knight;
+    const isGmView = viewOptions.isGmView;
+
+    const holdingTile = baseHex.holding ? holdingTileMap.get(baseHex.holding) : undefined;
+    const landmarkTile = baseHex.landmark ? landmarkTileMap.get(baseHex.landmark) : undefined;
+
+    let featureTitle: 'Holding' | 'Landmark' = 'Holding';
+    let featureValue: string | null = null;
+
+    if (holdingTile) {
+      featureTitle = 'Holding';
+      const isVisible = isGmView || (knightVisibility.holdings[holdingTile.id] ?? true);
+      featureValue = isVisible ? holdingTile.label : 'Hidden';
+    } else if (landmarkTile) {
+      featureTitle = 'Landmark';
+      const isVisible = isGmView || (knightVisibility.landmarks[landmarkTile.id] ?? true);
+      featureValue = isVisible ? landmarkTile.label : 'Hidden';
+    }
+
+    let mythValue: string | null = null;
+    if (baseHex.myth) {
+      const myth = mythMap.get(baseHex.myth);
+      const isVisible = isGmView || (knightVisibility.myths[baseHex.myth] ?? true);
+      mythValue = isVisible ? myth?.name ?? `Myth #${baseHex.myth}` : 'Hidden';
+    }
+
+    return {
+      terrainLabel,
+      characterLabel,
+      featureTitle,
+      featureValue,
+      mythValue,
+    };
+  }, [
+    hoveredHexTooltip,
+    paintedHexes,
+    realmHexesMap,
+    terrainTileMap,
+    holdingTileMap,
+    landmarkTileMap,
+    mythMap,
+    viewOptions.isGmView,
+    viewOptions.visibility.knight,
+  ]);
+
   if (isLoadingTextures || !terrainTextures) {
     return (
       <div className="flex items-center justify-center h-full text-text-muted">
@@ -608,6 +721,8 @@ export function HexGrid({
           isPickingTile={isPickingTile}
           onMouseDown={handleHexMouseDown}
           onMouseMove={handleHexMouseMove}
+          onHoverStart={handleHexHoverStart}
+          onHoverEnd={handleHexHoverEnd}
           hexCorners={hexCorners}
           hexCornersInnerHighlight={hexCornersInnerHighlight}
           hexBoundingBox={hexBoundingBox}
@@ -634,6 +749,7 @@ export function HexGrid({
             ? () => {
                 handleMouseUp();
                 setHoveredBarrier(null);
+                setHoveredHexTooltip(null);
               }
             : undefined
         }
@@ -674,6 +790,33 @@ export function HexGrid({
       </svg>
       {!isSettingsOpen && <ToolsPalette activeTool={activeTool} setActiveTool={setActiveTool} />}
       {!isSettingsOpen && <ShortcutTips />}
+      {isInteractive && viewOptions.showTerrainTooltip && hoveredHexTooltip && hoveredHexTooltipData && (
+        <InfoPopup anchor={hoveredHexTooltip.anchor} onClose={() => setHoveredHexTooltip(null)}>
+          <div className="space-y-3 text-sm text-text-high-contrast">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-text-subtle">Terrain</p>
+              <p className="font-semibold">{hoveredHexTooltipData.terrainLabel}</p>
+              <p className="text-xs text-text-muted">
+                Character: {hoveredHexTooltipData.characterLabel}
+              </p>
+            </div>
+            {hoveredHexTooltipData.featureValue && (
+              <div>
+                <p className="text-xs uppercase tracking-wide text-text-subtle">
+                  {hoveredHexTooltipData.featureTitle}
+                </p>
+                <p>{hoveredHexTooltipData.featureValue}</p>
+              </div>
+            )}
+            {hoveredHexTooltipData.mythValue && (
+              <div>
+                <p className="text-xs uppercase tracking-wide text-text-subtle">Myth</p>
+                <p>{hoveredHexTooltipData.mythValue}</p>
+              </div>
+            )}
+          </div>
+        </InfoPopup>
+      )}
     </div>
   );
 }

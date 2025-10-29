@@ -7,7 +7,11 @@
 
 import React from 'react';
 import type { Hex, Realm, TileSet, TileCharacter } from '@/features/realm/types';
-import { BARRIER_COLOR, HEX_SELECTED_COLOR, TILE_CHARACTERS } from '@/features/realm/config/constants';
+import {
+  BARRIER_COLOR,
+  HEX_SELECTED_COLOR,
+  TILE_CHARACTERS,
+} from '@/features/realm/config/constants';
 import { Icon } from '../Icon';
 import { getHexCorners, getBarrierPath, getNeighbors } from '@/features/realm/utils/hexUtils';
 
@@ -47,6 +51,27 @@ const CHARACTER_OPTIONS = TILE_CHARACTERS.map((value) => ({
   label: formatCharacterLabel(value),
 }));
 
+const Switch = ({
+  id,
+  checked,
+  onChange,
+}: {
+  id: string;
+  checked: boolean;
+  onChange: (next: boolean) => void;
+}) => (
+  <div className="relative pt-1">
+    <input
+      id={id}
+      type="checkbox"
+      checked={checked}
+      onChange={(event) => onChange(event.target.checked)}
+      className="peer sr-only"
+    />
+    <div className="relative h-6 w-11 rounded-full bg-realm-command-panel-hover transition-colors peer-checked:bg-actions-command-primary after:absolute after:top-0.5 after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-white" />
+  </div>
+);
+
 /**
  * Props for the SelectionSidebar component.
  */
@@ -59,6 +84,8 @@ interface SelectionSidebarProps {
   onAddMyth: (hex: Hex, andSelect?: boolean) => void;
   onRemoveMyth: (hex: Hex) => void;
   tileSets: TileSet;
+  showTerrainTooltip: boolean;
+  onToggleTerrainTooltip: (value: boolean) => void;
 }
 
 /**
@@ -99,6 +126,8 @@ export function SelectionSidebar({
   onAddMyth,
   onRemoveMyth,
   tileSets,
+  showTerrainTooltip,
+  onToggleTerrainTooltip,
 }: SelectionSidebarProps) {
   if (!selectedHex) {
     return (
@@ -317,6 +346,24 @@ export function SelectionSidebar({
               ))}
             </svg>
           </div>
+        </div>
+        <div className="mb-4 rounded-md border border-border-panel-divider bg-realm-command-panel-surface px-3 py-3">
+          <label
+            htmlFor="selection-tooltip-toggle"
+            className="flex items-center justify-between gap-3 cursor-pointer"
+          >
+            <div>
+              <p className="text-sm font-semibold text-text-high-contrast">Hover Details</p>
+              <p className="text-xs text-text-muted">
+                Show terrain information popups when hovering hexes with the select tool.
+              </p>
+            </div>
+            <Switch
+              id="selection-tooltip-toggle"
+              checked={showTerrainTooltip}
+              onChange={onToggleTerrainTooltip}
+            />
+          </label>
         </div>
       </div>
     </aside>

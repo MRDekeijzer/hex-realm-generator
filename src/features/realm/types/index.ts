@@ -108,6 +108,8 @@ export interface KnightVisibilitySettings {
 export interface ViewOptions {
   /** Whether to display the grid lines between hexes. */
   showGrid: boolean;
+  /** Whether to show hover tooltips for terrain details in select mode. */
+  showTerrainTooltip: boolean;
   /** Whether to show Referee-only information (myths, barriers). */
   isGmView: boolean;
   /** The orientation of the hexes. */

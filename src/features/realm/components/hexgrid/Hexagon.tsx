@@ -34,6 +34,8 @@ interface HexagonProps {
   isPickingTile: boolean;
   onMouseDown: (hex: Hex, e: React.MouseEvent) => void;
   onMouseMove: (hex: Hex, e: React.MouseEvent) => void;
+  onHoverStart: (hex: Hex, target: Element) => void;
+  onHoverEnd: () => void;
   hexCorners: Point[];
   hexCornersInnerHighlight: Point[];
   hexBoundingBox: { x: number; y: number; width: number; height: number };
@@ -51,9 +53,11 @@ export const Hexagon = React.memo(
     isSeatOfPower,
     isSpacePanActive,
     activeTool,
-    isPickingTile,
-    onMouseDown,
-    onMouseMove,
+   isPickingTile,
+   onMouseDown,
+   onMouseMove,
+    onHoverStart,
+    onHoverEnd,
     hexCorners,
     hexCornersInnerHighlight,
     hexBoundingBox,
@@ -106,6 +110,14 @@ export const Hexagon = React.memo(
         transform={`translate(${center.x}, ${center.y})`}
         onMouseDown={(e) => onMouseDown(hex, e)}
         onMouseMove={(e) => onMouseMove(hex, e)}
+        onMouseEnter={(e) => {
+          const polygon =
+            (layer === 'foreground'
+              ? e.currentTarget.querySelector('polygon')
+              : null) || (e.currentTarget as Element);
+          onHoverStart(hex, polygon as Element);
+        }}
+        onMouseLeave={onHoverEnd}
         className="group"
         style={{ pointerEvents: isSpacePanActive ? 'none' : 'auto' }}
       >
