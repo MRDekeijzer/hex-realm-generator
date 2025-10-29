@@ -24,7 +24,9 @@ export const HexMyth = ({ mythId, showMyths, hexSize }: HexMythProps) => {
         textAnchor="middle"
         dy=".3em"
         fill={TEXT_INVERSE_COLOR}
-        className="font-myth-number text-[1.8em]"
+        className="font-myth-number"
+        fontSize="1.8em"
+        fontFamily="AnglicanText, serif"
       >
         {mythId}
       </text>

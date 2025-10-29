@@ -76,6 +76,14 @@ export function ExportModal({
       aria-labelledby="export-modal-title"
     >
       <div className="relative w-full max-w-5xl rounded-lg border border-border-panel-divider bg-realm-map-viewport shadow-xl">
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-4 top-4 z-10 p-1 text-text-muted transition-colors hover:text-text-high-contrast"
+          aria-label="Close export modal"
+        >
+          <Icon name="close" className="h-6 w-6" />
+        </button>
         <div className="flex items-start justify-between border-b border-border-panel-divider px-6 py-4">
           <div>
             <h2 id="export-modal-title" className="text-xl font-semibold text-text-high-contrast">
@@ -85,14 +93,6 @@ export function ExportModal({
               Choose how the map should appear in the exported image and review it before saving.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-text-muted hover:text-text-high-contrast transition-colors"
-            aria-label="Close export modal"
-          >
-            <Icon name="x" className="h-5 w-5" />
-          </button>
         </div>
 
         <div className="grid gap-6 px-6 py-6 lg:grid-cols-[260px,1fr]">
@@ -204,24 +204,15 @@ export function ExportModal({
           </section>
         </div>
 
-        <div className="flex flex-col gap-3 border-t border-border-panel-divider px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-md border border-border-panel-divider px-4 py-2 text-sm font-medium text-text-muted hover:text-text-high-contrast"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={() => onExport(settings)}
-              disabled={!realm || isExporting}
-              className="rounded-md bg-actions-command-primary px-4 py-2 text-sm font-semibold text-text-high-contrast transition-colors hover:bg-actions-command-primary/80 disabled:cursor-not-allowed disabled:bg-border-panel-divider disabled:text-text-muted"
-            >
-              {isExporting ? 'Exporting...' : 'Export PNG'}
-            </button>
-          </div>
+        <div className="flex justify-end border-t border-border-panel-divider px-6 py-4">
+          <button
+            type="button"
+            onClick={() => onExport(settings)}
+            disabled={!realm || isExporting}
+            className="rounded-md bg-actions-command-primary px-4 py-2 text-sm font-semibold text-text-high-contrast transition-colors hover:bg-actions-command-primary/80 disabled:cursor-not-allowed disabled:bg-border-panel-divider disabled:text-text-muted"
+          >
+            {isExporting ? 'Exporting...' : 'Export PNG'}
+          </button>
         </div>
       </div>
     </div>
