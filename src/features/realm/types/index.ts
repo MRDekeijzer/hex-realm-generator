@@ -191,6 +191,8 @@ export interface Tile {
   spraySettings?: SpraySettings;
   /** Path or data URL for the primary terrain icon rendered inside hexes. */
   terrainIcon?: string;
+  /** Optional asset used when rendering map markers (holdings/landmarks). */
+  markerIcon?: string;
 }
 
 /** A collection of all available tile types, categorized. */

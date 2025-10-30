@@ -585,18 +585,18 @@ export const DEFAULT_TILE_SETS: TileSet = {
     },
   ],
   holding: [
-    { id: 'castle', label: 'Castle', icon: 'castle' },
-    { id: 'city', label: 'City', icon: 'city' },
-    { id: 'town', label: 'Town', icon: 'town' },
-    { id: 'village', label: 'Village', icon: 'village' },
+    { id: 'castle', label: 'Castle', icon: 'castle', markerIcon: '/Icons/castle.svg' },
+    { id: 'city', label: 'City', icon: 'city', markerIcon: '/Icons/city.svg' },
+    { id: 'town', label: 'Town', icon: 'town', markerIcon: '/Icons/town.svg' },
+    { id: 'village', label: 'Village', icon: 'village', markerIcon: '/Icons/village.svg' },
   ],
   landmark: [
-    { id: 'dwelling', label: 'Dwelling', icon: 'dwelling' },
-    { id: 'sanctum', label: 'Sanctum', icon: 'sanctum' },
-    { id: 'monument', label: 'Monument', icon: 'monument' },
-    { id: 'hazard', label: 'Hazard', icon: 'hazard' },
-    { id: 'curse', label: 'Curse', icon: 'curse' },
-    { id: 'ruins', label: 'Ruins', icon: 'ruins' },
+    { id: 'dwelling', label: 'Dwelling', icon: 'dwelling', markerIcon: '/Icons/dwelling.svg' },
+    { id: 'sanctum', label: 'Sanctum', icon: 'sanctum', markerIcon: '/Icons/sanctum.svg' },
+    { id: 'monument', label: 'Monument', icon: 'monument', markerIcon: '/Icons/monument.svg' },
+    { id: 'hazard', label: 'Hazard', icon: 'hazard', markerIcon: '/Icons/hazard.svg' },
+    { id: 'curse', label: 'Curse', icon: 'curse', markerIcon: '/Icons/curse.svg' },
+    { id: 'ruins', label: 'Ruins', icon: 'ruins', markerIcon: '/Icons/ruins.svg' },
   ],
 };
 
