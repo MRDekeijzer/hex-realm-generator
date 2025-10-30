@@ -118,7 +118,7 @@ export const DEFAULT_TERRAIN_HEIGHT_ORDER = [
 ];
 
 /** A list of all standard holding type IDs. */
-export const HOLDING_TYPES = ['castle', 'city', 'town', 'village'];
+export const HOLDING_TYPES = ['castle', 'city', 'fortress', 'town', 'village'];
 /** A list of all standard landmark type IDs. */
 export const LANDMARK_TYPES = ['dwelling', 'sanctum', 'monument', 'hazard', 'curse', 'ruins'];
 /** The base probability for a barrier to be generated on any given hex edge. */
@@ -585,18 +585,85 @@ export const DEFAULT_TILE_SETS: TileSet = {
     },
   ],
   holding: [
-    { id: 'castle', label: 'Castle', icon: 'castle', markerIcon: '/Icons/castle.svg' },
-    { id: 'city', label: 'City', icon: 'city', markerIcon: '/Icons/city.svg' },
-    { id: 'town', label: 'Town', icon: 'town', markerIcon: '/Icons/town.svg' },
-    { id: 'village', label: 'Village', icon: 'village', markerIcon: '/Icons/village.svg' },
+    {
+      id: 'castle',
+      label: 'Castle',
+      icon: 'castle',
+      markerIcon: '/Icons/castle.svg',
+      markerBackdrop: '/Icons/castle_under.svg',
+    },
+    {
+      id: 'city',
+      label: 'City',
+      icon: 'city',
+      markerIcon: '/Icons/city.svg',
+      markerBackdrop: '/Icons/city_under.svg',
+    },
+    {
+      id: 'fortress',
+      label: 'Fortress',
+      icon: 'fortress',
+      markerIcon: '/Icons/fortress.svg',
+      markerBackdrop: '/Icons/fortress_under.svg',
+    },
+    {
+      id: 'town',
+      label: 'Town',
+      icon: 'town',
+      markerIcon: '/Icons/town.svg',
+      markerBackdrop: '/Icons/town_under.svg',
+    },
+    {
+      id: 'village',
+      label: 'Village',
+      icon: 'village',
+      markerIcon: '/Icons/village.svg',
+      markerBackdrop: '/Icons/village_under.svg',
+    },
   ],
   landmark: [
-    { id: 'dwelling', label: 'Dwelling', icon: 'dwelling', markerIcon: '/Icons/dwelling.svg' },
-    { id: 'sanctum', label: 'Sanctum', icon: 'sanctum', markerIcon: '/Icons/sanctum.svg' },
-    { id: 'monument', label: 'Monument', icon: 'monument', markerIcon: '/Icons/monument.svg' },
-    { id: 'hazard', label: 'Hazard', icon: 'hazard', markerIcon: '/Icons/hazard.svg' },
-    { id: 'curse', label: 'Curse', icon: 'curse', markerIcon: '/Icons/curse.svg' },
-    { id: 'ruins', label: 'Ruins', icon: 'ruins', markerIcon: '/Icons/ruins.svg' },
+    {
+      id: 'dwelling',
+      label: 'Dwelling',
+      icon: 'dwelling',
+      markerIcon: '/Icons/dwelling.svg',
+      markerBackdrop: '/Icons/dwelling_under.svg',
+    },
+    {
+      id: 'sanctum',
+      label: 'Sanctum',
+      icon: 'sanctum',
+      markerIcon: '/Icons/sanctum.svg',
+      markerBackdrop: '/Icons/sanctum_under.svg',
+    },
+    {
+      id: 'monument',
+      label: 'Monument',
+      icon: 'monument',
+      markerIcon: '/Icons/monument.svg',
+      markerBackdrop: '/Icons/monument_under.svg',
+    },
+    {
+      id: 'hazard',
+      label: 'Hazard',
+      icon: 'hazard',
+      markerIcon: '/Icons/hazard.svg',
+      markerBackdrop: '/Icons/hazard_under.svg',
+    },
+    {
+      id: 'curse',
+      label: 'Curse',
+      icon: 'curse',
+      markerIcon: '/Icons/curse.svg',
+      markerBackdrop: '/Icons/curse_under.svg',
+    },
+    {
+      id: 'ruins',
+      label: 'Ruins',
+      icon: 'ruins',
+      markerIcon: '/Icons/ruins.svg',
+      markerBackdrop: '/Icons/ruins_under.svg',
+    },
   ],
 };
 

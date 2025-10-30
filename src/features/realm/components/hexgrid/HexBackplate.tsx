@@ -26,14 +26,20 @@ export const HexBackplate = ({
     return null;
   }
 
-  const hasMarkerAsset = Boolean(activeTile.markerIcon);
-  const iconScale = 1.5;
+  const markerIcon = activeTile.markerIcon;
+  const markerBackdrop = activeTile.markerBackdrop;
+  const hasMarkerAsset = Boolean(markerIcon);
+  const hasMarkerBackdrop = Boolean(markerBackdrop);
+  const iconScale = 1.25;
   const iconWidth = viewOptions.hexSize.x * iconScale;
   const iconHeight = viewOptions.hexSize.y * iconScale;
+  const backdropScale = 1.25;
+  const backdropWidth = viewOptions.hexSize.x * backdropScale;
+  const backdropHeight = viewOptions.hexSize.y * backdropScale;
   const crownScale = 0.5;
   const crownWidth = viewOptions.hexSize.x * crownScale;
   const crownHeight = viewOptions.hexSize.y * crownScale;
-  const crownYOffset = iconHeight / 2 + crownHeight * 0.27;
+  const crownYOffset = iconHeight / 2 + crownHeight * 0.18;
 
   return (
     <g style={{ pointerEvents: 'none' }}>
@@ -48,9 +54,19 @@ export const HexBackplate = ({
           style={{ color: SEAT_OF_POWER_COLOR }}
         />
       )}
+      {hasMarkerBackdrop && (
+        <image
+          href={markerBackdrop}
+          x={-backdropWidth / 2}
+          y={-backdropHeight / 2}
+          width={backdropWidth}
+          height={backdropHeight}
+          preserveAspectRatio="xMidYMid meet"
+        />
+      )}
       {hasMarkerAsset ? (
         <image
-          href={activeTile.markerIcon}
+          href={markerIcon}
           x={-iconWidth / 2}
           y={-iconHeight / 2}
           width={iconWidth}

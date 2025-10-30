@@ -193,6 +193,8 @@ export interface Tile {
   terrainIcon?: string;
   /** Optional asset used when rendering map markers (holdings/landmarks). */
   markerIcon?: string;
+  /** Optional backdrop asset rendered behind map markers. */
+  markerBackdrop?: string;
 }
 
 /** A collection of all available tile types, categorized. */

@@ -162,6 +162,7 @@ export const iconComponentMap: Record<string, React.ElementType> = {
   // POIs (Holdings & Landmarks)
   castle: Castle,
   city: Building2,
+  fortress: Castle,
   town: House,
   village: Tractor,
   dwelling: DoorClosed,
