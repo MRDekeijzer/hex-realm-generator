@@ -131,10 +131,32 @@ export function SelectionSidebar({
 }: SelectionSidebarProps) {
   if (!selectedHex) {
     return (
-      <aside className="w-80 bg-realm-canvas-backdrop border-l border-border-panel-divider p-4 flex flex-col items-center justify-center text-center">
-        <Icon name="mouse-pointer-2" className="w-16 h-16 text-realm-command-panel-hover mb-4" />
-        <h2 className="text-xl font-bold">Select a Hex</h2>
-        <p className="text-text-muted">Click on any hex on the map to view and edit its details.</p>
+      <aside className="w-80 bg-realm-canvas-backdrop border-l border-border-panel-divider p-4 flex h-full flex-col justify-center gap-4">
+        <div className="flex flex-col items-center text-center gap-2">
+          <Icon name="mouse-pointer-2" className="w-16 h-16 text-realm-command-panel-hover" />
+          <h2 className="text-xl font-bold">Select a Hex</h2>
+          <p className="text-text-muted">
+            Click on any hex on the map to view and edit its details.
+          </p>
+        </div>
+        <div className="w-full rounded-md border border-border-panel-divider bg-realm-command-panel-surface px-3 py-3">
+          <label
+            htmlFor="selection-tooltip-toggle"
+            className="flex items-center justify-between gap-3 cursor-pointer"
+          >
+            <div>
+              <p className="text-sm font-semibold text-text-high-contrast">Hover Details</p>
+              <p className="text-xs text-text-muted">
+                Show terrain information popups when hovering hexes with the select tool.
+              </p>
+            </div>
+            <Switch
+              id="selection-tooltip-toggle"
+              checked={showTerrainTooltip}
+              onChange={onToggleTerrainTooltip}
+            />
+          </label>
+        </div>
       </aside>
     );
   }
@@ -346,24 +368,6 @@ export function SelectionSidebar({
               ))}
             </svg>
           </div>
-        </div>
-        <div className="mb-4 rounded-md border border-border-panel-divider bg-realm-command-panel-surface px-3 py-3">
-          <label
-            htmlFor="selection-tooltip-toggle"
-            className="flex items-center justify-between gap-3 cursor-pointer"
-          >
-            <div>
-              <p className="text-sm font-semibold text-text-high-contrast">Hover Details</p>
-              <p className="text-xs text-text-muted">
-                Show terrain information popups when hovering hexes with the select tool.
-              </p>
-            </div>
-            <Switch
-              id="selection-tooltip-toggle"
-              checked={showTerrainTooltip}
-              onChange={onToggleTerrainTooltip}
-            />
-          </label>
         </div>
       </div>
     </aside>
