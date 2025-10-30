@@ -66,6 +66,8 @@ interface HexGridProps {
   setConfirmation: React.Dispatch<React.SetStateAction<ConfirmationState | null>>;
   terrainTextures: TerrainTextures | null;
   isLoadingTextures: boolean;
+  poiIconColor: string | null;
+  poiBackdropColor: string | null;
   svgId?: string;
   isInteractive?: boolean;
   staticPadding?: number;
@@ -98,6 +100,8 @@ export function HexGrid({
   setConfirmation,
   terrainTextures,
   isLoadingTextures,
+  poiIconColor,
+  poiBackdropColor,
   svgId = 'hex-grid-svg',
   isInteractive = true,
   staticPadding,
@@ -727,6 +731,8 @@ export function HexGrid({
           hexCornersInnerHighlight={hexCornersInnerHighlight}
           hexBoundingBox={hexBoundingBox}
           layer={layer}
+          poiIconColor={poiIconColor}
+          poiBackdropColor={poiBackdropColor}
         />
       );
     });

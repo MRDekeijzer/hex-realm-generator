@@ -124,6 +124,9 @@ export const LANDMARK_TYPES = ['dwelling', 'sanctum', 'monument', 'hazard', 'cur
 /** The base probability for a barrier to be generated on any given hex edge. */
 export const BARRIER_CHANCE = 1 / 6;
 
+export const DEFAULT_POI_ICON_COLOR = '#000000';
+export const DEFAULT_POI_BACKDROP_COLOR = null;
+
 /** A master list of icons available for the Icon Spray feature. */
 export const SPRAYABLE_ICONS = [
   'tree-pine',

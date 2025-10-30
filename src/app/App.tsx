@@ -24,6 +24,7 @@ import type {
   Tool,
   Myth,
   TileSet,
+  Tile,
   TerrainTextures,
   ExportSettings,
   TerrainBrushCharacter,
@@ -40,6 +41,8 @@ import {
   DEFAULT_TERRAIN_BIASES,
   DEFAULT_TERRAIN_HEIGHT_ORDER,
   TERRAIN_BASE_COLORS,
+  DEFAULT_POI_ICON_COLOR,
+  DEFAULT_POI_BACKDROP_COLOR,
 } from '@/features/realm/config/constants';
 import { useHistory } from '@/shared/hooks/useHistory';
 import { BarrierPainterSidebar } from '@/features/realm/components/sidebars/BarrierPainterSidebar';
@@ -112,6 +115,10 @@ export default function App() {
   const [terrainColors, setTerrainColors] = useState<Record<string, string>>(() => ({
     ...TERRAIN_BASE_COLORS,
   }));
+  const [poiIconColor, setPoiIconColor] = useState<string | null>(DEFAULT_POI_ICON_COLOR);
+  const [poiBackdropColor, setPoiBackdropColor] = useState<string | null>(
+    DEFAULT_POI_BACKDROP_COLOR
+  );
   const [barrierColor, setBarrierColor] = useState(BARRIER_COLOR);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -651,6 +658,40 @@ export default function App() {
     }));
   }, []);
 
+  const updatePoiTile = useCallback(
+    (category: 'holding' | 'landmark', tileId: string, updater: Partial<Tile>) => {
+      setTileSets((prev) => ({
+        ...prev,
+        [category]: prev[category].map((tile) =>
+          tile.id === tileId ? { ...tile, ...updater } : tile
+        ),
+      }));
+    },
+    []
+  );
+
+  const handleUpdatePoiMarkerIcon = useCallback(
+    (category: 'holding' | 'landmark', tileId: string, dataUrl: string) => {
+      updatePoiTile(category, tileId, { markerIcon: dataUrl });
+    },
+    [updatePoiTile]
+  );
+
+  const handleUpdatePoiMarkerBackdrop = useCallback(
+    (category: 'holding' | 'landmark', tileId: string, dataUrl: string) => {
+      updatePoiTile(category, tileId, { markerBackdrop: dataUrl });
+    },
+    [updatePoiTile]
+  );
+
+  const handleUpdatePoiIconColor = useCallback((color: string | null) => {
+    setPoiIconColor(color ? color.toUpperCase() : null);
+  }, []);
+
+  const handleUpdatePoiBackdropColor = useCallback((color: string | null) => {
+    setPoiBackdropColor(color ? color.toUpperCase() : null);
+  }, []);
+
   /**
    * Opens a confirmation dialog to remove all barriers from the map.
    */
@@ -830,6 +871,8 @@ export default function App() {
               setConfirmation={setConfirmation}
               terrainTextures={terrainTextures}
               isLoadingTextures={isLoadingTextures}
+              poiIconColor={poiIconColor}
+              poiBackdropColor={poiBackdropColor}
             />
           ) : (
             <div className="flex items-center justify-center h-full text-text-muted">
@@ -860,6 +903,13 @@ export default function App() {
             onClose={() => setActiveTool('select')}
             onStartPicking={handleStartPicking}
             isPickingTile={isPickingTile}
+            tileSets={tileSets}
+            onUpdatePoiMarkerIcon={handleUpdatePoiMarkerIcon}
+            onUpdatePoiMarkerBackdrop={handleUpdatePoiMarkerBackdrop}
+            poiIconColor={poiIconColor}
+            poiBackdropColor={poiBackdropColor}
+            onChangePoiIconColor={handleUpdatePoiIconColor}
+            onChangePoiBackdropColor={handleUpdatePoiBackdropColor}
           />
         ) : activeTool === 'barrier' ? (
           <BarrierPainterSidebar
@@ -911,6 +961,8 @@ export default function App() {
         previewSvgId={EXPORT_PREVIEW_SVG_ID}
         isExporting={isExporting}
         terrainColors={terrainColors}
+        poiIconColor={poiIconColor}
+        poiBackdropColor={poiBackdropColor}
         previewPadding={Math.max(viewOptions.hexSize.x, viewOptions.hexSize.y)}
       />
       {confirmation?.isOpen && (

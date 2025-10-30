@@ -31,6 +31,8 @@ interface ExportModalProps {
   isExporting: boolean;
   previewPadding?: number;
   terrainColors: Record<string, string>;
+  poiIconColor: string | null;
+  poiBackdropColor: string | null;
 }
 
 const noop = (): void => undefined;
@@ -54,6 +56,8 @@ export function ExportModal({
   isExporting,
   previewPadding = 40,
   terrainColors,
+  poiIconColor,
+  poiBackdropColor,
 }: ExportModalProps) {
   const previewViewOptions = useMemo(() => {
     return {
@@ -208,6 +212,8 @@ export function ExportModal({
                     setConfirmation={noopConfirmationDispatch}
                     terrainTextures={terrainTextures}
                     isLoadingTextures={isLoadingTextures}
+                    poiIconColor={poiIconColor}
+                    poiBackdropColor={poiBackdropColor}
                     svgId={previewSvgId}
                     isInteractive={false}
                     staticPadding={previewPadding}

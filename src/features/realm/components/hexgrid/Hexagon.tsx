@@ -41,6 +41,8 @@ interface HexagonProps {
   hexCornersInnerHighlight: Point[];
   hexBoundingBox: { x: number; y: number; width: number; height: number };
   layer: 'background' | 'foreground';
+  poiIconColor: string | null;
+  poiBackdropColor: string | null;
 }
 
 export const Hexagon = React.memo(
@@ -63,6 +65,8 @@ export const Hexagon = React.memo(
     hexCornersInnerHighlight,
     hexBoundingBox,
     layer,
+    poiIconColor,
+    poiBackdropColor,
   }: HexagonProps) => {
     const center = axialToPixel(hex, viewOptions.orientation, viewOptions.hexSize);
     const knightVisibility = viewOptions.visibility.knight;
@@ -148,6 +152,8 @@ export const Hexagon = React.memo(
               viewOptions={viewOptions}
               isSeatOfPower={seatOfPowerVisible}
               isHolding={isHolding}
+              markerIconColor={poiIconColor}
+              markerBackdropColor={poiBackdropColor}
             />
             <HexMyth mythId={hex.myth} showMyths={mythVisible} hexSize={viewOptions.hexSize} />
           </>

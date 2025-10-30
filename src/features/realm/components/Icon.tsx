@@ -77,6 +77,7 @@ import {
   Gem,
   GripVertical,
   SlidersHorizontal,
+  Layers,
 } from 'lucide-react';
 
 /**
@@ -125,6 +126,7 @@ export const iconComponentMap: Record<string, React.ElementType> = {
   'spray-can': SprayCan,
   'grip-vertical': GripVertical,
   sliders: SlidersHorizontal,
+  layers: Layers,
 
   // Terrain & Spray Icons
   trees: Trees,
