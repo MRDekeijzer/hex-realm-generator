@@ -126,6 +126,14 @@ const mergeExportSettings = (
 
 const EXPORT_PREVIEW_SVG_ID = 'hex-grid-export-preview';
 const EXPORT_IMAGE_SCALE = 6;
+const SHORTCUT_TIPS_STORAGE_KEY = 'hex-realm-generator:ui:hide-shortcut-tips';
+const TOOL_SHORTCUTS: Record<string, Tool> = {
+  '1': 'select',
+  '2': 'terrain',
+  '3': 'barrier',
+  '4': 'poi',
+  '5': 'myth',
+};
 
 /**
  * State for managing confirmation dialogs.
@@ -174,9 +182,19 @@ export default function App() {
   const [poiBackdropColor, setPoiBackdropColor] = useState<string | null>(
     DEFAULT_POI_BACKDROP_COLOR
   );
-  const [barrierColor, setBarrierColor] = useState(BARRIER_COLOR);
+  const [barrierColor, setBarrierColor] = useState<string>(BARRIER_COLOR ?? '#000000');
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [areShortcutTipsCollapsed, setAreShortcutTipsCollapsed] = useState<boolean>(() => {
+    if (typeof window === 'undefined' || !window.localStorage) {
+      return false;
+    }
+    try {
+      return window.localStorage.getItem(SHORTCUT_TIPS_STORAGE_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  });
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', 'dark');
@@ -249,6 +267,20 @@ export default function App() {
       showMessage(title, message, isInfo ?? true),
     [showMessage]
   );
+
+  const handleToggleShortcutTips = useCallback(() => {
+    setAreShortcutTipsCollapsed((prev) => {
+      const next = !prev;
+      if (typeof window !== 'undefined' && window.localStorage) {
+        try {
+          window.localStorage.setItem(SHORTCUT_TIPS_STORAGE_KEY, String(next));
+        } catch (error) {
+          console.warn('Failed to persist shortcut tips preference', error);
+        }
+      }
+      return next;
+    });
+  }, []);
 
   // Initialize landmark counts for generation options.
   const initialLandmarkCounts = LANDMARK_TYPES.reduce(
@@ -370,28 +402,45 @@ export default function App() {
    */
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      const isEditable =
+        !!target &&
+        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
       const isCtrlOrCmd = event.ctrlKey || event.metaKey;
+
+      if (!isEditable && !event.altKey && !isCtrlOrCmd) {
+        const mappedTool = TOOL_SHORTCUTS[event.key];
+        if (mappedTool) {
+          event.preventDefault();
+          if (activeTool !== mappedTool) {
+            setActiveTool(mappedTool);
+          }
+          return;
+        }
+      }
 
       if (event.key === 'Escape' && isPickingTile) {
         event.preventDefault();
         setIsPickingTile(false);
-      } else if (isCtrlOrCmd && event.key.toLowerCase() === 'z') {
+        return;
+      }
+
+      if (isCtrlOrCmd && event.key.toLowerCase() === 'z') {
         event.preventDefault();
         if (event.shiftKey) {
-          // Redo
           if (canRedo) {
             handleRedo();
             setSelectedHex(null);
           }
-        } else {
-          // Undo
-          if (canUndo) {
-            handleUndo();
-            setSelectedHex(null);
-          }
+        } else if (canUndo) {
+          handleUndo();
+          setSelectedHex(null);
         }
-      } else if (isCtrlOrCmd && event.key.toLowerCase() === 'y') {
-        event.preventDefault(); // Standard Redo
+        return;
+      }
+
+      if (isCtrlOrCmd && event.key.toLowerCase() === 'y') {
+        event.preventDefault();
         if (canRedo) {
           handleRedo();
           setSelectedHex(null);
@@ -403,7 +452,7 @@ export default function App() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [canUndo, canRedo, handleUndo, handleRedo, isPickingTile]);
+  }, [activeTool, canUndo, canRedo, handleUndo, handleRedo, isPickingTile, setActiveTool]);
 
   /**
    * Updates one or more hexes in the realm state.
@@ -804,16 +853,13 @@ export default function App() {
     exportRealmAsJson(exportPayload);
   }, [buildRealmExportData, showMessage]);
   const handleExportPng = useCallback(() => {
-    setExportSettings((prev) => {
-      const next = {
-        ...prev,
-        includeGrid: viewOptions.showGrid,
-        includeIconSpray: viewOptions.showIconSpray,
-        includeTerrainIcons: viewOptions.showTerrainIcons,
-        viewMode: viewOptions.isGmView ? 'referee' : 'knight',
-      };
-      return next;
-    });
+    setExportSettings((prev) => ({
+      ...prev,
+      includeGrid: viewOptions.showGrid,
+      includeIconSpray: viewOptions.showIconSpray,
+      includeTerrainIcons: viewOptions.showTerrainIcons,
+      viewMode: viewOptions.isGmView ? ('referee' as const) : ('knight' as const),
+    }));
     setIsExportModalOpen(true);
   }, [
     setExportSettings,
@@ -1109,7 +1155,7 @@ export default function App() {
               onSetSeatOfPower={handleSetSeatOfPower}
               tileSets={tileSets}
               terrainColors={terrainColors}
-              barrierColor={barrierColor ?? ''}
+              barrierColor={barrierColor}
               isSettingsOpen={isSettingsOpen}
               isPickingTile={isPickingTile}
               onTilePick={handleTilePick}
@@ -1118,6 +1164,8 @@ export default function App() {
               isLoadingTextures={isLoadingTextures}
               poiIconColor={poiIconColor}
               poiBackdropColor={poiBackdropColor}
+              shortcutTipsCollapsed={areShortcutTipsCollapsed}
+              onToggleShortcutTips={handleToggleShortcutTips}
             />
           ) : (
             <div className="flex items-center justify-center h-full text-text-muted">
@@ -1161,7 +1209,7 @@ export default function App() {
           <BarrierPainterSidebar
             onRemoveAllBarriers={handleRequestRemoveAllBarriers}
             onClose={() => setActiveTool('select')}
-            barrierColor={barrierColor ?? ''}
+            barrierColor={barrierColor}
             onColorChange={setBarrierColor}
           />
         ) : activeTool === 'myth' && realm ? (

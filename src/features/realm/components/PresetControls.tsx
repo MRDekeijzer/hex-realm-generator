@@ -11,6 +11,7 @@ import { Icon } from './Icon';
 
 const STORAGE_PREFIX = 'hex-realm-generator:preset:';
 const SLOT_COUNT = 3;
+const NAME_SUFFIX = ':name';
 const COLLAPSE_STORAGE_KEY = `${STORAGE_PREFIX}collapsed`;
 
 interface PresetControlsProps {
@@ -25,6 +26,7 @@ interface PresetControlsProps {
 interface PresetSlot {
   index: number;
   data: RealmExportData | null;
+  name: string;
 }
 
 const loadSlotFromStorage = (slotIndex: number): RealmExportData | null => {
@@ -50,6 +52,43 @@ const getStoredCollapseState = (): boolean => {
   }
 };
 
+const defaultSlotName = (slotIndex: number) => `Preset ${slotIndex}`;
+
+const loadSlotName = (slotIndex: number): string => {
+  if (typeof window === 'undefined' || !window.localStorage) {
+    return defaultSlotName(slotIndex);
+  }
+  try {
+    const stored = window.localStorage.getItem(`${STORAGE_PREFIX}${slotIndex}${NAME_SUFFIX}`);
+    const trimmed = stored?.trim();
+    if (!trimmed) {
+      return defaultSlotName(slotIndex);
+    }
+    return trimmed.slice(0, 50);
+  } catch {
+    return defaultSlotName(slotIndex);
+  }
+};
+
+const persistSlotName = (slotIndex: number, value: string) => {
+  if (typeof window === 'undefined' || !window.localStorage) {
+    return;
+  }
+  try {
+    const trimmed = value.trim();
+    if (trimmed) {
+      window.localStorage.setItem(
+        `${STORAGE_PREFIX}${slotIndex}${NAME_SUFFIX}`,
+        trimmed.slice(0, 50)
+      );
+    } else {
+      window.localStorage.removeItem(`${STORAGE_PREFIX}${slotIndex}${NAME_SUFFIX}`);
+    }
+  } catch (error) {
+    console.warn('Failed to persist preset name', error);
+  }
+};
+
 /**
  * Floating preset controls rendered near the top-right corner of the viewport.
  */
@@ -62,6 +101,7 @@ export function PresetControls({
     Array.from({ length: SLOT_COUNT }, (_, idx) => ({
       index: idx + 1,
       data: loadSlotFromStorage(idx + 1),
+      name: loadSlotName(idx + 1),
     }))
   );
   const [isCollapsed, setIsCollapsed] = useState<boolean>(() => getStoredCollapseState());
@@ -70,7 +110,13 @@ export function PresetControls({
   const refreshSlot = useCallback((slotIndex: number) => {
     setSlots((prev) =>
       prev.map((slot) =>
-        slot.index === slotIndex ? { ...slot, data: loadSlotFromStorage(slotIndex) } : slot
+        slot.index === slotIndex
+          ? {
+              ...slot,
+              data: loadSlotFromStorage(slotIndex),
+              name: loadSlotName(slotIndex),
+            }
+          : slot
       )
     );
   }, []);
@@ -84,7 +130,8 @@ export function PresetControls({
         return;
       }
       if (!event.key.startsWith(STORAGE_PREFIX)) return;
-      const slotIndex = Number(event.key.replace(STORAGE_PREFIX, ''));
+      const slotKey = event.key.replace(STORAGE_PREFIX, '');
+      const slotIndex = Number(slotKey.split(NAME_SUFFIX)[0]);
       if (!Number.isNaN(slotIndex)) {
         refreshSlot(slotIndex);
       }
@@ -127,6 +174,8 @@ export function PresetControls({
       try {
         window.localStorage.setItem(`${STORAGE_PREFIX}${slotIndex}`, JSON.stringify(exportData));
         refreshSlot(slotIndex);
+        const slotName =
+          slots.find((s) => s.index === slotIndex)?.name?.trim() || defaultSlotName(slotIndex);
       } catch (error) {
         console.error('Failed to store preset', error);
         showMessage(
@@ -136,7 +185,7 @@ export function PresetControls({
         );
       }
     },
-    [getExportData, refreshSlot, showMessage]
+    [getExportData, refreshSlot, showMessage, slots]
   );
 
   const handleLoad = useCallback(
@@ -157,6 +206,20 @@ export function PresetControls({
 
   const toggleCollapse = useCallback(() => {
     setIsCollapsed((prev) => !prev);
+  }, []);
+
+  const handleSlotNameChange = useCallback((slotIndex: number, value: string) => {
+    setSlots((prev) =>
+      prev.map((slot) => (slot.index === slotIndex ? { ...slot, name: value } : slot))
+    );
+  }, []);
+
+  const handleSlotNameCommit = useCallback((slotIndex: number, value: string) => {
+    const resolved = value.trim() ? value.trim().slice(0, 50) : defaultSlotName(slotIndex);
+    persistSlotName(slotIndex, value);
+    setSlots((prev) =>
+      prev.map((slot) => (slot.index === slotIndex ? { ...slot, name: resolved } : slot))
+    );
   }, []);
 
   const formatTimestamp = (value: string | undefined) => {
@@ -196,14 +259,34 @@ export function PresetControls({
             key={slot.index}
             className="border border-border-panel-divider/60 rounded-md p-2 bg-realm-command-panel-surface/40"
           >
-            <div className="flex items-center justify-between">
-              <span className="font-semibold text-text-high-contrast">Preset {slot.index}</span>
+            <div className="flex items-center justify-between gap-2">
+              <label htmlFor={`preset-name-${slot.index}`} className="sr-only">
+                Preset {slot.index} name
+              </label>
+              <input
+                id={`preset-name-${slot.index}`}
+                value={slot.name}
+                onChange={(event) => handleSlotNameChange(slot.index, event.target.value)}
+                onBlur={(event) => handleSlotNameCommit(slot.index, event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault();
+                    event.currentTarget.blur();
+                  } else if (event.key === 'Escape') {
+                    event.preventDefault();
+                    handleSlotNameChange(slot.index, loadSlotName(slot.index));
+                    event.currentTarget.blur();
+                  }
+                }}
+                maxLength={50}
+                className="flex-1 min-w-0 px-2 py-1 rounded-md bg-realm-command-panel-surface border border-transparent focus:border-actions-command-primary/60 focus:outline-none text-sm font-semibold text-text-high-contrast"
+              />
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => handleSave(slot.index)}
                   className="px-2 py-1 rounded-md bg-actions-command-primary/20 hover:bg-actions-command-primary/40 text-text-high-contrast transition-colors"
-                  title={`Save current realm to Preset ${slot.index}`}
+                  title={`Save current realm to ${slot.name.trim() || defaultSlotName(slot.index)}`}
                 >
                   Save
                 </button>
@@ -212,7 +295,7 @@ export function PresetControls({
                   onClick={() => handleLoad(slot.index)}
                   disabled={!slot.data}
                   className="px-2 py-1 rounded-md bg-realm-command-panel-hover hover:bg-realm-command-panel-hover/80 text-text-high-contrast transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  title={`Load Preset ${slot.index}`}
+                  title={`Load ${slot.name.trim() || defaultSlotName(slot.index)}`}
                 >
                   Load
                 </button>

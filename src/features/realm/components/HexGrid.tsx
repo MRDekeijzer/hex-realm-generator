@@ -38,6 +38,26 @@ const toTitleCase = (value: string): string =>
 const humanizeId = (value: string): string =>
   value.replace(/[-_]+/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 
+const LoadingOverlay = ({ label, variant }: { label: string; variant: 'full' | 'subtle' }) => (
+  <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+    <div
+      className={`flex items-center gap-2 rounded-md px-3 py-2 text-xs font-semibold text-text-muted ${
+        variant === 'subtle'
+          ? 'bg-realm-canvas-backdrop/70 border border-border-panel-divider/60'
+          : 'bg-realm-map-viewport border border-border-panel-divider shadow-lg'
+      }`}
+      role="status"
+      aria-live="polite"
+    >
+      <span
+        className="h-4 w-4 border-2 border-text-muted border-t-transparent rounded-full animate-spin"
+        aria-hidden="true"
+      />
+      <span>{label}</span>
+    </div>
+  </div>
+);
+
 /**
  * Props for the HexGrid component.
  */
@@ -71,6 +91,8 @@ interface HexGridProps {
   svgId?: string;
   isInteractive?: boolean;
   staticPadding?: number;
+  shortcutTipsCollapsed: boolean;
+  onToggleShortcutTips: () => void;
 }
 
 /**
@@ -105,6 +127,8 @@ export function HexGrid({
   svgId = 'hex-grid-svg',
   isInteractive = true,
   staticPadding,
+  shortcutTipsCollapsed,
+  onToggleShortcutTips,
 }: HexGridProps) {
   const { viewbox, containerRef, onMouseDown, isPanning } = usePanAndZoom({
     initialWidth: 1000,
@@ -156,10 +180,7 @@ export function HexGrid({
     () => new Map(tileSets.landmark.map((tile) => [tile.id, tile])),
     [tileSets.landmark]
   );
-  const mythMap = useMemo(
-    () => new Map(realm.myths.map((myth) => [myth.id, myth])),
-    [realm.myths]
-  );
+  const mythMap = useMemo(() => new Map(realm.myths.map((myth) => [myth.id, myth])), [realm.myths]);
   const staticViewBox = useMemo(() => {
     if (isInteractive) {
       return null;
@@ -260,7 +281,12 @@ export function HexGrid({
   }, [isInteractive]);
 
   useEffect(() => {
-    if (!isInteractive || isPickingTile || activeTool !== 'select' || !viewOptions.showTerrainTooltip) {
+    if (
+      !isInteractive ||
+      isPickingTile ||
+      activeTool !== 'select' ||
+      !viewOptions.showTerrainTooltip
+    ) {
       setHoveredHexTooltip(null);
     }
   }, [activeTool, isInteractive, isPickingTile, viewOptions.showTerrainTooltip]);
@@ -674,7 +700,7 @@ export function HexGrid({
     if (baseHex.myth) {
       const myth = mythMap.get(baseHex.myth);
       const isVisible = isGmView || (knightVisibility.myths[baseHex.myth] ?? true);
-      mythValue = isVisible ? myth?.name ?? `Myth #${baseHex.myth}` : 'Hidden';
+      mythValue = isVisible ? (myth?.name ?? `Myth #${baseHex.myth}`) : 'Hidden';
     }
 
     return {
@@ -696,15 +722,11 @@ export function HexGrid({
     viewOptions.visibility.knight,
   ]);
 
-  if (isLoadingTextures || !terrainTextures) {
-    return (
-      <div className="flex items-center justify-center h-full text-text-muted">
-        <p>Loading terrain textures...</p>
-      </div>
-    );
-  }
-
   const renderHexes = (layer: 'background' | 'foreground') => {
+    if (!terrainTextures) {
+      return null;
+    }
+
     return displayHexes.map((hex) => {
       const isSelected = selectedHex ? hex.q === selectedHex.q && hex.r === selectedHex.r : false;
       const isSeatOfPower = Boolean(
@@ -794,37 +816,48 @@ export function HexGrid({
           </g>
         )}
       </svg>
-      {!isSettingsOpen && <ToolsPalette activeTool={activeTool} setActiveTool={setActiveTool} />}
-      {!isSettingsOpen && <ShortcutTips />}
-      {isInteractive && viewOptions.showTerrainTooltip && hoveredHexTooltip && hoveredHexTooltipData && (
-        <InfoPopup anchor={hoveredHexTooltip.anchor} onClose={() => setHoveredHexTooltip(null)}>
-          <div className="space-y-3 text-sm text-text-high-contrast">
-            <div>
-              <p className="text-xs uppercase tracking-wide text-text-subtle">Terrain</p>
-              <p className="font-semibold">{hoveredHexTooltipData.terrainLabel}</p>
-              {hoveredHexTooltipData.characterLabel && (
-                <p className="text-xs text-text-muted">
-                  Character: {hoveredHexTooltipData.characterLabel}
-                </p>
+      {!terrainTextures && <LoadingOverlay label="Preparing terrain textures…" variant="full" />}
+      {terrainTextures && isLoadingTextures && (
+        <LoadingOverlay label="Refreshing terrain textures…" variant="subtle" />
+      )}
+      {!isSettingsOpen && (
+        <>
+          <ToolsPalette activeTool={activeTool} setActiveTool={setActiveTool} />
+          <ShortcutTips collapsed={shortcutTipsCollapsed} onToggleCollapse={onToggleShortcutTips} />
+        </>
+      )}
+      {isInteractive &&
+        viewOptions.showTerrainTooltip &&
+        hoveredHexTooltip &&
+        hoveredHexTooltipData && (
+          <InfoPopup anchor={hoveredHexTooltip.anchor} onClose={() => setHoveredHexTooltip(null)}>
+            <div className="space-y-3 text-sm text-text-high-contrast">
+              <div>
+                <p className="text-xs uppercase tracking-wide text-text-subtle">Terrain</p>
+                <p className="font-semibold">{hoveredHexTooltipData.terrainLabel}</p>
+                {hoveredHexTooltipData.characterLabel && (
+                  <p className="text-xs text-text-muted">
+                    Character: {hoveredHexTooltipData.characterLabel}
+                  </p>
+                )}
+              </div>
+              {hoveredHexTooltipData.featureValue && (
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-text-subtle">
+                    {hoveredHexTooltipData.featureTitle}
+                  </p>
+                  <p>{hoveredHexTooltipData.featureValue}</p>
+                </div>
+              )}
+              {hoveredHexTooltipData.mythValue && (
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-text-subtle">Myth</p>
+                  <p>{hoveredHexTooltipData.mythValue}</p>
+                </div>
               )}
             </div>
-            {hoveredHexTooltipData.featureValue && (
-              <div>
-                <p className="text-xs uppercase tracking-wide text-text-subtle">
-                  {hoveredHexTooltipData.featureTitle}
-                </p>
-                <p>{hoveredHexTooltipData.featureValue}</p>
-              </div>
-            )}
-            {hoveredHexTooltipData.mythValue && (
-              <div>
-                <p className="text-xs uppercase tracking-wide text-text-subtle">Myth</p>
-                <p>{hoveredHexTooltipData.mythValue}</p>
-              </div>
-            )}
-          </div>
-        </InfoPopup>
-      )}
+          </InfoPopup>
+        )}
     </div>
   );
 }

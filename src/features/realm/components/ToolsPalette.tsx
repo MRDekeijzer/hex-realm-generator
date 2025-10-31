@@ -21,6 +21,7 @@ interface ToolsPaletteProps {
 interface ToolButtonProps {
   icon: string;
   label: string;
+  shortcutKey?: string;
   isActive: boolean;
   onClick: () => void;
 }
@@ -29,7 +30,7 @@ interface ToolButtonProps {
  * A reusable button component for the tools palette.
  */
 // FIX: Changed to React.FC to correctly type as a component, resolving key prop errors.
-const ToolButton: React.FC<ToolButtonProps> = ({ icon, label, isActive, onClick }) => (
+const ToolButton: React.FC<ToolButtonProps> = ({ icon, label, shortcutKey, isActive, onClick }) => (
   <button
     onClick={onClick}
     className={`p-3 rounded-lg transition-colors duration-150 ${
@@ -37,8 +38,10 @@ const ToolButton: React.FC<ToolButtonProps> = ({ icon, label, isActive, onClick 
         ? 'bg-actions-command-primary text-text-high-contrast'
         : 'bg-realm-command-panel-surface text-text-muted hover:bg-realm-command-panel-hover'
     }`}
-    aria-label={label}
-    title={label}
+    aria-label={shortcutKey ? `${label} (${shortcutKey})` : label}
+    title={shortcutKey ? `${label} (${shortcutKey})` : label}
+    aria-keyshortcuts={shortcutKey}
+    aria-pressed={isActive}
   >
     <Icon name={icon} className="w-6 h-6" />
   </button>
@@ -48,12 +51,12 @@ const ToolButton: React.FC<ToolButtonProps> = ({ icon, label, isActive, onClick 
  * A floating palette for selecting the active map interaction tool.
  */
 export function ToolsPalette({ activeTool, setActiveTool }: ToolsPaletteProps) {
-  const tools: { id: Tool; icon: string; label: string }[] = [
-    { id: 'select', icon: 'mouse-pointer-2', label: 'Select Tool' },
-    { id: 'terrain', icon: 'brush', label: 'Terrain Painter' },
-    { id: 'barrier', icon: 'barrier-painter', label: 'Barrier Painter' },
-    { id: 'poi', icon: 'map-pin-pen', label: 'Points of Interest Painter' },
-    { id: 'myth', icon: 'sparkle', label: 'Myth Tool' },
+  const tools: { id: Tool; icon: string; label: string; shortcutKey: string }[] = [
+    { id: 'select', icon: 'mouse-pointer-2', label: 'Select Tool', shortcutKey: '1' },
+    { id: 'terrain', icon: 'brush', label: 'Terrain Painter', shortcutKey: '2' },
+    { id: 'barrier', icon: 'barrier-painter', label: 'Barrier Painter', shortcutKey: '3' },
+    { id: 'poi', icon: 'map-pin-pen', label: 'Points of Interest Painter', shortcutKey: '4' },
+    { id: 'myth', icon: 'sparkle', label: 'Myth Tool', shortcutKey: '5' },
   ];
 
   return (
@@ -63,6 +66,7 @@ export function ToolsPalette({ activeTool, setActiveTool }: ToolsPaletteProps) {
           key={tool.id}
           icon={tool.icon}
           label={tool.label}
+          shortcutKey={tool.shortcutKey}
           isActive={activeTool === tool.id}
           onClick={() => setActiveTool(tool.id)}
         />
