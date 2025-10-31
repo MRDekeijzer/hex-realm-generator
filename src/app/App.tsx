@@ -1290,9 +1290,9 @@ export default function App() {
             </div>
           )}
         </main>
-        <div className="relative flex-shrink-0">
+        <div className="relative flex-shrink-0 h-full">
           {sidebarContent ? (
-            <div key={activeTool} className="sidebar-container">
+            <div key={activeTool} className="sidebar-container h-full flex">
               {sidebarContent}
             </div>
           ) : null}
