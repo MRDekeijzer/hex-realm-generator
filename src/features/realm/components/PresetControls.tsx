@@ -5,12 +5,13 @@
  * that restoring a state is instant and offline-friendly.
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useId, useState } from 'react';
 import type { RealmExportData } from '@/features/realm/types';
 import { Icon } from './Icon';
 
 const STORAGE_PREFIX = 'hex-realm-generator:preset:';
 const SLOT_COUNT = 3;
+const COLLAPSE_STORAGE_KEY = `${STORAGE_PREFIX}collapsed`;
 
 interface PresetControlsProps {
   /** Returns the current realm export payload, or null if the realm is unavailable. */
@@ -38,6 +39,17 @@ const loadSlotFromStorage = (slotIndex: number): RealmExportData | null => {
   }
 };
 
+const getStoredCollapseState = (): boolean => {
+  if (typeof window === 'undefined' || !window.localStorage) {
+    return false;
+  }
+  try {
+    return window.localStorage.getItem(COLLAPSE_STORAGE_KEY) === 'true';
+  } catch {
+    return false;
+  }
+};
+
 /**
  * Floating preset controls rendered near the top-right corner of the viewport.
  */
@@ -52,6 +64,8 @@ export function PresetControls({
       data: loadSlotFromStorage(idx + 1),
     }))
   );
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(() => getStoredCollapseState());
+  const panelId = useId();
 
   const refreshSlot = useCallback((slotIndex: number) => {
     setSlots((prev) =>
@@ -65,6 +79,10 @@ export function PresetControls({
     if (typeof window === 'undefined') return;
     const handleStorage = (event: StorageEvent) => {
       if (event.storageArea !== window.localStorage || !event.key) return;
+      if (event.key === COLLAPSE_STORAGE_KEY) {
+        setIsCollapsed(event.newValue === 'true');
+        return;
+      }
       if (!event.key.startsWith(STORAGE_PREFIX)) return;
       const slotIndex = Number(event.key.replace(STORAGE_PREFIX, ''));
       if (!Number.isNaN(slotIndex)) {
@@ -74,6 +92,15 @@ export function PresetControls({
     window.addEventListener('storage', handleStorage);
     return () => window.removeEventListener('storage', handleStorage);
   }, [refreshSlot]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.localStorage) return;
+    try {
+      window.localStorage.setItem(COLLAPSE_STORAGE_KEY, String(isCollapsed));
+    } catch (error) {
+      console.warn('Failed to persist preset collapse state', error);
+    }
+  }, [isCollapsed]);
 
   const showMessage = useCallback(
     (title: string, message: string, isInfo = true) => {
@@ -128,6 +155,10 @@ export function PresetControls({
     [onLoadPreset, showMessage, slots]
   );
 
+  const toggleCollapse = useCallback(() => {
+    setIsCollapsed((prev) => !prev);
+  }, []);
+
   const formatTimestamp = (value: string | undefined) => {
     if (!value) return 'No save yet';
     const date = new Date(value);
@@ -135,13 +166,31 @@ export function PresetControls({
     return date.toLocaleString();
   };
 
+  const collapseToggleLabel = isCollapsed ? 'Expand preset controls' : 'Collapse preset controls';
+
   return (
-    <div className="absolute top-24 left-4 bg-realm-canvas-backdrop/80 border border-border-panel-divider rounded-lg shadow-lg w-60 z-10">
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-border-panel-divider">
-        <Icon name="layers" className="w-4 h-4 text-text-muted" aria-hidden="true" />
-        <span className="text-sm font-semibold text-text-high-contrast">Presets</span>
+    <div className="absolute left-4 top-[calc(4rem+0.5rem)] bg-realm-canvas-backdrop/80 border border-border-panel-divider rounded-lg shadow-lg w-60 z-10">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-border-panel-divider">
+        <div className="flex items-center gap-2">
+          <Icon name="layers" className="w-4 h-4 text-text-muted" aria-hidden="true" />
+          <span className="text-sm font-semibold text-text-high-contrast">Presets</span>
+        </div>
+        <button
+          type="button"
+          onClick={toggleCollapse}
+          className="p-1 rounded-md text-text-muted hover:text-text-high-contrast focus:outline-none focus-visible:ring-2 focus-visible:ring-actions-command-primary/60"
+          aria-expanded={!isCollapsed}
+          aria-controls={panelId}
+        >
+          <Icon
+            name={isCollapsed ? 'chevron-down' : 'chevron-up'}
+            className="w-4 h-4"
+            aria-hidden="true"
+          />
+          <span className="sr-only">{collapseToggleLabel}</span>
+        </button>
       </div>
-      <div className="p-3 space-y-3 text-xs text-text-muted">
+      <div id={panelId} hidden={isCollapsed} className="p-3 space-y-3 text-xs text-text-muted">
         {slots.map((slot) => (
           <div
             key={slot.index}
