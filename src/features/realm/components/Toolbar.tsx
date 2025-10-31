@@ -67,6 +67,7 @@ interface ToolbarProps {
   myths: Myth[];
   featureFlags: FeatureFlags;
   setFeatureFlags: React.Dispatch<React.SetStateAction<FeatureFlags>>;
+  onOpenCredits: () => void;
 }
 
 /**
@@ -86,6 +87,7 @@ export function Toolbar({
   setConfirmation,
   featureFlags,
   setFeatureFlags,
+  onOpenCredits,
   ...settingsProps
 }: ToolbarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -261,6 +263,12 @@ export function Toolbar({
           icon="settings"
           title="Open view visibility settings"
         />
+
+        <ToolbarDivider />
+
+        <ToolbarButton onClick={onOpenCredits} icon="info" title="View project credits">
+          Credits
+        </ToolbarButton>
       </div>
 
       <div className="flex items-center gap-2">

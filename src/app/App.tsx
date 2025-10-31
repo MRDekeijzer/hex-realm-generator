@@ -16,6 +16,7 @@ import { MythSidebar } from '@/features/realm/components/sidebars/MythSidebar';
 import { generateRealm } from '@/features/realm/services/realmGenerator';
 import { exportRealmAsJson, exportSvgAsPng } from '@/features/realm/services/fileService';
 import { ExportModal } from '@/features/realm/components/export/ExportModal';
+import { CreditsModal } from '@/features/realm/components/CreditsModal';
 import type {
   Realm,
   Hex,
@@ -126,6 +127,23 @@ const mergeExportSettings = (
 
 const EXPORT_PREVIEW_SVG_ID = 'hex-grid-export-preview';
 const EXPORT_IMAGE_SCALE = 6;
+const CREDITS_COOKIE_KEY = 'hexRealmCreditsSeen';
+
+const hasSeenCredits = () => {
+  if (typeof document === 'undefined') {
+    return true;
+  }
+  return document.cookie.split('; ').some((entry) => entry.startsWith(`${CREDITS_COOKIE_KEY}=`));
+};
+
+const rememberCredits = () => {
+  if (typeof document === 'undefined') {
+    return;
+  }
+  const expires = new Date();
+  expires.setFullYear(expires.getFullYear() + 5);
+  document.cookie = `${CREDITS_COOKIE_KEY}=true; expires=${expires.toUTCString()}; path=/`;
+};
 const SHORTCUT_TIPS_STORAGE_KEY = 'hex-realm-generator:ui:hide-shortcut-tips';
 const TOOL_SHORTCUTS: Record<string, Tool> = {
   '1': 'select',
@@ -185,6 +203,7 @@ export default function App() {
   const [barrierColor, setBarrierColor] = useState<string>(BARRIER_COLOR ?? '#000000');
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [isCreditsOpen, setIsCreditsOpen] = useState(false);
   const [areShortcutTipsCollapsed, setAreShortcutTipsCollapsed] = useState<boolean>(() => {
     if (typeof window === 'undefined' || !window.localStorage) {
       return false;
@@ -198,6 +217,14 @@ export default function App() {
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', 'dark');
+  }, []);
+
+  useEffect(() => {
+    if (hasSeenCredits()) {
+      return;
+    }
+    setIsCreditsOpen(true);
+    rememberCredits();
   }, []);
 
   useEffect(() => {
@@ -1100,6 +1127,95 @@ export default function App() {
     [featureFlags.iconSpray]
   );
 
+  const sidebarContent = (() => {
+    if (activeTool === 'terrain') {
+      return (
+        <TerrainPainterSidebar
+          paintTerrain={paintTerrain}
+          paintCharacter={paintCharacter}
+          setPaintTerrain={setPaintTerrain}
+          setPaintCharacter={setPaintCharacter}
+          onClose={() => setActiveTool('select')}
+          tileSets={tileSets}
+          terrainColors={terrainColors}
+          onUpdateTerrainColor={handleUpdateTerrainColor}
+          onResetTerrainColor={handleResetTerrainColor}
+          onUpdateTerrainIcon={handleUpdateTerrainIcon}
+          onStartPicking={handleStartPicking}
+          isPickingTile={isPickingTile}
+          onOpenSpraySettings={handleOpenSpraySettings}
+          isIconSprayEnabled={featureFlags.iconSpray}
+        />
+      );
+    }
+
+    if (activeTool === 'poi') {
+      return (
+        <PoiPainterSidebar
+          paintPoi={paintPoi}
+          setPaintPoi={setPaintPoi}
+          onClose={() => setActiveTool('select')}
+          onStartPicking={handleStartPicking}
+          isPickingTile={isPickingTile}
+          tileSets={tileSets}
+          onUpdatePoiMarkerIcon={handleUpdatePoiMarkerIcon}
+          onUpdatePoiMarkerBackdrop={handleUpdatePoiMarkerBackdrop}
+          poiIconColor={poiIconColor}
+          poiBackdropColor={poiBackdropColor}
+          onChangePoiIconColor={handleUpdatePoiIconColor}
+          onChangePoiBackdropColor={handleUpdatePoiBackdropColor}
+        />
+      );
+    }
+
+    if (activeTool === 'barrier') {
+      return (
+        <BarrierPainterSidebar
+          onRemoveAllBarriers={handleRequestRemoveAllBarriers}
+          onClose={() => setActiveTool('select')}
+          barrierColor={barrierColor}
+          onColorChange={setBarrierColor}
+        />
+      );
+    }
+
+    if (activeTool === 'myth' && realm) {
+      return (
+        <MythSidebar
+          realm={realm}
+          selectedHex={selectedHex}
+          onSelectHex={setSelectedHex}
+          onUpdateMyth={handleUpdateMyth}
+          onRemoveMyth={handleRemoveMyth}
+          relocatingMythId={relocatingMythId}
+          onToggleRelocateMyth={handleToggleRelocateMyth}
+          onClose={() => setActiveTool('select')}
+        />
+      );
+    }
+
+    if (activeTool === 'select') {
+      return (
+        <SelectionSidebar
+          selectedHex={selectedHex}
+          realm={realm}
+          onUpdateHex={handleUpdateHex}
+          onDeselect={() => setSelectedHex(null)}
+          onSetSeatOfPower={handleSetSeatOfPower}
+          onAddMyth={handleAddMyth}
+          onRemoveMyth={handleRemoveMyth}
+          tileSets={tileSets}
+          showTerrainTooltip={viewOptions.showTerrainTooltip}
+          onToggleTerrainTooltip={(value) =>
+            setViewOptions((prev) => ({ ...prev, showTerrainTooltip: value }))
+          }
+        />
+      );
+    }
+
+    return null;
+  })();
+
   return (
     <div className="flex flex-col h-screen w-screen bg-realm-canvas-backdrop overflow-hidden">
       <Toolbar
@@ -1133,6 +1249,7 @@ export default function App() {
         myths={realm?.myths ?? []}
         featureFlags={featureFlags}
         setFeatureFlags={setFeatureFlags}
+        onOpenCredits={() => setIsCreditsOpen(true)}
       />
       <div className="flex flex-1 overflow-hidden">
         <main className="flex-1 bg-realm-map-viewport relative">
@@ -1173,72 +1290,13 @@ export default function App() {
             </div>
           )}
         </main>
-        {activeTool === 'terrain' ? (
-          <TerrainPainterSidebar
-            paintTerrain={paintTerrain}
-            paintCharacter={paintCharacter}
-            setPaintTerrain={setPaintTerrain}
-            setPaintCharacter={setPaintCharacter}
-            onClose={() => setActiveTool('select')}
-            tileSets={tileSets}
-            terrainColors={terrainColors}
-            onUpdateTerrainColor={handleUpdateTerrainColor}
-            onResetTerrainColor={handleResetTerrainColor}
-            onUpdateTerrainIcon={handleUpdateTerrainIcon}
-            onStartPicking={handleStartPicking}
-            isPickingTile={isPickingTile}
-            onOpenSpraySettings={handleOpenSpraySettings}
-            isIconSprayEnabled={featureFlags.iconSpray}
-          />
-        ) : activeTool === 'poi' ? (
-          <PoiPainterSidebar
-            paintPoi={paintPoi}
-            setPaintPoi={setPaintPoi}
-            onClose={() => setActiveTool('select')}
-            onStartPicking={handleStartPicking}
-            isPickingTile={isPickingTile}
-            tileSets={tileSets}
-            onUpdatePoiMarkerIcon={handleUpdatePoiMarkerIcon}
-            onUpdatePoiMarkerBackdrop={handleUpdatePoiMarkerBackdrop}
-            poiIconColor={poiIconColor}
-            poiBackdropColor={poiBackdropColor}
-            onChangePoiIconColor={handleUpdatePoiIconColor}
-            onChangePoiBackdropColor={handleUpdatePoiBackdropColor}
-          />
-        ) : activeTool === 'barrier' ? (
-          <BarrierPainterSidebar
-            onRemoveAllBarriers={handleRequestRemoveAllBarriers}
-            onClose={() => setActiveTool('select')}
-            barrierColor={barrierColor}
-            onColorChange={setBarrierColor}
-          />
-        ) : activeTool === 'myth' && realm ? (
-          <MythSidebar
-            realm={realm}
-            selectedHex={selectedHex}
-            onSelectHex={setSelectedHex}
-            onUpdateMyth={handleUpdateMyth}
-            onRemoveMyth={handleRemoveMyth}
-            relocatingMythId={relocatingMythId}
-            onToggleRelocateMyth={handleToggleRelocateMyth}
-            onClose={() => setActiveTool('select')}
-          />
-        ) : activeTool === 'select' ? (
-          <SelectionSidebar
-            selectedHex={selectedHex}
-            realm={realm}
-            onUpdateHex={handleUpdateHex}
-            onDeselect={() => setSelectedHex(null)}
-            onSetSeatOfPower={handleSetSeatOfPower}
-            onAddMyth={handleAddMyth}
-            onRemoveMyth={handleRemoveMyth}
-            tileSets={tileSets}
-            showTerrainTooltip={viewOptions.showTerrainTooltip}
-            onToggleTerrainTooltip={(value) =>
-              setViewOptions((prev) => ({ ...prev, showTerrainTooltip: value }))
-            }
-          />
-        ) : null}
+        <div className="relative flex-shrink-0">
+          {sidebarContent ? (
+            <div key={activeTool} className="sidebar-container">
+              {sidebarContent}
+            </div>
+          ) : null}
+        </div>
       </div>
       <PresetControls
         getExportData={buildRealmExportData}
@@ -1265,6 +1323,7 @@ export default function App() {
         previewPadding={Math.max(viewOptions.hexSize.x, viewOptions.hexSize.y)}
         isIconSprayEnabled={featureFlags.iconSpray}
       />
+      <CreditsModal isOpen={isCreditsOpen} onClose={() => setIsCreditsOpen(false)} />
       {confirmation?.isOpen && (
         <ConfirmationDialog
           isOpen={confirmation.isOpen}

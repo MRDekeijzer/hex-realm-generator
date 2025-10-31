@@ -115,6 +115,7 @@ export function HexGrid({
   onRelocateMyth,
   onSetSeatOfPower,
   tileSets,
+  terrainColors,
   barrierColor,
   isSettingsOpen,
   isPickingTile,
@@ -163,7 +164,9 @@ export function HexGrid({
 
   const [isPainting, setIsPainting] = useState(false);
   const [paintedHexes, setPaintedHexes] = useState(new Map<string, Hex>());
+  const [committedHexes, setCommittedHexes] = useState(new Map<string, Hex>());
   const barrierPaintModeRef = useRef<'add' | 'remove'>('add');
+  const commitFadeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const realmHexesMap = useMemo(
     () => new Map(realm.hexes.map((h) => [`${h.q},${h.r}`, h])),
     [realm.hexes]
@@ -357,6 +360,11 @@ export function HexGrid({
     paintedHexes.forEach((hex, key) => hexesMap.set(key, hex));
     return Array.from(hexesMap.values());
   }, [realm.hexes, paintedHexes]);
+
+  const committedOverlayHexes = useMemo(
+    () => Array.from(committedHexes.values()),
+    [committedHexes]
+  );
 
   /**
    * Handles the painting logic for terrain and barriers while the mouse is held down.
@@ -594,10 +602,27 @@ export function HexGrid({
     if (!isPainting) return;
     setIsPainting(false);
     if (paintedHexes.size > 0) {
-      onUpdateHex(Array.from(paintedHexes.values()));
+      const committed = new Map(paintedHexes);
+      onUpdateHex(Array.from(committed.values()));
+      setCommittedHexes(committed);
+      if (commitFadeTimeoutRef.current) {
+        clearTimeout(commitFadeTimeoutRef.current);
+      }
+      commitFadeTimeoutRef.current = setTimeout(() => {
+        setCommittedHexes(new Map());
+        commitFadeTimeoutRef.current = null;
+      }, 280);
     }
     setPaintedHexes(new Map());
   }, [isInteractive, isPainting, onUpdateHex, paintedHexes]);
+
+  useEffect(() => {
+    return () => {
+      if (commitFadeTimeoutRef.current) {
+        clearTimeout(commitFadeTimeoutRef.current);
+      }
+    };
+  }, []);
 
   /**
    * Handles mouse move events for painting and barrier hover previews.
@@ -789,6 +814,28 @@ export function HexGrid({
         </defs>
 
         <g>{renderHexes('background')}</g>
+        {committedOverlayHexes.length > 0 && (
+          <g className="pointer-events-none">
+            {committedOverlayHexes.map((hex) => {
+              const center = axialToPixel(hex, viewOptions.orientation, viewOptions.hexSize);
+              const fillColor = terrainColors[hex.terrain] ?? '#ffffff';
+
+              return (
+                <g
+                  key={`commit-overlay-${hex.q}-${hex.r}`}
+                  transform={`translate(${center.x}, ${center.y})`}
+                  className="hex-paint-fade"
+                >
+                  <polygon
+                    points={hexCorners.map((p) => `${p.x},${p.y}`).join(' ')}
+                    fill={fillColor}
+                    fillOpacity={0.5}
+                  />
+                </g>
+              );
+            })}
+          </g>
+        )}
         <g>{renderHexes('foreground')}</g>
 
         {/* Barrier Hover Highlight Layer */}

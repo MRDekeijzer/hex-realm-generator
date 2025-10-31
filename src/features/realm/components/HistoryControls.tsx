@@ -28,7 +28,8 @@ export function HistoryControls({ onUndo, onRedo, canUndo, canRedo }: HistoryCon
       <button
         onClick={onUndo}
         disabled={!canUndo}
-        className="p-2 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-text-muted hover:bg-realm-command-panel-hover enabled:hover:text-text-high-contrast"
+        type="button"
+        className="interactive-surface p-2 rounded-md transition-colors active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-actions-command-primary disabled:opacity-50 disabled:cursor-not-allowed text-text-muted hover:bg-realm-command-panel-hover enabled:hover:text-text-high-contrast"
         title="Undo (Ctrl+Z)"
       >
         <Icon name="undo" className="w-5 h-5" />
@@ -36,7 +37,8 @@ export function HistoryControls({ onUndo, onRedo, canUndo, canRedo }: HistoryCon
       <button
         onClick={onRedo}
         disabled={!canRedo}
-        className="p-2 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-text-muted hover:bg-realm-command-panel-hover enabled:hover:text-text-high-contrast"
+        type="button"
+        className="interactive-surface p-2 rounded-md transition-colors active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-actions-command-primary disabled:opacity-50 disabled:cursor-not-allowed text-text-muted hover:bg-realm-command-panel-hover enabled:hover:text-text-high-contrast"
         title="Redo (Ctrl+Y)"
       >
         <Icon name="redo" className="w-5 h-5" />

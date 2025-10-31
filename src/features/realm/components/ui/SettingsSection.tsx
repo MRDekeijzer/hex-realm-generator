@@ -21,10 +21,10 @@ export const SettingsSection: React.FC<React.PropsWithChildren<SettingsSectionPr
   title,
   children,
 }) => (
-  <div>
+  <section>
     <h3 className="text-md font-semibold text-text-high-contrast mb-2">{title}</h3>
-    <div className="space-y-4 p-4 bg-realm-map-viewport rounded-md border border-border-panel-divider">
+    <div className="settings-section-panel space-y-4 p-4 bg-realm-map-viewport rounded-md border border-border-panel-divider">
       {children}
     </div>
-  </div>
+  </section>
 );

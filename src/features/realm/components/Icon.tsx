@@ -78,6 +78,7 @@ import {
   GripVertical,
   SlidersHorizontal,
   Layers,
+  Coffee,
 } from 'lucide-react';
 
 /**
@@ -127,6 +128,7 @@ export const iconComponentMap: Record<string, React.ElementType> = {
   'grip-vertical': GripVertical,
   sliders: SlidersHorizontal,
   layers: Layers,
+  coffee: Coffee,
 
   // Terrain & Spray Icons
   trees: Trees,

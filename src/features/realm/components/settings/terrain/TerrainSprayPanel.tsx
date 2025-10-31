@@ -172,7 +172,7 @@ export const TerrainSprayPanel: React.FC<TerrainSprayPanelProps> = ({
           <p className="mt-2 text-[11px] text-text-muted leading-relaxed">{spraySummary}</p>
         </InfoPopup>
       )}
-      <div className="pl-7 mt-3 pt-3 border-t border-border-panel-divider/50">
+      <div className="terrain-spray-body pl-7 mt-3 pt-3 border-t border-border-panel-divider/50">
         <div className="flex justify-end mb-3">
           <button
             type="button"

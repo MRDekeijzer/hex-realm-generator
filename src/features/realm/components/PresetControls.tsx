@@ -253,59 +253,69 @@ export function PresetControls({
           <span className="sr-only">{collapseToggleLabel}</span>
         </button>
       </div>
-      <div id={panelId} hidden={isCollapsed} className="p-3 space-y-3 text-xs text-text-muted">
-        {slots.map((slot) => (
-          <div
-            key={slot.index}
-            className="border border-border-panel-divider/60 rounded-md p-2 bg-realm-command-panel-surface/40"
-          >
-            <div className="flex items-center justify-between gap-2">
-              <label htmlFor={`preset-name-${slot.index}`} className="sr-only">
-                Preset {slot.index} name
-              </label>
-              <input
-                id={`preset-name-${slot.index}`}
-                value={slot.name}
-                onChange={(event) => handleSlotNameChange(slot.index, event.target.value)}
-                onBlur={(event) => handleSlotNameCommit(slot.index, event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter') {
-                    event.preventDefault();
-                    event.currentTarget.blur();
-                  } else if (event.key === 'Escape') {
-                    event.preventDefault();
-                    handleSlotNameChange(slot.index, loadSlotName(slot.index));
-                    event.currentTarget.blur();
-                  }
-                }}
-                maxLength={50}
-                className="flex-1 min-w-0 px-2 py-1 rounded-md bg-realm-command-panel-surface border border-transparent focus:border-actions-command-primary/60 focus:outline-none text-sm font-semibold text-text-high-contrast"
-              />
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleSave(slot.index)}
-                  className="px-2 py-1 rounded-md bg-actions-command-primary/20 hover:bg-actions-command-primary/40 text-text-high-contrast transition-colors"
-                  title={`Save current realm to ${slot.name.trim() || defaultSlotName(slot.index)}`}
-                >
-                  Save
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleLoad(slot.index)}
-                  disabled={!slot.data}
-                  className="px-2 py-1 rounded-md bg-realm-command-panel-hover hover:bg-realm-command-panel-hover/80 text-text-high-contrast transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  title={`Load ${slot.name.trim() || defaultSlotName(slot.index)}`}
-                >
-                  Load
-                </button>
+      <div
+        id={panelId}
+        aria-hidden={isCollapsed}
+        className={`transition-all duration-200 ease-out text-xs text-text-muted ${
+          isCollapsed
+            ? 'max-h-0 opacity-0 overflow-hidden pointer-events-none px-3'
+            : 'max-h-[28rem] opacity-100 px-3 pb-3'
+        }`}
+      >
+        <div className="space-y-3">
+          {slots.map((slot) => (
+            <div
+              key={slot.index}
+              className="border border-border-panel-divider/60 rounded-md p-2 bg-realm-command-panel-surface/40"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <label htmlFor={`preset-name-${slot.index}`} className="sr-only">
+                  Preset {slot.index} name
+                </label>
+                <input
+                  id={`preset-name-${slot.index}`}
+                  value={slot.name}
+                  onChange={(event) => handleSlotNameChange(slot.index, event.target.value)}
+                  onBlur={(event) => handleSlotNameCommit(slot.index, event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') {
+                      event.preventDefault();
+                      event.currentTarget.blur();
+                    } else if (event.key === 'Escape') {
+                      event.preventDefault();
+                      handleSlotNameChange(slot.index, loadSlotName(slot.index));
+                      event.currentTarget.blur();
+                    }
+                  }}
+                  maxLength={50}
+                  className="flex-1 min-w-0 px-2 py-1 rounded-md bg-realm-command-panel-surface border border-transparent focus:border-actions-command-primary/60 focus:outline-none text-sm font-semibold text-text-high-contrast"
+                />
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleSave(slot.index)}
+                    className="px-2 py-1 rounded-md bg-actions-command-primary/20 hover:bg-actions-command-primary/40 text-text-high-contrast transition-colors"
+                    title={`Save current realm to ${slot.name.trim() || defaultSlotName(slot.index)}`}
+                  >
+                    Save
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleLoad(slot.index)}
+                    disabled={!slot.data}
+                    className="px-2 py-1 rounded-md bg-realm-command-panel-hover hover:bg-realm-command-panel-hover/80 text-text-high-contrast transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    title={`Load ${slot.name.trim() || defaultSlotName(slot.index)}`}
+                  >
+                    Load
+                  </button>
+                </div>
               </div>
+              <p className="mt-2 text-[11px] leading-tight">
+                {formatTimestamp(slot.data?.metadata?.exportedAt)}
+              </p>
             </div>
-            <p className="mt-2 text-[11px] leading-tight">
-              {formatTimestamp(slot.data?.metadata?.exportedAt)}
-            </p>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
