@@ -4,7 +4,7 @@
  * such as exporting the realm data to JSON and exporting the SVG map to a PNG image.
  */
 
-import type { Realm } from '@/features/realm/types';
+import type { RealmExportData } from '@/features/realm/types';
 
 interface SvgRasterizeOptions {
   scale?: number;
@@ -16,13 +16,13 @@ interface SvgRasterizeOptions {
  * Exports the current realm data as a JSON file.
  * @param realm The realm object to be exported.
  */
-export function exportRealmAsJson(realm: Realm) {
-  const jsonString = JSON.stringify(realm, null, 2);
+export function exportRealmAsJson(data: RealmExportData) {
+  const jsonString = JSON.stringify(data, null, 2);
   const blob = new Blob([jsonString], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'realm-data.json';
+  a.download = `realm-export-v${data.version}.json`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

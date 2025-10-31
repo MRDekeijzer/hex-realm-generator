@@ -29,6 +29,7 @@ import type {
   ExportSettings,
   TerrainBrushCharacter,
   FeatureFlags,
+  RealmExportData,
 } from '@/features/realm/types';
 import {
   DEFAULT_GRID_SIZE,
@@ -53,12 +54,72 @@ import { HistoryControls } from '@/features/realm/components/HistoryControls';
 import { generateTerrainTextures } from '@/features/realm/utils/textureUtils';
 import { normalizeKnightVisibility } from '@/features/realm/utils/visibilityUtils';
 import { getTerrainBaseColor } from '@/app/theme/colors';
+import {
+  createRealmExportData,
+  ensureRealmHasMyths,
+  isRealmExportData,
+  REALM_EXPORT_VERSION,
+} from '@/features/realm/utils/importExport';
 
 const INITIAL_KNIGHT_VISIBILITY = normalizeKnightVisibility(
   undefined,
   DEFAULT_TILE_SETS,
   []
 ).visibility;
+
+const cloneKnightVisibility = () =>
+  JSON.parse(JSON.stringify(INITIAL_KNIGHT_VISIBILITY)) as typeof INITIAL_KNIGHT_VISIBILITY;
+
+const createDefaultViewOptions = (iconSprayEnabled: boolean): ViewOptions => ({
+  showGrid: true,
+  showTerrainTooltip: true,
+  isGmView: true,
+  orientation: 'pointy',
+  hexSize: { x: 50, y: 50 },
+  gridColor: DEFAULT_GRID_COLOR,
+  gridWidth: DEFAULT_GRID_WIDTH,
+  showIconSpray: iconSprayEnabled,
+  showTerrainIcons: true,
+  visibility: {
+    knight: cloneKnightVisibility(),
+  },
+});
+
+const createDefaultExportSettings = (iconSprayEnabled: boolean): ExportSettings => ({
+  viewMode: 'referee',
+  includeGrid: true,
+  includeIconSpray: iconSprayEnabled,
+  includeTerrainIcons: true,
+  blackAndWhite: false,
+});
+
+const mergeViewOptions = (
+  incoming: Partial<ViewOptions> | undefined,
+  iconSprayEnabled: boolean
+): ViewOptions => {
+  const defaults = createDefaultViewOptions(iconSprayEnabled);
+  if (!incoming) {
+    return defaults;
+  }
+  return {
+    ...defaults,
+    ...incoming,
+    hexSize: incoming.hexSize ? { ...incoming.hexSize } : defaults.hexSize,
+    visibility: {
+      knight: incoming.visibility?.knight
+        ? (JSON.parse(JSON.stringify(incoming.visibility.knight)) as typeof defaults.visibility.knight)
+        : defaults.visibility.knight,
+    },
+  };
+};
+
+const mergeExportSettings = (
+  incoming: Partial<ExportSettings> | undefined,
+  iconSprayEnabled: boolean
+): ExportSettings => ({
+  ...createDefaultExportSettings(iconSprayEnabled),
+  ...incoming,
+});
 
 const EXPORT_PREVIEW_SVG_ID = 'hex-grid-export-preview';
 const EXPORT_IMAGE_SCALE = 6;
@@ -92,27 +153,12 @@ export default function App() {
   const [featureFlags, setFeatureFlags] = useState<FeatureFlags>(() => ({
     ...DEFAULT_FEATURE_FLAGS,
   }));
-  const [viewOptions, setViewOptions] = useState<ViewOptions>({
-    showGrid: true,
-    showTerrainTooltip: true,
-    isGmView: true,
-    orientation: 'pointy',
-    hexSize: { x: 50, y: 50 },
-    gridColor: DEFAULT_GRID_COLOR,
-    gridWidth: DEFAULT_GRID_WIDTH,
-    showIconSpray: DEFAULT_FEATURE_FLAGS.iconSpray,
-    showTerrainIcons: true,
-    visibility: {
-      knight: INITIAL_KNIGHT_VISIBILITY,
-    },
-  });
-  const [exportSettings, setExportSettings] = useState<ExportSettings>(() => ({
-    viewMode: 'referee',
-    includeGrid: true,
-    includeIconSpray: DEFAULT_FEATURE_FLAGS.iconSpray,
-    includeTerrainIcons: true,
-    blackAndWhite: false,
-  }));
+  const [viewOptions, setViewOptions] = useState<ViewOptions>(() =>
+    createDefaultViewOptions(DEFAULT_FEATURE_FLAGS.iconSpray)
+  );
+  const [exportSettings, setExportSettings] = useState<ExportSettings>(() =>
+    createDefaultExportSettings(DEFAULT_FEATURE_FLAGS.iconSpray)
+  );
   const [activeTool, setActiveTool] = useState<Tool>('select');
   const [paintTerrain, setPaintTerrain] = useState<string>(TERRAIN_TYPES[0] ?? 'plain');
   const [paintCharacter, setPaintCharacter] = useState<TerrainBrushCharacter>('preserve');
@@ -555,37 +601,179 @@ export default function App() {
   );
 
   /**
-   * Handles importing a realm from a JSON file, ensuring backward compatibility.
-   * @param importedRealm The realm object parsed from the JSON file.
+   * Handles importing a realm from a JSON file (legacy realm-only files or the new full export).
+   * @param payload The parsed JSON data.
+   * @throws {Error} When the payload does not resemble a supported export format.
    */
-  const handleImportRealm = (importedRealm: Realm) => {
-    if (!importedRealm.myths) {
-      importedRealm.myths = [];
-      importedRealm.hexes.forEach((hex) => {
-        if (hex.myth) {
-          importedRealm.myths.push({
-            id: hex.myth,
-            name: `Myth #${hex.myth}`,
-            q: hex.q,
-            r: hex.r,
-          });
+  const handleImportRealm = useCallback(
+    (payload: Realm | RealmExportData) => {
+      const applyRealmState = (nextRealm: Realm) => {
+        setRealm(nextRealm);
+        setSelectedHex(null);
+        setRelocatingMythId(null);
+        setActiveTool('select');
+        setIsPickingTile(false);
+      };
+
+      const syncRealmDimensions = (
+        shape: Realm['shape'],
+        radius?: number,
+        width?: number,
+        height?: number
+      ) => {
+        setRealmShape(shape);
+        if (shape === 'hex') {
+          setRealmRadius(radius ?? DEFAULT_GRID_SIZE);
+        } else {
+          setRealmWidth(width ?? DEFAULT_GRID_SIZE);
+          setRealmHeight(height ?? DEFAULT_GRID_SIZE);
         }
-      });
-    }
-    setRealm(importedRealm);
-    setSelectedHex(null);
-    setRealmShape(importedRealm.shape);
-    if (importedRealm.shape === 'hex') {
-      setRealmRadius(importedRealm.radius ?? DEFAULT_GRID_SIZE);
-    } else {
-      setRealmWidth(importedRealm.width ?? DEFAULT_GRID_SIZE);
-      setRealmHeight(importedRealm.height ?? DEFAULT_GRID_SIZE);
-    }
-  };
+      };
+
+      if (isRealmExportData(payload)) {
+        if (!payload.realm || !Array.isArray(payload.realm.hexes) || !payload.realm.seatOfPower) {
+          throw new Error('Invalid realm export payload.');
+        }
+
+        if (payload.version > REALM_EXPORT_VERSION) {
+          console.warn(
+            `Importing realm export created with newer schema version ${payload.version} (current ${REALM_EXPORT_VERSION}).`
+          );
+        }
+
+        const realmWithMyths = ensureRealmHasMyths(payload.realm);
+        applyRealmState(realmWithMyths);
+        syncRealmDimensions(
+          payload.realmShape ?? realmWithMyths.shape,
+          payload.realmRadius ?? realmWithMyths.radius,
+          payload.realmWidth ?? realmWithMyths.width,
+          payload.realmHeight ?? realmWithMyths.height
+        );
+
+        const nextFeatureFlags: FeatureFlags = {
+          ...DEFAULT_FEATURE_FLAGS,
+          ...payload.featureFlags,
+        };
+        setFeatureFlags(nextFeatureFlags);
+
+        setGenerationOptions((prev) => ({
+          ...prev,
+          ...payload.generationOptions,
+        }));
+        setTileSets(payload.tileSets);
+        setTerrainColors(payload.terrainColors);
+
+        setPoiIconColor(
+          Object.prototype.hasOwnProperty.call(payload, 'poiIconColor')
+            ? payload.poiIconColor
+            : DEFAULT_POI_ICON_COLOR
+        );
+        setPoiBackdropColor(
+          Object.prototype.hasOwnProperty.call(payload, 'poiBackdropColor')
+            ? payload.poiBackdropColor
+            : DEFAULT_POI_BACKDROP_COLOR
+        );
+        setBarrierColor(payload.barrierColor ?? BARRIER_COLOR);
+
+        setViewOptions(mergeViewOptions(payload.viewOptions, nextFeatureFlags.iconSpray));
+        setExportSettings(mergeExportSettings(payload.exportSettings, nextFeatureFlags.iconSpray));
+
+        const terrainIds = payload.tileSets.terrain.map((tile) => tile.id);
+        setPaintTerrain((prev) => (terrainIds.includes(prev) ? prev : terrainIds[0] ?? prev));
+        setPaintPoi((prev) => {
+          if (!prev) return prev;
+          const [category, id] = prev.split(':');
+          if (category === 'holding') {
+            if (payload.tileSets.holding.some((tile) => tile.id === id)) {
+              return prev;
+            }
+            const fallbackHolding = payload.tileSets.holding[0]?.id;
+            return fallbackHolding ? `holding:${fallbackHolding}` : null;
+          }
+          if (category === 'landmark') {
+            if (payload.tileSets.landmark.some((tile) => tile.id === id)) {
+              return prev;
+            }
+            const fallbackLandmark = payload.tileSets.landmark[0]?.id;
+            return fallbackLandmark ? `landmark:${fallbackLandmark}` : null;
+          }
+          return prev;
+        });
+
+        return;
+      }
+
+      if (!payload.hexes || !payload.seatOfPower) {
+        throw new Error('Invalid realm file.');
+      }
+      const legacyRealm = ensureRealmHasMyths(payload);
+      applyRealmState(legacyRealm);
+      syncRealmDimensions(
+        legacyRealm.shape,
+        legacyRealm.radius,
+        legacyRealm.width,
+        legacyRealm.height
+      );
+    },
+    [
+      setRealm,
+      setSelectedHex,
+      setRelocatingMythId,
+      setActiveTool,
+      setIsPickingTile,
+      setRealmShape,
+      setRealmRadius,
+      setRealmWidth,
+      setRealmHeight,
+      setFeatureFlags,
+      setGenerationOptions,
+      setTileSets,
+      setTerrainColors,
+      setPoiIconColor,
+      setPoiBackdropColor,
+      setBarrierColor,
+      setViewOptions,
+      setExportSettings,
+      setPaintTerrain,
+      setPaintPoi,
+    ]
+  );
 
   const handleExportJson = useCallback(() => {
-    if (realm) exportRealmAsJson(realm);
-  }, [realm]);
+    if (!realm) return;
+    const exportPayload = createRealmExportData({
+      realm,
+      realmShape,
+      realmRadius,
+      realmWidth,
+      realmHeight,
+      generationOptions,
+      tileSets,
+      terrainColors,
+      viewOptions,
+      exportSettings,
+      poiIconColor,
+      poiBackdropColor,
+      barrierColor,
+      featureFlags,
+    });
+    exportRealmAsJson(exportPayload);
+  }, [
+    realm,
+    realmShape,
+    realmRadius,
+    realmWidth,
+    realmHeight,
+    generationOptions,
+    tileSets,
+    terrainColors,
+    viewOptions,
+    exportSettings,
+    poiIconColor,
+    poiBackdropColor,
+    barrierColor,
+    featureFlags,
+  ]);
   const handleExportPng = useCallback(() => {
     setExportSettings((prev) => {
       const next = {

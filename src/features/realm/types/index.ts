@@ -271,3 +271,44 @@ export interface ExportSettings {
   /** Whether to render the export in monochrome (black and white). */
   blackAndWhite: boolean;
 }
+
+/** Serialized representation of the full realm configuration for import/export. */
+export interface RealmExportData {
+  /** Schema version of the export payload. */
+  version: number;
+  /** Optional metadata about this export. */
+  metadata?: {
+    /** When the export was created (ISO timestamp). */
+    exportedAt?: string;
+    /** Optional application version string. */
+    appVersion?: string;
+  };
+  /** The generated realm, including hex, myth, and seat-of-power data. */
+  realm: Realm;
+  /** The configured shape used when generating the realm. */
+  realmShape: Realm['shape'];
+  /** The stored radius value for hex-shaped realms. */
+  realmRadius?: number;
+  /** The stored width for square realms. */
+  realmWidth?: number;
+  /** The stored height for square realms. */
+  realmHeight?: number;
+  /** The procedural generation settings tied to this realm. */
+  generationOptions: GenerationOptions;
+  /** User-customized tile definitions. */
+  tileSets: TileSet;
+  /** Overrides for terrain base colors. */
+  terrainColors: Record<string, string>;
+  /** Saved view configuration (grid, orientation, visibility, etc.). */
+  viewOptions: ViewOptions;
+  /** Saved export dialog settings. */
+  exportSettings: ExportSettings;
+  /** Custom point-of-interest icon color (null = default). */
+  poiIconColor: string | null;
+  /** Custom point-of-interest backdrop color (null = default). */
+  poiBackdropColor: string | null;
+  /** Custom barrier color. */
+  barrierColor: string;
+  /** Feature flag state for optional functionality. */
+  featureFlags: FeatureFlags;
+}

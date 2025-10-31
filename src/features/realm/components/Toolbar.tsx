@@ -9,6 +9,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import type {
   ViewOptions,
   Realm,
+  RealmExportData,
   GenerationOptions,
   TileSet,
   Myth,
@@ -18,6 +19,7 @@ import { ToolbarButton } from './ui/ToolbarButton';
 import { SettingsModal } from './settings/SettingsModal';
 import { GridSettingsPopover } from './GridSettingsPopover';
 import type { ConfirmationState } from '@/app/App';
+import { ensureRealmHasMyths, isRealmExportData } from '@/features/realm/utils/importExport';
 
 function ToolbarDivider() {
   return <div className="border-l border-border-panel-divider h-6" aria-hidden="true" />;
@@ -30,7 +32,7 @@ interface ToolbarProps {
   onGenerate: () => void;
   onExportJson: () => void;
   onExportPng: () => void;
-  onImportJson: (realm: Realm) => void;
+  onImportJson: (data: Realm | RealmExportData) => void;
   viewOptions: ViewOptions;
   setViewOptions: React.Dispatch<React.SetStateAction<ViewOptions>>;
   realmShape: 'hex' | 'square';
@@ -132,22 +134,25 @@ export function Toolbar({
         try {
           const fileContent = e.target?.result;
           if (typeof fileContent !== 'string') throw new Error('File could not be read.');
-          const loadedData = JSON.parse(fileContent);
-          // Basic validation and backward compatibility for older formats
-          if (!loadedData.hexes || !loadedData.seatOfPower) throw new Error('Invalid realm file.');
-          if (!loadedData.myths) {
-            loadedData.myths = [];
-            loadedData.hexes.forEach((hex: { myth: number; q: number; r: number }) => {
-              if (hex.myth)
-                loadedData.myths.push({
-                  id: hex.myth,
-                  name: `Myth #${hex.myth}`,
-                  q: hex.q,
-                  r: hex.r,
-                });
-            });
+          const parsedData = JSON.parse(fileContent);
+
+          if (isRealmExportData(parsedData)) {
+            onImportJson(parsedData);
+            return;
           }
-          onImportJson(loadedData as Realm);
+
+          if (
+            parsedData &&
+            typeof parsedData === 'object' &&
+            Array.isArray((parsedData as Realm).hexes) &&
+            (parsedData as Realm).seatOfPower
+          ) {
+            const legacyRealm = ensureRealmHasMyths(parsedData as Realm);
+            onImportJson(legacyRealm);
+            return;
+          }
+
+          throw new Error('Invalid realm file.');
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Unknown error.';
           setConfirmation({
