@@ -54,6 +54,7 @@ interface TerrainPainterSidebarProps {
   onStartPicking: () => void;
   isPickingTile: boolean;
   onOpenSpraySettings: (id: string) => void;
+  isIconSprayEnabled: boolean;
 }
 
 /**
@@ -73,6 +74,7 @@ export function TerrainPainterSidebar({
   onStartPicking,
   isPickingTile,
   onOpenSpraySettings,
+  isIconSprayEnabled,
 }: TerrainPainterSidebarProps) {
   const { activeInfo, handleInfoClick, scheduleHoverOpen, scheduleHoverClose, closeInfo } =
     useInfoPopup();
@@ -347,22 +349,24 @@ export function TerrainPainterSidebar({
                   </div>
                 </div>
 
-                <div className="flex items-center flex-shrink-0">
-                  <button
-                    type="button"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      onOpenSpraySettings(terrain.id);
-                      if (activeInfo?.id === terrain.id) {
-                        closeInfo();
-                      }
-                    }}
-                    title={`Edit ${terrain.label} spray settings`}
-                    aria-label={`Edit ${terrain.label} spray settings`}
-                  >
-                    <Icon name="settings" className="w-5 h-5 text-white" />
-                  </button>
-                </div>
+                {isIconSprayEnabled ? (
+                  <div className="flex items-center flex-shrink-0">
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onOpenSpraySettings(terrain.id);
+                        if (activeInfo?.id === terrain.id) {
+                          closeInfo();
+                        }
+                      }}
+                      title={`Edit ${terrain.label} spray settings`}
+                      aria-label={`Edit ${terrain.label} spray settings`}
+                    >
+                      <Icon name="settings" className="w-5 h-5 text-white" />
+                    </button>
+                  </div>
+                ) : null}
               </div>
             );
           })}

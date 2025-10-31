@@ -33,6 +33,7 @@ interface ExportModalProps {
   terrainColors: Record<string, string>;
   poiIconColor: string | null;
   poiBackdropColor: string | null;
+  isIconSprayEnabled: boolean;
 }
 
 const noop = (): void => undefined;
@@ -58,19 +59,21 @@ export function ExportModal({
   terrainColors,
   poiIconColor,
   poiBackdropColor,
+  isIconSprayEnabled,
 }: ExportModalProps) {
+  const includeIconSpray = isIconSprayEnabled && settings.includeIconSpray;
   const previewViewOptions = useMemo(() => {
     return {
       ...baseViewOptions,
       showGrid: settings.includeGrid,
-      showIconSpray: settings.includeIconSpray,
+      showIconSpray: includeIconSpray,
       showTerrainIcons: settings.includeTerrainIcons,
       isGmView: settings.viewMode === 'referee',
     };
   }, [
     baseViewOptions,
     settings.includeGrid,
-    settings.includeIconSpray,
+    includeIconSpray,
     settings.includeTerrainIcons,
     settings.viewMode,
   ]);
@@ -152,13 +155,24 @@ export function ExportModal({
                 <label className="flex items-center gap-3">
                   <input
                     type="checkbox"
-                    checked={settings.includeIconSpray}
+                    checked={includeIconSpray}
                     onChange={(event) =>
-                      onSettingsChange({ ...settings, includeIconSpray: event.target.checked })
+                      onSettingsChange({
+                        ...settings,
+                        includeIconSpray: isIconSprayEnabled ? event.target.checked : false,
+                      })
                     }
                     className="h-4 w-4 rounded border-border-panel-divider bg-realm-command-panel-surface text-actions-command-primary focus:ring-actions-command-primary"
+                    disabled={!isIconSprayEnabled}
                   />
-                  <span>Include icon spray</span>
+                  <span className="flex flex-col">
+                    <span>Include icon spray</span>
+                    {!isIconSprayEnabled ? (
+                      <span className="text-[11px] text-text-subtle">
+                        Enable in Terrain settings to unlock this overlay.
+                      </span>
+                    ) : null}
+                  </span>
                 </label>
                 <label className="flex items-center gap-3">
                   <input

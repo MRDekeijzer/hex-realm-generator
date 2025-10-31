@@ -130,6 +130,12 @@ export interface ViewOptions {
   };
 }
 
+/** Flags for enabling experimental or opt-in features. */
+export interface FeatureFlags {
+  /** Enables the procedural terrain icon spray tooling. */
+  iconSpray: boolean;
+}
+
 /** Ways that spray icons can be deployed on a hex. */
 export type SprayDeploymentMode = 'random' | 'grid';
 

@@ -11,6 +11,7 @@ import type {
   SpraySettings,
   KnightVisibilitySettings,
   TileCharacter,
+  FeatureFlags,
 } from '../types/index.ts';
 import { colorPalette, tailwindColorPalette } from '@/app/theme/colors';
 
@@ -85,6 +86,11 @@ export const DEFAULT_TERRAIN_ICONS: Record<string, string> = Object.fromEntries(
     return [terrainId, `/Icons/${iconName}.svg`];
   })
 );
+
+/** Default values for experimental feature toggle states. */
+export const DEFAULT_FEATURE_FLAGS: FeatureFlags = {
+  iconSpray: false,
+};
 
 /** The list of descriptive characters that can be assigned to terrain hexes. */
 export const TILE_CHARACTERS: TileCharacter[] = [

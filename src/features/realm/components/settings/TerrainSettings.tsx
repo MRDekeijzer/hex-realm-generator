@@ -3,7 +3,7 @@
  */
 
 import React, { useRef, useCallback, useEffect, useState, useMemo } from 'react';
-import type { TileSet, SpraySettings, Tile } from '@/features/realm/types';
+import type { TileSet, SpraySettings, Tile, FeatureFlags } from '@/features/realm/types';
 import { DEFAULT_SPRAY_SETTINGS, TERRAIN_SPRAY_DEFAULTS } from '@/features/realm/config/constants';
 import { resolveColorToken } from '@/app/theme/colors';
 import { SettingsSection } from '../ui/SettingsSection';
@@ -134,13 +134,21 @@ interface TerrainSettingsProps {
   tileSets: TileSet;
   setTileSets: React.Dispatch<React.SetStateAction<TileSet>>;
   focusId: string | null;
+  featureFlags: FeatureFlags;
+  setFeatureFlags: React.Dispatch<React.SetStateAction<FeatureFlags>>;
 }
 
 /**
  * A component that renders settings for customizing terrain appearance,
  * including the procedural Icon Spray feature.
  */
-export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSettingsProps) => {
+export const TerrainSettings = ({
+  tileSets,
+  setTileSets,
+  focusId,
+  featureFlags,
+  setFeatureFlags,
+}: TerrainSettingsProps) => {
   const detailsRefs = useRef<Map<string, HTMLDetailsElement | null>>(new Map());
   const { activeInfo, handleInfoClick, scheduleHoverOpen, scheduleHoverClose, closeInfo } =
     useInfoPopup();
@@ -156,17 +164,18 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
   }, []);
 
   useEffect(() => {
-    if (focusId) {
-      const element = detailsRefs.current.get(focusId);
-      if (element) {
-        // Use a short timeout to ensure the DOM is ready after the tab switch
-        setTimeout(() => {
-          element.open = true;
-          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 100);
-      }
+    if (!featureFlags.iconSpray || !focusId) {
+      return;
     }
-  }, [focusId]);
+    const element = detailsRefs.current.get(focusId);
+    if (element) {
+      // Use a short timeout to ensure the DOM is ready after the tab switch
+      setTimeout(() => {
+        element.open = true;
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
+    }
+  }, [focusId, featureFlags.iconSpray]);
 
   useEffect(() => {
     if (!activeInfo) {
@@ -335,72 +344,111 @@ export const TerrainSettings = ({ tileSets, setTileSets, focusId }: TerrainSetti
 
   return (
     <div className="space-y-6">
-      <SettingsSection title="Terrain Icon Spray">
-        <p className="text-xs text-text-muted !mt-0">
-          Configure the small, semi-transparent icons that are procedurally scattered on each
-          terrain type to add visual texture.
-        </p>
-        <div className="space-y-4">
-          {tileSets.terrain.map((terrain) => {
-            const draft = draftSprayConfigs[terrain.id] ?? buildBaselineDraft(terrain);
-            const previewTerrain: Tile = {
-              ...terrain,
-              spraySettings: draft.spraySettings,
-              sprayIcons: draft.sprayIcons,
-            };
-            const settings = draft.spraySettings || DEFAULT_SPRAY_SETTINGS;
-            const resolvedTerrainColor = resolveColor(terrain.color);
-            const resolvedSprayColor = resolveColor(settings.color);
-            return (
-              <TerrainSprayPanel
-                key={terrain.id}
-                terrain={previewTerrain}
-                settings={settings}
-                resolvedTerrainColor={resolvedTerrainColor}
-                resolvedSprayColor={resolvedSprayColor}
-                activeInfo={activeInfo}
-                hasUnsavedChanges={dirtyTerrainIds.has(terrain.id)}
-                onSave={() => handleSaveTerrain(terrain.id)}
-                registerDetailsRef={(element) => {
-                  detailsRefs.current.set(terrain.id, element);
-                }}
-                onInfoClick={(anchor) => handleInfoClick(terrain.id, anchor)}
-                onInfoHoverStart={(anchor) => scheduleHoverOpen(terrain.id, anchor)}
-                onInfoHoverEnd={() => scheduleHoverClose(terrain.id)}
-                onCloseInfo={closeInfo}
-                onToggleIcon={(icon) => handleToggleSprayIcon(terrain.id, icon)}
-                onSettingChange={(key, value) => handleSettingChange(terrain.id, key, value)}
+      <SettingsSection title="Experimental Features">
+        <div className="flex flex-col gap-4">
+          <label
+            htmlFor="feature-flag-icon-spray"
+            className="flex items-center justify-between gap-4 cursor-pointer"
+          >
+            <div>
+              <span className="block text-sm font-semibold text-text-high-contrast">
+                Terrain Icon Spray
+              </span>
+              <span className="block text-xs text-text-muted">
+                Enable procedural icon scatter previews and per-terrain tuning.
+              </span>
+            </div>
+            <div className="relative">
+              <input
+                id="feature-flag-icon-spray"
+                type="checkbox"
+                checked={featureFlags.iconSpray}
+                onChange={(event) =>
+                  setFeatureFlags((prev) => ({
+                    ...prev,
+                    iconSpray: event.target.checked,
+                  }))
+                }
+                className="sr-only peer"
               />
-            );
-          })}
-        </div>
-        <div className="flex flex-col md:flex-row md:justify-end gap-2 pt-2 border-t border-border-panel-divider/40 mt-6">
-          <button
-            type="button"
-            onClick={handleDiscard}
-            disabled={!hasUnsavedChanges}
-            className={`inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-              hasUnsavedChanges
-                ? 'border border-border-panel-divider text-text-muted hover:text-text-high-contrast hover:border-actions-command-primary/40'
-                : 'border border-border-panel-divider/60 text-text-subtle cursor-not-allowed'
-            }`}
-          >
-            Discard Changes
-          </button>
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={!hasUnsavedChanges}
-            className={`inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
-              hasUnsavedChanges
-                ? 'bg-actions-command-primary text-text-high-contrast hover:bg-actions-command-primary/90'
-                : 'bg-realm-command-panel-hover text-text-subtle cursor-not-allowed'
-            }`}
-          >
-            Save Changes
-          </button>
+              <div className="w-11 h-6 bg-realm-command-panel-surface rounded-full peer peer-checked:bg-actions-command-primary transition-colors after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-white" />
+            </div>
+          </label>
+          {!featureFlags.iconSpray ? (
+            <p className="text-xs text-text-muted">
+              Toggle the experiment to customize icon spray palettes for each terrain.
+            </p>
+          ) : null}
         </div>
       </SettingsSection>
+      {featureFlags.iconSpray ? (
+        <SettingsSection title="Terrain Icon Spray">
+          <p className="text-xs text-text-muted !mt-0">
+            Configure the small, semi-transparent icons that are procedurally scattered on each
+            terrain type to add visual texture.
+          </p>
+          <div className="space-y-4">
+            {tileSets.terrain.map((terrain) => {
+              const draft = draftSprayConfigs[terrain.id] ?? buildBaselineDraft(terrain);
+              const previewTerrain: Tile = {
+                ...terrain,
+                spraySettings: draft.spraySettings,
+                sprayIcons: draft.sprayIcons,
+              };
+              const settings = draft.spraySettings || DEFAULT_SPRAY_SETTINGS;
+              const resolvedTerrainColor = resolveColor(terrain.color);
+              const resolvedSprayColor = resolveColor(settings.color);
+              return (
+                <TerrainSprayPanel
+                  key={terrain.id}
+                  terrain={previewTerrain}
+                  settings={settings}
+                  resolvedTerrainColor={resolvedTerrainColor}
+                  resolvedSprayColor={resolvedSprayColor}
+                  activeInfo={activeInfo}
+                  hasUnsavedChanges={dirtyTerrainIds.has(terrain.id)}
+                  onSave={() => handleSaveTerrain(terrain.id)}
+                  registerDetailsRef={(element) => {
+                    detailsRefs.current.set(terrain.id, element);
+                  }}
+                  onInfoClick={(anchor) => handleInfoClick(terrain.id, anchor)}
+                  onInfoHoverStart={(anchor) => scheduleHoverOpen(terrain.id, anchor)}
+                  onInfoHoverEnd={() => scheduleHoverClose(terrain.id)}
+                  onCloseInfo={closeInfo}
+                  onToggleIcon={(icon) => handleToggleSprayIcon(terrain.id, icon)}
+                  onSettingChange={(key, value) => handleSettingChange(terrain.id, key, value)}
+                />
+              );
+            })}
+          </div>
+          <div className="flex flex-col md:flex-row md:justify-end gap-2 pt-2 border-t border-border-panel-divider/40 mt-6">
+            <button
+              type="button"
+              onClick={handleDiscard}
+              disabled={!hasUnsavedChanges}
+              className={`inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+                hasUnsavedChanges
+                  ? 'border border-border-panel-divider text-text-muted hover:text-text-high-contrast hover:border-actions-command-primary/40'
+                  : 'border border-border-panel-divider/60 text-text-subtle cursor-not-allowed'
+              }`}
+            >
+              Discard Changes
+            </button>
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={!hasUnsavedChanges}
+              className={`inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
+                hasUnsavedChanges
+                  ? 'bg-actions-command-primary text-text-high-contrast hover:bg-actions-command-primary/90'
+                  : 'bg-realm-command-panel-hover text-text-subtle cursor-not-allowed'
+              }`}
+            >
+              Save Changes
+            </button>
+          </div>
+        </SettingsSection>
+      ) : null}
     </div>
   );
 };

@@ -3,7 +3,13 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import type { GenerationOptions, TileSet, ViewOptions, Myth } from '@/features/realm/types';
+import type {
+  GenerationOptions,
+  TileSet,
+  ViewOptions,
+  Myth,
+  FeatureFlags,
+} from '@/features/realm/types';
 import { Icon } from '../Icon';
 import { SettingsTabButton } from '../ui/SettingsTabButton';
 import { GeneralSettings } from './GeneralSettings';
@@ -43,6 +49,8 @@ interface SettingsModalProps {
   viewOptions: ViewOptions;
   setViewOptions: React.Dispatch<React.SetStateAction<ViewOptions>>;
   myths: Myth[];
+  featureFlags: FeatureFlags;
+  setFeatureFlags: React.Dispatch<React.SetStateAction<FeatureFlags>>;
 }
 
 /**
@@ -153,6 +161,8 @@ export const SettingsModal = ({ isOpen, onClose, settingsView, ...props }: Setti
                 tileSets={props.tileSets}
                 setTileSets={props.setTileSets}
                 focusId={settingsView.focusId}
+                featureFlags={props.featureFlags}
+                setFeatureFlags={props.setFeatureFlags}
               />
             )}
           </div>

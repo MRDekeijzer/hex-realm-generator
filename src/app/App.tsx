@@ -28,6 +28,7 @@ import type {
   TerrainTextures,
   ExportSettings,
   TerrainBrushCharacter,
+  FeatureFlags,
 } from '@/features/realm/types';
 import {
   DEFAULT_GRID_SIZE,
@@ -43,6 +44,7 @@ import {
   TERRAIN_BASE_COLORS,
   DEFAULT_POI_ICON_COLOR,
   DEFAULT_POI_BACKDROP_COLOR,
+  DEFAULT_FEATURE_FLAGS,
 } from '@/features/realm/config/constants';
 import { useHistory } from '@/shared/hooks/useHistory';
 import { BarrierPainterSidebar } from '@/features/realm/components/sidebars/BarrierPainterSidebar';
@@ -87,6 +89,9 @@ export default function App() {
   } = useHistory<Realm | null>(null);
   const [selectedHex, setSelectedHex] = useState<Hex | null>(null);
   const [relocatingMythId, setRelocatingMythId] = useState<number | null>(null);
+  const [featureFlags, setFeatureFlags] = useState<FeatureFlags>(() => ({
+    ...DEFAULT_FEATURE_FLAGS,
+  }));
   const [viewOptions, setViewOptions] = useState<ViewOptions>({
     showGrid: true,
     showTerrainTooltip: true,
@@ -95,7 +100,7 @@ export default function App() {
     hexSize: { x: 50, y: 50 },
     gridColor: DEFAULT_GRID_COLOR,
     gridWidth: DEFAULT_GRID_WIDTH,
-    showIconSpray: true,
+    showIconSpray: DEFAULT_FEATURE_FLAGS.iconSpray,
     showTerrainIcons: true,
     visibility: {
       knight: INITIAL_KNIGHT_VISIBILITY,
@@ -104,7 +109,7 @@ export default function App() {
   const [exportSettings, setExportSettings] = useState<ExportSettings>(() => ({
     viewMode: 'referee',
     includeGrid: true,
-    includeIconSpray: true,
+    includeIconSpray: DEFAULT_FEATURE_FLAGS.iconSpray,
     includeTerrainIcons: true,
   }));
   const [activeTool, setActiveTool] = useState<Tool>('select');
@@ -126,6 +131,18 @@ export default function App() {
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', 'dark');
   }, []);
+
+  useEffect(() => {
+    if (featureFlags.iconSpray) {
+      return;
+    }
+    setViewOptions((prev) =>
+      prev.showIconSpray ? { ...prev, showIconSpray: false } : prev
+    );
+    setExportSettings((prev) =>
+      prev.includeIconSpray ? { ...prev, includeIconSpray: false } : prev
+    );
+  }, [featureFlags.iconSpray]);
 
   useEffect(() => {
     const myths = realm?.myths ?? [];
@@ -240,7 +257,8 @@ export default function App() {
         const textures = await generateTerrainTextures(
           tileSets,
           terrainColors,
-          viewOptions.hexSize
+          viewOptions.hexSize,
+          featureFlags.iconSpray
         );
         setTerrainTextures(textures);
       } catch (error) {
@@ -257,7 +275,7 @@ export default function App() {
       }
     };
     generateAndSetTextures();
-  }, [tileSets, terrainColors, viewOptions.hexSize]);
+  }, [tileSets, terrainColors, viewOptions.hexSize, featureFlags.iconSpray]);
 
   /**
    * Effect to handle tool-specific state changes when the active tool is switched.
@@ -806,10 +824,16 @@ export default function App() {
   /**
    * Opens the settings modal and focuses on a specific terrain's spray settings.
    */
-  const handleOpenSpraySettings = useCallback((terrainId: string) => {
-    setSettingsView({ tab: 'terrain', focusId: terrainId });
-    setIsSettingsOpen(true);
-  }, []);
+  const handleOpenSpraySettings = useCallback(
+    (terrainId: string) => {
+      setSettingsView({
+        tab: 'terrain',
+        focusId: featureFlags.iconSpray ? terrainId : null,
+      });
+      setIsSettingsOpen(true);
+    },
+    [featureFlags.iconSpray]
+  );
 
   return (
     <div className="flex flex-col h-screen w-screen bg-realm-canvas-backdrop overflow-hidden">
@@ -842,6 +866,8 @@ export default function App() {
         setSettingsView={setSettingsView}
         setConfirmation={setConfirmation}
         myths={realm?.myths ?? []}
+        featureFlags={featureFlags}
+        setFeatureFlags={setFeatureFlags}
       />
       <div className="flex flex-1 overflow-hidden">
         <main className="flex-1 bg-realm-map-viewport relative">
@@ -895,6 +921,7 @@ export default function App() {
             onStartPicking={handleStartPicking}
             isPickingTile={isPickingTile}
             onOpenSpraySettings={handleOpenSpraySettings}
+            isIconSprayEnabled={featureFlags.iconSpray}
           />
         ) : activeTool === 'poi' ? (
           <PoiPainterSidebar
@@ -964,6 +991,7 @@ export default function App() {
         poiIconColor={poiIconColor}
         poiBackdropColor={poiBackdropColor}
         previewPadding={Math.max(viewOptions.hexSize.x, viewOptions.hexSize.y)}
+        isIconSprayEnabled={featureFlags.iconSpray}
       />
       {confirmation?.isOpen && (
         <ConfirmationDialog

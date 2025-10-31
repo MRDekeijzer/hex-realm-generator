@@ -192,7 +192,8 @@ function drawSprayIcons(ctx: CanvasRenderingContext2D, terrain: Tile, hexSize: P
 export async function generateTerrainTextures(
   tileSets: TileSet,
   terrainColors: Record<string, string>,
-  hexSize: Point = DEFAULT_TEXTURE_HEX_SIZE
+  hexSize: Point = DEFAULT_TEXTURE_HEX_SIZE,
+  includeSpray: boolean = true
 ): Promise<TerrainTextures> {
   const textures: TerrainTextures = {};
 
@@ -238,9 +239,11 @@ export async function generateTerrainTextures(
 
     const withoutSpray = canvas.toDataURL('image/png');
 
-    // --- Generate texture WITH spray ---
-    drawSprayIcons(ctx, terrain, hexSize);
-    const withSpray = canvas.toDataURL('image/png');
+    let withSpray = withoutSpray;
+    if (includeSpray) {
+      drawSprayIcons(ctx, terrain, hexSize);
+      withSpray = canvas.toDataURL('image/png');
+    }
 
     textures[terrain.id] = { withSpray, withoutSpray };
     ctx.restore();

@@ -6,7 +6,14 @@
  */
 
 import React, { useRef, useState, useEffect } from 'react';
-import type { ViewOptions, Realm, GenerationOptions, TileSet, Myth } from '@/features/realm/types';
+import type {
+  ViewOptions,
+  Realm,
+  GenerationOptions,
+  TileSet,
+  Myth,
+  FeatureFlags,
+} from '@/features/realm/types';
 import { ToolbarButton } from './ui/ToolbarButton';
 import { SettingsModal } from './settings/SettingsModal';
 import { GridSettingsPopover } from './GridSettingsPopover';
@@ -56,6 +63,8 @@ interface ToolbarProps {
   >;
   setConfirmation: React.Dispatch<React.SetStateAction<ConfirmationState | null>>;
   myths: Myth[];
+  featureFlags: FeatureFlags;
+  setFeatureFlags: React.Dispatch<React.SetStateAction<FeatureFlags>>;
 }
 
 /**
@@ -73,6 +82,8 @@ export function Toolbar({
   settingsView,
   setSettingsView,
   setConfirmation,
+  featureFlags,
+  setFeatureFlags,
   ...settingsProps
 }: ToolbarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -174,6 +185,8 @@ export function Toolbar({
           settingsView={settingsView}
           viewOptions={viewOptions}
           setViewOptions={setViewOptions}
+          featureFlags={featureFlags}
+          setFeatureFlags={setFeatureFlags}
           {...settingsProps}
         />
 
@@ -209,14 +222,16 @@ export function Toolbar({
 
         <ToolbarDivider />
 
-        <ToolbarButton
-          onClick={() => setViewOptions((v) => ({ ...v, showIconSpray: !v.showIconSpray }))}
-          icon="spray-can"
-          isActive={viewOptions.showIconSpray}
-          title="Toggle Icon Spray"
-        >
-          Icon Spray
-        </ToolbarButton>
+        {featureFlags.iconSpray ? (
+          <ToolbarButton
+            onClick={() => setViewOptions((v) => ({ ...v, showIconSpray: !v.showIconSpray }))}
+            icon="spray-can"
+            isActive={viewOptions.showIconSpray}
+            title="Toggle Icon Spray"
+          >
+            Icon Spray
+          </ToolbarButton>
+        ) : null}
         <ToolbarButton
           onClick={() => setViewOptions((v) => ({ ...v, showTerrainIcons: !v.showTerrainIcons }))}
           icon="mountain"
