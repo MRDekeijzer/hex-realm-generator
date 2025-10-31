@@ -193,7 +193,7 @@ export async function generateTerrainTextures(
   tileSets: TileSet,
   terrainColors: Record<string, string>,
   hexSize: Point = DEFAULT_TEXTURE_HEX_SIZE,
-  includeSpray: boolean = true
+  includeSpray = true
 ): Promise<TerrainTextures> {
   const textures: TerrainTextures = {};
 

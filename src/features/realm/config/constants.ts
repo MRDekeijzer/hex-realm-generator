@@ -784,7 +784,7 @@ export const DEFAULT_TERRAIN_BIASES: Record<string, number> = {
   lakes: 5,
   glades: 5,
   plain: 10,
-};  
+};
 
 /**
  * A collection of preset templates for terrain generation settings.

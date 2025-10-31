@@ -84,27 +84,18 @@ const PoiButton = ({
   const iconInputRef = useRef<HTMLInputElement | null>(null);
   const backdropInputRef = useRef<HTMLInputElement | null>(null);
 
-  const handleIconUploadClick = useCallback(
-    (event: React.MouseEvent) => {
-      event.stopPropagation();
-      iconInputRef.current?.click();
-    },
-    []
-  );
+  const handleIconUploadClick = useCallback((event: React.MouseEvent) => {
+    event.stopPropagation();
+    iconInputRef.current?.click();
+  }, []);
 
-  const handleBackdropUploadClick = useCallback(
-    (event: React.MouseEvent) => {
-      event.stopPropagation();
-      backdropInputRef.current?.click();
-    },
-    []
-  );
+  const handleBackdropUploadClick = useCallback((event: React.MouseEvent) => {
+    event.stopPropagation();
+    backdropInputRef.current?.click();
+  }, []);
 
   const handleFileChange = useCallback(
-    (
-      event: React.ChangeEvent<HTMLInputElement>,
-      uploader?: (dataUrl: string) => void
-    ) => {
+    (event: React.ChangeEvent<HTMLInputElement>, uploader?: (dataUrl: string) => void) => {
       const file = event.target.files?.[0];
       if (!file || !uploader) return;
       const reader = new FileReader();
@@ -448,9 +439,7 @@ export function PoiPainterSidebar({
           iconColor={poiIconColor}
           backdropColor={poiBackdropColor}
           onUploadIcon={(id) => (dataUrl) => onUpdatePoiMarkerIcon('holding', id, dataUrl)}
-          onUploadBackdrop={(id) => (dataUrl) =>
-            onUpdatePoiMarkerBackdrop('holding', id, dataUrl)
-          }
+          onUploadBackdrop={(id) => (dataUrl) => onUpdatePoiMarkerBackdrop('holding', id, dataUrl)}
         />
         <PoiSection
           title="Landmarks"
@@ -461,9 +450,7 @@ export function PoiPainterSidebar({
           iconColor={poiIconColor}
           backdropColor={poiBackdropColor}
           onUploadIcon={(id) => (dataUrl) => onUpdatePoiMarkerIcon('landmark', id, dataUrl)}
-          onUploadBackdrop={(id) => (dataUrl) =>
-            onUpdatePoiMarkerBackdrop('landmark', id, dataUrl)
-          }
+          onUploadBackdrop={(id) => (dataUrl) => onUpdatePoiMarkerBackdrop('landmark', id, dataUrl)}
         />
       </div>
     </aside>

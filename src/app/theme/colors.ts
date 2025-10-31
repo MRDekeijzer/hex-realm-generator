@@ -1,7 +1,7 @@
+import type { ColorTokenTree } from './tokens';
 import {
   FALLBACK_COLOR,
   combinedColorMap,
-  ColorTokenTree,
   flattenColorTree,
   legacyColorAliases,
   legacyColorMap,

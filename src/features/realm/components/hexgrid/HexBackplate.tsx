@@ -50,7 +50,9 @@ const readBlobAsDataUrl = (blob: Blob): Promise<string> =>
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);
     reader.onerror = () =>
-      reject(reader.error instanceof Error ? reader.error : new Error('Failed to read blob as data URL'));
+      reject(
+        reader.error instanceof Error ? reader.error : new Error('Failed to read blob as data URL')
+      );
     reader.readAsDataURL(blob);
   });
 
@@ -187,7 +189,9 @@ export const HexBackplate = ({
   const markerBackdrop = activeTile?.markerBackdrop ?? '';
   const resolvedMarkerBackdrop = useInlineMaskAsset(markerBackdrop);
   const resolvedMarkerIcon = useInlineMaskAsset(markerIcon);
-  const resolvedSeatBackdrop = useInlineMaskAsset(isSeatOfPower ? SEAT_OF_POWER_BACKDROP_PATH : null);
+  const resolvedSeatBackdrop = useInlineMaskAsset(
+    isSeatOfPower ? SEAT_OF_POWER_BACKDROP_PATH : null
+  );
   const resolvedSeatIcon = useInlineMaskAsset(isSeatOfPower ? SEAT_OF_POWER_ICON_PATH : null);
 
   if (!activeTile) {

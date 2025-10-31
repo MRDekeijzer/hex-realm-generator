@@ -50,8 +50,8 @@ export function ensureRealmHasMyths(realm: Realm): Realm {
   const myths = realm.hexes
     .filter((hex) => typeof hex.myth === 'number')
     .map((hex) => ({
-      id: hex.myth as number,
-      name: `Myth #${hex.myth as number}`,
+      id: hex.myth!,
+      name: `Myth #${hex.myth!}`,
       q: hex.q,
       r: hex.r,
     }));

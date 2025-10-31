@@ -5,9 +5,9 @@
 
 export type ColorValue = string;
 
-export type ColorTokenTree = {
+export interface ColorTokenTree {
   readonly [key: string]: ColorValue | ColorTokenTree;
-};
+}
 
 export const basePalette = {
   obsidian950: '#191f29',

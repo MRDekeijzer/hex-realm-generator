@@ -56,9 +56,9 @@ export const Hexagon = React.memo(
     isSeatOfPower,
     isSpacePanActive,
     activeTool,
-   isPickingTile,
-   onMouseDown,
-   onMouseMove,
+    isPickingTile,
+    onMouseDown,
+    onMouseMove,
     onHoverStart,
     onHoverEnd,
     hexCorners,
@@ -123,9 +123,8 @@ export const Hexagon = React.memo(
         onMouseMove={(e) => onMouseMove(hex, e)}
         onMouseEnter={(e) => {
           const polygon =
-            (layer === 'foreground'
-              ? e.currentTarget.querySelector('polygon')
-              : null) || (e.currentTarget as Element);
+            (layer === 'foreground' ? e.currentTarget.querySelector('polygon') : null) ||
+            (e.currentTarget as Element);
           onHoverStart(hex, polygon as Element);
         }}
         onMouseLeave={onHoverEnd}
@@ -143,7 +142,10 @@ export const Hexagon = React.memo(
               gridWidth={viewOptions.gridWidth}
             />
             {viewOptions.showTerrainIcons && (
-              <HexTerrainIcon iconUrl={terrainIconUrl ?? undefined} hexBoundingBox={hexBoundingBox} />
+              <HexTerrainIcon
+                iconUrl={terrainIconUrl ?? undefined}
+                hexBoundingBox={hexBoundingBox}
+              />
             )}
 
             <HexBackplate

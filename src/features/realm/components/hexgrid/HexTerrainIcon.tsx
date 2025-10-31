@@ -127,4 +127,3 @@ export const HexTerrainIcon = ({ iconUrl, hexBoundingBox }: HexTerrainIconProps)
     />
   );
 };
-
