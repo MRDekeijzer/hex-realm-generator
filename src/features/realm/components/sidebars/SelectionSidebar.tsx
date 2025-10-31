@@ -11,6 +11,7 @@ import {
   BARRIER_COLOR,
   HEX_SELECTED_COLOR,
   TILE_CHARACTERS,
+  SEAT_OF_POWER_COLOR,
 } from '@/features/realm/config/constants';
 import { Icon } from '../Icon';
 import { getHexCorners, getBarrierPath, getNeighbors } from '@/features/realm/utils/hexUtils';
@@ -50,6 +51,21 @@ const CHARACTER_OPTIONS = TILE_CHARACTERS.map((value) => ({
   id: value,
   label: formatCharacterLabel(value),
 }));
+
+const createMaskStyle = (src: string): React.CSSProperties => ({
+  display: 'inline-block',
+  backgroundColor: 'currentColor',
+  WebkitMaskImage: `url(${src})`,
+  maskImage: `url(${src})`,
+  WebkitMaskRepeat: 'no-repeat',
+  maskRepeat: 'no-repeat',
+  WebkitMaskSize: 'contain',
+  maskSize: 'contain',
+  WebkitMaskPosition: 'center',
+  maskPosition: 'center',
+});
+
+const seatOfPowerIconStyle = createMaskStyle('/Icons/crown.svg');
 
 const Switch = ({
   id,
@@ -264,7 +280,11 @@ export function SelectionSidebar({
           <div className="mb-4">
             {isSeatOfPower ? (
               <div className="flex items-center justify-center gap-2 p-2 bg-actions-command-primary/30 border border-actions-command-primary rounded-md text-actions-command-primary-hover text-sm">
-                <Icon name="crown" className="w-4 h-4 text-actions-command-primary" />
+                <span
+                  aria-hidden="true"
+                  className="h-4 w-4"
+                  style={{ ...seatOfPowerIconStyle, color: SEAT_OF_POWER_COLOR }}
+                />
                 <span>This is the Seat of Power.</span>
               </div>
             ) : (
@@ -272,7 +292,11 @@ export function SelectionSidebar({
                 onClick={() => onSetSeatOfPower(selectedHex)}
                 className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-text-muted bg-realm-command-panel-surface rounded-md hover:bg-actions-command-primary transition-colors"
               >
-                <Icon name="crown" className="w-4 h-4" />
+                <span
+                  aria-hidden="true"
+                  className="h-4 w-4"
+                  style={{ ...seatOfPowerIconStyle, color: SEAT_OF_POWER_COLOR }}
+                />
                 Make Seat of Power
               </button>
             )}

@@ -82,12 +82,21 @@ export function ExportModal({
     return null;
   }
 
+  const previewFilterStyle = settings.blackAndWhite ? { filter: 'grayscale(1)' } : undefined;
+
+  const handleBackdropMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-overlay-scrim p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="export-modal-title"
+      onMouseDown={handleBackdropMouseDown}
     >
       <div className="relative w-full max-w-5xl rounded-lg border border-border-panel-divider bg-realm-map-viewport shadow-xl">
         <button
@@ -185,6 +194,17 @@ export function ExportModal({
                   />
                   <span>Include terrain icons</span>
                 </label>
+                <label className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={settings.blackAndWhite}
+                    onChange={(event) =>
+                      onSettingsChange({ ...settings, blackAndWhite: event.target.checked })
+                    }
+                    className="h-4 w-4 rounded border-border-panel-divider bg-realm-command-panel-surface text-actions-command-primary focus:ring-actions-command-primary"
+                  />
+                  <span>Export in black &amp; white</span>
+                </label>
               </div>
             </div>
           </section>
@@ -200,7 +220,7 @@ export function ExportModal({
             </div>
             <div className="relative h-80 overflow-hidden rounded-md border border-border-panel-divider bg-realm-map-viewport">
               {realm ? (
-                <div className="pointer-events-none absolute inset-0">
+                <div className="pointer-events-none absolute inset-0" style={previewFilterStyle}>
                   <HexGrid
                     realm={realm}
                     onUpdateHex={noop}

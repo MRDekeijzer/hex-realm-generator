@@ -9,6 +9,7 @@ import type { Realm } from '@/features/realm/types';
 interface SvgRasterizeOptions {
   scale?: number;
   hideSelectionHighlights?: boolean;
+  monochrome?: boolean;
 }
 
 /**
@@ -62,7 +63,7 @@ export function rasterizeSvgToPng(
   svgElement: SVGElement,
   options: SvgRasterizeOptions = {}
 ): Promise<string> {
-  const { scale = 2, hideSelectionHighlights = false } = options;
+  const { scale = 2, hideSelectionHighlights = false, monochrome = false } = options;
   const clone = svgElement.cloneNode(true) as SVGElement;
 
   if (hideSelectionHighlights) {
@@ -109,6 +110,24 @@ export function rasterizeSvgToPng(
   return new Promise((resolve, reject) => {
     img.onload = () => {
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      if (monochrome) {
+        try {
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const data = imageData.data;
+          for (let index = 0; index < data.length; index += 4) {
+            const r = data[index];
+            const g = data[index + 1];
+            const b = data[index + 2];
+            const luminance = Math.round(0.2126 * r + 0.7152 * g + 0.0722 * b);
+            data[index] = luminance;
+            data[index + 1] = luminance;
+            data[index + 2] = luminance;
+          }
+          ctx.putImageData(imageData, 0, 0);
+        } catch (error) {
+          console.warn('Failed to apply monochrome filter during export', error);
+        }
+      }
       resolve(canvas.toDataURL('image/png'));
     };
     img.onerror = () => reject(new Error('Failed to rasterize SVG element.'));

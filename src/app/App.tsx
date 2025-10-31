@@ -111,6 +111,7 @@ export default function App() {
     includeGrid: true,
     includeIconSpray: DEFAULT_FEATURE_FLAGS.iconSpray,
     includeTerrainIcons: true,
+    blackAndWhite: false,
   }));
   const [activeTool, setActiveTool] = useState<Tool>('select');
   const [paintTerrain, setPaintTerrain] = useState<string>(TERRAIN_TYPES[0] ?? 'plain');
@@ -618,6 +619,7 @@ export default function App() {
           await exportSvgAsPng(EXPORT_PREVIEW_SVG_ID, fileName, {
             scale: EXPORT_IMAGE_SCALE,
             hideSelectionHighlights: true,
+            monochrome: settings.blackAndWhite,
           });
           setIsExportModalOpen(false);
         } catch (error) {

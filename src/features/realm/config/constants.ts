@@ -679,8 +679,30 @@ export const DEFAULT_TILE_SETS: TileSet = {
 /** A special set of icons for use in the POI Painter tool that represent actions. */
 export const SPECIAL_POI_ICONS: Tile[] = [
   { id: 'myth', label: 'Myth', icon: 'sparkle' },
-  { id: 'seatOfPower', label: 'Seat of Power', icon: 'crown' },
+  {
+    id: 'seatOfPower',
+    label: 'Seat of Power',
+    icon: 'crown',
+    markerIcon: '/Icons/crown.svg',
+    markerBackdrop: '/Icons/crown_under.svg',
+  },
 ];
+
+/** Layout values for the Seat of Power overlay crown. */
+export const SEAT_OF_POWER_OVERLAY_LAYOUT = {
+  icon: {
+    /** Percentage of the hex height/width to use for the crown overlay. */
+    scale: 0.4,
+    /** Offset (in hex height units) from the hex center toward the top. */
+    offset: 0.85,
+  },
+  backdrop: {
+    /** Percentage of the hex height/width to use for the crown backplate. */
+    scale: 0.4,
+    /** Offset (in hex height units) from the hex center toward the top. */
+    offset: 0.85,
+  },
+} as const;
 
 // =================================================================================
 // --- GENERATION DEFAULTS ---
@@ -762,7 +784,7 @@ export const DEFAULT_TERRAIN_BIASES: Record<string, number> = {
   lakes: 5,
   glades: 5,
   plain: 10,
-};
+};  
 
 /**
  * A collection of preset templates for terrain generation settings.

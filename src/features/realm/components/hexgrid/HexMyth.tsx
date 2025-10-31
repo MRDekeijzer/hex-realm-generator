@@ -36,7 +36,7 @@ export const HexMyth = ({ mythId, showMyths, hexSize }: HexMythProps) => {
       <circle cx={0} cy={mythCenterY} r={mythRadius} fill={MYTH_COLOR} />
       <text
         x={0}
-        y={mythCenterY}
+        y={mythCenterY + 1}
         textAnchor="middle"
         dominantBaseline="middle"
         fill={TEXT_INVERSE_COLOR}

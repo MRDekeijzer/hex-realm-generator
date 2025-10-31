@@ -10,6 +10,7 @@ import {
   SPECIAL_POI_ICONS,
   DEFAULT_POI_ICON_COLOR,
   DEFAULT_POI_BACKDROP_COLOR,
+  SEAT_OF_POWER_COLOR,
 } from '@/features/realm/config/constants';
 import type { Tile, TileSet } from '@/features/realm/types';
 import { TerrainColorSwatch } from '../ui/TerrainColorSwatch';
@@ -257,7 +258,12 @@ const PoiSection = ({
     <div className="grid grid-cols-3 gap-2">
       {items.map((item) => {
         const fullId = `${category}:${item.id}`;
-        const appliedIconColor = category === 'action' ? null : iconColor;
+        const appliedIconColor =
+          category === 'action'
+            ? item.id === 'seatOfPower'
+              ? SEAT_OF_POWER_COLOR
+              : null
+            : iconColor;
         const appliedBackdropColor = category === 'action' ? null : backdropColor;
         return (
           <PoiButton

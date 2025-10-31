@@ -268,4 +268,6 @@ export interface ExportSettings {
   includeIconSpray: boolean;
   /** Whether to include the terrain icon overlay in the exported image. */
   includeTerrainIcons: boolean;
+  /** Whether to render the export in monochrome (black and white). */
+  blackAndWhite: boolean;
 }
