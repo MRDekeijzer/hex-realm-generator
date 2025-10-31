@@ -689,7 +689,7 @@ export default function App() {
   }, []);
 
   const handleUpdatePoiBackdropColor = useCallback((color: string | null) => {
-    setPoiBackdropColor(color ? color.toUpperCase() : null);
+    setPoiBackdropColor(color ? color.toUpperCase() : DEFAULT_POI_BACKDROP_COLOR);
   }, []);
 
   /**

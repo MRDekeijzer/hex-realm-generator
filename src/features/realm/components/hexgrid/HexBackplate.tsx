@@ -6,7 +6,7 @@
 import React from 'react';
 import type { Point, Tile, ViewOptions } from '@/features/realm/types';
 import { Icon } from '../Icon';
-import { SEAT_OF_POWER_COLOR } from '@/features/realm/config/constants';
+import { DEFAULT_POI_BACKDROP_COLOR, SEAT_OF_POWER_COLOR } from '@/features/realm/config/constants';
 
 interface HexBackplateProps {
   activeTile: Tile | null;
@@ -71,7 +71,7 @@ export const HexBackplate = ({
   const hasMarkerAsset = Boolean(markerIcon);
   const hasMarkerBackdrop = Boolean(markerBackdrop);
 
-  const backdropColor = markerBackdropColor ?? '#FFFFFF';
+  const backdropColor = markerBackdropColor ?? DEFAULT_POI_BACKDROP_COLOR;
   const iconColor = markerIconColor ?? '#000000';
 
   const iconScale = 1.25;

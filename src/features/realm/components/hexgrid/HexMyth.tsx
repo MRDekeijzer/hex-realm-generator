@@ -12,20 +12,36 @@ interface HexMythProps {
   hexSize: Point;
 }
 
+const ICON_SCALE = 1.25;
+const CROWN_SCALE = 0.5;
+const CROWN_VERTICAL_OFFSET_FACTOR = 0.18;
+const MYTH_FONT_SCALE = 1.25;
+
 export const HexMyth = ({ mythId, showMyths, hexSize }: HexMythProps) => {
   if (!showMyths || !mythId) {
     return null;
   }
 
+  const iconHeight = hexSize.y * ICON_SCALE;
+  const crownHeight = hexSize.y * CROWN_SCALE;
+  const crownWidth = hexSize.x * CROWN_SCALE;
+  const crownYOffset = iconHeight / 2 + crownHeight * CROWN_VERTICAL_OFFSET_FACTOR;
+
+  const mythCenterY = -crownYOffset + crownHeight / 2;
+  const mythRadius = crownWidth / 2;
+  const mythFontSize = mythRadius * MYTH_FONT_SCALE;
+
   return (
     <g style={{ pointerEvents: 'none' }}>
-      <circle r={hexSize.x * 0.3} fill={MYTH_COLOR} />
+      <circle cx={0} cy={mythCenterY} r={mythRadius} fill={MYTH_COLOR} />
       <text
+        x={0}
+        y={mythCenterY}
         textAnchor="middle"
-        dy=".3em"
+        dominantBaseline="middle"
         fill={TEXT_INVERSE_COLOR}
         className="font-myth-number"
-        fontSize="1.8em"
+        fontSize={mythFontSize}
         fontFamily="AnglicanText, serif"
       >
         {mythId}

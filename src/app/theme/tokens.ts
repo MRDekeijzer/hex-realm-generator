@@ -142,7 +142,7 @@ const terrain = {
 } as const;
 
 const mythic = {
-  glow: basePalette.sun500Translucent,
+  glow: basePalette.sun500,
   seatOfPower: basePalette.sun500,
 } as const;
 

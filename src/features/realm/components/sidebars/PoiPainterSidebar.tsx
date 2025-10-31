@@ -325,7 +325,7 @@ export function PoiPainterSidebar({
     onChangePoiIconColor(defaultIconColor);
   }, [defaultIconColor, onChangePoiIconColor]);
 
-  const fallbackBackdropSwatch = '#FFF3CC';
+  const fallbackBackdropSwatch = DEFAULT_POI_BACKDROP_COLOR;
   const backdropSwatchColor = (poiBackdropColor ?? fallbackBackdropSwatch).toUpperCase();
   const backdropHasCustomColor = poiBackdropColor !== DEFAULT_POI_BACKDROP_COLOR;
 

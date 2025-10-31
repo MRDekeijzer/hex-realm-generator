@@ -125,7 +125,7 @@ export const LANDMARK_TYPES = ['dwelling', 'sanctum', 'monument', 'hazard', 'cur
 export const BARRIER_CHANCE = 1 / 6;
 
 export const DEFAULT_POI_ICON_COLOR = '#000000';
-export const DEFAULT_POI_BACKDROP_COLOR = null;
+export const DEFAULT_POI_BACKDROP_COLOR = '#FFF3CC';
 
 /** A master list of icons available for the Icon Spray feature. */
 export const SPRAYABLE_ICONS = [
