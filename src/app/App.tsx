@@ -51,6 +51,7 @@ import { useHistory } from '@/shared/hooks/useHistory';
 import { BarrierPainterSidebar } from '@/features/realm/components/sidebars/BarrierPainterSidebar';
 import { ConfirmationDialog } from '@/features/realm/components/ConfirmationDialog';
 import { HistoryControls } from '@/features/realm/components/HistoryControls';
+import { PresetControls } from '@/features/realm/components/PresetControls';
 import { generateTerrainTextures } from '@/features/realm/utils/textureUtils';
 import { normalizeKnightVisibility } from '@/features/realm/utils/visibilityUtils';
 import { getTerrainBaseColor } from '@/app/theme/colors';
@@ -107,7 +108,9 @@ const mergeViewOptions = (
     hexSize: incoming.hexSize ? { ...incoming.hexSize } : defaults.hexSize,
     visibility: {
       knight: incoming.visibility?.knight
-        ? (JSON.parse(JSON.stringify(incoming.visibility.knight)) as typeof defaults.visibility.knight)
+        ? (JSON.parse(
+            JSON.stringify(incoming.visibility.knight)
+          ) as typeof defaults.visibility.knight)
         : defaults.visibility.knight,
     },
   };
@@ -183,9 +186,7 @@ export default function App() {
     if (featureFlags.iconSpray) {
       return;
     }
-    setViewOptions((prev) =>
-      prev.showIconSpray ? { ...prev, showIconSpray: false } : prev
-    );
+    setViewOptions((prev) => (prev.showIconSpray ? { ...prev, showIconSpray: false } : prev));
     setExportSettings((prev) =>
       prev.includeIconSpray ? { ...prev, includeIconSpray: false } : prev
     );
@@ -228,6 +229,26 @@ export default function App() {
   // State for performance-enhancing pre-rendered terrain textures
   const [terrainTextures, setTerrainTextures] = useState<TerrainTextures | null>(null);
   const [isLoadingTextures, setIsLoadingTextures] = useState(true);
+
+  const showMessage = useCallback(
+    (title: string, message: string, isInfo = true) => {
+      setConfirmation({
+        isOpen: true,
+        title,
+        message,
+        onConfirm: () => setConfirmation(null),
+        confirmText: 'OK',
+        isInfo,
+      });
+    },
+    [setConfirmation]
+  );
+
+  const handlePresetMessage = useCallback(
+    ({ title, message, isInfo }: { title: string; message: string; isInfo?: boolean }) =>
+      showMessage(title, message, isInfo ?? true),
+    [showMessage]
+  );
 
   // Initialize landmark counts for generation options.
   const initialLandmarkCounts = LANDMARK_TYPES.reduce(
@@ -679,7 +700,7 @@ export default function App() {
         setExportSettings(mergeExportSettings(payload.exportSettings, nextFeatureFlags.iconSpray));
 
         const terrainIds = payload.tileSets.terrain.map((tile) => tile.id);
-        setPaintTerrain((prev) => (terrainIds.includes(prev) ? prev : terrainIds[0] ?? prev));
+        setPaintTerrain((prev) => (terrainIds.includes(prev) ? prev : (terrainIds[0] ?? prev)));
         setPaintPoi((prev) => {
           if (!prev) return prev;
           const [category, id] = prev.split(':');
@@ -739,9 +760,9 @@ export default function App() {
     ]
   );
 
-  const handleExportJson = useCallback(() => {
-    if (!realm) return;
-    const exportPayload = createRealmExportData({
+  const buildRealmExportData = useCallback((): RealmExportData | null => {
+    if (!realm) return null;
+    return createRealmExportData({
       realm,
       realmShape,
       realmRadius,
@@ -757,7 +778,6 @@ export default function App() {
       barrierColor,
       featureFlags,
     });
-    exportRealmAsJson(exportPayload);
   }, [
     realm,
     realmShape,
@@ -774,6 +794,15 @@ export default function App() {
     barrierColor,
     featureFlags,
   ]);
+
+  const handleExportJson = useCallback(() => {
+    const exportPayload = buildRealmExportData();
+    if (!exportPayload) {
+      showMessage('Nothing to Export', 'Generate or import a realm before exporting.', true);
+      return;
+    }
+    exportRealmAsJson(exportPayload);
+  }, [buildRealmExportData, showMessage]);
   const handleExportPng = useCallback(() => {
     setExportSettings((prev) => {
       const next = {
@@ -1163,6 +1192,11 @@ export default function App() {
           />
         ) : null}
       </div>
+      <PresetControls
+        getExportData={buildRealmExportData}
+        onLoadPreset={handleImportRealm}
+        onShowMessage={handlePresetMessage}
+      />
       <ExportModal
         isOpen={isExportModalOpen}
         onClose={() => setIsExportModalOpen(false)}
