@@ -3,7 +3,7 @@
  * This file contains a custom React hook for managing state with undo/redo capabilities.
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
 /**
  * The internal state structure for the history hook.
@@ -20,12 +20,16 @@ interface History<T> {
  * @returns An object containing the current state, a setter function,
  *          undo/redo functions, and booleans indicating if undo/redo is possible.
  */
+
+const MAX_HISTORY_LENGTH = 100;
+
 export const useHistory = <T>(initialState: T) => {
   const [state, setState] = useState<History<T>>({
     past: [],
     present: initialState,
     future: [],
   });
+  const hasHydratedRef = useRef(false);
 
   const canUndo = state.past.length > 0;
   const canRedo = state.future.length > 0;
@@ -39,8 +43,21 @@ export const useHistory = <T>(initialState: T) => {
       if (newState === present) {
         return currentState;
       }
+      if (!hasHydratedRef.current) {
+        hasHydratedRef.current = true;
+        return {
+          past: [],
+          present: newState,
+          future: [],
+        };
+      }
+
+      const maxPastEntries = Math.max(MAX_HISTORY_LENGTH - 1, 0);
+      const retainedPast = maxPastEntries > 0 ? currentState.past.slice(-maxPastEntries) : [];
+      const trimmedPast = [...retainedPast, present];
+
       return {
-        past: [...currentState.past, present],
+        past: trimmedPast,
         present: newState,
         future: [],
       };

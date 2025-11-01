@@ -176,6 +176,7 @@ export function PresetControls({
         refreshSlot(slotIndex);
         const slotName =
           slots.find((s) => s.index === slotIndex)?.name?.trim() || defaultSlotName(slotIndex);
+        showMessage('Preset Saved', `Stored the current realm in ${slotName}.`, true);
       } catch (error) {
         console.error('Failed to store preset', error);
         showMessage(
