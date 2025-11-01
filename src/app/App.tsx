@@ -51,6 +51,8 @@ import {
   DEFAULT_MYTH_MARKER_FILL_COLOR,
   DEFAULT_MYTH_MARKER_BORDER_COLOR,
   DEFAULT_MYTH_MARKER_BORDER_WIDTH,
+  DEFAULT_SEAT_OF_POWER_ICON_COLOR,
+  DEFAULT_SEAT_OF_POWER_BACKDROP_COLOR,
   DEFAULT_FEATURE_FLAGS,
 } from '@/features/realm/config/constants';
 import { useHistory } from '@/shared/hooks/useHistory';
@@ -144,6 +146,8 @@ interface RealmPresetSnapshot {
   mythMarkerFillColor: string;
   mythMarkerBorderColor: string;
   mythMarkerBorderWidth: number;
+  seatOfPowerIconColor: string;
+  seatOfPowerBackdropColor: string;
   poiIconColor: string | null;
   poiBackdropColor: string | null;
   barrierColor: string;
@@ -233,6 +237,12 @@ export default function App() {
   );
   const [mythMarkerBorderWidth, setMythMarkerBorderWidth] = useState<number>(
     DEFAULT_MYTH_MARKER_BORDER_WIDTH
+  );
+  const [seatOfPowerIconColor, setSeatOfPowerIconColor] = useState<string>(
+    DEFAULT_SEAT_OF_POWER_ICON_COLOR.toUpperCase()
+  );
+  const [seatOfPowerBackdropColor, setSeatOfPowerBackdropColor] = useState<string>(
+    DEFAULT_SEAT_OF_POWER_BACKDROP_COLOR.toUpperCase()
   );
   const [poiIconColor, setPoiIconColor] = useState<string | null>(DEFAULT_POI_ICON_COLOR);
   const [poiBackdropColor, setPoiBackdropColor] = useState<string | null>(
@@ -517,6 +527,22 @@ export default function App() {
     setMythMarkerBorderWidth(DEFAULT_MYTH_MARKER_BORDER_WIDTH);
   }, []);
 
+  const handleUpdateSeatOfPowerIconColor = useCallback((color: string) => {
+    setSeatOfPowerIconColor(color.toUpperCase());
+  }, []);
+
+  const handleResetSeatOfPowerIconColor = useCallback(() => {
+    setSeatOfPowerIconColor(DEFAULT_SEAT_OF_POWER_ICON_COLOR.toUpperCase());
+  }, []);
+
+  const handleUpdateSeatOfPowerBackdropColor = useCallback((color: string) => {
+    setSeatOfPowerBackdropColor(color.toUpperCase());
+  }, []);
+
+  const handleResetSeatOfPowerBackdropColor = useCallback(() => {
+    setSeatOfPowerBackdropColor(DEFAULT_SEAT_OF_POWER_BACKDROP_COLOR.toUpperCase());
+  }, []);
+
   const handleUpdatePoiIconColor = useCallback((color: string | null) => {
     setPoiIconColor(color ? color.toUpperCase() : null);
   }, []);
@@ -552,6 +578,8 @@ export default function App() {
         handleUpdateMythMarkerFillColor(preset.mythMarkerFillColor);
         handleUpdateMythMarkerBorderColor(preset.mythMarkerBorderColor);
         handleUpdateMythMarkerBorderWidth(preset.mythMarkerBorderWidth);
+        handleUpdateSeatOfPowerIconColor(preset.seatOfPowerIconColor);
+        handleUpdateSeatOfPowerBackdropColor(preset.seatOfPowerBackdropColor);
         handleUpdatePoiIconColor(preset.poiIconColor);
         handleUpdatePoiBackdropColor(preset.poiBackdropColor);
         handleUpdateBarrierColor(preset.barrierColor);
@@ -593,6 +621,8 @@ export default function App() {
         handleUpdateMythMarkerFillColor,
         handleUpdateMythMarkerBorderColor,
         handleUpdateMythMarkerBorderWidth,
+        handleUpdateSeatOfPowerIconColor,
+        handleUpdateSeatOfPowerBackdropColor,
         handleUpdatePoiIconColor,
         handleUpdatePoiBackdropColor,
         handleUpdateBarrierColor,
@@ -611,6 +641,8 @@ export default function App() {
         mythMarkerFillColor,
         mythMarkerBorderColor,
         mythMarkerBorderWidth,
+        seatOfPowerIconColor,
+        seatOfPowerBackdropColor,
         poiIconColor,
         poiBackdropColor,
         barrierColor,
@@ -629,6 +661,8 @@ export default function App() {
     mythMarkerFillColor,
     mythMarkerBorderColor,
     mythMarkerBorderWidth,
+    seatOfPowerIconColor,
+    seatOfPowerBackdropColor,
     poiIconColor,
     poiBackdropColor,
     barrierColor,
@@ -644,10 +678,12 @@ export default function App() {
         setGenerationOptions(snapshot.generationOptions);
         setTerrainColors({ ...snapshot.terrainColors });
         setViewOptions(snapshot.viewOptions);
-        setExportSettings(snapshot.exportSettings);
-        setMythMarkerFillColor(snapshot.mythMarkerFillColor);
-        setMythMarkerBorderColor(snapshot.mythMarkerBorderColor);
-        setMythMarkerBorderWidth(snapshot.mythMarkerBorderWidth);
+      setExportSettings(snapshot.exportSettings);
+      setMythMarkerFillColor(snapshot.mythMarkerFillColor);
+      setMythMarkerBorderColor(snapshot.mythMarkerBorderColor);
+      setMythMarkerBorderWidth(snapshot.mythMarkerBorderWidth);
+      setSeatOfPowerIconColor(snapshot.seatOfPowerIconColor);
+      setSeatOfPowerBackdropColor(snapshot.seatOfPowerBackdropColor);
         setPoiIconColor(snapshot.poiIconColor);
         setPoiBackdropColor(snapshot.poiBackdropColor);
         setBarrierColor(snapshot.barrierColor);
@@ -667,7 +703,9 @@ export default function App() {
       setMythMarkerFillColor,
       setMythMarkerBorderColor,
       setMythMarkerBorderWidth,
-    setPoiIconColor,
+      setSeatOfPowerIconColor,
+      setSeatOfPowerBackdropColor,
+      setPoiIconColor,
     setPoiBackdropColor,
     setBarrierColor,
     setSelectedHex,
@@ -1138,10 +1176,30 @@ export default function App() {
               : DEFAULT_MYTH_MARKER_BORDER_WIDTH
           );
 
+          const nextSeatOfPowerIconColor = Object.prototype.hasOwnProperty.call(
+            payload,
+            'seatOfPowerIconColor'
+          )
+            ? payload.seatOfPowerIconColor
+            : DEFAULT_SEAT_OF_POWER_ICON_COLOR;
+          handleUpdateSeatOfPowerIconColor(
+            nextSeatOfPowerIconColor ?? DEFAULT_SEAT_OF_POWER_ICON_COLOR
+          );
+
+          const nextSeatOfPowerBackdropColor = Object.prototype.hasOwnProperty.call(
+            payload,
+            'seatOfPowerBackdropColor'
+          )
+            ? payload.seatOfPowerBackdropColor
+            : DEFAULT_SEAT_OF_POWER_BACKDROP_COLOR;
+          handleUpdateSeatOfPowerBackdropColor(
+            nextSeatOfPowerBackdropColor ?? DEFAULT_SEAT_OF_POWER_BACKDROP_COLOR
+          );
+
           const nextPoiIconColor = Object.prototype.hasOwnProperty.call(payload, 'poiIconColor')
             ? payload.poiIconColor
             : DEFAULT_POI_ICON_COLOR;
-        handleUpdatePoiIconColor(nextPoiIconColor);
+          handleUpdatePoiIconColor(nextPoiIconColor);
 
         const nextPoiBackdropColor = Object.prototype.hasOwnProperty.call(
           payload,
@@ -1209,6 +1267,8 @@ export default function App() {
       handleUpdateMythMarkerFillColor,
       handleUpdateMythMarkerBorderColor,
       handleUpdateMythMarkerBorderWidth,
+      handleUpdateSeatOfPowerIconColor,
+      handleUpdateSeatOfPowerBackdropColor,
       handleUpdatePoiIconColor,
       handleUpdatePoiBackdropColor,
       handleUpdateBarrierColor,
@@ -1235,6 +1295,8 @@ export default function App() {
       mythMarkerFillColor,
       mythMarkerBorderColor,
       mythMarkerBorderWidth,
+      seatOfPowerIconColor,
+      seatOfPowerBackdropColor,
       poiIconColor,
       poiBackdropColor,
       barrierColor,
@@ -1254,6 +1316,8 @@ export default function App() {
       mythMarkerFillColor,
       mythMarkerBorderColor,
       mythMarkerBorderWidth,
+      seatOfPowerIconColor,
+      seatOfPowerBackdropColor,
       poiIconColor,
       poiBackdropColor,
       barrierColor,
@@ -1397,6 +1461,12 @@ export default function App() {
       onResetMythMarkerBorderColor: handleResetMythMarkerBorderColor,
       onUpdateMythMarkerBorderWidth: handleUpdateMythMarkerBorderWidth,
       onResetMythMarkerBorderWidth: handleResetMythMarkerBorderWidth,
+      seatOfPowerIconColor,
+      seatOfPowerBackdropColor,
+      onUpdateSeatOfPowerIconColor: handleUpdateSeatOfPowerIconColor,
+      onResetSeatOfPowerIconColor: handleResetSeatOfPowerIconColor,
+      onUpdateSeatOfPowerBackdropColor: handleUpdateSeatOfPowerBackdropColor,
+      onResetSeatOfPowerBackdropColor: handleResetSeatOfPowerBackdropColor,
       poiIconColor,
       poiBackdropColor,
       onUpdatePoiIconColor: (color: string) => handleUpdatePoiIconColor(color),
@@ -1420,6 +1490,12 @@ export default function App() {
       handleResetMythMarkerBorderColor,
       handleUpdateMythMarkerBorderWidth,
       handleResetMythMarkerBorderWidth,
+      seatOfPowerIconColor,
+      seatOfPowerBackdropColor,
+      handleUpdateSeatOfPowerIconColor,
+      handleResetSeatOfPowerIconColor,
+      handleUpdateSeatOfPowerBackdropColor,
+      handleResetSeatOfPowerBackdropColor,
       poiIconColor,
       poiBackdropColor,
       handleUpdatePoiIconColor,
@@ -1594,6 +1670,8 @@ export default function App() {
           poiBackdropColor={poiBackdropColor}
           onChangePoiIconColor={handleUpdatePoiIconColor}
           onChangePoiBackdropColor={handleUpdatePoiBackdropColor}
+          seatOfPowerIconColor={seatOfPowerIconColor}
+          seatOfPowerBackdropColor={seatOfPowerBackdropColor}
         />
       );
     }
@@ -1628,7 +1706,6 @@ export default function App() {
           onUpdateMythMarkerBorderColor={handleUpdateMythMarkerBorderColor}
           onResetMythMarkerBorderColor={handleResetMythMarkerBorderColor}
           onUpdateMythMarkerBorderWidth={handleUpdateMythMarkerBorderWidth}
-          onResetMythMarkerBorderWidth={handleResetMythMarkerBorderWidth}
         />
       );
     }
@@ -1719,16 +1796,18 @@ export default function App() {
               isPickingTile={isPickingTile}
               onTilePick={handleTilePick}
                 setConfirmation={setConfirmation}
-                terrainTextures={terrainTextures}
-                isLoadingTextures={isLoadingTextures}
-                poiIconColor={poiIconColor}
-                poiBackdropColor={poiBackdropColor}
-                mythMarkerFillColor={mythMarkerFillColor}
-                mythMarkerBorderColor={mythMarkerBorderColor}
-                mythMarkerBorderWidth={mythMarkerBorderWidth}
-                shortcutTipsCollapsed={areShortcutTipsCollapsed}
-                onToggleShortcutTips={handleToggleShortcutTips}
-              />
+              terrainTextures={terrainTextures}
+              isLoadingTextures={isLoadingTextures}
+              poiIconColor={poiIconColor}
+              poiBackdropColor={poiBackdropColor}
+              mythMarkerFillColor={mythMarkerFillColor}
+              mythMarkerBorderColor={mythMarkerBorderColor}
+              mythMarkerBorderWidth={mythMarkerBorderWidth}
+              seatOfPowerIconColor={seatOfPowerIconColor}
+              seatOfPowerBackdropColor={seatOfPowerBackdropColor}
+              shortcutTipsCollapsed={areShortcutTipsCollapsed}
+              onToggleShortcutTips={handleToggleShortcutTips}
+            />
           ) : (
             <div className="flex items-center justify-center h-full text-text-muted">
               <p>Generating initial realm...</p>
@@ -1764,7 +1843,7 @@ export default function App() {
         barrierColor={barrierColor ?? ''}
         previewSvgId={EXPORT_PREVIEW_SVG_ID}
         isExporting={isExporting}
-        terrainColors={terrainColors}
+          terrainColors={terrainColors}
           poiIconColor={poiIconColor}
           poiBackdropColor={poiBackdropColor}
           previewPadding={Math.max(viewOptions.hexSize.x, viewOptions.hexSize.y)}
@@ -1772,6 +1851,8 @@ export default function App() {
           mythMarkerFillColor={mythMarkerFillColor}
           mythMarkerBorderColor={mythMarkerBorderColor}
           mythMarkerBorderWidth={mythMarkerBorderWidth}
+          seatOfPowerIconColor={seatOfPowerIconColor}
+          seatOfPowerBackdropColor={seatOfPowerBackdropColor}
         />
       <RealmPresetsModal
         isOpen={isRealmPresetsOpen}

@@ -309,6 +309,10 @@ export interface RealmExportData {
   mythMarkerBorderColor: string;
   /** Custom myth marker border width. */
   mythMarkerBorderWidth: number;
+  /** Custom seat of power icon color. */
+  seatOfPowerIconColor: string;
+  /** Custom seat of power backdrop color. */
+  seatOfPowerBackdropColor: string;
   /** Custom point-of-interest icon color (null = default). */
   poiIconColor: string | null;
   /** Custom point-of-interest backdrop color (null = default). */

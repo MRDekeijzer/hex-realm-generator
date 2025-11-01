@@ -8,6 +8,8 @@ import {
   DEFAULT_MYTH_MARKER_FILL_COLOR,
   DEFAULT_MYTH_MARKER_BORDER_COLOR,
   DEFAULT_MYTH_MARKER_BORDER_WIDTH,
+  DEFAULT_SEAT_OF_POWER_ICON_COLOR,
+  DEFAULT_SEAT_OF_POWER_BACKDROP_COLOR,
   BARRIER_COLOR,
   TERRAIN_BASE_COLORS,
 } from '@/features/realm/config/constants';
@@ -51,6 +53,12 @@ export interface ColorSettingsHandlers {
   onResetMythMarkerBorderColor: () => void;
   onUpdateMythMarkerBorderWidth: (width: number) => void;
   onResetMythMarkerBorderWidth: () => void;
+  seatOfPowerIconColor: string;
+  seatOfPowerBackdropColor: string;
+  onUpdateSeatOfPowerIconColor: (color: string) => void;
+  onResetSeatOfPowerIconColor: () => void;
+  onUpdateSeatOfPowerBackdropColor: (color: string) => void;
+  onResetSeatOfPowerBackdropColor: () => void;
   poiIconColor: string | null;
   poiBackdropColor: string | null;
   onUpdatePoiIconColor: (color: string) => void;
@@ -82,6 +90,12 @@ export const ColorSettings: React.FC<ColorSettingsProps> = ({
   onResetMythMarkerBorderColor,
   onUpdateMythMarkerBorderWidth,
   onResetMythMarkerBorderWidth,
+  seatOfPowerIconColor,
+  seatOfPowerBackdropColor,
+  onUpdateSeatOfPowerIconColor,
+  onResetSeatOfPowerIconColor,
+  onUpdateSeatOfPowerBackdropColor,
+  onResetSeatOfPowerBackdropColor,
   viewOptions,
   setViewOptions,
   poiIconColor,
@@ -139,6 +153,10 @@ export const ColorSettings: React.FC<ColorSettingsProps> = ({
   const hasCustomMythMarkerBorderWidth =
     Math.abs(mythMarkerBorderWidth - defaultMythMarkerBorderWidth) > 0.0001;
   const mythMarkerBorderWidthLabel = mythMarkerBorderWidth.toFixed(2).replace(/\.?0+$/, '');
+  const resolvedSeatOfPowerIconColor = seatOfPowerIconColor.toUpperCase();
+  const resolvedSeatOfPowerBackdropColor = seatOfPowerBackdropColor.toUpperCase();
+  const defaultSeatOfPowerIconColor = DEFAULT_SEAT_OF_POWER_ICON_COLOR.toUpperCase();
+  const defaultSeatOfPowerBackdropColor = DEFAULT_SEAT_OF_POWER_BACKDROP_COLOR.toUpperCase();
 
   const sortedTerrains = [...tileSets.terrain].sort((a, b) =>
     (a.label ?? a.id).localeCompare(b.label ?? b.id)
@@ -203,7 +221,7 @@ export const ColorSettings: React.FC<ColorSettingsProps> = ({
       </SettingsSection>
 
       <SettingsSection title="Points of Interest & Barriers">
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           <div className="space-y-2">
             <span className="block text-sm font-medium text-text-muted">POI Icon Color</span>
             <TerrainColorSwatch
@@ -253,6 +271,38 @@ export const ColorSettings: React.FC<ColorSettingsProps> = ({
             />
             <span className="block text-xs text-text-muted font-mono">
               {resolvedBarrierColor}
+            </span>
+          </div>
+          <div className="space-y-2">
+            <span className="block text-sm font-medium text-text-muted">Seat of Power Icon</span>
+            <TerrainColorSwatch
+              color={resolvedSeatOfPowerIconColor}
+              ariaLabel="Pick seat of power icon color"
+              tooltip="Pick seat of power icon color"
+              onChange={onUpdateSeatOfPowerIconColor}
+              onReset={onResetSeatOfPowerIconColor}
+              canReset={resolvedSeatOfPowerIconColor !== defaultSeatOfPowerIconColor}
+              className="w-full h-14 rounded-md"
+            />
+            <span className="block text-xs text-text-muted font-mono">
+              {resolvedSeatOfPowerIconColor}
+            </span>
+          </div>
+          <div className="space-y-2">
+            <span className="block text-sm font-medium text-text-muted">
+              Seat of Power Backdrop
+            </span>
+            <TerrainColorSwatch
+              color={resolvedSeatOfPowerBackdropColor}
+              ariaLabel="Pick seat of power backdrop color"
+              tooltip="Pick seat of power backdrop color"
+              onChange={onUpdateSeatOfPowerBackdropColor}
+              onReset={onResetSeatOfPowerBackdropColor}
+              canReset={resolvedSeatOfPowerBackdropColor !== defaultSeatOfPowerBackdropColor}
+              className="w-full h-14 rounded-md"
+            />
+            <span className="block text-xs text-text-muted font-mono">
+              {resolvedSeatOfPowerBackdropColor}
             </span>
           </div>
         </div>

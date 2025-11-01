@@ -37,9 +37,13 @@ export const SEAT_OF_POWER_COLOR = flattenedColors['mythic-seat-of-power'];
 export const HOLDING_ICON_BORDER_COLOR = flattenedColors['border-holding-marker'];
 export const LANDMARK_ICON_BORDER_COLOR = flattenedColors['border-landmark-marker'];
 export const TEXT_INVERSE_COLOR = flattenedColors['text-inverse'];
+export const DEFAULT_POI_ICON_COLOR = '#000000';
+export const DEFAULT_POI_BACKDROP_COLOR = '#FFF3CC';
 export const DEFAULT_MYTH_MARKER_FILL_COLOR = MYTH_COLOR;
 export const DEFAULT_MYTH_MARKER_BORDER_COLOR = TEXT_INVERSE_COLOR;
 export const DEFAULT_MYTH_MARKER_BORDER_WIDTH = 0;
+export const DEFAULT_SEAT_OF_POWER_ICON_COLOR = SEAT_OF_POWER_COLOR;
+export const DEFAULT_SEAT_OF_POWER_BACKDROP_COLOR = DEFAULT_POI_BACKDROP_COLOR;
 export const TEXT_HIGH_CONTRAST_COLOR = flattenedColors['text-high-contrast'];
 export const CARD_SURFACE_COLOR = flattenedColors['realm-card-surface'];
 export const BORDER_PANEL_DIVIDER_COLOR = flattenedColors['border-panel-divider'];
@@ -132,9 +136,6 @@ export const HOLDING_TYPES = ['castle', 'city', 'fortress', 'town', 'village'];
 export const LANDMARK_TYPES = ['dwelling', 'sanctum', 'monument', 'hazard', 'curse', 'ruins'];
 /** The base probability for a barrier to be generated on any given hex edge. */
 export const BARRIER_CHANCE = 1 / 6;
-
-export const DEFAULT_POI_ICON_COLOR = '#000000';
-export const DEFAULT_POI_BACKDROP_COLOR = '#FFF3CC';
 
 /** A master list of icons available for the Icon Spray feature. */
 export const SPRAYABLE_ICONS = [

@@ -91,6 +91,8 @@ interface HexGridProps {
   mythMarkerFillColor: string;
   mythMarkerBorderColor: string;
   mythMarkerBorderWidth: number;
+  seatOfPowerIconColor: string;
+  seatOfPowerBackdropColor: string;
   svgId?: string;
   isInteractive?: boolean;
   staticPadding?: number;
@@ -131,6 +133,8 @@ export function HexGrid({
   mythMarkerFillColor,
   mythMarkerBorderColor,
   mythMarkerBorderWidth,
+  seatOfPowerIconColor,
+  seatOfPowerBackdropColor,
   svgId = 'hex-grid-svg',
   isInteractive = true,
   staticPadding,
@@ -785,12 +789,14 @@ export function HexGrid({
             hexBoundingBox={hexBoundingBox}
             layer={layer}
             poiIconColor={poiIconColor}
-            poiBackdropColor={poiBackdropColor}
-            mythMarkerFillColor={mythMarkerFillColor}
-            mythMarkerBorderColor={mythMarkerBorderColor}
-            mythMarkerBorderWidth={mythMarkerBorderWidth}
-          />
-        );
+          poiBackdropColor={poiBackdropColor}
+          mythMarkerFillColor={mythMarkerFillColor}
+          mythMarkerBorderColor={mythMarkerBorderColor}
+          mythMarkerBorderWidth={mythMarkerBorderWidth}
+          seatOfPowerIconColor={seatOfPowerIconColor}
+          seatOfPowerBackdropColor={seatOfPowerBackdropColor}
+        />
+      );
       });
   };
 

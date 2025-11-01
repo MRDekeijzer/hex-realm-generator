@@ -10,7 +10,8 @@ import {
   SPECIAL_POI_ICONS,
   DEFAULT_POI_ICON_COLOR,
   DEFAULT_POI_BACKDROP_COLOR,
-  SEAT_OF_POWER_COLOR,
+  DEFAULT_SEAT_OF_POWER_ICON_COLOR,
+  DEFAULT_SEAT_OF_POWER_BACKDROP_COLOR,
 } from '@/features/realm/config/constants';
 import type { Tile, TileSet } from '@/features/realm/types';
 import { TerrainColorSwatch } from '../ui/TerrainColorSwatch';
@@ -47,6 +48,10 @@ interface PoiPainterSidebarProps {
   onChangePoiIconColor: (color: string | null) => void;
   /** Setter for marker backdrop tint. */
   onChangePoiBackdropColor: (color: string | null) => void;
+  /** Seat of power icon tint. */
+  seatOfPowerIconColor: string;
+  /** Seat of power backdrop tint. */
+  seatOfPowerBackdropColor: string;
 }
 
 interface PoiButtonProps {
@@ -233,6 +238,8 @@ const PoiSection = ({
   backdropColor,
   onUploadIcon,
   onUploadBackdrop,
+  seatOfPowerIconColor,
+  seatOfPowerBackdropColor,
 }: {
   title: string;
   items: Tile[];
@@ -243,19 +250,25 @@ const PoiSection = ({
   backdropColor: string | null;
   onUploadIcon?: (id: string) => (dataUrl: string) => void;
   onUploadBackdrop?: (id: string) => (dataUrl: string) => void;
+  seatOfPowerIconColor?: string;
+  seatOfPowerBackdropColor?: string;
 }) => (
   <div>
     <h3 className="mb-2 text-lg font-semibold text-text-muted">{title}</h3>
     <div className="grid grid-cols-3 gap-2">
       {items.map((item) => {
         const fullId = `${category}:${item.id}`;
-        const appliedIconColor =
-          category === 'action'
-            ? item.id === 'seatOfPower'
-              ? SEAT_OF_POWER_COLOR
-              : null
-            : iconColor;
-        const appliedBackdropColor = category === 'action' ? null : backdropColor;
+        const isSeatOfPowerAction = category === 'action' && item.id === 'seatOfPower';
+        const appliedIconColor = isSeatOfPowerAction
+          ? (seatOfPowerIconColor ?? DEFAULT_SEAT_OF_POWER_ICON_COLOR)
+          : category === 'action'
+          ? null
+          : iconColor;
+        const appliedBackdropColor = isSeatOfPowerAction
+          ? seatOfPowerBackdropColor ?? DEFAULT_SEAT_OF_POWER_BACKDROP_COLOR
+          : category === 'action'
+          ? null
+          : backdropColor;
         return (
           <PoiButton
             key={fullId}
@@ -294,6 +307,8 @@ export function PoiPainterSidebar({
   poiBackdropColor,
   onChangePoiIconColor,
   onChangePoiBackdropColor,
+  seatOfPowerIconColor,
+  seatOfPowerBackdropColor,
 }: PoiPainterSidebarProps) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -412,10 +427,10 @@ export function PoiPainterSidebar({
                 <span className="text-xs text-text-muted">
                   {backdropHasCustomColor ? backdropSwatchColor : 'Original artwork'}
                 </span>
-              </div>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
         <p className="text-sm text-text-muted">
           Select an item, then click a hex to place it. Use the upload controls to override icons or
@@ -429,6 +444,8 @@ export function PoiPainterSidebar({
           setPaintPoi={setPaintPoi}
           iconColor={poiIconColor}
           backdropColor={poiBackdropColor}
+          seatOfPowerIconColor={seatOfPowerIconColor}
+          seatOfPowerBackdropColor={seatOfPowerBackdropColor}
         />
         <PoiSection
           title="Holdings"

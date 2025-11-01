@@ -76,6 +76,8 @@ interface RealmExportBuildOptions {
   mythMarkerFillColor: string;
   mythMarkerBorderColor: string;
   mythMarkerBorderWidth: number;
+  seatOfPowerIconColor: string;
+  seatOfPowerBackdropColor: string;
   poiIconColor: string | null;
   poiBackdropColor: string | null;
   barrierColor: string;
@@ -101,6 +103,8 @@ export function createRealmExportData(options: RealmExportBuildOptions): RealmEx
     mythMarkerFillColor,
     mythMarkerBorderColor,
     mythMarkerBorderWidth,
+    seatOfPowerIconColor,
+    seatOfPowerBackdropColor,
     poiIconColor,
     poiBackdropColor,
     barrierColor,
@@ -127,6 +131,8 @@ export function createRealmExportData(options: RealmExportBuildOptions): RealmEx
     mythMarkerFillColor,
     mythMarkerBorderColor,
     mythMarkerBorderWidth,
+    seatOfPowerIconColor,
+    seatOfPowerBackdropColor,
     poiIconColor,
     poiBackdropColor,
     barrierColor,

@@ -189,6 +189,16 @@ export const SettingsModal = ({ isOpen, onClose, settingsView, ...props }: Setti
                 onResetMythMarkerBorderColor={props.colorSettings.onResetMythMarkerBorderColor}
                 onUpdateMythMarkerBorderWidth={props.colorSettings.onUpdateMythMarkerBorderWidth}
                 onResetMythMarkerBorderWidth={props.colorSettings.onResetMythMarkerBorderWidth}
+                seatOfPowerIconColor={props.colorSettings.seatOfPowerIconColor}
+                seatOfPowerBackdropColor={props.colorSettings.seatOfPowerBackdropColor}
+                onUpdateSeatOfPowerIconColor={props.colorSettings.onUpdateSeatOfPowerIconColor}
+                onResetSeatOfPowerIconColor={props.colorSettings.onResetSeatOfPowerIconColor}
+                onUpdateSeatOfPowerBackdropColor={
+                  props.colorSettings.onUpdateSeatOfPowerBackdropColor
+                }
+                onResetSeatOfPowerBackdropColor={
+                  props.colorSettings.onResetSeatOfPowerBackdropColor
+                }
                 viewOptions={props.viewOptions}
                 setViewOptions={props.setViewOptions}
                 poiIconColor={props.colorSettings.poiIconColor}

@@ -21,6 +21,8 @@ interface HexBackplateProps {
   isHolding: boolean;
   markerIconColor: string | null;
   markerBackdropColor: string | null;
+  seatOfPowerIconColor: string;
+  seatOfPowerBackdropColor: string;
 }
 
 const SEAT_OF_POWER_ICON_PATH = '/Icons/crown.svg';
@@ -184,6 +186,8 @@ export const HexBackplate = ({
   isHolding: _isHolding,
   markerIconColor,
   markerBackdropColor,
+  seatOfPowerIconColor,
+  seatOfPowerBackdropColor,
 }: HexBackplateProps) => {
   const markerIcon = activeTile?.markerIcon ?? '';
   const markerBackdrop = activeTile?.markerBackdrop ?? '';
@@ -203,6 +207,8 @@ export const HexBackplate = ({
 
   const backdropColor = markerBackdropColor ?? DEFAULT_POI_BACKDROP_COLOR;
   const iconColor = markerIconColor ?? '#000000';
+  const resolvedSeatOfPowerBackdropColor = seatOfPowerBackdropColor || DEFAULT_POI_BACKDROP_COLOR;
+  const resolvedSeatOfPowerIconColor = seatOfPowerIconColor || SEAT_OF_POWER_COLOR;
 
   const iconScale = 1.6;
   const iconWidth = viewOptions.hexSize.x * iconScale;
@@ -264,7 +270,7 @@ export const HexBackplate = ({
       {isSeatOfPower && resolvedSeatBackdrop && (
         <MaskedBlock
           href={resolvedSeatBackdrop}
-          color={DEFAULT_POI_BACKDROP_COLOR}
+          color={resolvedSeatOfPowerBackdropColor}
           x={-crownBackdropWidth / 2}
           y={-crownBackdropYOffset}
           width={crownBackdropWidth}
@@ -274,7 +280,7 @@ export const HexBackplate = ({
       {isSeatOfPower && resolvedSeatIcon && (
         <MaskedBlock
           href={resolvedSeatIcon}
-          color={SEAT_OF_POWER_COLOR}
+          color={resolvedSeatOfPowerIconColor}
           x={-crownWidth / 2}
           y={-crownYOffset}
           width={crownWidth}

@@ -15,6 +15,8 @@ import {
   DEFAULT_MYTH_MARKER_FILL_COLOR,
   DEFAULT_MYTH_MARKER_BORDER_COLOR,
   DEFAULT_MYTH_MARKER_BORDER_WIDTH,
+  DEFAULT_SEAT_OF_POWER_ICON_COLOR,
+  DEFAULT_SEAT_OF_POWER_BACKDROP_COLOR,
   BARRIER_COLOR,
 } from '@/features/realm/config/constants';
 import { TERRAIN_TYPES } from '@/features/realm/config/constants';
@@ -59,6 +61,8 @@ export interface ColorPresetDefinition {
   mythMarkerFillColor: string;
   mythMarkerBorderColor: string;
   mythMarkerBorderWidth: number;
+  seatOfPowerIconColor: string;
+  seatOfPowerBackdropColor: string;
   poiIconColor: string | null;
   poiBackdropColor: string | null;
   barrierColor: string;
@@ -258,6 +262,8 @@ export const COLOR_PRESETS: ColorPresetDefinition[] = [
       showTerrainIcons: true,
       showGrid: true,
     },
+    seatOfPowerIconColor: DEFAULT_SEAT_OF_POWER_ICON_COLOR,
+    seatOfPowerBackdropColor: DEFAULT_SEAT_OF_POWER_BACKDROP_COLOR,
     poiIconColor: DEFAULT_POI_ICON_COLOR,
     poiBackdropColor: DEFAULT_POI_BACKDROP_COLOR,
     mythMarkerFillColor: DEFAULT_MYTH_MARKER_FILL_COLOR,
@@ -284,6 +290,8 @@ export const COLOR_PRESETS: ColorPresetDefinition[] = [
       showTerrainIcons: true,
       gridColor: 'rgba(255, 255, 255, 0.08)',
     },
+    seatOfPowerIconColor: '#f43735',
+    seatOfPowerBackdropColor: '#FFFFFF',
     poiIconColor: '#f43735',
     poiBackdropColor: '#FFFFFF',
     mythMarkerFillColor: '#f43735',
@@ -306,6 +314,8 @@ export const COLOR_PRESETS: ColorPresetDefinition[] = [
       showTerrainIcons: true,
       gridColor: 'rgba(255, 255, 255, 0.12)',
     },
+    seatOfPowerIconColor: '#000000',
+    seatOfPowerBackdropColor: '#FFFFFF',
     poiIconColor: '#000000',
     poiBackdropColor: '#ffffffff',
     mythMarkerFillColor: '#ffffffff',

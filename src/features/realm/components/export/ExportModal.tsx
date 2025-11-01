@@ -37,6 +37,8 @@ interface ExportModalProps {
   mythMarkerFillColor: string;
   mythMarkerBorderColor: string;
   mythMarkerBorderWidth: number;
+  seatOfPowerIconColor: string;
+  seatOfPowerBackdropColor: string;
 }
 
 const noop = (): void => undefined;
@@ -66,6 +68,8 @@ export function ExportModal({
   mythMarkerFillColor,
   mythMarkerBorderColor,
   mythMarkerBorderWidth,
+  seatOfPowerIconColor,
+  seatOfPowerBackdropColor,
 }: ExportModalProps) {
   const includeIconSpray = isIconSprayEnabled && settings.includeIconSpray;
   const previewViewOptions = useMemo(() => {
@@ -257,6 +261,8 @@ export function ExportModal({
                       mythMarkerFillColor={mythMarkerFillColor}
                       mythMarkerBorderColor={mythMarkerBorderColor}
                       mythMarkerBorderWidth={mythMarkerBorderWidth}
+                      seatOfPowerIconColor={seatOfPowerIconColor}
+                      seatOfPowerBackdropColor={seatOfPowerBackdropColor}
                       svgId={previewSvgId}
                     isInteractive={false}
                     staticPadding={previewPadding}
