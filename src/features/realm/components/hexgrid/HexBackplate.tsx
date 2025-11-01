@@ -204,11 +204,11 @@ export const HexBackplate = ({
   const backdropColor = markerBackdropColor ?? DEFAULT_POI_BACKDROP_COLOR;
   const iconColor = markerIconColor ?? '#000000';
 
-  const iconScale = 1.25;
+  const iconScale = 1.6;
   const iconWidth = viewOptions.hexSize.x * iconScale;
   const iconHeight = viewOptions.hexSize.y * iconScale;
 
-  const backdropScale = 1.25;
+  const backdropScale = 1.6;
   const backdropWidth = viewOptions.hexSize.x * backdropScale;
   const backdropHeight = viewOptions.hexSize.y * backdropScale;
 
