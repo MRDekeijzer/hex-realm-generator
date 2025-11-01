@@ -87,6 +87,28 @@ export function CreditsModal({ isOpen, onClose }: CreditsModalProps) {
                   .
                 </p>
               </section>
+              <section className={`${cardClasses} space-y-3`}>
+                <h3 className={sectionHeadingClasses}>
+                  <Icon
+                    name="shield-check"
+                    className="h-4 w-4 text-actions-command-primary"
+                    aria-hidden="true"
+                  />
+                  <span>Made by</span>
+                </h3>
+                <p className="flex flex-col gap-3 text-sm text-text-muted sm:flex-row sm:items-center sm:justify-between">
+                  <a
+                    href="https://github.com/MRDekeijzer"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-md border border-border-panel-divider bg-realm-map-viewport px-3 py-2 font-semibold text-text-high-contrast transition hover:border-actions-command-primary hover:text-actions-command-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-actions-command-primary/60"
+                    aria-label="Visit Matthijs on GitHub"
+                  >
+                    <Icon name="github" className="h-4 w-4" aria-hidden="true" />
+                    <span>@MRDekeijzer</span>
+                  </a>
+                </p>
+              </section>
             </div>
 
             <div className="space-y-6">

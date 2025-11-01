@@ -86,6 +86,7 @@ import {
   ShieldCheck,
   Boxes,
   Heart,
+  Github,
 } from 'lucide-react';
 
 /**
@@ -143,6 +144,7 @@ export const iconComponentMap: Record<string, React.ElementType> = {
   'shield-check': ShieldCheck,
   boxes: Boxes,
   heart: Heart,
+  github: Github,
 
   // Terrain & Spray Icons
   trees: Trees,
