@@ -43,6 +43,9 @@ interface HexagonProps {
   layer: 'background' | 'foreground';
   poiIconColor: string | null;
   poiBackdropColor: string | null;
+  mythMarkerFillColor: string;
+  mythMarkerBorderColor: string;
+  mythMarkerBorderWidth: number;
 }
 
 export const Hexagon = React.memo(
@@ -67,6 +70,9 @@ export const Hexagon = React.memo(
     layer,
     poiIconColor,
     poiBackdropColor,
+    mythMarkerFillColor,
+    mythMarkerBorderColor,
+    mythMarkerBorderWidth,
   }: HexagonProps) => {
     const center = axialToPixel(hex, viewOptions.orientation, viewOptions.hexSize);
     const knightVisibility = viewOptions.visibility.knight;
@@ -157,7 +163,14 @@ export const Hexagon = React.memo(
               markerIconColor={poiIconColor}
               markerBackdropColor={poiBackdropColor}
             />
-            <HexMyth mythId={hex.myth} showMyths={mythVisible} hexSize={viewOptions.hexSize} />
+            <HexMyth
+              mythId={hex.myth}
+              showMyths={mythVisible}
+              hexSize={viewOptions.hexSize}
+              fillColor={mythMarkerFillColor}
+              borderColor={mythMarkerBorderColor}
+              borderWidth={mythMarkerBorderWidth}
+            />
           </>
         )}
 

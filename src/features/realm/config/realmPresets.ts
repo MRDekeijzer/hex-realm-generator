@@ -12,6 +12,9 @@ import {
   TERRAIN_BASE_COLORS,
   DEFAULT_POI_ICON_COLOR,
   DEFAULT_POI_BACKDROP_COLOR,
+  DEFAULT_MYTH_MARKER_FILL_COLOR,
+  DEFAULT_MYTH_MARKER_BORDER_COLOR,
+  DEFAULT_MYTH_MARKER_BORDER_WIDTH,
   BARRIER_COLOR,
 } from '@/features/realm/config/constants';
 import { TERRAIN_TYPES } from '@/features/realm/config/constants';
@@ -19,7 +22,7 @@ import { TERRAIN_TYPES } from '@/features/realm/config/constants';
 /**
  * Helper to clone landmark counts while allowing targeted overrides.
  */
-const buildLandmarkCounts = (overrides: Partial<Record<string, number>> = {}) => {
+const _buildLandmarkCounts = (overrides: Partial<Record<string, number>> = {}) => {
   return LANDMARK_TYPES.reduce<Record<string, number>>((acc, type) => {
     acc[type] = overrides[type] ?? 3;
     return acc;
@@ -53,6 +56,9 @@ export interface ColorPresetDefinition {
   details: string[];
   terrainColors: Record<string, string>;
   viewOptions?: Partial<ViewOptions>;
+  mythMarkerFillColor: string;
+  mythMarkerBorderColor: string;
+  mythMarkerBorderWidth: number;
   poiIconColor: string | null;
   poiBackdropColor: string | null;
   barrierColor: string;
@@ -254,6 +260,9 @@ export const COLOR_PRESETS: ColorPresetDefinition[] = [
     },
     poiIconColor: DEFAULT_POI_ICON_COLOR,
     poiBackdropColor: DEFAULT_POI_BACKDROP_COLOR,
+    mythMarkerFillColor: DEFAULT_MYTH_MARKER_FILL_COLOR,
+    mythMarkerBorderColor: DEFAULT_MYTH_MARKER_BORDER_COLOR,
+    mythMarkerBorderWidth: DEFAULT_MYTH_MARKER_BORDER_WIDTH,
     barrierColor: BARRIER_COLOR,
     exportSettings: {
       blackAndWhite: false,
@@ -277,6 +286,9 @@ export const COLOR_PRESETS: ColorPresetDefinition[] = [
     },
     poiIconColor: '#f43735',
     poiBackdropColor: '#FFFFFF',
+    mythMarkerFillColor: '#f43735',
+    mythMarkerBorderColor: '#FFFFFF',
+    mythMarkerBorderWidth: 1.5,
     barrierColor: '#f43735',
     exportSettings: {
       blackAndWhite: false,
@@ -296,6 +308,9 @@ export const COLOR_PRESETS: ColorPresetDefinition[] = [
     },
     poiIconColor: '#000000',
     poiBackdropColor: '#ffffffff',
+    mythMarkerFillColor: '#ffffffff',
+    mythMarkerBorderColor: '#000000',
+    mythMarkerBorderWidth: 1.25,
     barrierColor: '#000000',
     exportSettings: {
       blackAndWhite: true,

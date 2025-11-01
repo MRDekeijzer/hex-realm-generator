@@ -73,6 +73,9 @@ interface RealmExportBuildOptions {
   terrainColors: Record<string, string>;
   viewOptions: ViewOptions;
   exportSettings: ExportSettings;
+  mythMarkerFillColor: string;
+  mythMarkerBorderColor: string;
+  mythMarkerBorderWidth: number;
   poiIconColor: string | null;
   poiBackdropColor: string | null;
   barrierColor: string;
@@ -95,6 +98,9 @@ export function createRealmExportData(options: RealmExportBuildOptions): RealmEx
     terrainColors,
     viewOptions,
     exportSettings,
+    mythMarkerFillColor,
+    mythMarkerBorderColor,
+    mythMarkerBorderWidth,
     poiIconColor,
     poiBackdropColor,
     barrierColor,
@@ -118,6 +124,9 @@ export function createRealmExportData(options: RealmExportBuildOptions): RealmEx
     terrainColors,
     viewOptions,
     exportSettings,
+    mythMarkerFillColor,
+    mythMarkerBorderColor,
+    mythMarkerBorderWidth,
     poiIconColor,
     poiBackdropColor,
     barrierColor,

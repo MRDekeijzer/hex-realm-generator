@@ -303,6 +303,12 @@ export interface RealmExportData {
   viewOptions: ViewOptions;
   /** Saved export dialog settings. */
   exportSettings: ExportSettings;
+  /** Custom myth marker fill color. */
+  mythMarkerFillColor: string;
+  /** Custom myth marker border color. */
+  mythMarkerBorderColor: string;
+  /** Custom myth marker border width. */
+  mythMarkerBorderWidth: number;
   /** Custom point-of-interest icon color (null = default). */
   poiIconColor: string | null;
   /** Custom point-of-interest backdrop color (null = default). */

@@ -5,6 +5,9 @@ import {
   DEFAULT_GRID_WIDTH,
   DEFAULT_POI_BACKDROP_COLOR,
   DEFAULT_POI_ICON_COLOR,
+  DEFAULT_MYTH_MARKER_FILL_COLOR,
+  DEFAULT_MYTH_MARKER_BORDER_COLOR,
+  DEFAULT_MYTH_MARKER_BORDER_WIDTH,
   BARRIER_COLOR,
   TERRAIN_BASE_COLORS,
 } from '@/features/realm/config/constants';
@@ -39,6 +42,15 @@ export interface ColorSettingsHandlers {
   terrainColors: Record<string, string>;
   onUpdateTerrainColor: (terrainId: string, color: string) => void;
   onResetTerrainColor: (terrainId: string) => void;
+  mythMarkerFillColor: string;
+  mythMarkerBorderColor: string;
+  mythMarkerBorderWidth: number;
+  onUpdateMythMarkerFillColor: (color: string) => void;
+  onResetMythMarkerFillColor: () => void;
+  onUpdateMythMarkerBorderColor: (color: string) => void;
+  onResetMythMarkerBorderColor: () => void;
+  onUpdateMythMarkerBorderWidth: (width: number) => void;
+  onResetMythMarkerBorderWidth: () => void;
   poiIconColor: string | null;
   poiBackdropColor: string | null;
   onUpdatePoiIconColor: (color: string) => void;
@@ -61,6 +73,15 @@ export const ColorSettings: React.FC<ColorSettingsProps> = ({
   terrainColors,
   onUpdateTerrainColor,
   onResetTerrainColor,
+  mythMarkerFillColor,
+  mythMarkerBorderColor,
+  mythMarkerBorderWidth,
+  onUpdateMythMarkerFillColor,
+  onResetMythMarkerFillColor,
+  onUpdateMythMarkerBorderColor,
+  onResetMythMarkerBorderColor,
+  onUpdateMythMarkerBorderWidth,
+  onResetMythMarkerBorderWidth,
   viewOptions,
   setViewOptions,
   poiIconColor,
@@ -110,6 +131,14 @@ export const ColorSettings: React.FC<ColorSettingsProps> = ({
   const resolvedPoiBackdropColor = (poiBackdropColor ?? DEFAULT_POI_BACKDROP_COLOR).toUpperCase();
   const resolvedBarrierColor = barrierColor.toUpperCase();
   const defaultBarrierColor = BARRIER_COLOR.toUpperCase();
+  const resolvedMythMarkerFillColor = mythMarkerFillColor.toUpperCase();
+  const resolvedMythMarkerBorderColor = mythMarkerBorderColor.toUpperCase();
+  const defaultMythMarkerFillColor = DEFAULT_MYTH_MARKER_FILL_COLOR.toUpperCase();
+  const defaultMythMarkerBorderColor = DEFAULT_MYTH_MARKER_BORDER_COLOR.toUpperCase();
+  const defaultMythMarkerBorderWidth = DEFAULT_MYTH_MARKER_BORDER_WIDTH;
+  const hasCustomMythMarkerBorderWidth =
+    Math.abs(mythMarkerBorderWidth - defaultMythMarkerBorderWidth) > 0.0001;
+  const mythMarkerBorderWidthLabel = mythMarkerBorderWidth.toFixed(2).replace(/\.?0+$/, '');
 
   const sortedTerrains = [...tileSets.terrain].sort((a, b) =>
     (a.label ?? a.id).localeCompare(b.label ?? b.id)
@@ -225,6 +254,72 @@ export const ColorSettings: React.FC<ColorSettingsProps> = ({
             <span className="block text-xs text-text-muted font-mono">
               {resolvedBarrierColor}
             </span>
+          </div>
+        </div>
+      </SettingsSection>
+
+      <SettingsSection title="Myth Markers">
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="space-y-2">
+            <span className="block text-sm font-medium text-text-muted">Marker Fill Color</span>
+            <TerrainColorSwatch
+              color={resolvedMythMarkerFillColor}
+              ariaLabel="Pick myth marker fill color"
+              tooltip="Pick myth marker fill color"
+              onChange={onUpdateMythMarkerFillColor}
+              onReset={onResetMythMarkerFillColor}
+              canReset={resolvedMythMarkerFillColor !== defaultMythMarkerFillColor}
+              className="w-full h-14 rounded-md"
+            />
+            <span className="block text-xs text-text-muted font-mono">
+              {resolvedMythMarkerFillColor}
+            </span>
+          </div>
+          <div className="space-y-2">
+            <span className="block text-sm font-medium text-text-muted">Marker Border Color</span>
+            <TerrainColorSwatch
+              color={resolvedMythMarkerBorderColor}
+              ariaLabel="Pick myth marker border color"
+              tooltip="Pick myth marker border color"
+              onChange={onUpdateMythMarkerBorderColor}
+              onReset={onResetMythMarkerBorderColor}
+              canReset={resolvedMythMarkerBorderColor !== defaultMythMarkerBorderColor}
+              className="w-full h-14 rounded-md"
+            />
+            <span className="block text-xs text-text-muted font-mono">
+              {resolvedMythMarkerBorderColor}
+            </span>
+          </div>
+          <div className="space-y-2">
+            <span className="block text-sm font-medium text-text-muted">Border Width</span>
+            <div className="flex items-center gap-3">
+              <input
+                type="range"
+                aria-label="Set myth marker border width"
+                min="0"
+                max="8"
+                step="0.25"
+                value={mythMarkerBorderWidth}
+                onChange={(event) => {
+                  const parsed = parseFloat(event.target.value);
+                  onUpdateMythMarkerBorderWidth(
+                    Number.isFinite(parsed) ? parsed : defaultMythMarkerBorderWidth
+                  );
+                }}
+                className="flex-1"
+              />
+              <span className="text-xs font-mono text-text-muted w-16 text-right">
+                {mythMarkerBorderWidthLabel} px
+              </span>
+              <button
+                type="button"
+                onClick={onResetMythMarkerBorderWidth}
+                disabled={!hasCustomMythMarkerBorderWidth}
+                className="text-xs font-medium text-actions-command-primary hover:text-actions-command-primary/80 disabled:text-text-muted/60 disabled:cursor-not-allowed"
+              >
+                Reset
+              </button>
+            </div>
           </div>
         </div>
       </SettingsSection>

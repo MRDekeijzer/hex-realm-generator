@@ -34,6 +34,9 @@ interface ExportModalProps {
   poiIconColor: string | null;
   poiBackdropColor: string | null;
   isIconSprayEnabled: boolean;
+  mythMarkerFillColor: string;
+  mythMarkerBorderColor: string;
+  mythMarkerBorderWidth: number;
 }
 
 const noop = (): void => undefined;
@@ -60,6 +63,9 @@ export function ExportModal({
   poiIconColor,
   poiBackdropColor,
   isIconSprayEnabled,
+  mythMarkerFillColor,
+  mythMarkerBorderColor,
+  mythMarkerBorderWidth,
 }: ExportModalProps) {
   const includeIconSpray = isIconSprayEnabled && settings.includeIconSpray;
   const previewViewOptions = useMemo(() => {
@@ -243,12 +249,15 @@ export function ExportModal({
                     isSettingsOpen={true}
                     isPickingTile={false}
                     onTilePick={noop}
-                    setConfirmation={noopConfirmationDispatch}
-                    terrainTextures={terrainTextures}
-                    isLoadingTextures={isLoadingTextures}
-                    poiIconColor={poiIconColor}
-                    poiBackdropColor={poiBackdropColor}
-                    svgId={previewSvgId}
+                      setConfirmation={noopConfirmationDispatch}
+                      terrainTextures={terrainTextures}
+                      isLoadingTextures={isLoadingTextures}
+                      poiIconColor={poiIconColor}
+                      poiBackdropColor={poiBackdropColor}
+                      mythMarkerFillColor={mythMarkerFillColor}
+                      mythMarkerBorderColor={mythMarkerBorderColor}
+                      mythMarkerBorderWidth={mythMarkerBorderWidth}
+                      svgId={previewSvgId}
                     isInteractive={false}
                     staticPadding={previewPadding}
                   />
