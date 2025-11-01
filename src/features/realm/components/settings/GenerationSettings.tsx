@@ -233,7 +233,7 @@ export const GenerationSettings = ({
                     max={generationOptions.highlandFormation === 'triangle' ? 120 : 360}
                     step={1}
                     displayMultiplier={1}
-                    displaySuffix="Â°"
+                    displaySuffix="°"
                     tooltip="Sets the orientation of the selected formation."
                   />
                 </div>
@@ -247,9 +247,6 @@ export const GenerationSettings = ({
                       transform: `rotate(${generationOptions.highlandFormationRotation}deg)`,
                     }}
                   />
-                  <p className="text-xs text-text-muted">
-                    Lowlands start at the base and highlands form towards the tip.
-                  </p>
                 </div>
               </div>
             )}

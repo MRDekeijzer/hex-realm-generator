@@ -6,7 +6,7 @@
  * toolbar, the hex grid canvas, and the various sidebars.
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { HexGrid } from '@/features/realm/components/HexGrid';
 import { Toolbar } from '@/features/realm/components/Toolbar';
 import { SelectionSidebar } from '@/features/realm/components/sidebars/SelectionSidebar';
@@ -53,6 +53,7 @@ import { BarrierPainterSidebar } from '@/features/realm/components/sidebars/Barr
 import { ConfirmationDialog } from '@/features/realm/components/ConfirmationDialog';
 import { HistoryControls } from '@/features/realm/components/HistoryControls';
 import { PresetControls } from '@/features/realm/components/PresetControls';
+import { RealmPresetsModal } from '@/features/realm/components/RealmPresetsModal';
 import { generateTerrainTextures } from '@/features/realm/utils/textureUtils';
 import { normalizeKnightVisibility } from '@/features/realm/utils/visibilityUtils';
 import { getTerrainBaseColor } from '@/app/theme/colors';
@@ -62,6 +63,7 @@ import {
   isRealmExportData,
   REALM_EXPORT_VERSION,
 } from '@/features/realm/utils/importExport';
+import { GENERATION_PRESETS, COLOR_PRESETS } from '@/features/realm/config/realmPresets';
 
 const INITIAL_KNIGHT_VISIBILITY = normalizeKnightVisibility(
   undefined,
@@ -125,7 +127,23 @@ const mergeExportSettings = (
   ...incoming,
 });
 
+interface RealmPresetSnapshot {
+  generationOptions: GenerationOptions;
+  realm: Realm | null;
+  terrainColors: Record<string, string>;
+  viewOptions: ViewOptions;
+  exportSettings: ExportSettings;
+  poiIconColor: string | null;
+  poiBackdropColor: string | null;
+  barrierColor: string;
+  selectedHex: Hex | null;
+  relocatingMythId: number | null;
+  activeGenerationPresetId: string | null;
+  activeColorPresetId: string;
+}
+
 const EXPORT_PREVIEW_SVG_ID = 'hex-grid-export-preview';
+const DEFAULT_COLOR_PRESET_ID = COLOR_PRESETS[0]?.id ?? 'full-spectrum';
 const EXPORT_IMAGE_SCALE = 6;
 const CREDITS_COOKIE_KEY = 'hexRealmCreditsSeen';
 
@@ -204,6 +222,10 @@ export default function App() {
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isCreditsOpen, setIsCreditsOpen] = useState(false);
+  const [isRealmPresetsOpen, setIsRealmPresetsOpen] = useState(false);
+  const [activeGenerationPresetId, setActiveGenerationPresetId] = useState<string | null>(null);
+  const [activeColorPresetId, setActiveColorPresetId] = useState<string>(DEFAULT_COLOR_PRESET_ID);
+  const presetSnapshotRef = useRef<RealmPresetSnapshot | null>(null);
   const [areShortcutTipsCollapsed, setAreShortcutTipsCollapsed] = useState<boolean>(() => {
     if (typeof window === 'undefined' || !window.localStorage) {
       return false;
@@ -335,42 +357,59 @@ export default function App() {
     terrainHeightOrder: DEFAULT_TERRAIN_HEIGHT_ORDER,
   });
 
+  const regenerateRealm = useCallback(
+    (options: GenerationOptions) => {
+      try {
+        const shapeConfig =
+          realmShape === 'hex'
+            ? { shape: 'hex' as const, radius: realmRadius }
+            : { shape: 'square' as const, width: realmWidth, height: realmHeight };
+        const newRealm = generateRealm(shapeConfig, options);
+        setRealm(newRealm);
+        setSelectedHex(null);
+        setRelocatingMythId(null);
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : 'An unknown error occurred during realm generation.';
+        setConfirmation({
+          isOpen: true,
+          title: 'Generation Failed',
+          message: errorMessage,
+          onConfirm: () => setConfirmation(null),
+          confirmText: 'OK',
+          isInfo: true,
+        });
+      }
+    },
+    [
+      realmShape,
+      realmRadius,
+      realmWidth,
+      realmHeight,
+      setRealm,
+      setSelectedHex,
+      setRelocatingMythId,
+      setConfirmation,
+    ]
+  );
+
   /**
    * Generates a new realm based on the current shape and generation options.
    */
   const handleGenerateRealm = useCallback(() => {
-    try {
-      const options =
-        realmShape === 'hex'
-          ? { shape: 'hex' as const, radius: realmRadius }
-          : { shape: 'square' as const, width: realmWidth, height: realmHeight };
-      const newRealm = generateRealm(options, generationOptions);
-      setRealm(newRealm);
-      setSelectedHex(null);
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : 'An unknown error occurred during realm generation.';
-      setConfirmation({
-        isOpen: true,
-        title: 'Generation Failed',
-        message: errorMessage,
-        onConfirm: () => setConfirmation(null),
-        confirmText: 'OK',
-        isInfo: true,
-      });
-    }
-  }, [realmShape, realmRadius, realmWidth, realmHeight, generationOptions, setRealm]);
+    regenerateRealm(generationOptions);
+  }, [generationOptions, regenerateRealm]);
 
   /**
    * Generates the initial realm on component mount if one doesn't exist.
    */
   useEffect(() => {
     if (!realm) {
-      handleGenerateRealm();
+      regenerateRealm(generationOptions);
     }
-  }, [realm, handleGenerateRealm]);
+  }, [realm, regenerateRealm, generationOptions]);
 
   /**
    * Effect to regenerate terrain textures whenever terrain settings or colors change.
@@ -402,7 +441,173 @@ export default function App() {
       }
     };
     generateAndSetTextures();
-  }, [tileSets, terrainColors, viewOptions.hexSize, featureFlags.iconSpray]);
+  }, [tileSets, terrainColors, viewOptions.hexSize, featureFlags.iconSpray, setConfirmation]);
+
+  const handlePreviewGenerationPreset = useCallback(
+    (presetId: string) => {
+      const preset = GENERATION_PRESETS.find((item) => item.id === presetId);
+      if (!preset) {
+        return;
+      }
+      setGenerationOptions((prev) => {
+        const next: GenerationOptions = {
+          ...prev,
+          ...preset.options,
+          terrainBiases: preset.options.terrainBiases
+            ? { ...preset.options.terrainBiases }
+            : prev.terrainBiases,
+          landmarks: preset.options.landmarks ? { ...preset.options.landmarks } : prev.landmarks,
+          terrainHeightOrder: preset.options.terrainHeightOrder
+            ? [...preset.options.terrainHeightOrder]
+            : prev.terrainHeightOrder,
+          terrainClusteringMatrix: preset.options.terrainClusteringMatrix
+            ? (JSON.parse(
+                JSON.stringify(preset.options.terrainClusteringMatrix)
+              ) as GenerationOptions['terrainClusteringMatrix'])
+            : prev.terrainClusteringMatrix,
+        };
+        regenerateRealm(next);
+        return next;
+      });
+    },
+    [regenerateRealm]
+  );
+
+  const handlePreviewColorPreset = useCallback(
+    (presetId: string) => {
+      const preset = COLOR_PRESETS.find((item) => item.id === presetId);
+      if (!preset) {
+        return;
+      }
+
+      setTerrainColors({ ...preset.terrainColors });
+      setPoiIconColor(preset.poiIconColor);
+      setPoiBackdropColor(preset.poiBackdropColor);
+      setBarrierColor(preset.barrierColor);
+
+      if (preset.viewOptions) {
+        const overrides = preset.viewOptions;
+        setViewOptions((prev) => {
+          const nextVisibility = overrides.visibility
+            ? {
+                ...prev.visibility,
+                ...overrides.visibility,
+                knight: overrides.visibility.knight
+                  ? {
+                      ...prev.visibility.knight,
+                      ...overrides.visibility.knight,
+                    }
+                  : prev.visibility.knight,
+              }
+            : prev.visibility;
+
+          return {
+            ...prev,
+            ...overrides,
+            hexSize: overrides.hexSize ? { ...overrides.hexSize } : prev.hexSize,
+            visibility: nextVisibility,
+          };
+        });
+      }
+
+      if (preset.exportSettings) {
+        setExportSettings((prev) => ({
+          ...prev,
+          ...preset.exportSettings,
+        }));
+      }
+    },
+    [
+      setTerrainColors,
+      setPoiIconColor,
+      setPoiBackdropColor,
+      setBarrierColor,
+      setViewOptions,
+      setExportSettings,
+    ]
+  );
+
+  const handleOpenRealmPresets = useCallback(() => {
+    presetSnapshotRef.current = {
+      generationOptions: JSON.parse(JSON.stringify(generationOptions)) as GenerationOptions,
+      realm,
+      terrainColors: { ...terrainColors },
+      viewOptions: JSON.parse(JSON.stringify(viewOptions)) as ViewOptions,
+      exportSettings: { ...exportSettings },
+      poiIconColor,
+      poiBackdropColor,
+      barrierColor,
+      selectedHex: selectedHex ? { ...selectedHex } : null,
+      relocatingMythId,
+      activeGenerationPresetId,
+      activeColorPresetId,
+    };
+    setIsRealmPresetsOpen(true);
+  }, [
+    generationOptions,
+    realm,
+    terrainColors,
+    viewOptions,
+    exportSettings,
+    poiIconColor,
+    poiBackdropColor,
+    barrierColor,
+    selectedHex,
+    relocatingMythId,
+    activeGenerationPresetId,
+    activeColorPresetId,
+  ]);
+
+  const handleDismissRealmPresets = useCallback(() => {
+    const snapshot = presetSnapshotRef.current;
+    if (snapshot) {
+      setGenerationOptions(snapshot.generationOptions);
+      setTerrainColors({ ...snapshot.terrainColors });
+      setViewOptions(snapshot.viewOptions);
+      setExportSettings(snapshot.exportSettings);
+      setPoiIconColor(snapshot.poiIconColor);
+      setPoiBackdropColor(snapshot.poiBackdropColor);
+      setBarrierColor(snapshot.barrierColor);
+      setSelectedHex(snapshot.selectedHex);
+      setRelocatingMythId(snapshot.relocatingMythId);
+      setActiveGenerationPresetId(snapshot.activeGenerationPresetId);
+      setActiveColorPresetId(snapshot.activeColorPresetId);
+      setRealm(snapshot.realm);
+    }
+    presetSnapshotRef.current = null;
+    setIsRealmPresetsOpen(false);
+  }, [
+    setGenerationOptions,
+    setTerrainColors,
+    setViewOptions,
+    setExportSettings,
+    setPoiIconColor,
+    setPoiBackdropColor,
+    setBarrierColor,
+    setSelectedHex,
+    setRelocatingMythId,
+    setActiveGenerationPresetId,
+    setActiveColorPresetId,
+    setRealm,
+  ]);
+
+  const handleConfirmRealmPresets = useCallback(
+    (selection: { generationPresetId: string | null; colorPresetId: string }) => {
+      setActiveGenerationPresetId(selection.generationPresetId);
+      setActiveColorPresetId(selection.colorPresetId);
+      presetSnapshotRef.current = null;
+      setIsRealmPresetsOpen(false);
+    },
+    []
+  );
+
+  const handleToggleRealmPresets = useCallback(() => {
+    if (isRealmPresetsOpen) {
+      handleDismissRealmPresets();
+    } else {
+      handleOpenRealmPresets();
+    }
+  }, [isRealmPresetsOpen, handleDismissRealmPresets, handleOpenRealmPresets]);
 
   /**
    * Effect to handle tool-specific state changes when the active tool is switched.
@@ -434,6 +639,21 @@ export default function App() {
         !!target &&
         (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
       const isCtrlOrCmd = event.ctrlKey || event.metaKey;
+      const loweredKey = event.key.toLowerCase();
+
+      if (!isEditable && !event.altKey && !isCtrlOrCmd && loweredKey === 'p') {
+        event.preventDefault();
+        handleToggleRealmPresets();
+        return;
+      }
+
+      if (isRealmPresetsOpen) {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          handleDismissRealmPresets();
+        }
+        return;
+      }
 
       if (!isEditable && !event.altKey && !isCtrlOrCmd) {
         const mappedTool = TOOL_SHORTCUTS[event.key];
@@ -452,7 +672,7 @@ export default function App() {
         return;
       }
 
-      if (isCtrlOrCmd && event.key.toLowerCase() === 'z') {
+      if (isCtrlOrCmd && loweredKey === 'z') {
         event.preventDefault();
         if (event.shiftKey) {
           if (canRedo) {
@@ -466,7 +686,7 @@ export default function App() {
         return;
       }
 
-      if (isCtrlOrCmd && event.key.toLowerCase() === 'y') {
+      if (isCtrlOrCmd && loweredKey === 'y') {
         event.preventDefault();
         if (canRedo) {
           handleRedo();
@@ -479,7 +699,18 @@ export default function App() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [activeTool, canUndo, canRedo, handleUndo, handleRedo, isPickingTile, setActiveTool]);
+  }, [
+    activeTool,
+    canUndo,
+    canRedo,
+    handleUndo,
+    handleRedo,
+    isPickingTile,
+    setActiveTool,
+    handleToggleRealmPresets,
+    isRealmPresetsOpen,
+    handleDismissRealmPresets,
+  ]);
 
   /**
    * Updates one or more hexes in the realm state.
@@ -1250,6 +1481,8 @@ export default function App() {
         featureFlags={featureFlags}
         setFeatureFlags={setFeatureFlags}
         onOpenCredits={() => setIsCreditsOpen(true)}
+        onToggleRealmPresets={handleToggleRealmPresets}
+        isRealmPresetsOpen={isRealmPresetsOpen}
       />
       <div className="flex flex-1 overflow-hidden">
         <main className="flex-1 bg-realm-map-viewport relative">
@@ -1298,11 +1531,13 @@ export default function App() {
           ) : null}
         </div>
       </div>
-      <PresetControls
-        getExportData={buildRealmExportData}
-        onLoadPreset={handleImportRealm}
-        onShowMessage={handlePresetMessage}
-      />
+      {!isSettingsOpen && (
+        <PresetControls
+          getExportData={buildRealmExportData}
+          onLoadPreset={handleImportRealm}
+          onShowMessage={handlePresetMessage}
+        />
+      )}
       <ExportModal
         isOpen={isExportModalOpen}
         onClose={() => setIsExportModalOpen(false)}
@@ -1322,6 +1557,17 @@ export default function App() {
         poiBackdropColor={poiBackdropColor}
         previewPadding={Math.max(viewOptions.hexSize.x, viewOptions.hexSize.y)}
         isIconSprayEnabled={featureFlags.iconSpray}
+      />
+      <RealmPresetsModal
+        isOpen={isRealmPresetsOpen}
+        generationPresets={GENERATION_PRESETS}
+        colorPresets={COLOR_PRESETS}
+        initialGenerationPresetId={activeGenerationPresetId}
+        initialColorPresetId={activeColorPresetId}
+        onPreviewGenerationPreset={handlePreviewGenerationPreset}
+        onPreviewColorPreset={handlePreviewColorPreset}
+        onApply={handleConfirmRealmPresets}
+        onCancel={handleDismissRealmPresets}
       />
       <CreditsModal isOpen={isCreditsOpen} onClose={() => setIsCreditsOpen(false)} />
       {confirmation?.isOpen && (

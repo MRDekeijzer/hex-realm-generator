@@ -68,6 +68,8 @@ interface ToolbarProps {
   featureFlags: FeatureFlags;
   setFeatureFlags: React.Dispatch<React.SetStateAction<FeatureFlags>>;
   onOpenCredits: () => void;
+  onToggleRealmPresets: () => void;
+  isRealmPresetsOpen: boolean;
 }
 
 /**
@@ -88,6 +90,8 @@ export function Toolbar({
   featureFlags,
   setFeatureFlags,
   onOpenCredits,
+  onToggleRealmPresets,
+  isRealmPresetsOpen,
   ...settingsProps
 }: ToolbarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -272,6 +276,14 @@ export function Toolbar({
       </div>
 
       <div className="flex items-center gap-2">
+        <ToolbarButton
+          onClick={onToggleRealmPresets}
+          icon="layers"
+          title="Open realm presets"
+          isActive={isRealmPresetsOpen}
+        >
+          Presets
+        </ToolbarButton>
         <input
           type="file"
           ref={fileInputRef}
@@ -283,15 +295,15 @@ export function Toolbar({
         <ToolbarButton
           onClick={() => fileInputRef.current?.click()}
           icon="upload"
-          title="Import from JSON file"
+          title="Import from JSON Realm file"
         >
-          Import JSON
+          Import Realm Data
         </ToolbarButton>
-        <ToolbarButton onClick={onExportJson} icon="download" title="Export as JSON file">
-          Export JSON
+        <ToolbarButton onClick={onExportJson} icon="download" title="Export as JSON Realm file">
+          Export Realm Data
         </ToolbarButton>
         <ToolbarButton onClick={onExportPng} icon="image-down" title="Export as PNG image">
-          Export PNG
+          Export Realm PNG
         </ToolbarButton>
       </div>
     </header>

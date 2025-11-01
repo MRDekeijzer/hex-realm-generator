@@ -40,6 +40,7 @@ export function ShortcutTips({ collapsed, onToggleCollapse }: ShortcutTipsProps)
     { keys: ['3'], description: 'Barrier Painter' },
     { keys: ['4'], description: 'Points of Interest Painter' },
     { keys: ['5'], description: 'Myth Tool' },
+    { keys: ['P'], description: 'View Presets' },
     { keys: ['Space'], description: 'Pan Map' },
     { keys: ['Ctrl', 'Z'], description: 'Undo' },
     { keys: ['Ctrl', 'Y'], description: 'Redo' },
