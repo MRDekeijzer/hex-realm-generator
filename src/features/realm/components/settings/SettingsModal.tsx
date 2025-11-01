@@ -3,7 +3,13 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import type { GenerationOptions, TileSet, ViewOptions, Myth, FeatureFlags } from '@/features/realm/types';
+import type {
+  GenerationOptions,
+  TileSet,
+  ViewOptions,
+  Myth,
+  FeatureFlags,
+} from '@/features/realm/types';
 import { Icon } from '../Icon';
 import { SettingsTabButton } from '../ui/SettingsTabButton';
 import { GeneralSettings } from './GeneralSettings';
@@ -88,28 +94,28 @@ export const SettingsModal = ({ isOpen, onClose, settingsView, ...props }: Setti
               onClick={() => setActiveTab('general')}
             />
             <SettingsTabButton
-              icon="eye"
-              label="View"
-              isActive={activeTab === 'view'}
-              onClick={() => setActiveTab('view')}
-            />
-            <SettingsTabButton
               icon="network"
               label="Generation"
               isActive={activeTab === 'generation'}
               onClick={() => setActiveTab('generation')}
             />
             <SettingsTabButton
-              icon="brush"
-              label="Terrain"
-              isActive={activeTab === 'terrain'}
-              onClick={() => setActiveTab('terrain')}
-            />
-            <SettingsTabButton
               icon="palette"
               label="Color"
               isActive={activeTab === 'color'}
               onClick={() => setActiveTab('color')}
+            />
+            <SettingsTabButton
+              icon="eye"
+              label="View"
+              isActive={activeTab === 'view'}
+              onClick={() => setActiveTab('view')}
+            />
+            <SettingsTabButton
+              icon="brush"
+              label="Experimental"
+              isActive={activeTab === 'terrain'}
+              onClick={() => setActiveTab('terrain')}
             />
           </nav>
         </aside>
