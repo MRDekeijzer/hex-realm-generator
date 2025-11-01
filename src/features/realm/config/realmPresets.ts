@@ -143,19 +143,14 @@ export const GENERATION_PRESETS: GenerationPresetDefinition[] = [
     details: [
       'Terrain bias: Peaks & crags surge while marshes all but vanish.',
       'Elevation: Twisting ridge spine with steep drop-offs.',
-      'Population: Sparse strongholds with longer myth distances.',
     ],
     options: {
-      numHoldings: 3,
-      numMyths: 5,
-      mythMinDistance: 4,
       generateBarriers: false,
       highlandFormation: 'linear',
       highlandFormationStrength: 0.9,
       highlandFormationRotation: 45,
       terrainRoughness: 0.65,
       terrainBiases: highlandBiases,
-      landmarks: buildLandmarkCounts({ ruins: 4, monument: 4, hazard: 2 }),
     },
   },
   {
@@ -166,19 +161,14 @@ export const GENERATION_PRESETS: GenerationPresetDefinition[] = [
     details: [
       'Terrain bias: Marsh, bog, and lakes dominate the sprawl.',
       'Elevation: Low-lying pools with gentle transitions.',
-      'Population: Plenty of myths; curses and hazards abound.',
     ],
     options: {
-      numHoldings: 4,
-      numMyths: 7,
-      mythMinDistance: 3,
       generateBarriers: false,
       highlandFormation: 'circle',
       highlandFormationStrength: 0.4,
       highlandFormationRotation: 0,
       terrainRoughness: 0.35,
       terrainBiases: mysticFenBiases,
-      landmarks: buildLandmarkCounts({ curse: 4, hazard: 4, sanctum: 2 }),
     },
   },
   {
@@ -189,19 +179,14 @@ export const GENERATION_PRESETS: GenerationPresetDefinition[] = [
     details: [
       'Terrain bias: Cold peaks and reflective lakes share the map.',
       'Elevation: Faceted triangle bands with steady rises.',
-      'Population: Holdings travel with trade routes; myths are rarer.',
     ],
     options: {
-      numHoldings: 5,
-      numMyths: 4,
-      mythMinDistance: 5,
       generateBarriers: false,
       highlandFormation: 'triangle',
       highlandFormationStrength: 0.7,
       highlandFormationRotation: 15,
       terrainRoughness: 0.45,
       terrainBiases: crystallineBiases,
-      landmarks: buildLandmarkCounts({ monument: 5, sanctum: 4, ruins: 2 }),
     },
   },
   {
@@ -212,7 +197,6 @@ export const GENERATION_PRESETS: GenerationPresetDefinition[] = [
     details: [
       'Terrain bias: Lakes and bogs expand inward to a drowned core.',
       'Elevation: Inverted caldera with coastal escarpments.',
-      'Population: Relics everywhere—expect ruins and myths.',
     ],
     options: {
       numHoldings: 4,
@@ -225,7 +209,6 @@ export const GENERATION_PRESETS: GenerationPresetDefinition[] = [
       highlandFormationRotation: 0,
       terrainRoughness: 0.55,
       terrainBiases: sunkenRuinsBiases,
-      landmarks: buildLandmarkCounts({ ruins: 5, curse: 3, monument: 2 }),
     },
   },
   {
@@ -236,7 +219,6 @@ export const GENERATION_PRESETS: GenerationPresetDefinition[] = [
     details: [
       'Terrain bias: Plains, meadows, and valleys overwhelm waterways.',
       'Elevation: Gentle waves of sand and scrub with rare peaks.',
-      'Population: Holdings cluster around scarce oases.',
     ],
     options: {
       numHoldings: 6,
@@ -248,36 +230,21 @@ export const GENERATION_PRESETS: GenerationPresetDefinition[] = [
       highlandFormationRotation: 305,
       terrainRoughness: 0.3,
       terrainBiases: duneSeaBiases,
-      landmarks: buildLandmarkCounts({ monument: 3, hazard: 3, sanctum: 1 }),
     },
   },
 ];
 
-const whitePalette = buildTerrainPalette([
-  '#ffffffff',
-  '#ffffffff',
-  '#ffffffff',
-  '#ffffffff',
-  '#ffffffff',
-  '#ffffffff',
-  '#ffffffff',
-  '#ffffffff',
-  '#ffffffff',
-  '#ffffffff',
-  '#ffffffff',
-  '#ffffffff',
-]);
+const whitePalette = buildTerrainPalette(['#ffffffff']);
 
 export const COLOR_PRESETS: ColorPresetDefinition[] = [
   {
     id: 'full-spectrum',
     name: 'Full Spectrum',
     icon: 'sun',
-    description: 'The vibrant baseline palette—great for exploring new seeds.',
+    description: 'Standard color palette',
     details: [
-      'Keeps the default terrain hues and spray accents.',
-      'Landmarks use warm gold backdrops for quick reads.',
-      'Exports stay in full colour.',
+      'Terrain uses project default hues.',
+      'Landmarks keep standard icon and backdrop colours.',
     ],
     terrainColors: { ...TERRAIN_BASE_COLORS },
     viewOptions: {
@@ -296,11 +263,11 @@ export const COLOR_PRESETS: ColorPresetDefinition[] = [
     id: 'landmark-spotlight',
     name: 'Landmark Spotlight',
     icon: 'flag',
-    description: 'Moody grayscale terrain with landmarks screaming signal red.',
+    description: 'Black & white, with red highlights.',
     details: [
-      'Restrained grayscale map keeps terrain readable but subtle.',
-      'Landmark icons flip to crimson with bright white halos.',
-      'Great for printing handouts with dramatic focal points.',
+      'Terrain renders white.',
+      'POI icons are displayed in bright red.',
+      'Barriers use the same red for visual continuity.',
     ],
     terrainColors: whitePalette,
     viewOptions: {
@@ -319,12 +286,8 @@ export const COLOR_PRESETS: ColorPresetDefinition[] = [
     id: 'black-and-white',
     name: 'Black & White',
     icon: 'moon',
-    description: 'Hi-contrast black and white for zines, risographs, and print.',
-    details: [
-      'Terrain collapses to deep charcoal banding.',
-      'Landmarks and holdings render in stark monochrome.',
-      'Exports default to black & white for quick printouts.',
-    ],
+    description: 'Black & white',
+    details: ['Terrain renders white.', 'POI icons are displayed in black.'],
     terrainColors: whitePalette,
     viewOptions: {
       showIconSpray: false,
