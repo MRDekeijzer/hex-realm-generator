@@ -3,19 +3,17 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import type {
-  GenerationOptions,
-  TileSet,
-  ViewOptions,
-  Myth,
-  FeatureFlags,
-} from '@/features/realm/types';
+import type { GenerationOptions, TileSet, ViewOptions, Myth, FeatureFlags } from '@/features/realm/types';
 import { Icon } from '../Icon';
 import { SettingsTabButton } from '../ui/SettingsTabButton';
 import { GeneralSettings } from './GeneralSettings';
 import { GenerationSettings } from './GenerationSettings';
 import { TerrainSettings } from './TerrainSettings';
 import { ViewSettings } from './ViewSettings';
+import { ColorSettings } from './ColorSettings';
+import type { ColorSettingsHandlers } from './ColorSettings';
+
+export type SettingsTab = 'general' | 'generation' | 'terrain' | 'view' | 'color';
 
 /**
  * Props for the SettingsModal component.
@@ -23,7 +21,7 @@ import { ViewSettings } from './ViewSettings';
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  settingsView: { tab: 'general' | 'generation' | 'terrain' | 'view'; focusId: string | null };
+  settingsView: { tab: SettingsTab; focusId: string | null };
   // Props for GeneralSettings
   realmShape: 'hex' | 'square';
   setRealmShape: React.Dispatch<React.SetStateAction<'hex' | 'square'>>;
@@ -51,15 +49,14 @@ interface SettingsModalProps {
   myths: Myth[];
   featureFlags: FeatureFlags;
   setFeatureFlags: React.Dispatch<React.SetStateAction<FeatureFlags>>;
+  colorSettings: ColorSettingsHandlers;
 }
 
 /**
  * A full-screen modal that houses all application settings, organized into tabs.
  */
 export const SettingsModal = ({ isOpen, onClose, settingsView, ...props }: SettingsModalProps) => {
-  const [activeTab, setActiveTab] = useState<'general' | 'generation' | 'terrain' | 'view'>(
-    settingsView.tab
-  );
+  const [activeTab, setActiveTab] = useState<SettingsTab>(settingsView.tab);
 
   useEffect(() => {
     if (isOpen) {
@@ -107,6 +104,12 @@ export const SettingsModal = ({ isOpen, onClose, settingsView, ...props }: Setti
               label="Terrain"
               isActive={activeTab === 'terrain'}
               onClick={() => setActiveTab('terrain')}
+            />
+            <SettingsTabButton
+              icon="palette"
+              label="Color"
+              isActive={activeTab === 'color'}
+              onClick={() => setActiveTab('color')}
             />
           </nav>
         </aside>
@@ -163,6 +166,25 @@ export const SettingsModal = ({ isOpen, onClose, settingsView, ...props }: Setti
                 focusId={settingsView.focusId}
                 featureFlags={props.featureFlags}
                 setFeatureFlags={props.setFeatureFlags}
+              />
+            )}
+            {activeTab === 'color' && (
+              <ColorSettings
+                tileSets={props.tileSets}
+                terrainColors={props.colorSettings.terrainColors}
+                onUpdateTerrainColor={props.colorSettings.onUpdateTerrainColor}
+                onResetTerrainColor={props.colorSettings.onResetTerrainColor}
+                viewOptions={props.viewOptions}
+                setViewOptions={props.setViewOptions}
+                poiIconColor={props.colorSettings.poiIconColor}
+                poiBackdropColor={props.colorSettings.poiBackdropColor}
+                onUpdatePoiIconColor={props.colorSettings.onUpdatePoiIconColor}
+                onResetPoiIconColor={props.colorSettings.onResetPoiIconColor}
+                onUpdatePoiBackdropColor={props.colorSettings.onUpdatePoiBackdropColor}
+                onResetPoiBackdropColor={props.colorSettings.onResetPoiBackdropColor}
+                barrierColor={props.colorSettings.barrierColor}
+                onUpdateBarrierColor={props.colorSettings.onUpdateBarrierColor}
+                onResetBarrierColor={props.colorSettings.onResetBarrierColor}
               />
             )}
           </div>

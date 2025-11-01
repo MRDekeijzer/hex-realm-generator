@@ -81,6 +81,7 @@ import {
   SlidersHorizontal,
   Layers,
   Coffee,
+  Palette,
 } from 'lucide-react';
 
 /**
@@ -132,6 +133,7 @@ export const iconComponentMap: Record<string, React.ElementType> = {
   'grip-vertical': GripVertical,
   sliders: SlidersHorizontal,
   layers: Layers,
+  palette: Palette,
   coffee: Coffee,
 
   // Terrain & Spray Icons

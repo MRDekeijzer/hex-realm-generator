@@ -16,10 +16,11 @@ import type {
   FeatureFlags,
 } from '@/features/realm/types';
 import { ToolbarButton } from './ui/ToolbarButton';
-import { SettingsModal } from './settings/SettingsModal';
+import { SettingsModal, type SettingsTab } from './settings/SettingsModal';
 import { GridSettingsPopover } from './GridSettingsPopover';
 import type { ConfirmationState } from '@/app/App';
 import { ensureRealmHasMyths, isRealmExportData } from '@/features/realm/utils/importExport';
+import type { ColorSettingsHandlers } from './settings/ColorSettings';
 
 function ToolbarDivider() {
   return <div className="border-l border-border-panel-divider h-6" aria-hidden="true" />;
@@ -56,10 +57,10 @@ interface ToolbarProps {
   setTileSets: React.Dispatch<React.SetStateAction<TileSet>>;
   isSettingsOpen: boolean;
   setIsSettingsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  settingsView: { tab: 'general' | 'generation' | 'terrain' | 'view'; focusId: string | null };
+  settingsView: { tab: SettingsTab; focusId: string | null };
   setSettingsView: React.Dispatch<
     React.SetStateAction<{
-      tab: 'general' | 'generation' | 'terrain' | 'view';
+      tab: SettingsTab;
       focusId: string | null;
     }>
   >;
@@ -70,6 +71,7 @@ interface ToolbarProps {
   onOpenCredits: () => void;
   onToggleRealmPresets: () => void;
   isRealmPresetsOpen: boolean;
+  colorSettings: ColorSettingsHandlers;
 }
 
 /**

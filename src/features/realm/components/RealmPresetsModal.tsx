@@ -16,6 +16,14 @@ interface RealmPresetsModalProps {
   onPreviewColorPreset: (presetId: string) => void;
   onApply: (selection: { generationPresetId: string | null; colorPresetId: string }) => void;
   onCancel: () => void;
+  onOpenGenerationSettings: (selection: {
+    generationPresetId: string | null;
+    colorPresetId: string;
+  }) => void;
+  onOpenColorSettings: (selection: {
+    generationPresetId: string | null;
+    colorPresetId: string;
+  }) => void;
 }
 
 const cardBaseClasses =
@@ -31,6 +39,8 @@ export function RealmPresetsModal({
   onPreviewColorPreset,
   onApply,
   onCancel,
+  onOpenGenerationSettings,
+  onOpenColorSettings,
 }: RealmPresetsModalProps) {
   const defaultGenerationId = useMemo(
     () => initialGenerationPresetId ?? generationPresets[0]?.id ?? null,
@@ -94,21 +104,6 @@ export function RealmPresetsModal({
     onPreviewColorPreset(presetId);
   };
 
-  const cyclePreset = (
-    collection: { id: string }[],
-    currentId: string | null,
-    direction: 1 | -1,
-    onSelect: (id: string) => void
-  ) => {
-    if (collection.length === 0) return;
-    const currentIndex = collection.findIndex((item) => item.id === currentId);
-    const nextIndex =
-      currentIndex === -1
-        ? 0
-        : (currentIndex + direction + collection.length) % collection.length;
-    onSelect(collection[nextIndex].id);
-  };
-
   const handleApply = () => {
     onApply({
       generationPresetId: selectedGenerationId ?? null,
@@ -168,29 +163,22 @@ export function RealmPresetsModal({
                   Terrain Generation Presets
                 </h3>
                 <p className="mt-1 text-xs text-text-muted">
-                  Clicking previews immediately; use the arrows to cycle quickly.
+                  Click a card to preview instantly, or jump into detailed tuning via settings.
                 </p>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() =>
-                    cyclePreset(generationPresets, selectedGenerationId, -1, handleSelectGeneration)
+                    onOpenGenerationSettings({
+                      generationPresetId: selectedGenerationId ?? null,
+                      colorPresetId: selectedColorId,
+                    })
                   }
-                  className="rounded-md border border-border-panel-divider bg-realm-map-viewport p-2 text-text-muted transition hover:bg-realm-map-viewport/80 hover:text-text-high-contrast focus:outline-none focus-visible:ring-2 focus-visible:ring-actions-command-primary/60"
+                  className="inline-flex items-center gap-2 rounded-md border border-border-panel-divider bg-realm-map-viewport px-3 py-2 text-sm font-medium text-text-muted transition hover:bg-realm-map-viewport/80 hover:text-text-high-contrast focus:outline-none focus-visible:ring-2 focus-visible:ring-actions-command-primary/60"
                 >
-                  <Icon name="arrow-left" className="h-4 w-4" aria-hidden="true" />
-                  <span className="sr-only">Preview previous generation preset</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    cyclePreset(generationPresets, selectedGenerationId, 1, handleSelectGeneration)
-                  }
-                  className="rounded-md border border-border-panel-divider bg-realm-map-viewport p-2 text-text-muted transition hover:bg-realm-map-viewport/80 hover:text-text-high-contrast focus:outline-none focus-visible:ring-2 focus-visible:ring-actions-command-primary/60"
-                >
-                  <Icon name="arrow-right" className="h-4 w-4" aria-hidden="true" />
-                  <span className="sr-only">Preview next generation preset</span>
+                  <Icon name="settings" className="h-4 w-4" aria-hidden="true" />
+                  <span>Generation Settings</span>
                 </button>
               </div>
             </div>
@@ -240,29 +228,23 @@ export function RealmPresetsModal({
                   Color Palettes
                 </h3>
                 <p className="mt-1 text-xs text-text-muted">
-                  Harmonise the map and exports with high-impact palette swaps.
+                  Harmonise the map and exports with high-impact palette swaps or refine every hue in
+                  Color Settings.
                 </p>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() =>
-                    cyclePreset(colorPresets, selectedColorId, -1, handleSelectColor)
+                    onOpenColorSettings({
+                      generationPresetId: selectedGenerationId ?? null,
+                      colorPresetId: selectedColorId,
+                    })
                   }
-                  className="rounded-md border border-border-panel-divider bg-realm-map-viewport p-2 text-text-muted transition hover:bg-realm-map-viewport/80 hover:text-text-high-contrast focus:outline-none focus-visible:ring-2 focus-visible:ring-actions-command-primary/60"
+                  className="inline-flex items-center gap-2 rounded-md border border-border-panel-divider bg-realm-map-viewport px-3 py-2 text-sm font-medium text-text-muted transition hover:bg-realm-map-viewport/80 hover:text-text-high-contrast focus:outline-none focus-visible:ring-2 focus-visible:ring-actions-command-primary/60"
                 >
-                  <Icon name="arrow-left" className="h-4 w-4" aria-hidden="true" />
-                  <span className="sr-only">Preview previous color preset</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    cyclePreset(colorPresets, selectedColorId, 1, handleSelectColor)
-                  }
-                  className="rounded-md border border-border-panel-divider bg-realm-map-viewport p-2 text-text-muted transition hover:bg-realm-map-viewport/80 hover:text-text-high-contrast focus:outline-none focus-visible:ring-2 focus-visible:ring-actions-command-primary/60"
-                >
-                  <Icon name="arrow-right" className="h-4 w-4" aria-hidden="true" />
-                  <span className="sr-only">Preview next color preset</span>
+                  <Icon name="settings" className="h-4 w-4" aria-hidden="true" />
+                  <span>Color Settings</span>
                 </button>
               </div>
             </div>

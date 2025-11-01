@@ -6,7 +6,7 @@
  * toolbar, the hex grid canvas, and the various sidebars.
  */
 
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { HexGrid } from '@/features/realm/components/HexGrid';
 import { Toolbar } from '@/features/realm/components/Toolbar';
 import { SelectionSidebar } from '@/features/realm/components/sidebars/SelectionSidebar';
@@ -17,6 +17,8 @@ import { generateRealm } from '@/features/realm/services/realmGenerator';
 import { exportRealmAsJson, exportSvgAsPng } from '@/features/realm/services/fileService';
 import { ExportModal } from '@/features/realm/components/export/ExportModal';
 import { CreditsModal } from '@/features/realm/components/CreditsModal';
+import type { SettingsTab } from '@/features/realm/components/settings/SettingsModal';
+import type { ColorSettingsHandlers } from '@/features/realm/components/settings/ColorSettings';
 import type {
   Realm,
   Hex,
@@ -73,6 +75,9 @@ const INITIAL_KNIGHT_VISIBILITY = normalizeKnightVisibility(
 
 const cloneKnightVisibility = () =>
   JSON.parse(JSON.stringify(INITIAL_KNIGHT_VISIBILITY)) as typeof INITIAL_KNIGHT_VISIBILITY;
+
+const DEFAULT_BARRIER_COLOR_VALUE =
+  typeof BARRIER_COLOR === 'string' ? BARRIER_COLOR.toUpperCase() : '#000000';
 
 const createDefaultViewOptions = (iconSprayEnabled: boolean): ViewOptions => ({
   showGrid: true,
@@ -218,7 +223,7 @@ export default function App() {
   const [poiBackdropColor, setPoiBackdropColor] = useState<string | null>(
     DEFAULT_POI_BACKDROP_COLOR
   );
-  const [barrierColor, setBarrierColor] = useState<string>(BARRIER_COLOR ?? '#000000');
+  const [barrierColor, setBarrierColor] = useState<string>(DEFAULT_BARRIER_COLOR_VALUE);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isCreditsOpen, setIsCreditsOpen] = useState(false);
@@ -288,7 +293,7 @@ export default function App() {
   const [confirmation, setConfirmation] = useState<ConfirmationState | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [settingsView, setSettingsView] = useState<{
-    tab: 'general' | 'generation' | 'terrain' | 'view';
+    tab: SettingsTab;
     focusId: string | null;
   }>({ tab: 'general', focusId: null });
   const [isPickingTile, setIsPickingTile] = useState(false);
@@ -473,6 +478,30 @@ export default function App() {
     [regenerateRealm]
   );
 
+  const handleUpdatePoiIconColor = useCallback((color: string | null) => {
+    setPoiIconColor(color ? color.toUpperCase() : null);
+  }, []);
+
+  const handleUpdatePoiBackdropColor = useCallback((color: string | null) => {
+    setPoiBackdropColor(color ? color.toUpperCase() : DEFAULT_POI_BACKDROP_COLOR);
+  }, []);
+
+  const handleResetPoiIconColor = useCallback(() => {
+    setPoiIconColor(DEFAULT_POI_ICON_COLOR.toUpperCase());
+  }, []);
+
+  const handleResetPoiBackdropColor = useCallback(() => {
+    setPoiBackdropColor(DEFAULT_POI_BACKDROP_COLOR.toUpperCase());
+  }, []);
+
+  const handleUpdateBarrierColor = useCallback((color: string) => {
+    setBarrierColor(color.toUpperCase());
+  }, []);
+
+  const handleResetBarrierColor = useCallback(() => {
+    setBarrierColor(DEFAULT_BARRIER_COLOR_VALUE);
+  }, []);
+
   const handlePreviewColorPreset = useCallback(
     (presetId: string) => {
       const preset = COLOR_PRESETS.find((item) => item.id === presetId);
@@ -481,9 +510,9 @@ export default function App() {
       }
 
       setTerrainColors({ ...preset.terrainColors });
-      setPoiIconColor(preset.poiIconColor);
-      setPoiBackdropColor(preset.poiBackdropColor);
-      setBarrierColor(preset.barrierColor);
+      handleUpdatePoiIconColor(preset.poiIconColor);
+      handleUpdatePoiBackdropColor(preset.poiBackdropColor);
+      handleUpdateBarrierColor(preset.barrierColor);
 
       if (preset.viewOptions) {
         const overrides = preset.viewOptions;
@@ -519,9 +548,9 @@ export default function App() {
     },
     [
       setTerrainColors,
-      setPoiIconColor,
-      setPoiBackdropColor,
-      setBarrierColor,
+      handleUpdatePoiIconColor,
+      handleUpdatePoiBackdropColor,
+      handleUpdateBarrierColor,
       setViewOptions,
       setExportSettings,
     ]
@@ -591,14 +620,43 @@ export default function App() {
     setRealm,
   ]);
 
-  const handleConfirmRealmPresets = useCallback(
+  const commitPresetSelection = useCallback(
     (selection: { generationPresetId: string | null; colorPresetId: string }) => {
       setActiveGenerationPresetId(selection.generationPresetId);
       setActiveColorPresetId(selection.colorPresetId);
+    },
+    []
+  );
+
+  const handleConfirmRealmPresets = useCallback(
+    (selection: { generationPresetId: string | null; colorPresetId: string }) => {
+      commitPresetSelection(selection);
       presetSnapshotRef.current = null;
       setIsRealmPresetsOpen(false);
     },
-    []
+    [commitPresetSelection]
+  );
+
+  const handleOpenGenerationSettingsFromPresets = useCallback(
+    (selection: { generationPresetId: string | null; colorPresetId: string }) => {
+      commitPresetSelection(selection);
+      presetSnapshotRef.current = null;
+      setIsRealmPresetsOpen(false);
+      setSettingsView({ tab: 'generation', focusId: null });
+      setIsSettingsOpen(true);
+    },
+    [commitPresetSelection, setSettingsView, setIsSettingsOpen]
+  );
+
+  const handleOpenColorSettingsFromPresets = useCallback(
+    (selection: { generationPresetId: string | null; colorPresetId: string }) => {
+      commitPresetSelection(selection);
+      presetSnapshotRef.current = null;
+      setIsRealmPresetsOpen(false);
+      setSettingsView({ tab: 'color', focusId: null });
+      setIsSettingsOpen(true);
+    },
+    [commitPresetSelection, setSettingsView, setIsSettingsOpen]
   );
 
   const handleToggleRealmPresets = useCallback(() => {
@@ -991,17 +1049,19 @@ export default function App() {
         setTileSets(payload.tileSets);
         setTerrainColors(payload.terrainColors);
 
-        setPoiIconColor(
-          Object.prototype.hasOwnProperty.call(payload, 'poiIconColor')
-            ? payload.poiIconColor
-            : DEFAULT_POI_ICON_COLOR
-        );
-        setPoiBackdropColor(
-          Object.prototype.hasOwnProperty.call(payload, 'poiBackdropColor')
-            ? payload.poiBackdropColor
-            : DEFAULT_POI_BACKDROP_COLOR
-        );
-        setBarrierColor(payload.barrierColor ?? BARRIER_COLOR);
+        const nextPoiIconColor = Object.prototype.hasOwnProperty.call(payload, 'poiIconColor')
+          ? payload.poiIconColor
+          : DEFAULT_POI_ICON_COLOR;
+        handleUpdatePoiIconColor(nextPoiIconColor);
+
+        const nextPoiBackdropColor = Object.prototype.hasOwnProperty.call(
+          payload,
+          'poiBackdropColor'
+        )
+          ? payload.poiBackdropColor
+          : DEFAULT_POI_BACKDROP_COLOR;
+        handleUpdatePoiBackdropColor(nextPoiBackdropColor);
+        handleUpdateBarrierColor(payload.barrierColor ?? DEFAULT_BARRIER_COLOR_VALUE);
 
         setViewOptions(mergeViewOptions(payload.viewOptions, nextFeatureFlags.iconSpray));
         setExportSettings(mergeExportSettings(payload.exportSettings, nextFeatureFlags.iconSpray));
@@ -1057,9 +1117,9 @@ export default function App() {
       setGenerationOptions,
       setTileSets,
       setTerrainColors,
-      setPoiIconColor,
-      setPoiBackdropColor,
-      setBarrierColor,
+      handleUpdatePoiIconColor,
+      handleUpdatePoiBackdropColor,
+      handleUpdateBarrierColor,
       setViewOptions,
       setExportSettings,
       setPaintTerrain,
@@ -1225,13 +1285,36 @@ export default function App() {
     [updatePoiTile]
   );
 
-  const handleUpdatePoiIconColor = useCallback((color: string | null) => {
-    setPoiIconColor(color ? color.toUpperCase() : null);
-  }, []);
-
-  const handleUpdatePoiBackdropColor = useCallback((color: string | null) => {
-    setPoiBackdropColor(color ? color.toUpperCase() : DEFAULT_POI_BACKDROP_COLOR);
-  }, []);
+  const colorSettingsHandlers = useMemo<ColorSettingsHandlers>(
+    () => ({
+      terrainColors,
+      onUpdateTerrainColor: handleUpdateTerrainColor,
+      onResetTerrainColor: handleResetTerrainColor,
+      poiIconColor,
+      poiBackdropColor,
+      onUpdatePoiIconColor: (color: string) => handleUpdatePoiIconColor(color),
+      onResetPoiIconColor: handleResetPoiIconColor,
+      onUpdatePoiBackdropColor: (color: string) => handleUpdatePoiBackdropColor(color),
+      onResetPoiBackdropColor: handleResetPoiBackdropColor,
+      barrierColor,
+      onUpdateBarrierColor: handleUpdateBarrierColor,
+      onResetBarrierColor: handleResetBarrierColor,
+    }),
+    [
+      terrainColors,
+      handleUpdateTerrainColor,
+      handleResetTerrainColor,
+      poiIconColor,
+      poiBackdropColor,
+      handleUpdatePoiIconColor,
+      handleResetPoiIconColor,
+      handleUpdatePoiBackdropColor,
+      handleResetPoiBackdropColor,
+      barrierColor,
+      handleUpdateBarrierColor,
+      handleResetBarrierColor,
+    ]
+  );
 
   /**
    * Opens a confirmation dialog to remove all barriers from the map.
@@ -1405,7 +1488,7 @@ export default function App() {
           onRemoveAllBarriers={handleRequestRemoveAllBarriers}
           onClose={() => setActiveTool('select')}
           barrierColor={barrierColor}
-          onColorChange={setBarrierColor}
+          onColorChange={handleUpdateBarrierColor}
         />
       );
     }
@@ -1483,6 +1566,7 @@ export default function App() {
         onOpenCredits={() => setIsCreditsOpen(true)}
         onToggleRealmPresets={handleToggleRealmPresets}
         isRealmPresetsOpen={isRealmPresetsOpen}
+        colorSettings={colorSettingsHandlers}
       />
       <div className="flex flex-1 overflow-hidden">
         <main className="flex-1 bg-realm-map-viewport relative">
@@ -1568,6 +1652,8 @@ export default function App() {
         onPreviewColorPreset={handlePreviewColorPreset}
         onApply={handleConfirmRealmPresets}
         onCancel={handleDismissRealmPresets}
+        onOpenGenerationSettings={handleOpenGenerationSettingsFromPresets}
+        onOpenColorSettings={handleOpenColorSettingsFromPresets}
       />
       <CreditsModal isOpen={isCreditsOpen} onClose={() => setIsCreditsOpen(false)} />
       {confirmation?.isOpen && (
