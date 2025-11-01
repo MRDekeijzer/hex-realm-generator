@@ -82,6 +82,10 @@ import {
   Layers,
   Coffee,
   Palette,
+  BookOpen,
+  ShieldCheck,
+  Boxes,
+  Heart,
 } from 'lucide-react';
 
 /**
@@ -135,6 +139,10 @@ export const iconComponentMap: Record<string, React.ElementType> = {
   layers: Layers,
   palette: Palette,
   coffee: Coffee,
+  'book-open': BookOpen,
+  'shield-check': ShieldCheck,
+  boxes: Boxes,
+  heart: Heart,
 
   // Terrain & Spray Icons
   trees: Trees,
