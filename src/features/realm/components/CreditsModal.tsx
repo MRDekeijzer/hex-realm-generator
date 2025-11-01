@@ -44,8 +44,26 @@ export function CreditsModal({ isOpen, onClose }: CreditsModalProps) {
               Credits &amp; Attributions
             </h2>
             <p>
-              A quick shout-out to the creators and communities that made Hex Realm Generator
-              possible.
+              Hex Realm Generator is an independent fan project. All third-party assets remain the
+              property of their respective creators and are used under their published licenses.
+            </p>
+            <p>
+              Please credit original sources when reusing exported maps or derived artwork, and
+              respect any additional guidelines shared by Lucide and Bastionland.
+            </p>
+            <p>
+              This tool is a fan project and is in no way endorsed by or otherwise affiliated with
+              Mythic Bastionland or Bastionland Press. It is made entirely from the free Quickstart
+              and Realm Sheet PDF available on the{' '}
+              <a
+                href="https://chrismcdee.itch.io/mythic-bastionland"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-actions-command-primary hover:underline"
+              >
+                Mythic Bastionland itch.io page
+              </a>
+              .
             </p>
           </header>
 
@@ -87,34 +105,6 @@ export function CreditsModal({ isOpen, onClose }: CreditsModalProps) {
               <Icon name="coffee" className="w-4 h-4" />
               Buy Me a Coffee
             </a>
-          </section>
-
-          <section className="space-y-2 text-xs leading-relaxed text-text-subtle">
-            <h3 className="text-sm font-semibold text-text-high-contrast tracking-wide uppercase">
-              Disclaimers
-            </h3>
-            <p>
-              Hex Realm Generator is an independent fan project. All third-party assets remain the
-              property of their respective creators and are used under their published licenses.
-            </p>
-            <p>
-              Please credit original sources when reusing exported maps or derived artwork, and
-              respect any additional guidelines shared by Lucide and Bastionland.
-            </p>
-            <p>
-              This tool is a fan project and is in no way endorsed by or otherwise affiliated with
-              Mythic Bastionland or Bastionland Press. It is made entirely from the free Quickstart
-              and Realm Sheet PDF available on the{' '}
-              <a
-                href="https://chrismcdee.itch.io/mythic-bastionland"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-actions-command-primary hover:underline"
-              >
-                Mythic Bastionland itch.io page
-              </a>
-              .
-            </p>
           </section>
         </div>
       </div>
