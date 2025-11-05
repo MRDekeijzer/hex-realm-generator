@@ -14,6 +14,7 @@ import type {
   FeatureFlags,
 } from '../types/index.ts';
 import { colorPalette, tailwindColorPalette } from '@/app/theme/colors';
+import { iconAssetPath } from '@/shared/utils/publicAssetPath';
 
 const flattenedColors = tailwindColorPalette;
 
@@ -90,7 +91,7 @@ const TERRAIN_ICON_OVERRIDES: Partial<Record<string, string>> = {
 export const DEFAULT_TERRAIN_ICONS: Record<string, string> = Object.fromEntries(
   TERRAIN_TYPES.map((terrainId) => {
     const iconName = TERRAIN_ICON_OVERRIDES[terrainId] ?? terrainId;
-    return [terrainId, `/Icons/${iconName}.svg`];
+    return [terrainId, iconAssetPath(iconName)];
   })
 );
 
@@ -602,36 +603,36 @@ export const DEFAULT_TILE_SETS: TileSet = {
       id: 'castle',
       label: 'Castle',
       icon: 'castle',
-      markerIcon: '/Icons/castle.svg',
-      markerBackdrop: '/Icons/castle_under.svg',
+      markerIcon: iconAssetPath('castle'),
+      markerBackdrop: iconAssetPath('castle_under'),
     },
     {
       id: 'city',
       label: 'City',
       icon: 'city',
-      markerIcon: '/Icons/city.svg',
-      markerBackdrop: '/Icons/city_under.svg',
+      markerIcon: iconAssetPath('city'),
+      markerBackdrop: iconAssetPath('city_under'),
     },
     {
       id: 'fortress',
       label: 'Fortress',
       icon: 'fortress',
-      markerIcon: '/Icons/fortress.svg',
-      markerBackdrop: '/Icons/fortress_under.svg',
+      markerIcon: iconAssetPath('fortress'),
+      markerBackdrop: iconAssetPath('fortress_under'),
     },
     {
       id: 'town',
       label: 'Town',
       icon: 'town',
-      markerIcon: '/Icons/town.svg',
-      markerBackdrop: '/Icons/town_under.svg',
+      markerIcon: iconAssetPath('town'),
+      markerBackdrop: iconAssetPath('town_under'),
     },
     {
       id: 'village',
       label: 'Village',
       icon: 'village',
-      markerIcon: '/Icons/village.svg',
-      markerBackdrop: '/Icons/village_under.svg',
+      markerIcon: iconAssetPath('village'),
+      markerBackdrop: iconAssetPath('village_under'),
     },
   ],
   landmark: [
@@ -639,43 +640,43 @@ export const DEFAULT_TILE_SETS: TileSet = {
       id: 'dwelling',
       label: 'Dwelling',
       icon: 'dwelling',
-      markerIcon: '/Icons/dwelling.svg',
-      markerBackdrop: '/Icons/dwelling_under.svg',
+      markerIcon: iconAssetPath('dwelling'),
+      markerBackdrop: iconAssetPath('dwelling_under'),
     },
     {
       id: 'sanctum',
       label: 'Sanctum',
       icon: 'sanctum',
-      markerIcon: '/Icons/sanctum.svg',
-      markerBackdrop: '/Icons/sanctum_under.svg',
+      markerIcon: iconAssetPath('sanctum'),
+      markerBackdrop: iconAssetPath('sanctum_under'),
     },
     {
       id: 'monument',
       label: 'Monument',
       icon: 'monument',
-      markerIcon: '/Icons/monument.svg',
-      markerBackdrop: '/Icons/monument_under.svg',
+      markerIcon: iconAssetPath('monument'),
+      markerBackdrop: iconAssetPath('monument_under'),
     },
     {
       id: 'hazard',
       label: 'Hazard',
       icon: 'hazard',
-      markerIcon: '/Icons/hazard.svg',
-      markerBackdrop: '/Icons/hazard_under.svg',
+      markerIcon: iconAssetPath('hazard'),
+      markerBackdrop: iconAssetPath('hazard_under'),
     },
     {
       id: 'curse',
       label: 'Curse',
       icon: 'curse',
-      markerIcon: '/Icons/curse.svg',
-      markerBackdrop: '/Icons/curse_under.svg',
+      markerIcon: iconAssetPath('curse'),
+      markerBackdrop: iconAssetPath('curse_under'),
     },
     {
       id: 'ruins',
       label: 'Ruins',
       icon: 'ruins',
-      markerIcon: '/Icons/ruins.svg',
-      markerBackdrop: '/Icons/ruins_under.svg',
+      markerIcon: iconAssetPath('ruins'),
+      markerBackdrop: iconAssetPath('ruins_under'),
     },
   ],
 };
@@ -687,8 +688,8 @@ export const SPECIAL_POI_ICONS: Tile[] = [
     id: 'seatOfPower',
     label: 'Seat of Power',
     icon: 'crown',
-    markerIcon: '/Icons/crown.svg',
-    markerBackdrop: '/Icons/crown_under.svg',
+    markerIcon: iconAssetPath('crown'),
+    markerBackdrop: iconAssetPath('crown_under'),
   },
 ];
 

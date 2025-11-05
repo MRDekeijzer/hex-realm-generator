@@ -15,6 +15,7 @@ import {
 } from '@/features/realm/config/constants';
 import { Icon } from '../Icon';
 import { getHexCorners, getBarrierPath, getNeighbors } from '@/features/realm/utils/hexUtils';
+import { iconAssetPath } from '@/shared/utils/publicAssetPath';
 
 const hexToRgbaWithAlpha = (hex: string, alphaMultiplier = 1): string => {
   if (!hex.startsWith('#')) {
@@ -65,7 +66,7 @@ const createMaskStyle = (src: string): React.CSSProperties => ({
   maskPosition: 'center',
 });
 
-const seatOfPowerIconStyle = createMaskStyle('/Icons/crown.svg');
+const seatOfPowerIconStyle = createMaskStyle(iconAssetPath('crown'));
 
 const Switch = ({
   id,

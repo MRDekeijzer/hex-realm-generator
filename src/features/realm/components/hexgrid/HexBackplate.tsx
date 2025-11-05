@@ -12,6 +12,7 @@ import {
   SEAT_OF_POWER_OVERLAY_LAYOUT,
 } from '@/features/realm/config/constants';
 import { Icon } from '../Icon';
+import { iconAssetPath } from '@/shared/utils/publicAssetPath';
 
 interface HexBackplateProps {
   activeTile: Tile | null;
@@ -25,8 +26,8 @@ interface HexBackplateProps {
   seatOfPowerBackdropColor: string;
 }
 
-const SEAT_OF_POWER_ICON_PATH = '/Icons/crown.svg';
-const SEAT_OF_POWER_BACKDROP_PATH = '/Icons/crown_under.svg';
+const SEAT_OF_POWER_ICON_PATH = iconAssetPath('crown');
+const SEAT_OF_POWER_BACKDROP_PATH = iconAssetPath('crown_under');
 
 const maskAssetCache = new Map<string, string>();
 

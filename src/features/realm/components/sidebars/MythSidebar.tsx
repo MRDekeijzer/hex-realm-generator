@@ -75,9 +75,9 @@ export function MythSidebar({
 
   const resolvedFillColor = mythMarkerFillColor.toUpperCase();
   const resolvedBorderColor = mythMarkerBorderColor.toUpperCase();
-  const defaultFillColor = DEFAULT_MYTH_MARKER_FILL_COLOR.toUpperCase();
-  const defaultBorderColor = DEFAULT_MYTH_MARKER_BORDER_COLOR.toUpperCase();
-  const defaultBorderWidth = DEFAULT_MYTH_MARKER_BORDER_WIDTH;
+  const defaultFillColor = (DEFAULT_MYTH_MARKER_FILL_COLOR || '#FF0000').toUpperCase();
+  const defaultBorderColor = (DEFAULT_MYTH_MARKER_BORDER_COLOR || '#000000').toUpperCase();
+  const defaultBorderWidth = DEFAULT_MYTH_MARKER_BORDER_WIDTH || 2;
   const formattedBorderWidth = mythMarkerBorderWidth.toFixed(2).replace(/\.?0+$/, '');
 
   return (
