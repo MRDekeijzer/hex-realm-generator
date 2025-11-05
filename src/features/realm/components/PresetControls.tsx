@@ -1,11 +1,12 @@
 /**
  * @file PresetControls.tsx
  * Renders a floating panel that lets users save and load up to three presets
- * directly to localStorage. Presets capture the full realm export payload so
- * that restoring a state is instant and offline-friendly.
+ * with optional persistence to localStorage once the user grants consent.
+ * Presets capture the full realm export payload so that restoring a state is
+ * instant and offline-friendly.
  */
 
-import React, { useCallback, useEffect, useId, useState } from 'react';
+import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import type { RealmExportData } from '@/features/realm/types';
 import { Icon } from './Icon';
 
@@ -13,6 +14,20 @@ const STORAGE_PREFIX = 'hex-realm-generator:preset:';
 const SLOT_COUNT = 3;
 const NAME_SUFFIX = ':name';
 const COLLAPSE_STORAGE_KEY = `${STORAGE_PREFIX}collapsed`;
+const STORAGE_CONSENT_KEY = `${STORAGE_PREFIX}storage-consent`;
+
+type StorageMode = 'prompt' | 'local' | 'memory';
+
+const safeGetLocalStorage = (): Storage | null => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+};
 
 interface PresetControlsProps {
   /** Returns the current realm export payload, or null if the realm is unavailable. */
@@ -29,24 +44,24 @@ interface PresetSlot {
   name: string;
 }
 
-const loadSlotFromStorage = (slotIndex: number): RealmExportData | null => {
-  if (typeof window === 'undefined' || !window.localStorage) return null;
-  const raw = window.localStorage.getItem(`${STORAGE_PREFIX}${slotIndex}`);
+const loadSlotFromStorage = (storage: Storage | null, slotIndex: number): RealmExportData | null => {
+  if (!storage) return null;
+  const raw = storage.getItem(`${STORAGE_PREFIX}${slotIndex}`);
   if (!raw) return null;
   try {
     return JSON.parse(raw) as RealmExportData;
   } catch {
-    window.localStorage.removeItem(`${STORAGE_PREFIX}${slotIndex}`);
+    storage.removeItem(`${STORAGE_PREFIX}${slotIndex}`);
     return null;
   }
 };
 
-const getStoredCollapseState = (): boolean => {
-  if (typeof window === 'undefined' || !window.localStorage) {
+const getStoredCollapseState = (storage: Storage | null): boolean => {
+  if (!storage) {
     return false;
   }
   try {
-    return window.localStorage.getItem(COLLAPSE_STORAGE_KEY) === 'true';
+    return storage.getItem(COLLAPSE_STORAGE_KEY) === 'true';
   } catch {
     return false;
   }
@@ -54,12 +69,12 @@ const getStoredCollapseState = (): boolean => {
 
 const defaultSlotName = (slotIndex: number) => `Preset ${slotIndex}`;
 
-const loadSlotName = (slotIndex: number): string => {
-  if (typeof window === 'undefined' || !window.localStorage) {
+const loadSlotName = (storage: Storage | null, slotIndex: number): string => {
+  if (!storage) {
     return defaultSlotName(slotIndex);
   }
   try {
-    const stored = window.localStorage.getItem(`${STORAGE_PREFIX}${slotIndex}${NAME_SUFFIX}`);
+    const stored = storage.getItem(`${STORAGE_PREFIX}${slotIndex}${NAME_SUFFIX}`);
     const trimmed = stored?.trim();
     if (!trimmed) {
       return defaultSlotName(slotIndex);
@@ -70,24 +85,28 @@ const loadSlotName = (slotIndex: number): string => {
   }
 };
 
-const persistSlotName = (slotIndex: number, value: string) => {
-  if (typeof window === 'undefined' || !window.localStorage) {
+const persistSlotName = (storage: Storage | null, slotIndex: number, value: string) => {
+  if (!storage) {
     return;
   }
   try {
     const trimmed = value.trim();
     if (trimmed) {
-      window.localStorage.setItem(
-        `${STORAGE_PREFIX}${slotIndex}${NAME_SUFFIX}`,
-        trimmed.slice(0, 50)
-      );
+      storage.setItem(`${STORAGE_PREFIX}${slotIndex}${NAME_SUFFIX}`, trimmed.slice(0, 50));
     } else {
-      window.localStorage.removeItem(`${STORAGE_PREFIX}${slotIndex}${NAME_SUFFIX}`);
+      storage.removeItem(`${STORAGE_PREFIX}${slotIndex}${NAME_SUFFIX}`);
     }
   } catch (error) {
     console.warn('Failed to persist preset name', error);
   }
 };
+
+const createSlots = (storage: Storage | null): PresetSlot[] =>
+  Array.from({ length: SLOT_COUNT }, (_, idx) => ({
+    index: idx + 1,
+    data: loadSlotFromStorage(storage, idx + 1),
+    name: loadSlotName(storage, idx + 1),
+  }));
 
 /**
  * Floating preset controls rendered near the top-right corner of the viewport.
@@ -97,34 +116,74 @@ export function PresetControls({
   onLoadPreset,
   onShowMessage,
 }: PresetControlsProps) {
-  const [slots, setSlots] = useState<PresetSlot[]>(() =>
-    Array.from({ length: SLOT_COUNT }, (_, idx) => ({
-      index: idx + 1,
-      data: loadSlotFromStorage(idx + 1),
-      name: loadSlotName(idx + 1),
-    }))
-  );
-  const [isCollapsed, setIsCollapsed] = useState<boolean>(() => getStoredCollapseState());
-  const panelId = useId();
-
-  const refreshSlot = useCallback((slotIndex: number) => {
-    setSlots((prev) =>
-      prev.map((slot) =>
-        slot.index === slotIndex
-          ? {
-              ...slot,
-              data: loadSlotFromStorage(slotIndex),
-              name: loadSlotName(slotIndex),
-            }
-          : slot
-      )
-    );
+  const initialConfig = useMemo(() => {
+    const storage = safeGetLocalStorage();
+    if (!storage) {
+      return {
+        mode: 'memory' as StorageMode,
+        slots: createSlots(null),
+        collapsed: false,
+        storageAvailable: false,
+      };
+    }
+    const consentGranted = storage.getItem(STORAGE_CONSENT_KEY) === 'granted';
+    return {
+      mode: consentGranted ? ('local' as StorageMode) : ('prompt' as StorageMode),
+      slots: consentGranted ? createSlots(storage) : createSlots(null),
+      collapsed: consentGranted ? getStoredCollapseState(storage) : false,
+      storageAvailable: true,
+    };
   }, []);
 
+  const [storageMode, setStorageMode] = useState<StorageMode>(initialConfig.mode);
+  const [slots, setSlots] = useState<PresetSlot[]>(initialConfig.slots);
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(initialConfig.collapsed);
+  const lastCommittedNamesRef = useRef<Map<number, string>>(
+    new Map(initialConfig.slots.map((slot) => [slot.index, slot.name]))
+  );
+  const isLocalStorageAvailable = initialConfig.storageAvailable;
+  const isLocalStorageEnabled = storageMode === 'local';
+  const panelId = useId();
+
+  const refreshSlot = useCallback(
+    (slotIndex: number) => {
+      if (!isLocalStorageEnabled) {
+        return;
+      }
+      const storage = safeGetLocalStorage();
+      if (!storage) {
+        setStorageMode('memory');
+        return;
+      }
+      const nextData = loadSlotFromStorage(storage, slotIndex);
+      const nextName = loadSlotName(storage, slotIndex);
+      lastCommittedNamesRef.current.set(slotIndex, nextName);
+      setSlots((prev) =>
+        prev.map((slot) =>
+          slot.index === slotIndex
+            ? {
+                ...slot,
+                data: nextData,
+                name: nextName,
+              }
+            : slot
+        )
+      );
+    },
+    [isLocalStorageEnabled, lastCommittedNamesRef, setStorageMode]
+  );
+
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (!isLocalStorageEnabled || typeof window === 'undefined') {
+      return;
+    }
+    const storage = safeGetLocalStorage();
+    if (!storage) {
+      setStorageMode('memory');
+      return;
+    }
     const handleStorage = (event: StorageEvent) => {
-      if (event.storageArea !== window.localStorage || !event.key) return;
+      if (event.storageArea !== storage || !event.key) return;
       if (event.key === COLLAPSE_STORAGE_KEY) {
         setIsCollapsed(event.newValue === 'true');
         return;
@@ -138,16 +197,24 @@ export function PresetControls({
     };
     window.addEventListener('storage', handleStorage);
     return () => window.removeEventListener('storage', handleStorage);
-  }, [refreshSlot]);
+  }, [isLocalStorageEnabled, refreshSlot, setStorageMode]);
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !window.localStorage) return;
+    if (!isLocalStorageEnabled) {
+      return;
+    }
+    const storage = safeGetLocalStorage();
+    if (!storage) {
+      setStorageMode('memory');
+      return;
+    }
     try {
-      window.localStorage.setItem(COLLAPSE_STORAGE_KEY, String(isCollapsed));
+      storage.setItem(COLLAPSE_STORAGE_KEY, String(isCollapsed));
     } catch (error) {
       console.warn('Failed to persist preset collapse state', error);
+      setStorageMode('memory');
     }
-  }, [isCollapsed]);
+  }, [isCollapsed, isLocalStorageEnabled, setStorageMode]);
 
   const showMessage = useCallback(
     (title: string, message: string, isInfo = true) => {
@@ -158,35 +225,79 @@ export function PresetControls({
 
   const handleSave = useCallback(
     (slotIndex: number) => {
-      if (typeof window === 'undefined' || !window.localStorage) {
-        showMessage(
-          'Preset Unavailable',
-          'Local storage is not accessible in this environment.',
-          true
-        );
-        return;
-      }
       const exportData = getExportData();
       if (!exportData) {
         showMessage('Nothing to Save', 'Generate or import a realm before saving a preset.', true);
         return;
       }
+      const slotName =
+        slots.find((s) => s.index === slotIndex)?.name?.trim() || defaultSlotName(slotIndex);
+
+      if (!isLocalStorageEnabled) {
+        setSlots((prev) =>
+          prev.map((slot) => (slot.index === slotIndex ? { ...slot, data: exportData } : slot))
+        );
+        if (storageMode === 'prompt' && isLocalStorageAvailable) {
+          showMessage(
+            'Enable Preset Storage',
+            `Allow local storage to keep ${slotName} between sessions. Presets saved now will last only for this session.`,
+            true
+          );
+        } else {
+          const reason = isLocalStorageAvailable
+            ? `${slotName} is stored for this session only because local preset storage is disabled.`
+            : `${slotName} is stored for this session only because local storage is unavailable in this environment.`;
+          showMessage('Preset Saved', reason, true);
+        }
+        return;
+      }
+
+      const storage = safeGetLocalStorage();
+      if (!storage) {
+        setStorageMode('memory');
+        setSlots((prev) =>
+          prev.map((slot) => (slot.index === slotIndex ? { ...slot, data: exportData } : slot))
+        );
+        showMessage(
+          'Preset Unavailable',
+          `${slotName} was stored for this session only because local storage is currently unavailable.`,
+          true
+        );
+        return;
+      }
+
       try {
-        window.localStorage.setItem(`${STORAGE_PREFIX}${slotIndex}`, JSON.stringify(exportData));
+        storage.setItem(`${STORAGE_PREFIX}${slotIndex}`, JSON.stringify(exportData));
         refreshSlot(slotIndex);
-        const slotName =
-          slots.find((s) => s.index === slotIndex)?.name?.trim() || defaultSlotName(slotIndex);
         showMessage('Preset Saved', `Stored the current realm in ${slotName}.`, true);
       } catch (error) {
         console.error('Failed to store preset', error);
         showMessage(
           'Save Failed',
-          'Could not write to local storage. Free up space and try again.',
+          `Could not write ${slotName} to local storage. The preset is available for this session only.`,
           true
+        );
+        setStorageMode('memory');
+        try {
+          storage.removeItem(STORAGE_CONSENT_KEY);
+        } catch {
+          // Ignore cleanup failures
+        }
+        setSlots((prev) =>
+          prev.map((slot) => (slot.index === slotIndex ? { ...slot, data: exportData } : slot))
         );
       }
     },
-    [getExportData, refreshSlot, showMessage, slots]
+    [
+      getExportData,
+      isLocalStorageAvailable,
+      isLocalStorageEnabled,
+      refreshSlot,
+      setStorageMode,
+      showMessage,
+      slots,
+      storageMode,
+    ]
   );
 
   const handleLoad = useCallback(
@@ -205,6 +316,64 @@ export function PresetControls({
     [onLoadPreset, showMessage, slots]
   );
 
+  const handleEnableLocalStorage = useCallback(() => {
+    const storage = safeGetLocalStorage();
+    if (!storage) {
+      showMessage(
+        'Storage Unavailable',
+        'Local storage cannot be accessed in this environment.',
+        true
+      );
+      setStorageMode('memory');
+      return;
+    }
+    try {
+      storage.setItem(STORAGE_CONSENT_KEY, 'granted');
+      slots.forEach((slot) => {
+        if (slot.data) {
+          storage.setItem(`${STORAGE_PREFIX}${slot.index}`, JSON.stringify(slot.data));
+        } else {
+          storage.removeItem(`${STORAGE_PREFIX}${slot.index}`);
+        }
+        persistSlotName(storage, slot.index, slot.name);
+      });
+      storage.setItem(COLLAPSE_STORAGE_KEY, String(isCollapsed));
+      const nextSlots = createSlots(storage);
+      setSlots(nextSlots);
+      lastCommittedNamesRef.current = new Map(
+        nextSlots.map((slot) => [slot.index, slot.name])
+      );
+      setStorageMode('local');
+      showMessage(
+        'Preset Storage Enabled',
+        'Presets you save will now persist between sessions.',
+        true
+      );
+    } catch (error) {
+      console.error('Failed to enable preset storage', error);
+      try {
+        storage.removeItem(STORAGE_CONSENT_KEY);
+      } catch {
+        // Ignore cleanup failures
+      }
+      showMessage(
+        'Storage Error',
+        'Could not enable local storage. Presets will remain available for this session only.',
+        true
+      );
+      setStorageMode('memory');
+    }
+  }, [isCollapsed, lastCommittedNamesRef, setSlots, setStorageMode, showMessage, slots]);
+
+  const handleDeclineLocalStorage = useCallback(() => {
+    setStorageMode('memory');
+    showMessage(
+      'Preset Storage Disabled',
+      'Presets you save will be kept only for this session. You can enable local storage at any time.',
+      true
+    );
+  }, [setStorageMode, showMessage]);
+
   const toggleCollapse = useCallback(() => {
     setIsCollapsed((prev) => !prev);
   }, []);
@@ -215,13 +384,24 @@ export function PresetControls({
     );
   }, []);
 
-  const handleSlotNameCommit = useCallback((slotIndex: number, value: string) => {
-    const resolved = value.trim() ? value.trim().slice(0, 50) : defaultSlotName(slotIndex);
-    persistSlotName(slotIndex, value);
-    setSlots((prev) =>
-      prev.map((slot) => (slot.index === slotIndex ? { ...slot, name: resolved } : slot))
-    );
-  }, []);
+  const handleSlotNameCommit = useCallback(
+    (slotIndex: number, value: string) => {
+      const resolved = value.trim() ? value.trim().slice(0, 50) : defaultSlotName(slotIndex);
+      if (isLocalStorageEnabled) {
+        const storage = safeGetLocalStorage();
+        if (storage) {
+          persistSlotName(storage, slotIndex, value);
+        } else {
+          setStorageMode('memory');
+        }
+      }
+      setSlots((prev) =>
+        prev.map((slot) => (slot.index === slotIndex ? { ...slot, name: resolved } : slot))
+      );
+      lastCommittedNamesRef.current.set(slotIndex, resolved);
+    },
+    [isLocalStorageEnabled, lastCommittedNamesRef, setStorageMode]
+  );
 
   const formatTimestamp = (value: string | undefined) => {
     if (!value) return 'No save yet';
@@ -231,6 +411,57 @@ export function PresetControls({
   };
 
   const collapseToggleLabel = isCollapsed ? 'Expand preset controls' : 'Collapse preset controls';
+  const storageNotice = (() => {
+    if (!isLocalStorageAvailable) {
+      return (
+        <div className="rounded-md border border-border-panel-divider/60 bg-realm-command-panel-surface/40 px-2 py-2 text-[11px] leading-tight text-text-muted">
+          Local storage is not available. Presets stay available only while this tab is open.
+        </div>
+      );
+    }
+    if (storageMode === 'prompt') {
+      return (
+        <div className="rounded-md border border-border-panel-divider/60 bg-realm-command-panel-surface/40 px-2 py-2">
+          <p className="text-[11px] leading-tight text-text-muted">
+            Allow this app to store presets in your browser so they persist between sessions?
+          </p>
+          <div className="mt-2 flex gap-2">
+            <button
+              type="button"
+              onClick={handleEnableLocalStorage}
+              className="flex-1 px-2 py-1 rounded-md bg-actions-command-primary/20 hover:bg-actions-command-primary/40 text-text-high-contrast transition-colors"
+            >
+              Allow
+            </button>
+            <button
+              type="button"
+              onClick={handleDeclineLocalStorage}
+              className="flex-1 px-2 py-1 rounded-md bg-realm-command-panel-hover hover:bg-realm-command-panel-hover/80 text-text-high-contrast transition-colors"
+            >
+              Not now
+            </button>
+          </div>
+        </div>
+      );
+    }
+    if (storageMode === 'memory') {
+      return (
+        <div className="rounded-md border border-border-panel-divider/60 bg-realm-command-panel-surface/40 px-2 py-2">
+          <p className="text-[11px] leading-tight text-text-muted">
+            Presets you save will reset when this tab closes.
+          </p>
+          <button
+            type="button"
+            onClick={handleEnableLocalStorage}
+            className="mt-2 w-full px-2 py-1 rounded-md bg-actions-command-primary/20 hover:bg-actions-command-primary/40 text-text-high-contrast transition-colors"
+          >
+            Enable local preset storage
+          </button>
+        </div>
+      );
+    }
+    return null;
+  })();
 
   return (
     <div className="absolute left-4 top-[calc(4rem+0.5rem)] bg-realm-canvas-backdrop/80 border border-border-panel-divider rounded-lg shadow-lg w-60 z-10">
@@ -264,6 +495,7 @@ export function PresetControls({
         }`}
       >
         <div className="space-y-3">
+          {storageNotice}
           {slots.map((slot) => (
             <div
               key={slot.index}
@@ -284,7 +516,25 @@ export function PresetControls({
                       event.currentTarget.blur();
                     } else if (event.key === 'Escape') {
                       event.preventDefault();
-                      handleSlotNameChange(slot.index, loadSlotName(slot.index));
+                      if (isLocalStorageEnabled) {
+                        const storage = safeGetLocalStorage();
+                        if (storage) {
+                          const persistedName = loadSlotName(storage, slot.index);
+                          handleSlotNameChange(slot.index, persistedName);
+                          lastCommittedNamesRef.current.set(slot.index, persistedName);
+                        } else {
+                          setStorageMode('memory');
+                          const fallback =
+                            lastCommittedNamesRef.current.get(slot.index) ??
+                            defaultSlotName(slot.index);
+                          handleSlotNameChange(slot.index, fallback);
+                        }
+                      } else {
+                        const fallback =
+                          lastCommittedNamesRef.current.get(slot.index) ??
+                          defaultSlotName(slot.index);
+                        handleSlotNameChange(slot.index, fallback);
+                      }
                       event.currentTarget.blur();
                     }
                   }}

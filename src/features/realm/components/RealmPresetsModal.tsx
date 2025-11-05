@@ -228,8 +228,8 @@ export function RealmPresetsModal({
                   Color Palettes
                 </h3>
                 <p className="mt-1 text-xs text-text-muted">
-                  Harmonise the map and exports with high-impact palette swaps or refine every hue in
-                  Color Settings.
+                  Set custom colors for the map and exports with these custom palettes or refine
+                  every hue in Color Settings.
                 </p>
               </div>
               <div className="flex items-center gap-2">
