@@ -60,7 +60,10 @@ export function ToolsPalette({ activeTool, setActiveTool }: ToolsPaletteProps) {
   ];
 
   return (
-    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 p-2 bg-realm-canvas-backdrop/80 border border-border-panel-divider rounded-xl shadow-lg z-10">
+    <div
+      className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 p-2 bg-realm-canvas-backdrop/80 border border-border-panel-divider rounded-xl shadow-lg z-10"
+      data-tour-id="tools-palette"
+    >
       {tools.map((tool) => (
         <ToolButton
           key={tool.id}

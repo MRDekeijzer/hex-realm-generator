@@ -1,0 +1,75 @@
+[
+  {
+    "id": "welcome",
+    "title": "Welcome Adventurer",
+    "body": "Take a quick tour of Hex Realm Generator to see where everything lives. You can skip now or later if you already know the ropes.",
+    "placement": "center"
+  },
+  {
+    "id": "toolbar-overview",
+    "title": "Command Toolbar",
+    "body": "Generate fresh realms, open detailed settings, and toggle grid aids from here. The buttons react to your current context so you always know what tool is active.",
+    "target": "[data-tour-id='toolbar']",
+    "placement": "bottom"
+  },
+  {
+    "id": "toolbar-actions",
+    "title": "Presets, Import & Export",
+    "body": "Use these actions to open curated presets, import saved realms, and export JSON or PNG copies for your players. We'll open the presets panel next so you can see what's inside.",
+    "target": "[data-tour-id='toolbar-actions']",
+    "placement": "bottom"
+  },
+  {
+    "id": "presets-modal",
+    "title": "Preset Browser",
+    "body": "Browse generation templates and color palettes. Preview options instantly, apply them, or jump straight into fine-tuning settings from here.",
+    "target": "[data-tour-id='realm-presets-modal']",
+    "placement": "center",
+    "enterActions": [{ "type": "openRealmPresets" }],
+    "exitActions": [{ "type": "closeRealmPresets" }]
+  },
+  {
+    "id": "map-canvas",
+    "title": "Interactive Realm",
+    "body": "Pan, zoom, and click hexes to inspect or paint them. Tooltips and highlights adapt to whichever tool you select.",
+    "target": "[data-tour-id='realm-canvas']",
+    "placement": "center"
+  },
+  {
+    "id": "tools-palette",
+    "title": "Tool Palette",
+    "body": "Switch between Select, Terrain, Barrier, POI, and Myth tools. Shortcuts 1-5 jump to each mode so you can swap quickly mid-edit.",
+    "target": "[data-tour-id='tools-palette']",
+    "placement": "top",
+    "enterActions": [{ "type": "setActiveTool", "payload": "select" }]
+  },
+  {
+    "id": "terrain-colors",
+    "title": "Terrain Painter & Colors",
+    "body": "Pick a terrain type, tweak its swatch, upload custom icons, or sample colors from the map. These changes update live so you can dial in the perfect palette.",
+    "target": "[data-tour-id='terrain-sidebar']",
+    "placement": "right",
+    "enterActions": [{ "type": "setActiveTool", "payload": "terrain" }]
+  },
+  {
+    "id": "preset-controls",
+    "title": "Quick Save Slots",
+    "body": "Capture snapshots of the entire realm, name them, and reload in a click. Enable local storage to keep presets between browser sessions.",
+    "target": "[data-tour-id='preset-controls']",
+    "placement": "right",
+    "enterActions": [{ "type": "setActiveTool", "payload": "select" }]
+  },
+  {
+    "id": "history-controls",
+    "title": "Undo & Redo",
+    "body": "Need a do-over? Use these controls (or Ctrl+Z / Ctrl+Y) to step through your edit history without losing momentum.",
+    "target": "[data-tour-id='history-controls']",
+    "placement": "left"
+  },
+  {
+    "id": "finish",
+    "title": "You're Ready",
+    "body": "That's the tour! Explore at your own pace—open the presets, try the tools, and craft something legendary.",
+    "placement": "center"
+  }
+]

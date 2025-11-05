@@ -61,6 +61,7 @@ import { ConfirmationDialog } from '@/features/realm/components/ConfirmationDial
 import { HistoryControls } from '@/features/realm/components/HistoryControls';
 import { PresetControls } from '@/features/realm/components/PresetControls';
 import { RealmPresetsModal } from '@/features/realm/components/RealmPresetsModal';
+import { RealmTutorialOverlay } from '@/features/onboarding/RealmTutorialOverlay';
 import { generateTerrainTextures } from '@/features/realm/utils/textureUtils';
 import { normalizeKnightVisibility } from '@/features/realm/utils/visibilityUtils';
 import { getTerrainBaseColor } from '@/app/theme/colors';
@@ -178,6 +179,7 @@ const rememberCredits = () => {
   document.cookie = `${CREDITS_COOKIE_KEY}=true; expires=${expires.toUTCString()}; path=/`;
 };
 const SHORTCUT_TIPS_STORAGE_KEY = 'hex-realm-generator:ui:hide-shortcut-tips';
+const TUTORIAL_SESSION_KEY = 'hex-realm-generator:tutorial:dismissed';
 const TOOL_SHORTCUTS: Record<string, Tool> = {
   '1': 'select',
   '2': 'terrain',
@@ -252,10 +254,13 @@ export default function App() {
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isCreditsOpen, setIsCreditsOpen] = useState(false);
+  const [isCreditsCheckComplete, setIsCreditsCheckComplete] = useState(false);
   const [isRealmPresetsOpen, setIsRealmPresetsOpen] = useState(false);
   const [activeGenerationPresetId, setActiveGenerationPresetId] = useState<string | null>(null);
   const [activeColorPresetId, setActiveColorPresetId] = useState<string>(DEFAULT_COLOR_PRESET_ID);
   const presetSnapshotRef = useRef<RealmPresetSnapshot | null>(null);
+  const tutorialInitialToolRef = useRef<Tool | null>(null);
+  const [isTutorialOpen, setIsTutorialOpen] = useState(false);
   const [areShortcutTipsCollapsed, setAreShortcutTipsCollapsed] = useState<boolean>(() => {
     if (typeof window === 'undefined' || !window.localStorage) {
       return false;
@@ -273,10 +278,12 @@ export default function App() {
 
   useEffect(() => {
     if (hasSeenCredits()) {
+      setIsCreditsCheckComplete(true);
       return;
     }
     setIsCreditsOpen(true);
     rememberCredits();
+    setIsCreditsCheckComplete(true);
   }, []);
 
   useEffect(() => {
@@ -309,6 +316,29 @@ export default function App() {
       };
     });
   }, [realm?.myths, tileSets, setViewOptions]);
+
+  useEffect(() => {
+    if (tutorialInitialToolRef.current !== null) {
+      return;
+    }
+    if (!isCreditsCheckComplete || isCreditsOpen) {
+      return;
+    }
+    if (typeof window === 'undefined') {
+      return;
+    }
+    let shouldOpen = true;
+    try {
+      shouldOpen = window.sessionStorage?.getItem(TUTORIAL_SESSION_KEY) !== 'true';
+    } catch {
+      shouldOpen = true;
+    }
+    if (!shouldOpen) {
+      return;
+    }
+    tutorialInitialToolRef.current = activeTool;
+    setIsTutorialOpen(true);
+  }, [activeTool, isCreditsCheckComplete, isCreditsOpen]);
 
   const [realmShape, setRealmShape] = useState<'hex' | 'square'>('square');
   const [realmRadius, setRealmRadius] = useState<number>(DEFAULT_GRID_SIZE);
@@ -761,6 +791,46 @@ export default function App() {
       handleOpenRealmPresets();
     }
   }, [isRealmPresetsOpen, handleDismissRealmPresets, handleOpenRealmPresets]);
+
+  const tutorialActionHandlers = useMemo(
+    () => ({
+      setActiveTool: (tool: Tool) => {
+        setActiveTool(tool);
+      },
+      openRealmPresets: () => {
+        if (!isRealmPresetsOpen) {
+          handleOpenRealmPresets();
+        }
+      },
+      closeRealmPresets: () => {
+        if (isRealmPresetsOpen) {
+          handleDismissRealmPresets();
+        }
+      },
+    }),
+    [handleDismissRealmPresets, handleOpenRealmPresets, isRealmPresetsOpen, setActiveTool]
+  );
+
+  const handleTutorialDismiss = useCallback(
+    (_outcome: 'completed' | 'skipped') => {
+      if (typeof window !== 'undefined' && window.sessionStorage) {
+        try {
+          window.sessionStorage.setItem(TUTORIAL_SESSION_KEY, 'true');
+        } catch (error) {
+          console.warn('Failed to persist tutorial preference', error);
+        }
+      }
+      setIsTutorialOpen(false);
+      if (tutorialInitialToolRef.current) {
+        setActiveTool(tutorialInitialToolRef.current);
+      }
+      tutorialInitialToolRef.current = null;
+      if (isRealmPresetsOpen) {
+        handleDismissRealmPresets();
+      }
+    },
+    [handleDismissRealmPresets, isRealmPresetsOpen, setActiveTool]
+  );
 
   /**
    * Effect to handle tool-specific state changes when the active tool is switched.
@@ -1771,7 +1841,7 @@ export default function App() {
         colorSettings={colorSettingsHandlers}
       />
       <div className="flex flex-1 overflow-hidden">
-        <main className="flex-1 bg-realm-map-viewport relative">
+        <main className="flex-1 bg-realm-map-viewport relative" data-tour-id="realm-canvas">
           {realm ? (
             <HexGrid
               realm={realm}
@@ -1893,6 +1963,11 @@ export default function App() {
           canRedo={canRedo}
         />
       )}
+      <RealmTutorialOverlay
+        isOpen={isTutorialOpen}
+        onDismiss={handleTutorialDismiss}
+        actionHandlers={tutorialActionHandlers}
+      />
     </div>
   );
 }

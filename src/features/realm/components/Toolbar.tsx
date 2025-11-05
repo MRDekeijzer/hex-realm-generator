@@ -190,7 +190,10 @@ export function Toolbar({
   };
 
   return (
-    <header className="flex items-center justify-between p-2 bg-realm-canvas-backdrop border-b border-border-panel-divider shadow-md z-10">
+    <header
+      className="flex items-center justify-between p-2 bg-realm-canvas-backdrop border-b border-border-panel-divider shadow-md z-10"
+      data-tour-id="toolbar"
+    >
       <div className="flex items-center gap-2">
         <SettingsModal
           isOpen={isSettingsOpen}
@@ -277,7 +280,7 @@ export function Toolbar({
         </ToolbarButton>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2" data-tour-id="toolbar-actions">
         <ToolbarButton
           onClick={onToggleRealmPresets}
           icon="layers"

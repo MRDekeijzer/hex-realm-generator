@@ -129,7 +129,10 @@ export function RealmPresetsModal({
       aria-labelledby="realm-presets-title"
       onMouseDown={handleBackdropMouseDown}
     >
-      <div className="relative flex w-full max-w-4xl flex-col overflow-hidden rounded-xl border border-border-panel-divider bg-realm-canvas-backdrop shadow-xl animate-fade-in">
+      <div
+        className="relative flex w-full max-w-4xl flex-col overflow-hidden rounded-xl border border-border-panel-divider bg-realm-canvas-backdrop shadow-xl animate-fade-in"
+        data-tour-id="realm-presets-modal"
+      >
         <button
           type="button"
           onClick={onCancel}

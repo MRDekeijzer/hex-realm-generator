@@ -464,7 +464,10 @@ export function PresetControls({
   })();
 
   return (
-    <div className="absolute left-4 top-[calc(4rem+0.5rem)] bg-realm-canvas-backdrop/80 border border-border-panel-divider rounded-lg shadow-lg w-60 z-10">
+    <div
+      className="absolute left-4 top-[calc(4rem+0.5rem)] bg-realm-canvas-backdrop/80 border border-border-panel-divider rounded-lg shadow-lg w-60 z-10"
+      data-tour-id="preset-controls"
+    >
       <div className="flex items-center justify-between px-3 py-2 border-b border-border-panel-divider">
         <div className="flex items-center gap-2">
           <Icon name="layers" className="w-4 h-4 text-text-muted" aria-hidden="true" />

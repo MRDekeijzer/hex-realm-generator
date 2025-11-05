@@ -24,7 +24,10 @@ interface HistoryControlsProps {
  */
 export function HistoryControls({ onUndo, onRedo, canUndo, canRedo }: HistoryControlsProps) {
   return (
-    <div className="absolute bottom-4 right-[21rem] bg-realm-canvas-backdrop/80 border border-border-panel-divider p-2 rounded-lg shadow-lg flex items-center gap-2 z-10">
+    <div
+      className="absolute bottom-4 right-[21rem] bg-realm-canvas-backdrop/80 border border-border-panel-divider p-2 rounded-lg shadow-lg flex items-center gap-2 z-10"
+      data-tour-id="history-controls"
+    >
       <button
         onClick={onUndo}
         disabled={!canUndo}
