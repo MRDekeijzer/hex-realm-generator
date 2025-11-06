@@ -14,6 +14,8 @@ interface SettingSliderProps {
   label: string;
   /** An optional tooltip for the label. */
   tooltip?: string;
+  /** Optional className applied to the container. */
+  className?: string;
   /** The current value of the slider. */
   value: number;
   /** Callback function when the slider value changes. */
@@ -39,6 +41,7 @@ interface SettingSliderProps {
 export const SettingSlider = ({
   label,
   tooltip,
+  className,
   value,
   onChange,
   min = 0,
@@ -78,7 +81,7 @@ export const SettingSlider = ({
   };
 
   return (
-    <div>
+    <div className={className}>
       <div className="flex justify-between items-center mb-1">
         <div className="flex items-center gap-2">
           <label htmlFor={inputId} className="text-sm font-medium text-text-muted">

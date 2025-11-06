@@ -14,6 +14,7 @@ import {
   DEFAULT_MYTH_MARKER_BORDER_WIDTH,
 } from '@/features/realm/config/constants';
 import { TerrainColorSwatch } from '../ui/TerrainColorSwatch';
+import { SettingSlider } from '../ui/SettingSlider';
 
 /**
  * Props for the MythSidebar component.
@@ -78,7 +79,6 @@ export function MythSidebar({
   const defaultFillColor = (DEFAULT_MYTH_MARKER_FILL_COLOR || '#FF0000').toUpperCase();
   const defaultBorderColor = (DEFAULT_MYTH_MARKER_BORDER_COLOR || '#000000').toUpperCase();
   const defaultBorderWidth = DEFAULT_MYTH_MARKER_BORDER_WIDTH || 2;
-  const formattedBorderWidth = mythMarkerBorderWidth.toFixed(2).replace(/\.?0+$/, '');
 
   return (
     <aside
@@ -95,7 +95,7 @@ export function MythSidebar({
           <Icon name="close" className="w-5 h-5" />
         </button>
       </div>
-      <div className="flex flex-col gap-4 overflow-y-auto pr-2">
+      <div className="flex flex-col gap-4 overflow-y-auto overflow-x-hidden pr-2">
         <div>
           <h3 className="text-lg font-semibold mb-2">All Myths</h3>
           {realm.myths.length > 0 ? (
@@ -224,30 +224,24 @@ export function MythSidebar({
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <span className="w-10 text-[10px] font-medium uppercase tracking-wide text-text-muted">
-                Width
-              </span>
-              <div className="flex flex-1 items-center gap-2 rounded-sm px-2 py-1">
-                <input
-                  type="range"
-                  aria-label="Set myth marker border width"
-                  min="0"
-                  max="8"
-                  step="0.25"
-                  value={mythMarkerBorderWidth}
-                  onChange={(event) => {
-                    const parsed = parseFloat(event.target.value);
-                    onUpdateMythMarkerBorderWidth(
-                      Number.isFinite(parsed) ? parsed : defaultBorderWidth
-                    );
-                  }}
-                  className="h-2 flex-1 cursor-pointer accent-actions-command-primary/80"
-                />
-                <span className="w-12 text-right font-mono text-[10px] text-text-high-contrast">
-                  {formattedBorderWidth}px
-                </span>
-              </div>
+            <div className="pt-1">
+              <SettingSlider
+                label="Border Width"
+                tooltip="Adjust the myth marker border thickness."
+                className="w-full min-w-0"
+                value={mythMarkerBorderWidth}
+                min={0}
+                max={8}
+                step={0.25}
+                round={false}
+                displayMultiplier={1}
+                displaySuffix="px"
+                onChange={(nextValue) => {
+                  onUpdateMythMarkerBorderWidth(
+                    Number.isFinite(nextValue) ? nextValue : defaultBorderWidth
+                  );
+                }}
+              />
             </div>
           </div>
         </section>
