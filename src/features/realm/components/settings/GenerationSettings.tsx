@@ -20,7 +20,6 @@ interface GenerationSettingsProps {
   ) => void;
   handleClusteringChange: (terrainA: string, terrainB: string, value: number) => void;
   handleTerrainBiasChange: (terrainId: string, value: number) => void;
-  onApplyTemplate: (templateOptions: Partial<GenerationOptions>) => void;
   tileSets: TileSet;
 }
 
@@ -33,7 +32,6 @@ export const GenerationSettings = ({
   onGenerationOptionChange,
   handleClusteringChange,
   handleTerrainBiasChange,
-  onApplyTemplate,
   tileSets,
 }: GenerationSettingsProps) => {
   const [draggedTerrainId, setDraggedTerrainId] = useState<string | null>(null);

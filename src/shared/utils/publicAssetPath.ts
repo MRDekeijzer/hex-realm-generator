@@ -1,16 +1,33 @@
-const resolveBaseWithOrigin = (): string => {
-  const rawBase = import.meta.env.BASE_URL ?? '/';
-  const withTrailingSlash = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
-  const withLeadingSlash = withTrailingSlash.startsWith('/')
-    ? withTrailingSlash
-    : `/${withTrailingSlash}`;
+interface ImportMetaEnvWithBase {
+  readonly BASE_URL?: string;
+}
 
-  if (typeof window !== 'undefined') {
-    const origin = window.location.origin.replace(/\/$/, '');
-    return `${origin}${withLeadingSlash}`;
+interface ImportMetaWithBase extends ImportMeta {
+  readonly env: ImportMetaEnvWithBase;
+}
+
+const normalizeBasePath = (value: string): string => {
+  const trimmed = value.trim();
+  const ensuredTrailingSlash = trimmed.endsWith('/') ? trimmed : `${trimmed}/`;
+  return ensuredTrailingSlash.startsWith('/') ? ensuredTrailingSlash : `/${ensuredTrailingSlash}`;
+};
+
+const resolveBaseWithOrigin = (): string => {
+  const rawBaseValue = (import.meta as ImportMetaWithBase).env?.BASE_URL;
+  const baseCandidate =
+    typeof rawBaseValue === 'string' && rawBaseValue.length > 0 ? rawBaseValue : '/';
+  const normalizedBase = normalizeBasePath(baseCandidate);
+
+  if (typeof window !== 'undefined' && typeof window.location?.origin === 'string') {
+    try {
+      return new URL(normalizedBase, window.location.origin).href;
+    } catch {
+      const origin = window.location.origin.replace(/\/$/, '');
+      return `${origin}${normalizedBase}`;
+    }
   }
 
-  return withLeadingSlash;
+  return normalizedBase;
 };
 
 /**
@@ -20,7 +37,8 @@ const resolveBaseWithOrigin = (): string => {
 export const publicAssetPath = (relativePath: string): string => {
   const normalizedPath = relativePath.startsWith('/') ? relativePath.slice(1) : relativePath;
   const base = resolveBaseWithOrigin();
-  return `${base}${normalizedPath}`;
+  const ensuredBase = base.endsWith('/') ? base : `${base}/`;
+  return `${ensuredBase}${normalizedPath}`;
 };
 
 /**

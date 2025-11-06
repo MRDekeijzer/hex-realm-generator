@@ -1709,12 +1709,6 @@ export default function App() {
     []
   );
 
-  const handleApplyTemplate = useCallback(
-    (templateOptions: Partial<GenerationOptions>) =>
-      setGenerationOptions((prev) => ({ ...prev, ...templateOptions })),
-    []
-  );
-
   /**
    * Handles the start of a tile picking action from a painter tool.
    */
@@ -1903,7 +1897,6 @@ export default function App() {
         onGenerationOptionChange={handleGenerationOptionChange}
         handleClusteringChange={handleClusteringChange}
         handleTerrainBiasChange={handleTerrainBiasChange}
-        onApplyTemplate={handleApplyTemplate}
         tileSets={tileSets}
         setTileSets={setTileSets}
         isSettingsOpen={isSettingsOpen}

@@ -49,7 +49,6 @@ interface SettingsModalProps {
   ) => void;
   handleClusteringChange: (terrainA: string, terrainB: string, value: number) => void;
   handleTerrainBiasChange: (terrainId: string, value: number) => void;
-  onApplyTemplate: (templateOptions: Partial<GenerationOptions>) => void;
   viewOptions: ViewOptions;
   setViewOptions: React.Dispatch<React.SetStateAction<ViewOptions>>;
   myths: Myth[];
@@ -161,7 +160,6 @@ export const SettingsModal = ({ isOpen, onClose, settingsView, ...props }: Setti
                 onGenerationOptionChange={props.onGenerationOptionChange}
                 handleClusteringChange={props.handleClusteringChange}
                 handleTerrainBiasChange={props.handleTerrainBiasChange}
-                onApplyTemplate={props.onApplyTemplate}
                 tileSets={props.tileSets}
               />
             )}

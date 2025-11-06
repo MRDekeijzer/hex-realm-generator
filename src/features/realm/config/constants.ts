@@ -116,7 +116,7 @@ export const TILE_CHARACTERS: TileCharacter[] = [
   'lush',
 ];
 /** The default order of terrain types from highest elevation to lowest. */
-export const DEFAULT_TERRAIN_HEIGHT_ORDER = [
+export const DEFAULT_TERRAIN_HEIGHT_ORDER: GenerationOptions['terrainHeightOrder'] = [
   'peaks',
   'crags',
   'hills',

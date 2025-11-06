@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo } from 'react';
 import type { TileSet, ViewOptions } from '@/features/realm/types';
 import {
   DEFAULT_GRID_COLOR,
@@ -15,7 +15,6 @@ import {
 } from '@/features/realm/config/constants';
 import { SettingsSection } from '../ui/SettingsSection';
 import { TerrainColorSwatch } from '../ui/TerrainColorSwatch';
-import { Icon } from '../Icon';
 import { SettingSlider } from '../ui/SettingSlider';
 
 const rgbaToHexOpacity = (rgba: string): { hex: string; opacity: number } => {
@@ -109,7 +108,6 @@ export const ColorSettings: React.FC<ColorSettingsProps> = ({
   onUpdateBarrierColor,
   onResetBarrierColor,
 }) => {
-  const gridColorInputRef = useRef<HTMLInputElement>(null);
   const { hex: gridHexColor, opacity: gridOpacity } = useMemo(
     () => rgbaToHexOpacity(viewOptions.gridColor),
     [viewOptions.gridColor]
@@ -154,7 +152,11 @@ export const ColorSettings: React.FC<ColorSettingsProps> = ({
   const defaultMythMarkerBorderWidth = DEFAULT_MYTH_MARKER_BORDER_WIDTH;
   const hasCustomMythMarkerBorderWidth =
     Math.abs(mythMarkerBorderWidth - defaultMythMarkerBorderWidth) > 0.0001;
-  const mythMarkerBorderWidthLabel = mythMarkerBorderWidth.toFixed(2).replace(/\.?0+$/, '');
+  const handleResetMythMarkerBorderWidth = () => {
+    if (hasCustomMythMarkerBorderWidth) {
+      onResetMythMarkerBorderWidth();
+    }
+  };
   const resolvedSeatOfPowerIconColor = seatOfPowerIconColor?.toUpperCase?.() ?? '#000000';
   const resolvedSeatOfPowerBackdropColor = seatOfPowerBackdropColor?.toUpperCase?.() ?? '#000000';
   const defaultSeatOfPowerIconColor =
@@ -361,9 +363,18 @@ export const ColorSettings: React.FC<ColorSettingsProps> = ({
                 displayMultiplier={1}
                 displaySuffix="px"
                 round={false}
-                tooltip="Sets the orientation of the selected formation."
+                tooltip="Sets the width of the myth marker outline."
               />
             </div>
+            {hasCustomMythMarkerBorderWidth ? (
+              <button
+                type="button"
+                onClick={handleResetMythMarkerBorderWidth}
+                className="px-2 py-1 text-xs font-medium text-actions-command-primary border border-actions-command-primary/60 rounded-md hover:bg-actions-command-primary/10 transition-colors"
+              >
+                Reset
+              </button>
+            ) : null}
           </div>
         </div>
       </SettingsSection>

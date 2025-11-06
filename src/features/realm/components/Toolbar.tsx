@@ -52,7 +52,6 @@ interface ToolbarProps {
   ) => void;
   handleClusteringChange: (terrainA: string, terrainB: string, value: number) => void;
   handleTerrainBiasChange: (terrainId: string, value: number) => void;
-  onApplyTemplate: (templateOptions: Partial<GenerationOptions>) => void;
   tileSets: TileSet;
   setTileSets: React.Dispatch<React.SetStateAction<TileSet>>;
   isSettingsOpen: boolean;

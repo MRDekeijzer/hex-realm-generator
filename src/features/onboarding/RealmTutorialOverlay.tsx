@@ -416,7 +416,7 @@ export function RealmTutorialOverlay({
         return;
       }
 
-      const headingMatch = line.match(/^(#{1,3})\s+(.*)$/);
+      const headingMatch = /^(#{1,3})\s+(.*)$/.exec(line);
       if (headingMatch) {
         flushParagraph();
         flushList();
