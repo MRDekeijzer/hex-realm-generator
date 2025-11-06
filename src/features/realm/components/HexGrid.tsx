@@ -785,10 +785,10 @@ function HexGridComponent({
           onHoverStart={handleHexHoverStart}
           onHoverEnd={handleHexHoverEnd}
           hexCorners={hexCorners}
-            hexCornersInnerHighlight={hexCornersInnerHighlight}
-            hexBoundingBox={hexBoundingBox}
-            layer={layer}
-            poiIconColor={poiIconColor}
+          hexCornersInnerHighlight={hexCornersInnerHighlight}
+          hexBoundingBox={hexBoundingBox}
+          layer={layer}
+          poiIconColor={poiIconColor}
           poiBackdropColor={poiBackdropColor}
           mythMarkerFillColor={mythMarkerFillColor}
           mythMarkerBorderColor={mythMarkerBorderColor}
@@ -797,7 +797,7 @@ function HexGridComponent({
           seatOfPowerBackdropColor={seatOfPowerBackdropColor}
         />
       );
-      });
+    });
   };
 
   return (

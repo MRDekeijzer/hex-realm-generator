@@ -44,7 +44,10 @@ interface PresetSlot {
   name: string;
 }
 
-const loadSlotFromStorage = (storage: Storage | null, slotIndex: number): RealmExportData | null => {
+const loadSlotFromStorage = (
+  storage: Storage | null,
+  slotIndex: number
+): RealmExportData | null => {
   if (!storage) return null;
   const raw = storage.getItem(`${STORAGE_PREFIX}${slotIndex}`);
   if (!raw) return null;
@@ -340,9 +343,7 @@ export function PresetControls({
       storage.setItem(COLLAPSE_STORAGE_KEY, String(isCollapsed));
       const nextSlots = createSlots(storage);
       setSlots(nextSlots);
-      lastCommittedNamesRef.current = new Map(
-        nextSlots.map((slot) => [slot.index, slot.name])
-      );
+      lastCommittedNamesRef.current = new Map(nextSlots.map((slot) => [slot.index, slot.name]));
       setStorageMode('local');
       showMessage(
         'Preset Storage Enabled',

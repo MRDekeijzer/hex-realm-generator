@@ -26,5 +26,4 @@ export const publicAssetPath = (relativePath: string): string => {
 /**
  * Convenience wrapper for icon assets stored in `public/Icons`.
  */
-export const iconAssetPath = (iconName: string): string =>
-  publicAssetPath(`Icons/${iconName}.svg`);
+export const iconAssetPath = (iconName: string): string => publicAssetPath(`Icons/${iconName}.svg`);
