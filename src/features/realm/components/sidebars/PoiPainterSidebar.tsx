@@ -262,13 +262,13 @@ const PoiSection = ({
         const appliedIconColor = isSeatOfPowerAction
           ? (seatOfPowerIconColor ?? DEFAULT_SEAT_OF_POWER_ICON_COLOR)
           : category === 'action'
-          ? null
-          : iconColor;
+            ? null
+            : iconColor;
         const appliedBackdropColor = isSeatOfPowerAction
-          ? seatOfPowerBackdropColor ?? DEFAULT_SEAT_OF_POWER_BACKDROP_COLOR
+          ? (seatOfPowerBackdropColor ?? DEFAULT_SEAT_OF_POWER_BACKDROP_COLOR)
           : category === 'action'
-          ? null
-          : backdropColor;
+            ? null
+            : backdropColor;
         return (
           <PoiButton
             key={fullId}
@@ -389,7 +389,7 @@ export function PoiPainterSidebar({
         )}
         <section className="space-y-4 rounded-lg border border-border-panel-divider bg-realm-map-viewport/60 p-3">
           <h3 className="text-sm font-semibold uppercase tracking-wide text-text-muted">
-            Marker Appearance
+            Point of Interest Appearance
           </h3>
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-3">
@@ -430,10 +430,10 @@ export function PoiPainterSidebar({
                 <span className="text-xs text-text-muted">
                   {backdropHasCustomColor ? backdropSwatchColor : 'Original artwork'}
                 </span>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
         <p className="text-sm text-text-muted">
           Select an item, then click a hex to place it. Use the upload controls to override icons or

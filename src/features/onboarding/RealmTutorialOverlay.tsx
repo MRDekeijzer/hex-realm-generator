@@ -1,14 +1,8 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { Tool } from '@/features/realm/types';
 import stepsData from './realmTutorialSteps.json';
+import { Icon } from '@/features/realm/components/Icon';
 
 type TutorialPlacement = 'top' | 'bottom' | 'left' | 'right' | 'center';
 
@@ -336,8 +330,13 @@ export function RealmTutorialOverlay({
   const renderBody = useCallback(() => {
     const raw = currentStep.body ?? '';
     const lines = raw.split('\n');
-    const blocks: Array<{ type: 'paragraph'; text: string } | { type: 'list'; items: string[] }> =
-      [];
+
+    type TutorialBlock =
+      | { type: 'paragraph'; text: string }
+      | { type: 'list'; items: string[] }
+      | { type: 'heading'; level: 1 | 2 | 3; text: string };
+
+    const blocks: TutorialBlock[] = [];
     let paragraphLines: string[] = [];
     let listItems: string[] | null = null;
 
@@ -354,6 +353,59 @@ export function RealmTutorialOverlay({
       listItems = null;
     };
 
+    const renderInlineContent = (content: string, keyPrefix: string) => {
+      const pattern = /(\*\*[^*]+\*\*)|(:[a-z0-9-]+:)/gi;
+      const nodes: React.ReactNode[] = [];
+      let lastIndex = 0;
+      let match: RegExpExecArray | null;
+      let segmentIndex = 0;
+
+      while ((match = pattern.exec(content)) !== null) {
+        const [token] = match;
+        if (match.index > lastIndex) {
+          const textSegment = content.slice(lastIndex, match.index);
+          if (textSegment.length) {
+            nodes.push(
+              <React.Fragment key={`${keyPrefix}-text-${segmentIndex}`}>
+                {textSegment}
+              </React.Fragment>
+            );
+            segmentIndex += 1;
+          }
+        }
+        if (token.startsWith('**')) {
+          const boldText = token.slice(2, -2);
+          nodes.push(
+            <strong key={`${keyPrefix}-bold-${segmentIndex}`} className="text-text-high-contrast">
+              {boldText}
+            </strong>
+          );
+        } else if (token.startsWith(':') && token.endsWith(':')) {
+          const iconName = token.slice(1, -1).toLowerCase();
+          nodes.push(
+            <Icon
+              key={`${keyPrefix}-icon-${segmentIndex}`}
+              name={iconName}
+              className="inline h-4 w-4 align-[-0.2em] text-white"
+              aria-hidden="true"
+            />
+          );
+        }
+        lastIndex = match.index + token.length;
+        segmentIndex += 1;
+      }
+
+      if (lastIndex < content.length) {
+        const tail = content.slice(lastIndex);
+        if (tail.length) {
+          nodes.push(
+            <React.Fragment key={`${keyPrefix}-text-${segmentIndex}`}>{tail}</React.Fragment>
+          );
+        }
+      }
+      return nodes;
+    };
+
     lines.forEach((rawLine, index) => {
       const line = rawLine.trim();
       const isLast = index === lines.length - 1;
@@ -361,6 +413,15 @@ export function RealmTutorialOverlay({
       if (!line) {
         flushParagraph();
         flushList();
+        return;
+      }
+
+      const headingMatch = line.match(/^(#{1,3})\s+(.*)$/);
+      if (headingMatch) {
+        flushParagraph();
+        flushList();
+        const level = headingMatch[1].length as 1 | 2 | 3;
+        blocks.push({ type: 'heading', level, text: headingMatch[2].trim() });
         return;
       }
 
@@ -381,11 +442,42 @@ export function RealmTutorialOverlay({
       }
     });
 
+    const renderHeading = (block: Extract<TutorialBlock, { type: 'heading' }>, index: number) => {
+      const baseKey = `${currentStep.id}-heading-${index}`;
+      const inline = renderInlineContent(block.text, baseKey);
+
+      if (block.level === 1) {
+        return (
+          <h3 key={baseKey} className="mt-4 text-base font-semibold text-text-high-contrast">
+            {inline}
+          </h3>
+        );
+      }
+      if (block.level === 2) {
+        return (
+          <h4 key={baseKey} className="mt-3 text-sm font-semibold text-text-high-contrast">
+            {inline}
+          </h4>
+        );
+      }
+      return (
+        <p
+          key={baseKey}
+          className="mt-3 text-[11px] font-semibold uppercase tracking-wide text-text-muted"
+        >
+          {inline}
+        </p>
+      );
+    };
+
     return blocks.map((block, index) => {
+      if (block.type === 'heading') {
+        return renderHeading(block, index);
+      }
       if (block.type === 'paragraph') {
         return (
           <p key={`${currentStep.id}-paragraph-${index}`} className="mt-2 text-sm text-text-muted">
-            {block.text}
+            {renderInlineContent(block.text, `${currentStep.id}-paragraph-${index}`)}
           </p>
         );
       }
@@ -395,7 +487,9 @@ export function RealmTutorialOverlay({
           className="mt-2 list-disc space-y-1 pl-5 text-sm text-text-muted"
         >
           {block.items.map((item, itemIndex) => (
-            <li key={`${currentStep.id}-list-${index}-item-${itemIndex}`}>{item}</li>
+            <li key={`${currentStep.id}-list-${index}-item-${itemIndex}`}>
+              {renderInlineContent(item, `${currentStep.id}-list-${index}-item-${itemIndex}`)}
+            </li>
           ))}
         </ul>
       );

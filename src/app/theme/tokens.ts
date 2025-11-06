@@ -92,52 +92,52 @@ export const semanticColors = {
 
 const terrain = {
   marsh: {
-    base: surface.panel,
-    deepwater: surface.panel,
+    base: basePalette.tide500,
+    deepwater: basePalette.tide500,
   },
   heath: {
-    base: intent.success,
-    brush: intent.success,
+    base: basePalette.gold500,
+    brush: basePalette.gold500,
   },
   crags: {
-    base: surface.map,
-    stone: surface.map,
+    base: basePalette.granite600,
+    stone: basePalette.granite600,
   },
   peaks: {
-    base: border['panel-divider'],
-    ridge: border['panel-divider'],
+    base: basePalette.obsidian950,
+    ridge: basePalette.obsidian950,
   },
   forest: {
-    base: intent.success,
-    canopy: intent.success,
+    base: basePalette.moss500,
+    canopy: basePalette.moss500,
   },
   valley: {
-    base: text.muted,
-    meander: text.muted,
+    base: basePalette.linen200,
+    meander: basePalette.linen200,
   },
   hills: {
-    base: intent['primary-hover'],
-    rise: intent['primary-hover'],
+    base: basePalette.gold400,
+    rise: basePalette.gold400,
   },
   meadow: {
-    base: surface.card,
-    bloom: surface.card,
+    base: basePalette.gold300,
+    bloom: basePalette.gold300,
   },
   bog: {
-    base: surface.map,
-    hollows: surface.map,
+    base: basePalette.obsidian900,
+    hollows: basePalette.obsidian900,
   },
   lakes: {
-    base: border['landmark-marker'],
-    surface: border['landmark-marker'],
+    base: basePalette.mist200,
+    surface: basePalette.mist200,
   },
   glades: {
-    base: text.subtle,
-    light: text.subtle,
+    base: basePalette.pearl100,
+    light: basePalette.pearl100,
   },
   plain: {
-    base: text.muted,
-    expanse: text.muted,
+    base: basePalette.gold600,
+    expanse: basePalette.gold600,
   },
 } as const;
 
