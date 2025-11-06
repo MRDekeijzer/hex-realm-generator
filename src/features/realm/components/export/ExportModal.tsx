@@ -14,6 +14,7 @@ import type {
 import { HexGrid } from '@/features/realm/components/HexGrid';
 import type { ConfirmationState } from '@/app/App';
 import { Icon } from '@/features/realm/components/Icon';
+import { Switch } from '@/features/realm/components/ui/Switch';
 
 interface ExportModalProps {
   isOpen: boolean;
@@ -161,60 +162,52 @@ export function ExportModal({
                 Appearance
               </h3>
               <div className="mt-2 flex flex-col gap-2 text-sm text-text-high-contrast">
-                <label className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
+                <label className="flex items-center gap-3" htmlFor="export-include-grid">
+                  <Switch
+                    id="export-include-grid"
                     checked={settings.includeGrid}
-                    onChange={(event) =>
-                      onSettingsChange({ ...settings, includeGrid: event.target.checked })
-                    }
-                    className="h-4 w-4 rounded border-border-panel-divider bg-realm-command-panel-surface text-actions-command-primary focus:ring-actions-command-primary"
+                    onChange={(next) => onSettingsChange({ ...settings, includeGrid: next })}
                   />
                   <span>Include grid lines</span>
                 </label>
-                <label className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    checked={includeIconSpray}
-                    onChange={(event) =>
-                      onSettingsChange({
-                        ...settings,
-                        includeIconSpray: isIconSprayEnabled ? event.target.checked : false,
-                      })
-                    }
-                    className="h-4 w-4 rounded border-border-panel-divider bg-realm-command-panel-surface text-actions-command-primary focus:ring-actions-command-primary"
-                    disabled={!isIconSprayEnabled}
-                  />
-                  <span className="flex flex-col">
-                    <span>Include icon spray</span>
-                    {!isIconSprayEnabled ? (
+                {isIconSprayEnabled ? (
+                  <label className="flex items-center gap-3" htmlFor="export-include-icon-spray">
+                    <Switch
+                      id="export-include-icon-spray"
+                      checked={includeIconSpray}
+                      onChange={(next) =>
+                        onSettingsChange({
+                          ...settings,
+                          includeIconSpray: isIconSprayEnabled ? next : false,
+                        })
+                      }
+                      disabled={!isIconSprayEnabled}
+                    />
+                    <span className="flex flex-col">
+                      <span>Include icon spray</span>
                       <span className="text-[11px] text-text-subtle">
                         Enable in Terrain settings to unlock this overlay.
                       </span>
-                    ) : null}
-                  </span>
-                </label>
-                <label className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
+                    </span>
+                  </label>
+                ) : null}
+                <label className="flex items-center gap-3" htmlFor="export-include-terrain-icons">
+                  <Switch
+                    id="export-include-terrain-icons"
                     checked={settings.includeTerrainIcons}
-                    onChange={(event) =>
-                      onSettingsChange({ ...settings, includeTerrainIcons: event.target.checked })
+                    onChange={(next) =>
+                      onSettingsChange({ ...settings, includeTerrainIcons: next })
                     }
-                    className="h-4 w-4 rounded border-border-panel-divider bg-realm-command-panel-surface text-actions-command-primary focus:ring-actions-command-primary"
                   />
                   <span>Include terrain icons</span>
                 </label>
-                <label className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
+                <label className="flex items-center gap-3" htmlFor="export-black-and-white">
+                  <Switch
+                    id="export-black-and-white"
                     checked={settings.blackAndWhite}
-                    onChange={(event) =>
-                      onSettingsChange({ ...settings, blackAndWhite: event.target.checked })
-                    }
-                    className="h-4 w-4 rounded border-border-panel-divider bg-realm-command-panel-surface text-actions-command-primary focus:ring-actions-command-primary"
+                    onChange={(next) => onSettingsChange({ ...settings, blackAndWhite: next })}
                   />
-                  <span>Export in black &amp; white</span>
+                  <span>Export in grayscale</span>
                 </label>
               </div>
             </div>
@@ -254,18 +247,20 @@ export function ExportModal({
                     isSettingsOpen={true}
                     isPickingTile={false}
                     onTilePick={noop}
-                      setConfirmation={noopConfirmationDispatch}
-                      terrainTextures={terrainTextures}
-                      isLoadingTextures={isLoadingTextures}
-                      poiIconColor={poiIconColor}
-                      poiBackdropColor={poiBackdropColor}
-                      mythMarkerFillColor={mythMarkerFillColor}
-                      mythMarkerBorderColor={mythMarkerBorderColor}
-                      mythMarkerBorderWidth={mythMarkerBorderWidth}
-                      seatOfPowerIconColor={seatOfPowerIconColor}
-                      seatOfPowerBackdropColor={seatOfPowerBackdropColor}
-                      svgId={previewSvgId}
+                    setConfirmation={noopConfirmationDispatch}
+                    terrainTextures={terrainTextures}
+                    isLoadingTextures={isLoadingTextures}
+                    poiIconColor={poiIconColor}
+                    poiBackdropColor={poiBackdropColor}
+                    mythMarkerFillColor={mythMarkerFillColor}
+                    mythMarkerBorderColor={mythMarkerBorderColor}
+                    mythMarkerBorderWidth={mythMarkerBorderWidth}
+                    seatOfPowerIconColor={seatOfPowerIconColor}
+                    seatOfPowerBackdropColor={seatOfPowerBackdropColor}
+                    svgId={previewSvgId}
                     isInteractive={false}
+                    shortcutTipsCollapsed={true}
+                    onToggleShortcutTips={noop}
                     staticPadding={previewPadding}
                   />
                 </div>

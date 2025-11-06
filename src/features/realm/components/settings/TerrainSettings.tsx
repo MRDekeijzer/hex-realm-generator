@@ -355,7 +355,7 @@ export const TerrainSettings = ({
                 Terrain Icon Spray
               </span>
               <span className="block text-xs text-text-muted">
-                Enable procedural icon scatter previews and per-terrain tuning.
+                Enable procedural icon scatter previews and per-terrain tuning (very experimenal).
               </span>
             </div>
             <div className="relative">
@@ -374,11 +374,6 @@ export const TerrainSettings = ({
               <div className="w-11 h-6 bg-realm-command-panel-surface rounded-full peer peer-checked:bg-actions-command-primary transition-colors after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-white" />
             </div>
           </label>
-          {!featureFlags.iconSpray ? (
-            <p className="text-xs text-text-muted">
-              Toggle the experiment to customize icon spray palettes for each terrain.
-            </p>
-          ) : null}
         </div>
       </SettingsSection>
       {featureFlags.iconSpray ? (

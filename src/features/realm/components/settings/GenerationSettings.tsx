@@ -4,7 +4,6 @@
 
 import React, { useMemo, useEffect, useState } from 'react';
 import type { GenerationOptions, TileSet, HighlandFormation } from '@/features/realm/types';
-import { TERRAIN_TEMPLATES } from '@/features/realm/config/constants';
 import { SettingsSection } from '../ui/SettingsSection';
 import { SettingSlider } from '../ui/SettingSlider';
 import { Icon } from '../Icon';
@@ -45,9 +44,9 @@ export const GenerationSettings = ({
         name: 'Random',
         icon: 'sparkles',
         description: [
-          'Ignores formation shape.',
+          'No formation shape.',
           'Elevation is purely noise-based.',
-          'Generates a chaotic landscape.',
+          'Generates a more chaotic landscape.',
         ],
       },
       {
@@ -56,8 +55,8 @@ export const GenerationSettings = ({
         icon: 'arrow-up',
         description: [
           'Creates a linear slope.',
-          "Highlands form at arrow's tip.",
-          'Good for continents.',
+          'Highlands form on one side, lowlands on the other.',
+          'Good for a gradual elevation change.',
         ],
       },
       {
@@ -66,8 +65,8 @@ export const GenerationSettings = ({
         icon: 'circle',
         description: [
           'Creates a circular formation.',
-          'Highlands form inside.',
-          'Good for central mountains.',
+          'Highlands form inside or outside.',
+          'Good for central mountains or central lakes.',
         ],
       },
       {
@@ -76,8 +75,8 @@ export const GenerationSettings = ({
         icon: 'triangle',
         description: [
           'Creates a triangular formation.',
-          'Highlands form inside.',
-          'Good for unique landmasses.',
+          'Highlands form inside or outside.',
+          'Good for unique landmasses (experimental).',
         ],
       },
     ],
@@ -137,55 +136,6 @@ export const GenerationSettings = ({
 
   return (
     <div className="space-y-6">
-      <SettingsSection title="Terrain Generation Templates">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {Object.values(TERRAIN_TEMPLATES).map((template) => (
-            <button
-              key={template.name}
-              onClick={() => onApplyTemplate(template.options)}
-              className="p-3 bg-realm-command-panel-surface rounded-md hover:bg-realm-command-panel-hover transition-colors text-center text-sm font-medium text-text-muted"
-            >
-              {template.name}
-            </button>
-          ))}
-        </div>
-      </SettingsSection>
-
-      <SettingsSection title="Terrain Height">
-        <p className="text-xs text-text-muted !mt-0">
-          Drag and drop to reorder terrain types from highest (top) to lowest (bottom). This order
-          determines elevation during map generation.
-        </p>
-        <ol className="space-y-1 bg-realm-canvas-backdrop p-2 rounded-md border border-border-panel-divider">
-          {generationOptions.terrainHeightOrder.map((terrainId) => {
-            const terrain = getTerrainTile(terrainId);
-            if (!terrain) return null;
-
-            const isDragging = draggedTerrainId === terrainId;
-
-            return (
-              <li
-                key={terrain.id}
-                draggable
-                onDragStart={(e) => handleDragStart(e, terrain.id)}
-                onDragOver={handleDragOver}
-                onDrop={(e) => handleDrop(e, terrain.id)}
-                onDragEnd={handleDragEnd}
-                className={`flex items-center gap-3 p-2 rounded-md transition-all duration-150 cursor-grab active:cursor-grabbing bg-realm-command-panel-surface border border-transparent ${
-                  isDragging
-                    ? 'opacity-50 border-dashed border-actions-command-primary'
-                    : 'hover:bg-realm-command-panel-hover'
-                }`}
-              >
-                <Icon name="grip-vertical" className="w-5 h-5 text-text-muted" />
-                <Icon name={terrain.icon} className="w-5 h-5 text-text-high-contrast" />
-                <span className="font-medium text-sm text-text-high-contrast">{terrain.label}</span>
-              </li>
-            );
-          })}
-        </ol>
-      </SettingsSection>
-
       <SettingsSection title="Highland Formation">
         <div className="grid grid-cols-2 gap-2">
           {formationOptions.map((option) => (
@@ -223,31 +173,18 @@ export const GenerationSettings = ({
             />
             {(generationOptions.highlandFormation === 'linear' ||
               generationOptions.highlandFormation === 'triangle') && (
-              <div className="grid grid-cols-2 gap-4 items-center pt-4 border-t border-border-panel-divider">
-                <div>
-                  <SettingSlider
-                    label="Formation Rotation"
-                    value={generationOptions.highlandFormationRotation}
-                    onChange={(v) => onGenerationOptionChange('highlandFormationRotation', v)}
-                    min={0}
-                    max={generationOptions.highlandFormation === 'triangle' ? 120 : 360}
-                    step={1}
-                    displayMultiplier={1}
-                    displaySuffix="°"
-                    tooltip="Sets the orientation of the selected formation."
-                  />
-                </div>
-                <div className="flex flex-col items-center justify-center text-center">
-                  <Icon
-                    name={
-                      generationOptions.highlandFormation === 'triangle' ? 'triangle' : 'arrow-up'
-                    }
-                    className="w-8 h-8 mx-auto mb-2 text-text-muted"
-                    style={{
-                      transform: `rotate(${generationOptions.highlandFormationRotation}deg)`,
-                    }}
-                  />
-                </div>
+              <div>
+                <SettingSlider
+                  label="Formation Rotation"
+                  value={generationOptions.highlandFormationRotation}
+                  onChange={(v) => onGenerationOptionChange('highlandFormationRotation', v)}
+                  min={0}
+                  max={generationOptions.highlandFormation === 'triangle' ? 120 : 360}
+                  step={1}
+                  displayMultiplier={1}
+                  displaySuffix="°"
+                  tooltip="Sets the orientation of the selected formation."
+                />
               </div>
             )}
             {(generationOptions.highlandFormation === 'circle' ||
@@ -390,6 +327,41 @@ export const GenerationSettings = ({
             </table>
           </div>
         </div>
+      </SettingsSection>
+
+      <SettingsSection title="Terrain Height">
+        <p className="text-xs text-text-muted !mt-0">
+          Drag and drop to reorder terrain types from highest (top) to lowest (bottom). This order
+          determines elevation during map generation.
+        </p>
+        <ol className="space-y-1 bg-realm-canvas-backdrop p-2 rounded-md border border-border-panel-divider">
+          {generationOptions.terrainHeightOrder.map((terrainId) => {
+            const terrain = getTerrainTile(terrainId);
+            if (!terrain) return null;
+
+            const isDragging = draggedTerrainId === terrainId;
+
+            return (
+              <li
+                key={terrain.id}
+                draggable
+                onDragStart={(e) => handleDragStart(e, terrain.id)}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, terrain.id)}
+                onDragEnd={handleDragEnd}
+                className={`flex items-center gap-3 p-2 rounded-md transition-all duration-150 cursor-grab active:cursor-grabbing bg-realm-command-panel-surface border border-transparent ${
+                  isDragging
+                    ? 'opacity-50 border-dashed border-actions-command-primary'
+                    : 'hover:bg-realm-command-panel-hover'
+                }`}
+              >
+                <Icon name="grip-vertical" className="w-5 h-5 text-text-muted" />
+                <Icon name={terrain.icon} className="w-5 h-5 text-text-high-contrast" />
+                <span className="font-medium text-sm text-text-high-contrast">{terrain.label}</span>
+              </li>
+            );
+          })}
+        </ol>
       </SettingsSection>
     </div>
   );

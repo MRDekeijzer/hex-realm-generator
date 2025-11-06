@@ -16,12 +16,13 @@ import {
 import { SettingsSection } from '../ui/SettingsSection';
 import { TerrainColorSwatch } from '../ui/TerrainColorSwatch';
 import { Icon } from '../Icon';
+import { SettingSlider } from '../ui/SettingSlider';
 
 const rgbaToHexOpacity = (rgba: string): { hex: string; opacity: number } => {
   if (rgba.startsWith('#')) return { hex: rgba, opacity: 1 };
   const match = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/.exec(rgba);
   if (!match) return { hex: '#eaebec', opacity: 0.2 };
-  const toHex = (c: number) => (`0${c.toString(16)}`).slice(-2);
+  const toHex = (c: number) => `0${c.toString(16)}`.slice(-2);
   const [, r, g, b, o] = match;
   if (r === undefined || g === undefined || b === undefined) {
     return { hex: '#eaebec', opacity: 0.2 };
@@ -143,20 +144,23 @@ export const ColorSettings: React.FC<ColorSettingsProps> = ({
 
   const resolvedPoiIconColor = (poiIconColor ?? DEFAULT_POI_ICON_COLOR).toUpperCase();
   const resolvedPoiBackdropColor = (poiBackdropColor ?? DEFAULT_POI_BACKDROP_COLOR).toUpperCase();
-  const resolvedBarrierColor = barrierColor.toUpperCase();
-  const defaultBarrierColor = BARRIER_COLOR.toUpperCase();
-  const resolvedMythMarkerFillColor = mythMarkerFillColor.toUpperCase();
-  const resolvedMythMarkerBorderColor = mythMarkerBorderColor.toUpperCase();
-  const defaultMythMarkerFillColor = DEFAULT_MYTH_MARKER_FILL_COLOR.toUpperCase();
-  const defaultMythMarkerBorderColor = DEFAULT_MYTH_MARKER_BORDER_COLOR.toUpperCase();
+  const resolvedBarrierColor = barrierColor?.toUpperCase?.() ?? '#000000';
+  const defaultBarrierColor = BARRIER_COLOR?.toUpperCase?.() ?? '#000000';
+  const resolvedMythMarkerFillColor = mythMarkerFillColor?.toUpperCase?.() ?? '#000000';
+  const resolvedMythMarkerBorderColor = mythMarkerBorderColor?.toUpperCase?.() ?? '#000000';
+  const defaultMythMarkerFillColor = DEFAULT_MYTH_MARKER_FILL_COLOR?.toUpperCase?.() ?? '#000000';
+  const defaultMythMarkerBorderColor =
+    DEFAULT_MYTH_MARKER_BORDER_COLOR?.toUpperCase?.() ?? '#000000';
   const defaultMythMarkerBorderWidth = DEFAULT_MYTH_MARKER_BORDER_WIDTH;
   const hasCustomMythMarkerBorderWidth =
     Math.abs(mythMarkerBorderWidth - defaultMythMarkerBorderWidth) > 0.0001;
   const mythMarkerBorderWidthLabel = mythMarkerBorderWidth.toFixed(2).replace(/\.?0+$/, '');
-  const resolvedSeatOfPowerIconColor = seatOfPowerIconColor.toUpperCase();
-  const resolvedSeatOfPowerBackdropColor = seatOfPowerBackdropColor.toUpperCase();
-  const defaultSeatOfPowerIconColor = DEFAULT_SEAT_OF_POWER_ICON_COLOR.toUpperCase();
-  const defaultSeatOfPowerBackdropColor = DEFAULT_SEAT_OF_POWER_BACKDROP_COLOR.toUpperCase();
+  const resolvedSeatOfPowerIconColor = seatOfPowerIconColor?.toUpperCase?.() ?? '#000000';
+  const resolvedSeatOfPowerBackdropColor = seatOfPowerBackdropColor?.toUpperCase?.() ?? '#000000';
+  const defaultSeatOfPowerIconColor =
+    DEFAULT_SEAT_OF_POWER_ICON_COLOR?.toUpperCase?.() ?? '#000000';
+  const defaultSeatOfPowerBackdropColor =
+    DEFAULT_SEAT_OF_POWER_BACKDROP_COLOR?.toUpperCase?.() ?? '#000000';
 
   const sortedTerrains = [...tileSets.terrain].sort((a, b) =>
     (a.label ?? a.id).localeCompare(b.label ?? b.id)
@@ -165,56 +169,37 @@ export const ColorSettings: React.FC<ColorSettingsProps> = ({
   return (
     <div className="space-y-6 pb-8">
       <SettingsSection title="Grid & Overlay">
-        <div className="space-y-4">
-          <div>
-            <span className="block text-sm font-medium text-text-muted mb-1">Grid Color</span>
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() =>
-                  isCustomGridColor
-                    ? handleResetGridColor()
-                    : gridColorInputRef.current?.click()
-                }
-                className="relative w-12 h-12 rounded-md border border-border-panel-divider flex-shrink-0 overflow-hidden group"
-                style={{ backgroundColor: gridHexColor }}
-                title={isCustomGridColor ? 'Reset to default' : 'Pick grid color'}
-                aria-label={isCustomGridColor ? 'Reset grid color to default' : 'Pick grid color'}
-              >
-                <input
-                  ref={gridColorInputRef}
-                  type="color"
-                  value={gridHexColor}
-                  onChange={(event) => handleGridColorChange(event.target.value)}
-                  className="opacity-0 w-0 h-0 absolute pointer-events-none"
-                  aria-hidden
-                />
-                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <Icon
-                    name={isCustomGridColor ? 'reset' : 'pipette'}
-                    className="w-5 h-5 text-white"
-                    aria-hidden="true"
-                  />
-                </div>
-              </button>
-              <div className="flex flex-col gap-1 text-sm">
-                <span className="font-mono text-text-high-contrast">{gridHexColor.toUpperCase()}</span>
-                <label className="flex items-center gap-2 text-text-muted">
-                  <span>Opacity</span>
-                  <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.01"
-                    value={gridOpacity}
-                    onChange={(event) => handleGridOpacityChange(parseFloat(event.target.value))}
-                    className="w-36"
-                  />
-                  <span className="font-mono w-12 text-center">
-                    {Math.round(gridOpacity * 100)}%
-                  </span>
-                </label>
-              </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+          {/* Grid Color */}
+          <div className="flex items-center gap-3 rounded-md border border-border-panel-divider/60 bg-realm-command-panel-surface/40 p-3 h-16">
+            <TerrainColorSwatch
+              color={gridHexColor}
+              ariaLabel="Pick Grid color"
+              tooltip="Pick Grid color"
+              onChange={handleGridColorChange}
+              onReset={handleResetGridColor}
+              canReset={isCustomGridColor}
+              className="w-12 h-12 rounded-md flex-shrink-0"
+            />
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold text-text-high-contrast">Grid Color</span>
+              <span className="text-xs font-mono text-text-muted">{gridHexColor}</span>
+            </div>
+          </div>
+          {/* Grid Opacity */}
+          <div className="flex items-center gap-3 rounded-md border border-border-panel-divider/60 bg-realm-command-panel-surface/40 p-3 h-16">
+            <div className="flex flex-col w-full">
+              <SettingSlider
+                label="Grid Opacity"
+                value={gridOpacity}
+                onChange={handleGridOpacityChange}
+                min={0}
+                max={1}
+                step={0.01}
+                displayMultiplier={100}
+                displaySuffix="%"
+                tooltip="Sets the opacity of the grid."
+              />
             </div>
           </div>
         </div>
@@ -222,8 +207,8 @@ export const ColorSettings: React.FC<ColorSettingsProps> = ({
 
       <SettingsSection title="Points of Interest & Barriers">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <div className="space-y-2">
-            <span className="block text-sm font-medium text-text-muted">POI Icon Color</span>
+          {/* POI Icon Color */}
+          <div className="flex items-center gap-3 rounded-md border border-border-panel-divider/60 bg-realm-command-panel-surface/40 p-3 h-16">
             <TerrainColorSwatch
               color={resolvedPoiIconColor}
               ariaLabel="Pick POI icon color"
@@ -234,14 +219,15 @@ export const ColorSettings: React.FC<ColorSettingsProps> = ({
                 poiIconColor !== null &&
                 poiIconColor.toUpperCase() !== DEFAULT_POI_ICON_COLOR.toUpperCase()
               }
-              className="w-full h-14 rounded-md"
+              className="w-12 h-12 rounded-md flex-shrink-0"
             />
-            <span className="block text-xs text-text-muted font-mono">
-              {resolvedPoiIconColor}
-            </span>
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold text-text-high-contrast">POI Icon Color</span>
+              <span className="text-xs font-mono text-text-muted">{resolvedPoiIconColor}</span>
+            </div>
           </div>
-          <div className="space-y-2">
-            <span className="block text-sm font-medium text-text-muted">POI Backdrop Color</span>
+          {/* POI Backdrop Color */}
+          <div className="flex items-center gap-3 rounded-md border border-border-panel-divider/60 bg-realm-command-panel-surface/40 p-3 h-16">
             <TerrainColorSwatch
               color={resolvedPoiBackdropColor}
               ariaLabel="Pick POI backdrop color"
@@ -252,14 +238,17 @@ export const ColorSettings: React.FC<ColorSettingsProps> = ({
                 poiBackdropColor !== null &&
                 poiBackdropColor.toUpperCase() !== DEFAULT_POI_BACKDROP_COLOR.toUpperCase()
               }
-              className="w-full h-14 rounded-md"
+              className="w-12 h-12 rounded-md flex-shrink-0"
             />
-            <span className="block text-xs text-text-muted font-mono">
-              {resolvedPoiBackdropColor}
-            </span>
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold text-text-high-contrast">
+                POI Backdrop Color
+              </span>
+              <span className="text-xs font-mono text-text-muted">{resolvedPoiBackdropColor}</span>
+            </div>
           </div>
-          <div className="space-y-2">
-            <span className="block text-sm font-medium text-text-muted">Barrier Color</span>
+          {/* Barrier Color */}
+          <div className="flex items-center gap-3 rounded-md border border-border-panel-divider/60 bg-realm-command-panel-surface/40 p-3 h-16">
             <TerrainColorSwatch
               color={resolvedBarrierColor}
               ariaLabel="Pick barrier color"
@@ -267,14 +256,15 @@ export const ColorSettings: React.FC<ColorSettingsProps> = ({
               onChange={onUpdateBarrierColor}
               onReset={onResetBarrierColor}
               canReset={resolvedBarrierColor !== defaultBarrierColor}
-              className="w-full h-14 rounded-md"
+              className="w-12 h-12 rounded-md flex-shrink-0"
             />
-            <span className="block text-xs text-text-muted font-mono">
-              {resolvedBarrierColor}
-            </span>
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold text-text-high-contrast">Barrier Color</span>
+              <span className="text-xs font-mono text-text-muted">{resolvedBarrierColor}</span>
+            </div>
           </div>
-          <div className="space-y-2">
-            <span className="block text-sm font-medium text-text-muted">Seat of Power Icon</span>
+          {/* Seat of Power Icon */}
+          <div className="flex items-center gap-3 rounded-md border border-border-panel-divider/60 bg-realm-command-panel-surface/40 p-3 h-16">
             <TerrainColorSwatch
               color={resolvedSeatOfPowerIconColor}
               ariaLabel="Pick seat of power icon color"
@@ -282,16 +272,19 @@ export const ColorSettings: React.FC<ColorSettingsProps> = ({
               onChange={onUpdateSeatOfPowerIconColor}
               onReset={onResetSeatOfPowerIconColor}
               canReset={resolvedSeatOfPowerIconColor !== defaultSeatOfPowerIconColor}
-              className="w-full h-14 rounded-md"
+              className="w-12 h-12 rounded-md flex-shrink-0"
             />
-            <span className="block text-xs text-text-muted font-mono">
-              {resolvedSeatOfPowerIconColor}
-            </span>
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold text-text-high-contrast">
+                Seat of Power Icon
+              </span>
+              <span className="text-xs font-mono text-text-muted">
+                {resolvedSeatOfPowerIconColor}
+              </span>
+            </div>
           </div>
-          <div className="space-y-2">
-            <span className="block text-sm font-medium text-text-muted">
-              Seat of Power Backdrop
-            </span>
+          {/* Seat of Power Backdrop */}
+          <div className="flex items-center gap-3 rounded-md border border-border-panel-divider/60 bg-realm-command-panel-surface/40 p-3 h-16">
             <TerrainColorSwatch
               color={resolvedSeatOfPowerBackdropColor}
               ariaLabel="Pick seat of power backdrop color"
@@ -299,19 +292,24 @@ export const ColorSettings: React.FC<ColorSettingsProps> = ({
               onChange={onUpdateSeatOfPowerBackdropColor}
               onReset={onResetSeatOfPowerBackdropColor}
               canReset={resolvedSeatOfPowerBackdropColor !== defaultSeatOfPowerBackdropColor}
-              className="w-full h-14 rounded-md"
+              className="w-12 h-12 rounded-md flex-shrink-0"
             />
-            <span className="block text-xs text-text-muted font-mono">
-              {resolvedSeatOfPowerBackdropColor}
-            </span>
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold text-text-high-contrast">
+                Seat of Power Backdrop
+              </span>
+              <span className="text-xs font-mono text-text-muted">
+                {resolvedSeatOfPowerBackdropColor}
+              </span>
+            </div>
           </div>
         </div>
       </SettingsSection>
 
       <SettingsSection title="Myth Markers">
         <div className="grid gap-4 sm:grid-cols-3">
-          <div className="space-y-2">
-            <span className="block text-sm font-medium text-text-muted">Marker Fill Color</span>
+          {/* Marker Fill Color */}
+          <div className="flex items-center gap-3 rounded-md border border-border-panel-divider/60 bg-realm-command-panel-surface/40 p-3 h-16">
             <TerrainColorSwatch
               color={resolvedMythMarkerFillColor}
               ariaLabel="Pick myth marker fill color"
@@ -319,14 +317,19 @@ export const ColorSettings: React.FC<ColorSettingsProps> = ({
               onChange={onUpdateMythMarkerFillColor}
               onReset={onResetMythMarkerFillColor}
               canReset={resolvedMythMarkerFillColor !== defaultMythMarkerFillColor}
-              className="w-full h-14 rounded-md"
+              className="w-12 h-12 rounded-md flex-shrink-0"
             />
-            <span className="block text-xs text-text-muted font-mono">
-              {resolvedMythMarkerFillColor}
-            </span>
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold text-text-high-contrast">
+                Marker Fill Color
+              </span>
+              <span className="text-xs font-mono text-text-muted">
+                {resolvedMythMarkerFillColor}
+              </span>
+            </div>
           </div>
-          <div className="space-y-2">
-            <span className="block text-sm font-medium text-text-muted">Marker Border Color</span>
+          {/* Marker Border Color */}
+          <div className="flex items-center gap-3 rounded-md border border-border-panel-divider/60 bg-realm-command-panel-surface/40 p-3 h-16">
             <TerrainColorSwatch
               color={resolvedMythMarkerBorderColor}
               ariaLabel="Pick myth marker border color"
@@ -334,41 +337,32 @@ export const ColorSettings: React.FC<ColorSettingsProps> = ({
               onChange={onUpdateMythMarkerBorderColor}
               onReset={onResetMythMarkerBorderColor}
               canReset={resolvedMythMarkerBorderColor !== defaultMythMarkerBorderColor}
-              className="w-full h-14 rounded-md"
+              className="w-12 h-12 rounded-md flex-shrink-0"
             />
-            <span className="block text-xs text-text-muted font-mono">
-              {resolvedMythMarkerBorderColor}
-            </span>
-          </div>
-          <div className="space-y-2">
-            <span className="block text-sm font-medium text-text-muted">Border Width</span>
-            <div className="flex items-center gap-3">
-              <input
-                type="range"
-                aria-label="Set myth marker border width"
-                min="0"
-                max="8"
-                step="0.25"
-                value={mythMarkerBorderWidth}
-                onChange={(event) => {
-                  const parsed = parseFloat(event.target.value);
-                  onUpdateMythMarkerBorderWidth(
-                    Number.isFinite(parsed) ? parsed : defaultMythMarkerBorderWidth
-                  );
-                }}
-                className="flex-1"
-              />
-              <span className="text-xs font-mono text-text-muted w-16 text-right">
-                {mythMarkerBorderWidthLabel} px
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold text-text-high-contrast">
+                Marker Border Color
               </span>
-              <button
-                type="button"
-                onClick={onResetMythMarkerBorderWidth}
-                disabled={!hasCustomMythMarkerBorderWidth}
-                className="text-xs font-medium text-actions-command-primary hover:text-actions-command-primary/80 disabled:text-text-muted/60 disabled:cursor-not-allowed"
-              >
-                Reset
-              </button>
+              <span className="text-xs font-mono text-text-muted">
+                {resolvedMythMarkerBorderColor}
+              </span>
+            </div>
+          </div>
+          {/* Marker Border Width */}
+          <div className="flex items-center gap-3 rounded-md border border-border-panel-divider/60 bg-realm-command-panel-surface/40 p-3 h-16">
+            <div className="flex flex-col w-full">
+              <SettingSlider
+                label="Border Width"
+                value={mythMarkerBorderWidth}
+                onChange={(v) => onUpdateMythMarkerBorderWidth(v)}
+                min={0}
+                max={8}
+                step={0.25}
+                displayMultiplier={1}
+                displaySuffix="px"
+                round={false}
+                tooltip="Sets the orientation of the selected formation."
+              />
             </div>
           </div>
         </div>
@@ -390,12 +384,11 @@ export const ColorSettings: React.FC<ColorSettingsProps> = ({
             const baseColor = TERRAIN_BASE_COLORS[terrainId];
             const normalizedBaseColor =
               typeof baseColor === 'string' ? baseColor.toUpperCase() : null;
-            const canReset =
-              normalizedBaseColor !== null && currentColor !== normalizedBaseColor;
+            const canReset = normalizedBaseColor !== null && currentColor !== normalizedBaseColor;
             return (
               <div
                 key={terrainId}
-                className="flex items-center gap-3 rounded-md border border-border-panel-divider/60 bg-realm-command-panel-surface/40 p-3"
+                className="flex items-center gap-3 rounded-md border border-border-panel-divider/60 bg-realm-command-panel-surface/40 p-3 h-16"
               >
                 <TerrainColorSwatch
                   color={currentColor}
@@ -420,5 +413,3 @@ export const ColorSettings: React.FC<ColorSettingsProps> = ({
     </div>
   );
 };
-
-

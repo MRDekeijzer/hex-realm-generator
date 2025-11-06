@@ -26,6 +26,8 @@ interface SettingSliderProps {
   step?: number;
   /** A multiplier for displaying the value (e.g., 100 for percentages). */
   displayMultiplier?: number;
+  /** Whether to round the displayed value to the nearest integer. */
+  round?: boolean;
   /** A suffix for the displayed value (e.g., '%'). */
   displaySuffix?: string;
 }
@@ -43,6 +45,7 @@ export const SettingSlider = ({
   max = 1,
   step = 0.01,
   displayMultiplier = 100,
+  round = true,
   displaySuffix = '%',
 }: SettingSliderProps) => {
   const inputId = `slider-${label.toLowerCase().replace(/\s+/g, '-')}`;
@@ -56,7 +59,7 @@ export const SettingSlider = ({
   const trackColor = resolveColorToken('realm-command-panel-surface');
   const thumbBg = resolveColorToken('realm-command-panel-surface');
   const thumbBorder = resolveColorToken('border-panel-divider');
-  const displayValue = Math.round(value * displayMultiplier);
+  const displayValue = round ? Math.round(value * displayMultiplier) : value * displayMultiplier;
 
   const sliderStyle = useMemo(
     () => ({

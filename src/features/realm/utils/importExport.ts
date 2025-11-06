@@ -9,7 +9,7 @@ import type {
 } from '@/features/realm/types';
 
 /** Schema version for serialized realm export files. */
-export const REALM_EXPORT_VERSION = 1;
+export const REALM_EXPORT_VERSION = '1.0.1';
 
 /**
  * Type guard that determines whether a parsed JSON value matches the serialized

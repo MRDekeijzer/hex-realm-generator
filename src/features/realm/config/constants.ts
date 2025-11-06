@@ -602,6 +602,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
     {
       id: 'castle',
       label: 'Castle',
+      labelPlural: 'Castles',
       icon: 'castle',
       markerIcon: iconAssetPath('castle'),
       markerBackdrop: iconAssetPath('castle_under'),
@@ -609,6 +610,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
     {
       id: 'city',
       label: 'City',
+      labelPlural: 'Cities',
       icon: 'city',
       markerIcon: iconAssetPath('city'),
       markerBackdrop: iconAssetPath('city_under'),
@@ -616,6 +618,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
     {
       id: 'fortress',
       label: 'Fortress',
+      labelPlural: 'Fortresses',
       icon: 'fortress',
       markerIcon: iconAssetPath('fortress'),
       markerBackdrop: iconAssetPath('fortress_under'),
@@ -623,6 +626,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
     {
       id: 'town',
       label: 'Town',
+      labelPlural: 'Towns',
       icon: 'town',
       markerIcon: iconAssetPath('town'),
       markerBackdrop: iconAssetPath('town_under'),
@@ -630,6 +634,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
     {
       id: 'village',
       label: 'Village',
+      labelPlural: 'Villages',
       icon: 'village',
       markerIcon: iconAssetPath('village'),
       markerBackdrop: iconAssetPath('village_under'),
@@ -639,6 +644,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
     {
       id: 'dwelling',
       label: 'Dwelling',
+      labelPlural: 'Dwellings',
       icon: 'dwelling',
       markerIcon: iconAssetPath('dwelling'),
       markerBackdrop: iconAssetPath('dwelling_under'),
@@ -646,6 +652,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
     {
       id: 'sanctum',
       label: 'Sanctum',
+      labelPlural: 'Sanctums',
       icon: 'sanctum',
       markerIcon: iconAssetPath('sanctum'),
       markerBackdrop: iconAssetPath('sanctum_under'),
@@ -653,6 +660,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
     {
       id: 'monument',
       label: 'Monument',
+      labelPlural: 'Monuments',
       icon: 'monument',
       markerIcon: iconAssetPath('monument'),
       markerBackdrop: iconAssetPath('monument_under'),
@@ -660,6 +668,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
     {
       id: 'hazard',
       label: 'Hazard',
+      labelPlural: 'Hazards',
       icon: 'hazard',
       markerIcon: iconAssetPath('hazard'),
       markerBackdrop: iconAssetPath('hazard_under'),
@@ -667,6 +676,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
     {
       id: 'curse',
       label: 'Curse',
+      labelPlural: 'Curses',
       icon: 'curse',
       markerIcon: iconAssetPath('curse'),
       markerBackdrop: iconAssetPath('curse_under'),
@@ -674,6 +684,7 @@ export const DEFAULT_TILE_SETS: TileSet = {
     {
       id: 'ruins',
       label: 'Ruins',
+      labelPlural: 'Ruins',
       icon: 'ruins',
       markerIcon: iconAssetPath('ruins'),
       markerBackdrop: iconAssetPath('ruins_under'),
@@ -789,92 +800,4 @@ export const DEFAULT_TERRAIN_BIASES: Record<string, number> = {
   lakes: 5,
   glades: 5,
   plain: 10,
-};
-
-/**
- * A collection of preset templates for terrain generation settings.
- */
-export const TERRAIN_TEMPLATES: Record<
-  string,
-  { name: string; options: Partial<GenerationOptions> }
-> = {
-  balanced: {
-    name: 'Balanced Realm',
-    options: {
-      highlandFormation: 'linear',
-      highlandFormationStrength: 0.7,
-      highlandFormationRotation: 0,
-      terrainRoughness: 0.5,
-      terrainBiases: { ...DEFAULT_TERRAIN_BIASES },
-    },
-  },
-  jagged: {
-    name: 'Jagged Peaks',
-    options: {
-      highlandFormation: 'circle',
-      highlandFormationStrength: 1.0,
-      highlandFormationRotation: 0,
-      terrainRoughness: 0.8,
-      terrainBiases: {
-        marsh: 1,
-        heath: 2,
-        crags: 20,
-        peaks: 25,
-        forest: 5,
-        valley: 3,
-        hills: 20,
-        meadow: 2,
-        bog: 1,
-        lakes: 1,
-        glades: 2,
-        plain: 5,
-      },
-    },
-  },
-  lush: {
-    name: 'Lush Lowlands',
-    options: {
-      highlandFormation: 'linear',
-      highlandFormationStrength: 0.5,
-      highlandFormationRotation: 180,
-      terrainRoughness: 0.25,
-      terrainBiases: {
-        marsh: 15,
-        heath: 5,
-        crags: 1,
-        peaks: 1,
-        forest: 25,
-        valley: 10,
-        hills: 5,
-        meadow: 8,
-        bog: 10,
-        lakes: 10,
-        glades: 8,
-        plain: 12,
-      },
-    },
-  },
-  sunkenCaldera: {
-    name: 'Sunken Caldera',
-    options: {
-      highlandFormation: 'circle',
-      highlandFormationStrength: 1.0,
-      highlandFormationInverse: true,
-      terrainRoughness: 0.75,
-      terrainBiases: {
-        marsh: 5,
-        heath: 2,
-        crags: 20,
-        peaks: 25,
-        forest: 3,
-        valley: 5,
-        hills: 15,
-        meadow: 1,
-        bog: 10,
-        lakes: 15,
-        glades: 1,
-        plain: 2,
-      },
-    },
-  },
 };

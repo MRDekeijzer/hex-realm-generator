@@ -4,6 +4,8 @@
 
 import React, { useMemo, useRef } from 'react';
 import { Icon } from './Icon';
+import { SettingSlider } from './ui/SettingSlider';
+import { Switch } from './ui/Switch';
 import type { ViewOptions } from '@/features/realm/types';
 import { DEFAULT_GRID_COLOR, DEFAULT_GRID_WIDTH } from '@/features/realm/config/constants';
 
@@ -71,12 +73,13 @@ export const GridSettingsPopover = React.forwardRef<HTMLDivElement, GridSettings
       }
     };
 
-    const handleGridOpacityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleGridOpacityChange = (nextOpacity: number) => {
       const rgb = hexToRgb(gridHexColor);
       if (rgb) {
+        const clampedOpacity = Math.min(1, Math.max(0, nextOpacity));
         setViewOptions((v) => ({
           ...v,
-          gridColor: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${parseFloat(e.target.value)})`,
+          gridColor: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${clampedOpacity})`,
         }));
       }
     };
@@ -101,16 +104,11 @@ export const GridSettingsPopover = React.forwardRef<HTMLDivElement, GridSettings
             className="flex items-center justify-between gap-2 text-sm font-medium text-text-muted cursor-pointer"
           >
             <span>Show Grid</span>
-            <div className="relative">
-              <input
-                type="checkbox"
-                id="show-grid-toggle"
-                checked={viewOptions.showGrid}
-                onChange={() => setViewOptions((v) => ({ ...v, showGrid: !v.showGrid }))}
-                className="sr-only peer"
-              />
-              <div className="w-11 h-6 bg-realm-command-panel-surface rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-actions-command-primary"></div>
-            </div>
+            <Switch
+              id="show-grid-toggle"
+              checked={viewOptions.showGrid}
+              onChange={() => setViewOptions((v) => ({ ...v, showGrid: !v.showGrid }))}
+            />
           </label>
           <hr className="border-border-panel-divider" />
           <div>
@@ -155,30 +153,14 @@ export const GridSettingsPopover = React.forwardRef<HTMLDivElement, GridSettings
               </span>
             </div>
           </div>
-          <div>
-            <label
-              htmlFor="grid-opacity"
-              className="block text-sm font-medium text-text-muted mb-1"
-            >
-              Opacity
-            </label>
-            <div className="flex items-center gap-2">
-              <input
-                id="grid-opacity"
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value={gridOpacity}
-                onChange={handleGridOpacityChange}
-                className="w-full h-2 bg-realm-command-panel-surface rounded-lg appearance-none cursor-pointer"
-                aria-label="Grid opacity"
-              />
-              <span className="p-1 bg-realm-command-panel-surface rounded-md text-xs w-16 text-center">
-                {Math.round(gridOpacity * 100)}%
-              </span>
-            </div>
-          </div>
+          <SettingSlider
+            label="Opacity"
+            value={gridOpacity}
+            min={0}
+            max={1}
+            step={0.01}
+            onChange={handleGridOpacityChange}
+          />
           <div>
             <label htmlFor="grid-width" className="block text-sm font-medium text-text-muted mb-1">
               Border Width

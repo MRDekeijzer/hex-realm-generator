@@ -211,7 +211,7 @@ function generateTerrain(hexes: Hex[], options: GenerationOptions): void {
         for (const neighbor of neighbors) {
           score += options.terrainClusteringMatrix[candidateTerrain]?.[neighbor.terrain] || 0;
         }
-        if (candidateTerrain === initialTerrainMap.get(`${hex.q},${hex.r}`)) score += 1.5; // Weight towards initial terrain
+        if (candidateTerrain === initialTerrainMap.get(`${hex.q},${hex.r}`)) score += 1.5;
         if (score > maxScore) {
           maxScore = score;
           bestTerrain = candidateTerrain;

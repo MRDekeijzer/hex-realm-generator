@@ -166,7 +166,7 @@ export function RealmPresetsModal({
                   Terrain Generation Presets
                 </h3>
                 <p className="mt-1 text-xs text-text-muted">
-                  Click a card to preview instantly, or jump into detailed tuning via settings.
+                  Click a card to view instantly, or jump into detailed tuning via settings.
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -211,7 +211,7 @@ export function RealmPresetsModal({
                       </div>
                     </div>
                     <div className="mt-auto flex items-center justify-between text-[11px] text-text-muted">
-                      <span>{isActive ? 'Previewing' : 'Click to preview'}</span>
+                      <span>{isActive ? 'Active' : 'Click to view'}</span>
                       <Icon name="arrow-right" className="h-3 w-3 opacity-70" aria-hidden="true" />
                     </div>
                     {renderDetailsOverlay(preset.details)}
@@ -277,7 +277,7 @@ export function RealmPresetsModal({
                       </div>
                     </div>
                     <div className="mt-auto flex items-center justify-between text-[11px] text-text-muted">
-                      <span>{isActive ? 'Previewing' : 'Click to preview'}</span>
+                      <span>{isActive ? 'Active' : 'Click to view'}</span>
                       <Icon name="arrow-right" className="h-3 w-3 opacity-70" aria-hidden="true" />
                     </div>
                     {renderDetailsOverlay(preset.details)}

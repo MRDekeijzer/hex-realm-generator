@@ -149,6 +149,7 @@ export const iconComponentMap: Record<string, React.ElementType> = {
   boxes: Boxes,
   heart: Heart,
   github: Github,
+  'badge-plus': BadgePlus,
 
   // Terrain & Spray Icons
   trees: Trees,
@@ -195,7 +196,6 @@ export const iconComponentMap: Record<string, React.ElementType> = {
   hazard: TriangleAlert,
   curse: Ban,
   ruins: Framer,
-  'badge-plus': BadgePlus,
 };
 
 /**

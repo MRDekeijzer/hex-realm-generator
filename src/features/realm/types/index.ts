@@ -185,6 +185,8 @@ export interface Tile {
   id: string;
   /** The display label for the tile. */
   label: string;
+  /** The plural display label for the tile. */
+  labelPlural: string;
   /** The name of the icon used to represent the tile. */
   icon: string;
   /** The color associated with the tile (primarily for terrain). */

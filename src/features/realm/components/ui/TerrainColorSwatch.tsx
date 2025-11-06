@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useMemo, useRef, useCallback } from 'react';
 import { Icon } from '@/features/realm/components/Icon';
 
 const HEX_PATTERN = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
@@ -17,7 +17,7 @@ interface TerrainColorSwatchProps {
   resetIcon?: string;
 }
 
-export const TerrainColorSwatch: React.FC<TerrainColorSwatchProps> = ({
+const TerrainColorSwatchBase: React.FC<TerrainColorSwatchProps> = ({
   color,
   ariaLabel,
   tooltip,
@@ -31,40 +31,46 @@ export const TerrainColorSwatch: React.FC<TerrainColorSwatchProps> = ({
   resetIcon = 'reset',
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const inputValue = HEX_PATTERN.test(color) ? color : '#CCCCCC';
-  const shouldReset = canReset && onReset;
+
+  const normalizedPropColor = useMemo(
+    () => (HEX_PATTERN.test(color) ? color.toUpperCase() : '#CCCCCC'),
+    [color]
+  );
+
+  const shouldReset = Boolean(canReset && onReset);
   const iconName = shouldReset ? resetIcon : overlayIcon;
 
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.stopPropagation();
-    if (shouldReset) {
-      onReset?.();
-      return;
-    }
-    inputRef.current?.click();
-  };
+  const handleClick = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation();
+      if (shouldReset) {
+        onReset?.();
+        return;
+      }
+      inputRef.current?.click();
+    },
+    [shouldReset, onReset]
+  );
 
-  const normalizeColor = (value: string) => (HEX_PATTERN.test(value) ? value.toUpperCase() : value);
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const raw = e.target.value;
+      const next = HEX_PATTERN.test(raw) ? raw.toUpperCase() : raw;
 
-  const handleColorUpdate = (value: string) => {
-    onChange(normalizeColor(value));
-  };
+      // Avoid redundant parent updates
+      if (next === normalizedPropColor) return;
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const nextValue = event.target.value;
-    handleColorUpdate(nextValue);
-  };
-
-  const handleInput = (event: React.FormEvent<HTMLInputElement>) => {
-    const nextValue = event.currentTarget.value;
-    handleColorUpdate(nextValue);
-  };
+      // Only emit valid hex values to parent
+      if (HEX_PATTERN.test(next)) onChange(next);
+    },
+    [normalizedPropColor, onChange]
+  );
 
   return (
     <button
       type="button"
       className={`relative group transition-colors duration-150 ${className}`.trim()}
-      style={{ backgroundColor: color }}
+      style={{ backgroundColor: normalizedPropColor }}
       title={tooltip}
       aria-label={ariaLabel}
       onClick={handleClick}
@@ -72,11 +78,11 @@ export const TerrainColorSwatch: React.FC<TerrainColorSwatchProps> = ({
       <input
         ref={inputRef}
         type="color"
-        value={inputValue}
+        value={normalizedPropColor}
         onChange={handleChange}
-        onInput={handleInput}
         className="opacity-0 w-0 h-0 absolute pointer-events-none"
-        aria-hidden
+        aria-hidden={true}
+        tabIndex={-1}
       />
       <div
         className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center ${overlayClassName}`.trim()}
@@ -86,3 +92,5 @@ export const TerrainColorSwatch: React.FC<TerrainColorSwatchProps> = ({
     </button>
   );
 };
+
+export const TerrainColorSwatch = React.memo(TerrainColorSwatchBase);

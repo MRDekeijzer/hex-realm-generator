@@ -73,7 +73,7 @@ export const GeneralSettings = ({
               htmlFor="realm-radius"
               className="block text-sm font-medium text-text-muted mb-1"
             >
-              Radius
+              Radius (minimum 3)
             </label>
             <input
               id="realm-radius"
@@ -132,7 +132,7 @@ export const GeneralSettings = ({
           {tileSets.landmark.map((landmark) => (
             <div key={landmark.id} className="flex justify-between items-center">
               <label htmlFor={`landmark-${landmark.id}`} className="text-sm text-text-muted">
-                {landmark.label}
+                Number of {landmark.labelPlural}
               </label>
               <input
                 id={`landmark-${landmark.id}`}
@@ -154,7 +154,7 @@ export const GeneralSettings = ({
               htmlFor="num-holdings"
               className="block text-sm font-medium text-text-muted mb-1"
             >
-              Holdings
+              Number of Holdings (randomly selected from types)
             </label>
             <input
               id="num-holdings"
@@ -173,7 +173,7 @@ export const GeneralSettings = ({
           </div>
           <div>
             <label htmlFor="num-myths" className="block text-sm font-medium text-text-muted mb-1">
-              Myths
+              Number of Myths
             </label>
             <input
               id="num-myths"
@@ -196,7 +196,7 @@ export const GeneralSettings = ({
             htmlFor="myth-min-distance"
             className="block text-sm font-medium text-text-muted mb-1"
           >
-            Myth Min Distance
+            Minimum distance between myths (in hexes)
           </label>
           <input
             id="myth-min-distance"

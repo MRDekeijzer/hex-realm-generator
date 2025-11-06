@@ -7,6 +7,7 @@ import type { ViewOptions, TileSet, Myth, KnightVisibilitySettings } from '@/fea
 import { SettingsSection } from '../ui/SettingsSection';
 import { DEFAULT_VIEW_VISIBILITY } from '@/features/realm/config/constants';
 import { Icon } from '../Icon';
+import { Switch } from '../ui/Switch';
 
 interface ViewSettingsProps {
   viewOptions: ViewOptions;
@@ -31,27 +32,6 @@ const buildDefaultVisibility = (tileSets: TileSet, myths: Myth[]): KnightVisibil
   }, {}),
   showBarriers: DEFAULT_VIEW_VISIBILITY.showBarriers,
 });
-
-const Switch = ({
-  id,
-  checked,
-  onChange,
-}: {
-  id: string;
-  checked: boolean;
-  onChange: (next: boolean) => void;
-}) => (
-  <div className="relative pt-1">
-    <input
-      id={id}
-      type="checkbox"
-      checked={checked}
-      onChange={(event) => onChange(event.target.checked)}
-      className="sr-only peer"
-    />
-    <div className="relative w-11 h-6 bg-realm-command-panel-hover rounded-full peer peer-checked:bg-actions-command-primary transition-colors after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-white" />
-  </div>
-);
 
 const VisibilityDropdown = ({
   title,
