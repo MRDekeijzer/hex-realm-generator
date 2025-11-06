@@ -103,7 +103,7 @@ interface HexGridProps {
 /**
  * The main interactive hex grid component.
  */
-export function HexGrid({
+function HexGridComponent({
   realm,
   onUpdateHex,
   viewOptions,
@@ -923,3 +923,6 @@ export function HexGrid({
     </div>
   );
 }
+
+export const HexGrid = React.memo(HexGridComponent);
+HexGrid.displayName = 'HexGrid';
