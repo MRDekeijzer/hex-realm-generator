@@ -14,6 +14,7 @@ import {
   SEAT_OF_POWER_COLOR,
 } from '@/features/realm/config/constants';
 import { Icon } from '../Icon';
+import { Switch } from '../ui/Switch';
 import { getHexCorners, getBarrierPath, getNeighbors } from '@/features/realm/utils/hexUtils';
 import { iconAssetPath } from '@/shared/utils/publicAssetPath';
 
@@ -67,27 +68,6 @@ const createMaskStyle = (src: string): React.CSSProperties => ({
 });
 
 const seatOfPowerIconStyle = createMaskStyle(iconAssetPath('crown'));
-
-const Switch = ({
-  id,
-  checked,
-  onChange,
-}: {
-  id: string;
-  checked: boolean;
-  onChange: (next: boolean) => void;
-}) => (
-  <div className="relative pt-1">
-    <input
-      id={id}
-      type="checkbox"
-      checked={checked}
-      onChange={(event) => onChange(event.target.checked)}
-      className="peer sr-only"
-    />
-    <div className="relative h-6 w-11 rounded-full bg-realm-command-panel-hover transition-colors peer-checked:bg-actions-command-primary after:absolute after:top-0.5 after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-white" />
-  </div>
-);
 
 /**
  * Props for the SelectionSidebar component.
@@ -181,8 +161,8 @@ export function SelectionSidebar({
     );
   }
 
-  const selectionStrokeColor = HEX_SELECTED_COLOR;
-  const selectionStrokeFaintColor = hexToRgbaWithAlpha(HEX_SELECTED_COLOR, 0.6);
+  const selectionStrokeColor = HEX_SELECTED_COLOR ?? '#ffd54f';
+  const selectionStrokeFaintColor = hexToRgbaWithAlpha(selectionStrokeColor, 0.6);
   const handleChange = <K extends keyof Hex>(key: K, value: Hex[K]) => {
     onUpdateHex({ ...selectedHex, [key]: value });
   };

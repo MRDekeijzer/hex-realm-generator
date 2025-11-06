@@ -218,9 +218,7 @@ export function ExportModal({
               <h3 className="text-sm font-semibold uppercase tracking-wide text-text-muted">
                 Preview
               </h3>
-              <span className="text-xs text-text-subtle">
-                Export uses the preview exactly as shown.
-              </span>
+              <span className="text-xs text-text-subtle">Export uses the preview as shown.</span>
             </div>
             <div className="relative h-80 overflow-hidden rounded-md border border-border-panel-divider bg-realm-map-viewport">
               {realm ? (

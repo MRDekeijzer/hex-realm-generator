@@ -5,6 +5,7 @@
 import React from 'react';
 import type { GenerationOptions, TileSet } from '@/features/realm/types';
 import { SettingsSection } from '../ui/SettingsSection';
+import { Switch } from '../ui/Switch';
 
 /**
  * Props for the GeneralSettings component.
@@ -218,18 +219,13 @@ export const GeneralSettings = ({
           className="flex items-center justify-between pt-4 border-t border-border-panel-divider cursor-pointer"
         >
           <span className="text-sm font-medium text-text-muted">Generate Barriers</span>
-          <div className="relative">
-            <input
-              id="generate-barriers"
-              type="checkbox"
-              checked={generationOptions.generateBarriers}
-              onChange={(e) =>
-                setGenerationOptions((prev) => ({ ...prev, generateBarriers: e.target.checked }))
-              }
-              className="sr-only peer"
-            />
-            <div className="w-11 h-6 bg-realm-command-panel-surface rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-actions-command-primary"></div>
-          </div>
+          <Switch
+            id="generate-barriers"
+            checked={generationOptions.generateBarriers}
+            onChange={(next) =>
+              setGenerationOptions((prev) => ({ ...prev, generateBarriers: next }))
+            }
+          />
         </label>
       </SettingsSection>
     </div>

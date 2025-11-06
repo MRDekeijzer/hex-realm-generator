@@ -7,6 +7,7 @@ import type { GenerationOptions, TileSet, HighlandFormation } from '@/features/r
 import { SettingsSection } from '../ui/SettingsSection';
 import { SettingSlider } from '../ui/SettingSlider';
 import { Icon } from '../Icon';
+import { Switch } from '../ui/Switch';
 
 /**
  * Props for the GenerationSettings component.
@@ -197,18 +198,11 @@ export const GenerationSettings = ({
                   <span className="text-sm font-medium text-text-muted">Invert Formation</span>
                   <span className="text-xs text-text-muted">Flips highlands and lowlands.</span>
                 </div>
-                <div className="relative">
-                  <input
-                    id="invert-formation"
-                    type="checkbox"
-                    checked={generationOptions.highlandFormationInverse || false}
-                    onChange={(e) =>
-                      onGenerationOptionChange('highlandFormationInverse', e.target.checked)
-                    }
-                    className="sr-only peer"
-                  />
-                  <div className="w-11 h-6 bg-realm-command-panel-surface rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-actions-command-primary"></div>
-                </div>
+                <Switch
+                  id="invert-formation"
+                  checked={generationOptions.highlandFormationInverse ?? false}
+                  onChange={(next) => onGenerationOptionChange('highlandFormationInverse', next)}
+                />
               </label>
             )}
           </div>
@@ -240,17 +234,6 @@ export const GenerationSettings = ({
               />
             </div>
           ))}
-        </div>
-      </SettingsSection>
-
-      <SettingsSection title="Terrain Clustering">
-        <SettingSlider
-          label="Terrain Clusteredness"
-          value={1 - generationOptions.terrainRoughness}
-          onChange={(v) => onGenerationOptionChange('terrainRoughness', 1 - v)}
-          tooltip="Higher values create large, smooth regions. Lower values result in chaotic, mixed landscapes."
-        />
-        <div className="pt-4 border-t border-border-panel-divider">
           <p className="text-sm text-text-muted">
             This matrix controls how terrain types attract each other. It is adjusted by the slider
             above.

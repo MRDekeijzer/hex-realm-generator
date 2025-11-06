@@ -7,6 +7,7 @@ import type { TileSet, SpraySettings, Tile, FeatureFlags } from '@/features/real
 import { DEFAULT_SPRAY_SETTINGS, TERRAIN_SPRAY_DEFAULTS } from '@/features/realm/config/constants';
 import { resolveColorToken } from '@/app/theme/colors';
 import { SettingsSection } from '../ui/SettingsSection';
+import { Switch } from '../ui/Switch';
 import { useInfoPopup } from '@/shared/hooks/useInfoPopup';
 import { TerrainSprayPanel } from './terrain/TerrainSprayPanel';
 
@@ -358,21 +359,16 @@ export const TerrainSettings = ({
                 Enable procedural icon scatter previews and per-terrain tuning (very experimenal).
               </span>
             </div>
-            <div className="relative">
-              <input
-                id="feature-flag-icon-spray"
-                type="checkbox"
-                checked={featureFlags.iconSpray}
-                onChange={(event) =>
-                  setFeatureFlags((prev) => ({
-                    ...prev,
-                    iconSpray: event.target.checked,
-                  }))
-                }
-                className="sr-only peer"
-              />
-              <div className="w-11 h-6 bg-realm-command-panel-surface rounded-full peer peer-checked:bg-actions-command-primary transition-colors after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-white" />
-            </div>
+            <Switch
+              id="feature-flag-icon-spray"
+              checked={featureFlags.iconSpray}
+              onChange={(next) =>
+                setFeatureFlags((prev) => ({
+                  ...prev,
+                  iconSpray: next,
+                }))
+              }
+            />
           </label>
         </div>
       </SettingsSection>

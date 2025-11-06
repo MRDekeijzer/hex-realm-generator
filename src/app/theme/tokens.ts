@@ -92,8 +92,8 @@ export const semanticColors = {
 
 const terrain = {
   marsh: {
-    base: basePalette.tide500,
-    deepwater: basePalette.tide500,
+    base: basePalette.mist200,
+    surface: basePalette.mist200,
   },
   heath: {
     base: basePalette.gold500,
@@ -128,8 +128,8 @@ const terrain = {
     hollows: basePalette.obsidian900,
   },
   lakes: {
-    base: basePalette.mist200,
-    surface: basePalette.mist200,
+    base: basePalette.tide500,
+    deepwater: basePalette.tide500,
   },
   glades: {
     base: basePalette.pearl100,
