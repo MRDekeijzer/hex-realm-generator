@@ -33,11 +33,15 @@ export function usePanAndZoom({
   const [viewbox, setViewbox] = useState(
     `${-initialWidth / 2} ${-initialHeight / 2} ${initialWidth} ${initialHeight}`
   );
-  const [zoom, setZoom] = useState(1);
+  const viewboxRef = useRef(viewbox);
+  const zoomRef = useRef(1);
   const [isPanning, setIsPanning] = useState(false);
   const isPanningRef = useRef(false);
   const lastPoint = useRef({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
+  const svgElementRef = useRef<SVGSVGElement | null>(null);
+  const wheelIdleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const rafRef = useRef<number | null>(null);
   const clampZoom = useCallback(
     (value: number) => Math.max(minZoom, Math.min(maxZoom, value)),
     [minZoom, maxZoom]
@@ -46,6 +50,34 @@ export function usePanAndZoom({
   const setPanningState = useCallback((panning: boolean) => {
     isPanningRef.current = panning;
     setIsPanning(panning);
+  }, []);
+
+  const applyViewboxToSvg = useCallback(() => {
+    if (!enabled) {
+      return;
+    }
+    const svgElement = svgElementRef.current;
+    if (!svgElement) {
+      return;
+    }
+    svgElement.setAttribute('viewBox', viewboxRef.current);
+  }, [enabled]);
+
+  const scheduleViewboxApply = useCallback(() => {
+    if (rafRef.current !== null) {
+      return;
+    }
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null;
+      applyViewboxToSvg();
+    });
+  }, [applyViewboxToSvg]);
+
+  const commitViewboxState = useCallback(() => {
+    setViewbox((prev) => {
+      const next = viewboxRef.current;
+      return prev === next ? prev : next;
+    });
   }, []);
 
   const onMouseDown = useCallback(
@@ -65,23 +97,24 @@ export function usePanAndZoom({
       const dy = e.clientY - lastPoint.current.y;
       lastPoint.current = { x: e.clientX, y: e.clientY };
 
-      setViewbox((prev) => {
-        const parts = prev.split(' ').map(parseFloat);
-        const p0 = parts[0];
-        const p1 = parts[1];
-        const p2 = parts[2];
-        const p3 = parts[3];
-        if (p0 === undefined || p1 === undefined || p2 === undefined || p3 === undefined)
-          return prev;
-        return `${p0 - dx / zoom} ${p1 - dy / zoom} ${p2} ${p3}`;
-      });
+      const parts = viewboxRef.current.split(' ').map(parseFloat);
+      const p0 = parts[0];
+      const p1 = parts[1];
+      const p2 = parts[2];
+      const p3 = parts[3];
+      if (p0 === undefined || p1 === undefined || p2 === undefined || p3 === undefined) {
+        return;
+      }
+      viewboxRef.current = `${p0 - dx / zoomRef.current} ${p1 - dy / zoomRef.current} ${p2} ${p3}`;
+      scheduleViewboxApply();
     },
-    [zoom]
+    [scheduleViewboxApply]
   );
 
   const onMouseUp = useCallback(() => {
     setPanningState(false);
-  }, [setPanningState]);
+    commitViewboxState();
+  }, [commitViewboxState, setPanningState]);
 
   const onWheel = useCallback(
     (event: WheelEvent) => {
@@ -94,31 +127,38 @@ export function usePanAndZoom({
       const mouseX = event.clientX - containerRect.left;
       const mouseY = event.clientY - containerRect.top;
 
-      setZoom((prevZoom) => {
-        const nextZoom = clampZoom(prevZoom * (1 - event.deltaY / 500));
-        if (nextZoom === prevZoom) return prevZoom;
+      const prevZoom = zoomRef.current;
+      const nextZoom = clampZoom(prevZoom * (1 - event.deltaY / 500));
+      if (nextZoom === prevZoom) {
+        return;
+      }
 
-        const zoomFactor = nextZoom / prevZoom;
-        const safePrevZoom = prevZoom === 0 ? Number.EPSILON : prevZoom;
+      zoomRef.current = nextZoom;
+      const zoomFactor = nextZoom / prevZoom;
+      const safePrevZoom = prevZoom === 0 ? Number.EPSILON : prevZoom;
 
-        setViewbox((prevViewbox) => {
-          const [x, y, w, h] = prevViewbox.split(' ').map(Number);
-          if ([x, y, w, h].some((value) => Number.isNaN(value))) {
-            return prevViewbox;
-          }
+      const [x, y, w, h] = viewboxRef.current.split(' ').map(Number);
+      if ([x, y, w, h].some((value) => Number.isNaN(value))) {
+        return;
+      }
 
-          const newW = w / zoomFactor;
-          const newH = h / zoomFactor;
-          const newX = x + (mouseX / safePrevZoom) * (1 - 1 / zoomFactor);
-          const newY = y + (mouseY / safePrevZoom) * (1 - 1 / zoomFactor);
+      const newW = w / zoomFactor;
+      const newH = h / zoomFactor;
+      const newX = x + (mouseX / safePrevZoom) * (1 - 1 / zoomFactor);
+      const newY = y + (mouseY / safePrevZoom) * (1 - 1 / zoomFactor);
 
-          return `${newX} ${newY} ${newW} ${newH}`;
-        });
+      viewboxRef.current = `${newX} ${newY} ${newW} ${newH}`;
+      scheduleViewboxApply();
 
-        return nextZoom;
-      });
+      if (wheelIdleTimeoutRef.current) {
+        clearTimeout(wheelIdleTimeoutRef.current);
+      }
+      wheelIdleTimeoutRef.current = setTimeout(() => {
+        wheelIdleTimeoutRef.current = null;
+        commitViewboxState();
+      }, 80);
     },
-    [clampZoom, enabled]
+    [clampZoom, commitViewboxState, enabled, scheduleViewboxApply]
   );
 
   useEffect(() => {
@@ -145,5 +185,37 @@ export function usePanAndZoom({
     };
   }, [enabled, onWheel]);
 
-  return { viewbox, containerRef, onMouseDown, isPanning: enabled ? isPanning : false };
+  useEffect(() => {
+    viewboxRef.current = viewbox;
+    applyViewboxToSvg();
+  }, [applyViewboxToSvg, viewbox]);
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+      if (wheelIdleTimeoutRef.current) {
+        clearTimeout(wheelIdleTimeoutRef.current);
+        wheelIdleTimeoutRef.current = null;
+      }
+    };
+  }, []);
+
+  const setSvgElement = useCallback((element: SVGSVGElement | null) => {
+    svgElementRef.current = element;
+    if (element) {
+      element.setAttribute('viewBox', viewboxRef.current);
+    }
+  }, []);
+
+  return {
+    viewbox,
+    containerRef,
+    onMouseDown,
+    isPanning: enabled ? isPanning : false,
+    setSvgElement,
+    applyViewboxToSvg,
+  };
 }

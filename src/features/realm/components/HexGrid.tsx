@@ -141,13 +141,27 @@ function HexGridComponent({
   shortcutTipsCollapsed,
   onToggleShortcutTips,
 }: HexGridProps) {
-  const { viewbox, containerRef, onMouseDown, isPanning } = usePanAndZoom({
-    initialWidth: 1000,
-    initialHeight: 800,
-    minZoom: 0.2,
-    maxZoom: 5,
-    enabled: isInteractive,
-  });
+  const svgRef = useRef<SVGSVGElement>(null);
+  const { viewbox, containerRef, onMouseDown, isPanning, setSvgElement, applyViewboxToSvg } =
+    usePanAndZoom({
+      initialWidth: 1000,
+      initialHeight: 800,
+      minZoom: 0.2,
+      maxZoom: 5,
+      enabled: isInteractive,
+    });
+
+  useEffect(() => {
+    setSvgElement(svgRef.current);
+    return () => setSvgElement(null);
+  }, [setSvgElement]);
+
+  useEffect(() => {
+    if (!isInteractive) {
+      return;
+    }
+    applyViewboxToSvg();
+  }, [applyViewboxToSvg, isInteractive]);
 
   const hexCorners = useMemo(
     () => getHexCorners(viewOptions.orientation, viewOptions.hexSize),
@@ -251,7 +265,6 @@ function HexGridComponent({
     viewOptions.orientation,
   ]);
   const svgViewBox = isInteractive ? viewbox : (staticViewBox ?? viewbox);
-  const svgRef = useRef<SVGSVGElement>(null);
   const [isSpacePanActive, setIsSpacePanActive] = useState(false);
   const [hoveredBarrier, setHoveredBarrier] = useState<{
     q: number;
