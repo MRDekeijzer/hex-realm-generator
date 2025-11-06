@@ -294,9 +294,9 @@ export const COLOR_PRESETS: ColorPresetDefinition[] = [
     seatOfPowerBackdropColor: '#FFFFFF',
     poiIconColor: '#f43735',
     poiBackdropColor: '#FFFFFF',
-    mythMarkerFillColor: '#f43735',
-    mythMarkerBorderColor: '#FFFFFF',
-    mythMarkerBorderWidth: 1.5,
+    mythMarkerFillColor: '#ffffffff',
+    mythMarkerBorderColor: '#f43735',
+    mythMarkerBorderWidth: DEFAULT_MYTH_MARKER_BORDER_WIDTH,
     barrierColor: '#f43735',
     exportSettings: {
       blackAndWhite: false,
@@ -320,7 +320,7 @@ export const COLOR_PRESETS: ColorPresetDefinition[] = [
     poiBackdropColor: '#ffffffff',
     mythMarkerFillColor: '#ffffffff',
     mythMarkerBorderColor: '#000000',
-    mythMarkerBorderWidth: 1.25,
+    mythMarkerBorderWidth: DEFAULT_MYTH_MARKER_BORDER_WIDTH,
     barrierColor: '#000000',
     exportSettings: {
       blackAndWhite: true,
