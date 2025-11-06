@@ -203,12 +203,15 @@ export function usePanAndZoom({
     };
   }, []);
 
-  const setSvgElement = useCallback((element: SVGSVGElement | null) => {
-    svgElementRef.current = element;
-    if (element) {
-      element.setAttribute('viewBox', viewboxRef.current);
-    }
-  }, []);
+  const setSvgElement = useCallback(
+    (element: SVGSVGElement | null) => {
+      svgElementRef.current = element;
+      if (element && enabled) {
+        element.setAttribute('viewBox', viewboxRef.current);
+      }
+    },
+    [enabled]
+  );
 
   return {
     viewbox,

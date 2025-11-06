@@ -64,16 +64,16 @@ Shout out to the following pages for inspiration and guidance:
 
 ### Procedural Generation
 
-- **Perlin Noise-Based Terrain** - Generate natural-looking hex realms with customizable noise parameters
+- **Generated Terrain** - Generate natural-looking hex realms with customizable generation parameters
 - **Configurable Grid Sizes** - Build compact encounter sites or sprawling campaign maps
 - **Smart Myth Placement** - Automatically distributes myths according to Mythic Bastionland rules
-- **Terrain Clustering** - Fine-tune biome distribution with roughness controls and clustering matrices
+- **Terrain Clustering** - Fine-tune biome distribution with roughness and clustering controls
 
 ### Interactive Editing Tools
 
 - **Terrain Painter** - Click or drag to paint terrain types, sample colors with the pipette tool
-- **POI Painter** - Place holdings, landmarks, and travel icons with custom backdrops
-- **Barrier Painter** - Draw realm boundaries with automatic edge mirroring
+- **POI Painter** - Place holdings, and landmarks with custom backdrops
+- **Barrier Painter** - Draw realm boundaries
 - **Myth Manager** - Add, configure, and relocate myths with drag-and-drop
 - **Selection Tool** - Inspect and edit individual hex properties
 
@@ -85,10 +85,10 @@ Shout out to the following pages for inspiration and guidance:
 
 ### History & Workflow
 
-- **Undo/Redo Support** - Full history tracking for all edits (Ctrl+Z / Ctrl+Y)
+- **Undo/Redo Support** - History tracking for all edits (Ctrl+Z / Ctrl+Y)
 - **Quick Save Slots** - Snapshot entire realm states for fast iteration
 - **Import/Export** - Save and load realms with all settings, colors, and myths intact
-- **PNG Export** - Download publication-ready maps with customizable overlays
+- **PNG Export** - Download your realm in png format
 
 ### Further Customization
 
