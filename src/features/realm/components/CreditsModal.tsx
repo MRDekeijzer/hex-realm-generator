@@ -90,7 +90,7 @@ export function CreditsModal({ isOpen, onClose }: CreditsModalProps) {
               <section className={`${cardClasses} space-y-3`}>
                 <h3 className={sectionHeadingClasses}>
                   <Icon
-                    name="shield-check"
+                    name="badge-plus"
                     className="h-4 w-4 text-actions-command-primary"
                     aria-hidden="true"
                   />

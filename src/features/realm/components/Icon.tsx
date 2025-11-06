@@ -88,6 +88,7 @@ import {
   Boxes,
   Heart,
   Github,
+  BadgePlus,
 } from 'lucide-react';
 
 /**
@@ -194,6 +195,7 @@ export const iconComponentMap: Record<string, React.ElementType> = {
   hazard: TriangleAlert,
   curse: Ban,
   ruins: Framer,
+  'badge-plus': BadgePlus,
 };
 
 /**
