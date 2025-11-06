@@ -428,7 +428,9 @@ export function PoiPainterSidebar({
                   Backplate
                 </span>
                 <span className="text-xs text-text-muted">
-                  {backdropHasCustomColor ? backdropSwatchColor : 'Original artwork'}
+                  {backdropHasCustomColor
+                    ? backdropSwatchColor
+                    : `Default (${backdropSwatchColor})`}
                 </span>
               </div>
             </div>

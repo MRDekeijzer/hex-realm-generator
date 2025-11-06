@@ -185,42 +185,58 @@ export function MythSidebar({
             </p>
           )}
         </div>
-        <section className="rounded-md border border-border-panel-divider/60 bg-realm-map-viewport/40 p-2">
-          <h3 className="text-xs font-semibold text-text-muted uppercase tracking-wide">
-            Marker Styling
+        <section className="space-y-4 rounded-lg border border-border-panel-divider bg-realm-map-viewport/60 p-3">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-text-muted">
+            Myth Marker Appearance
           </h3>
-          <div className="mt-2 space-y-2 text-[11px]">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-3">
               <TerrainColorSwatch
                 color={resolvedFillColor}
                 ariaLabel="Choose myth marker fill color"
                 tooltip="Choose myth marker fill color"
                 onChange={onUpdateMythMarkerFillColor}
-                onReset={onResetMythMarkerFillColor}
+                {...(resolvedFillColor !== defaultFillColor
+                  ? { onReset: onResetMythMarkerFillColor }
+                  : {})}
                 canReset={resolvedFillColor !== defaultFillColor}
-                className="w-8 h-8 rounded-sm"
-                iconClassName="w-3.5 h-3.5"
+                className="h-10 w-10 rounded-md"
+                iconClassName="w-4 h-4 text-white"
               />
-              <div className="flex-1 leading-tight">
-                <span className="block font-medium text-text-high-contrast">Fill</span>
-                <span className="font-mono text-[10px] text-text-muted">{resolvedFillColor}</span>
+              <div className="flex flex-col gap-1">
+                <span className="text-xs font-semibold uppercase tracking-wide text-text-subtle">
+                  Fill
+                </span>
+                <span className="text-xs text-text-muted">
+                  {resolvedFillColor !== defaultFillColor
+                    ? resolvedFillColor
+                    : `Default (${defaultFillColor})`}
+                </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <TerrainColorSwatch
                 color={resolvedBorderColor}
                 ariaLabel="Choose myth marker border color"
                 tooltip="Choose myth marker border color"
                 onChange={onUpdateMythMarkerBorderColor}
-                onReset={onResetMythMarkerBorderColor}
+                {...(resolvedBorderColor !== defaultBorderColor
+                  ? { onReset: onResetMythMarkerBorderColor }
+                  : {})}
                 canReset={resolvedBorderColor !== defaultBorderColor}
-                className="w-8 h-8 rounded-sm"
-                iconClassName="w-3.5 h-3.5"
+                className="h-10 w-10 rounded-md"
+                iconClassName="w-4 h-4 text-white"
               />
-              <div className="flex-1 leading-tight">
-                <span className="block font-medium text-text-high-contrast">Border</span>
-                <span className="font-mono text-[10px] text-text-muted">{resolvedBorderColor}</span>
+              <div className="flex flex-col gap-1">
+                <span className="text-xs font-semibold uppercase tracking-wide text-text-subtle">
+                  Border
+                </span>
+                <span className="text-xs text-text-muted">
+                  {resolvedBorderColor !== defaultBorderColor
+                    ? resolvedBorderColor
+                    : `Default (${defaultBorderColor})`}
+                </span>
               </div>
             </div>
 
