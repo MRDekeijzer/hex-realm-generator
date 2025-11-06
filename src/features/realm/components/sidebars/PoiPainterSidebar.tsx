@@ -353,7 +353,10 @@ export function PoiPainterSidebar({
   }, [onChangePoiBackdropColor]);
 
   return (
-    <aside className="w-80 bg-realm-canvas-backdrop border-l border-border-panel-divider p-4 flex flex-col">
+    <aside
+      className="w-80 bg-realm-canvas-backdrop border-l border-border-panel-divider p-4 flex flex-col"
+      data-tour-id="sidebar-poi"
+    >
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Points of Interest</h2>
         <div className="flex items-center gap-2">

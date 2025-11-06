@@ -1,60 +1,179 @@
 [
   {
     "id": "welcome",
-    "title": "Welcome Adventurer",
-    "body": "Take a quick tour of Hex Realm Generator to see where everything lives. You can skip now or later if you already know the ropes.",
+    "title": "Welcome, Referee",
+    "body": "This short tutorial will take you on a journey through the Hex Realm Generator.\n- Learn what the core tools are.\n- Learn where you can find them.\n IMPORTANT: You can use the arrow keys to navigate through the steps.",
     "placement": "center"
   },
   {
     "id": "toolbar-overview",
     "title": "Command Toolbar",
-    "body": "Generate fresh realms, open detailed settings, and toggle grid aids from here. The buttons react to your current context so you always know what tool is active.",
+    "body": "This toolbar allows you to change the configuration of your realm. In the next steps, we'll break down each section.",
     "target": "[data-tour-id='toolbar']",
-    "placement": "bottom"
+    "placement": "bottom",
+    "enterActions": [{ "type": "closeRealmPresets" }, { "type": "closeExportModal" }]
   },
   {
-    "id": "toolbar-actions",
-    "title": "Presets, Import & Export",
-    "body": "Use these actions to open curated presets, import saved realms, and export JSON or PNG copies for your players. We'll open the presets panel next so you can see what's inside.",
-    "target": "[data-tour-id='toolbar-actions']",
-    "placement": "bottom"
+    "id": "toolbar-generation-controls",
+    "title": "Generate & Configure",
+    "body": "- Generate: \n Build a fresh realm using your current settings.\n- Settings: \n Open granular generation options to tune grid size, grid type, how the terrain is generated, and how new myths are placed.\n- Grid: adjust grid color, spacing, and visibility on the fly.",
+    "target": "[data-tour-id='toolbar-generate-group']",
+    "placement": "bottom",
+    "enterActions": [{ "type": "closeRealmPresets" }, { "type": "closeExportModal" }]
+  },
+  {
+    "id": "toolbar-view-controls",
+    "title": "View Modes",
+    "body": "- Referee vs. Knight: toggle visibility layers for GM or player reveals.\n- Eye settings: open detailed visibility controls like icon overlays and myths.",
+    "target": "[data-tour-id='toolbar-view-group']",
+    "placement": "bottom",
+    "enterActions": [{ "type": "closeRealmPresets" }, { "type": "closeExportModal" }]
+  },
+  {
+    "id": "toolbar-presets-button",
+    "title": "Realm Presets",
+    "body": "Open curated generation themes and color palettes. Preview before you commit and jump into settings when you need deeper tweaks.",
+    "target": "[data-tour-id='toolbar-presets-button']",
+    "placement": "bottom",
+    "enterActions": [{ "type": "closeRealmPresets" }, { "type": "closeExportModal" }]
   },
   {
     "id": "presets-modal",
     "title": "Preset Browser",
-    "body": "Browse generation templates and color palettes. Preview options instantly, apply them, or jump straight into fine-tuning settings from here.",
+    "body": "- Preview: hover to inspect terrain layouts instantly.\n- Apply: lock in a combination of generation + color presets.\n- Deep dive: open settings directly from here for fine control.",
     "target": "[data-tour-id='realm-presets-modal']",
-    "placement": "center",
+    "placement": "right",
     "enterActions": [{ "type": "openRealmPresets" }],
     "exitActions": [{ "type": "closeRealmPresets" }]
   },
   {
+    "id": "toolbar-realm-files",
+    "title": "Import & Export Realm Data",
+    "body": "- Import Realm Data: load saved realms or player-facing maps.\n- Export Realm Data: capture the entire state as a JSON archive.",
+    "target": "[data-tour-id='toolbar-realm-files']",
+    "placement": "bottom",
+    "enterActions": [{ "type": "closeRealmPresets" }, { "type": "closeExportModal" }]
+  },
+  {
+    "id": "toolbar-export-png",
+    "title": "Export Realm PNG",
+    "body": "Open the PNG export modal to frame your map, tweak overlays, and download a polished image for handouts or VTT uploads.",
+    "target": "[data-tour-id='toolbar-export-png']",
+    "placement": "bottom",
+    "enterActions": [{ "type": "closeRealmPresets" }, { "type": "closeExportModal" }]
+  },
+  {
+    "id": "export-modal",
+    "title": "Export Preview",
+    "body": "- Toggle overlays like grid, icons, and spray.\n- Switch referee/knight visibility to control spoilers.\n- Download the exact preview shown on the right.",
+    "target": "[data-tour-id='export-modal']",
+    "placement": "right",
+    "enterActions": [{ "type": "openExportModal" }],
+    "exitActions": [{ "type": "closeExportModal" }]
+  },
+  {
     "id": "map-canvas",
-    "title": "Interactive Realm",
-    "body": "Pan, zoom, and click hexes to inspect or paint them. Tooltips and highlights adapt to whichever tool you select.",
+    "title": "Realm Canvas",
+    "body": "Pan, zoom, and click to inspect or paint hexes. Everything you place on this map updates live with your current tool.",
     "target": "[data-tour-id='realm-canvas']",
-    "placement": "center"
+    "placement": "center",
+    "enterActions": [
+      { "type": "closeExportModal" },
+      { "type": "setActiveTool", "payload": "select" }
+    ]
   },
   {
     "id": "tools-palette",
-    "title": "Tool Palette",
-    "body": "Switch between Select, Terrain, Barrier, POI, and Myth tools. Shortcuts 1-5 jump to each mode so you can swap quickly mid-edit.",
+    "title": "Tools Palette",
+    "body": "- Shortcuts 1–5 jump directly to each tool.\n- Active tool matches the sidebar docked on the right.\n- Use the palette anywhere on the map without moving your cursor far.",
     "target": "[data-tour-id='tools-palette']",
     "placement": "top",
     "enterActions": [{ "type": "setActiveTool", "payload": "select" }]
   },
   {
-    "id": "terrain-colors",
-    "title": "Terrain Painter & Colors",
-    "body": "Pick a terrain type, tweak its swatch, upload custom icons, or sample colors from the map. These changes update live so you can dial in the perfect palette.",
-    "target": "[data-tour-id='terrain-sidebar']",
-    "placement": "right",
+    "id": "tool-select-button",
+    "title": "Select Tool",
+    "body": "- Inspect hex details, change holdings, and attach myths.\n- Great for editing existing terrain without painting over it.",
+    "target": "[data-tour-id='tool-select-button']",
+    "placement": "top",
+    "enterActions": [{ "type": "setActiveTool", "payload": "select" }, { "type": "selectFirstHex" }]
+  },
+  {
+    "id": "sidebar-select",
+    "title": "Selection Sidebar",
+    "body": "Edit whichever hex is selected.\n- Update terrain notes and structures.\n- Toggle tooltip hints for quick reference during play.",
+    "target": "[data-tour-id='sidebar-select']",
+    "placement": "left",
+    "enterActions": [{ "type": "setActiveTool", "payload": "select" }, { "type": "selectFirstHex" }]
+  },
+  {
+    "id": "tool-terrain-button",
+    "title": "Terrain Painter",
+    "body": "- Paint terrain types hex by hex.\n- Sample existing colors with the pipette and adjust clusters quickly.",
+    "target": "[data-tour-id='tool-terrain-button']",
+    "placement": "top",
     "enterActions": [{ "type": "setActiveTool", "payload": "terrain" }]
+  },
+  {
+    "id": "sidebar-terrain",
+    "title": "Terrain Sidebar",
+    "body": "- Change swatches, upload custom icons, and manage spray overlays.\n- Choose brush characters for labeling exported maps.",
+    "target": "[data-tour-id='sidebar-terrain']",
+    "placement": "left",
+    "enterActions": [{ "type": "setActiveTool", "payload": "terrain" }]
+  },
+  {
+    "id": "tool-barrier-button",
+    "title": "Barrier Painter",
+    "body": "- Draw rivers, walls, or magical boundaries.\n- Click and drag to trace edges between hexes.",
+    "target": "[data-tour-id='tool-barrier-button']",
+    "placement": "top",
+    "enterActions": [{ "type": "setActiveTool", "payload": "barrier" }]
+  },
+  {
+    "id": "sidebar-barrier",
+    "title": "Barrier Sidebar",
+    "body": "- Choose barrier colors and thickness.\n- Switch between adding or erasing with a single toggle.",
+    "target": "[data-tour-id='sidebar-barrier']",
+    "placement": "left",
+    "enterActions": [{ "type": "setActiveTool", "payload": "barrier" }]
+  },
+  {
+    "id": "tool-poi-button",
+    "title": "POI Painter",
+    "body": "- Place holdings, landmarks, and travel icons.\n- Customize icon colors to match your campaign aesthetic.",
+    "target": "[data-tour-id='tool-poi-button']",
+    "placement": "top",
+    "enterActions": [{ "type": "setActiveTool", "payload": "poi" }]
+  },
+  {
+    "id": "sidebar-poi",
+    "title": "POI Sidebar",
+    "body": "- Configure icon styles, backdrops, and spray effects.\n- Quickly swap between your saved tile sets.",
+    "target": "[data-tour-id='sidebar-poi']",
+    "placement": "left",
+    "enterActions": [{ "type": "setActiveTool", "payload": "poi" }]
+  },
+  {
+    "id": "tool-myth-button",
+    "title": "Myth Tool",
+    "body": "- Drop narrative hooks, legendary sites, and quest starters.\n- Relocate myths with drag-and-drop to adjust pacing.",
+    "target": "[data-tour-id='tool-myth-button']",
+    "placement": "top",
+    "enterActions": [{ "type": "setActiveTool", "payload": "myth" }]
+  },
+  {
+    "id": "sidebar-myth",
+    "title": "Myth Sidebar",
+    "body": "- Track myth details, mark seats of power, and tweak marker styles.\n- Store enough lore to run an entire session from a single panel.",
+    "target": "[data-tour-id='sidebar-myth']",
+    "placement": "left",
+    "enterActions": [{ "type": "setActiveTool", "payload": "myth" }]
   },
   {
     "id": "preset-controls",
     "title": "Quick Save Slots",
-    "body": "Capture snapshots of the entire realm, name them, and reload in a click. Enable local storage to keep presets between browser sessions.",
+    "body": "- Snapshot your entire realm state into quick slots.\n- Enable local storage to persist between sessions.\n- Rename slots to track different story beats.",
     "target": "[data-tour-id='preset-controls']",
     "placement": "right",
     "enterActions": [{ "type": "setActiveTool", "payload": "select" }]
@@ -62,14 +181,16 @@
   {
     "id": "history-controls",
     "title": "Undo & Redo",
-    "body": "Need a do-over? Use these controls (or Ctrl+Z / Ctrl+Y) to step through your edit history without losing momentum.",
+    "body": "- Ctrl+Z / Ctrl+Y or these buttons step through edits.\n- Undo painting, myth placement, or imports safely.",
     "target": "[data-tour-id='history-controls']",
-    "placement": "left"
+    "placement": "left",
+    "enterActions": [{ "type": "setActiveTool", "payload": "select" }]
   },
   {
     "id": "finish",
-    "title": "You're Ready",
-    "body": "That's the tour! Explore at your own pace—open the presets, try the tools, and craft something legendary.",
-    "placement": "center"
+    "title": "Tour Complete",
+    "body": "You now know the lay of the land.\n- Explore presets to jumpstart a new realm.\n- Use tool + sidebar pairs to iterate quickly.\n- Export when you are ready to wow your table.",
+    "placement": "center",
+    "enterActions": [{ "type": "closeRealmPresets" }, { "type": "closeExportModal" }]
   }
 ]

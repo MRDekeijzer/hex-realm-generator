@@ -12,7 +12,13 @@ import stepsData from './realmTutorialSteps.json';
 
 type TutorialPlacement = 'top' | 'bottom' | 'left' | 'right' | 'center';
 
-type TutorialActionType = 'setActiveTool' | 'openRealmPresets' | 'closeRealmPresets';
+type TutorialActionType =
+  | 'setActiveTool'
+  | 'openRealmPresets'
+  | 'closeRealmPresets'
+  | 'openExportModal'
+  | 'closeExportModal'
+  | 'selectFirstHex';
 
 interface TutorialAction {
   type: TutorialActionType;
@@ -38,6 +44,9 @@ interface RealmTutorialOverlayProps {
     setActiveTool: (tool: Tool) => void;
     openRealmPresets: () => void;
     closeRealmPresets: () => void;
+    openExportModal: () => void;
+    closeExportModal: () => void;
+    selectFirstHex: () => void;
   };
 }
 
@@ -85,6 +94,18 @@ export function RealmTutorialOverlay({
           }
           case 'closeRealmPresets': {
             actionHandlers.closeRealmPresets();
+            break;
+          }
+          case 'openExportModal': {
+            actionHandlers.openExportModal();
+            break;
+          }
+          case 'closeExportModal': {
+            actionHandlers.closeExportModal();
+            break;
+          }
+          case 'selectFirstHex': {
+            actionHandlers.selectFirstHex();
             break;
           }
           default:
@@ -313,15 +334,72 @@ export function RealmTutorialOverlay({
   }, [targetRect]);
 
   const renderBody = useCallback(() => {
-    return currentStep.body
-      .split('\n\n')
-      .map((part) => part.trim())
-      .filter((part) => part.length > 0)
-      .map((part, index) => (
-        <p key={`${currentStep.id}-paragraph-${index}`} className="mt-2 text-sm text-text-muted">
-          {part}
-        </p>
-      ));
+    const raw = currentStep.body ?? '';
+    const lines = raw.split('\n');
+    const blocks: Array<{ type: 'paragraph'; text: string } | { type: 'list'; items: string[] }> =
+      [];
+    let paragraphLines: string[] = [];
+    let listItems: string[] | null = null;
+
+    const flushParagraph = () => {
+      if (!paragraphLines.length) return;
+      const text = paragraphLines.join(' ');
+      blocks.push({ type: 'paragraph', text });
+      paragraphLines = [];
+    };
+
+    const flushList = () => {
+      if (!listItems || listItems.length === 0) return;
+      blocks.push({ type: 'list', items: listItems });
+      listItems = null;
+    };
+
+    lines.forEach((rawLine, index) => {
+      const line = rawLine.trim();
+      const isLast = index === lines.length - 1;
+
+      if (!line) {
+        flushParagraph();
+        flushList();
+        return;
+      }
+
+      if (line.startsWith('- ')) {
+        flushParagraph();
+        if (!listItems) {
+          listItems = [];
+        }
+        listItems.push(line.slice(2).trim());
+      } else {
+        flushList();
+        paragraphLines.push(line);
+      }
+
+      if (isLast) {
+        flushParagraph();
+        flushList();
+      }
+    });
+
+    return blocks.map((block, index) => {
+      if (block.type === 'paragraph') {
+        return (
+          <p key={`${currentStep.id}-paragraph-${index}`} className="mt-2 text-sm text-text-muted">
+            {block.text}
+          </p>
+        );
+      }
+      return (
+        <ul
+          key={`${currentStep.id}-list-${index}`}
+          className="mt-2 list-disc space-y-1 pl-5 text-sm text-text-muted"
+        >
+          {block.items.map((item, itemIndex) => (
+            <li key={`${currentStep.id}-list-${index}-item-${itemIndex}`}>{item}</li>
+          ))}
+        </ul>
+      );
+    });
   }, [currentStep.body, currentStep.id]);
 
   const handleNext = useCallback(() => {

@@ -69,6 +69,7 @@ interface ToolbarProps {
   featureFlags: FeatureFlags;
   setFeatureFlags: React.Dispatch<React.SetStateAction<FeatureFlags>>;
   onOpenCredits: () => void;
+  onReplayTutorial: () => void;
   onToggleRealmPresets: () => void;
   isRealmPresetsOpen: boolean;
   colorSettings: ColorSettingsHandlers;
@@ -92,6 +93,7 @@ export function Toolbar({
   featureFlags,
   setFeatureFlags,
   onOpenCredits,
+  onReplayTutorial,
   onToggleRealmPresets,
   isRealmPresetsOpen,
   ...settingsProps
@@ -207,33 +209,39 @@ export function Toolbar({
         />
 
         <h1 className="text-xl font-bold text-text-high-contrast mr-4">Hex Realm Generator</h1>
-        <ToolbarButton onClick={onGenerate} icon="sparkles" title="Generate New Realm">
-          Generate
-        </ToolbarButton>
-        <ToolbarButton
-          onClick={handleOpenSettings}
-          icon="settings"
-          title="Open generation settings"
-        />
-
-        <ToolbarDivider />
-
-        <div className="relative">
+        <div className="flex items-center gap-2" data-tour-id="toolbar-generate-group">
           <ToolbarButton
-            ref={gridSettingsButtonRef}
-            onClick={() => setIsGridSettingsOpen((prev) => !prev)}
-            icon="grid"
-            title="Grid Settings"
+            onClick={onGenerate}
+            icon="sparkles"
+            title="Generate New Realm"
+            data-tour-id="toolbar-generate"
           >
-            Grid
+            Generate
           </ToolbarButton>
-          {isGridSettingsOpen && (
-            <GridSettingsPopover
-              ref={gridSettingsPopoverRef}
-              viewOptions={viewOptions}
-              setViewOptions={setViewOptions}
-            />
-          )}
+          <ToolbarButton
+            onClick={handleOpenSettings}
+            icon="settings"
+            title="Open generation settings"
+            data-tour-id="toolbar-generation-settings"
+          />
+          <ToolbarDivider />
+          <div className="relative" data-tour-id="toolbar-grid">
+            <ToolbarButton
+              ref={gridSettingsButtonRef}
+              onClick={() => setIsGridSettingsOpen((prev) => !prev)}
+              icon="grid"
+              title="Grid Settings"
+            >
+              Grid
+            </ToolbarButton>
+            {isGridSettingsOpen && (
+              <GridSettingsPopover
+                ref={gridSettingsPopoverRef}
+                viewOptions={viewOptions}
+                setViewOptions={setViewOptions}
+              />
+            )}
+          </div>
         </div>
 
         <ToolbarDivider />
@@ -259,33 +267,44 @@ export function Toolbar({
 
         {/* <ToolbarDivider /> */}
 
-        <ToolbarButton
-          onClick={() => setViewOptions((v) => ({ ...v, isGmView: !v.isGmView }))}
-          icon="eye"
-          isActive={viewOptions.isGmView}
-          title={viewOptions.isGmView ? 'Referee View' : 'Knight View'}
-        >
-          {viewOptions.isGmView ? 'Referee View' : 'Knight View'}
-        </ToolbarButton>
-        <ToolbarButton
-          onClick={handleOpenViewSettings}
-          icon="settings"
-          title="Open view visibility settings"
-        />
+        <div className="flex items-center gap-2" data-tour-id="toolbar-view-group">
+          <ToolbarButton
+            onClick={() => setViewOptions((v) => ({ ...v, isGmView: !v.isGmView }))}
+            icon="eye"
+            isActive={viewOptions.isGmView}
+            title={viewOptions.isGmView ? 'Referee View' : 'Knight View'}
+            data-tour-id="toolbar-view-toggle"
+          >
+            {viewOptions.isGmView ? 'Referee View' : 'Knight View'}
+          </ToolbarButton>
+          <ToolbarButton
+            onClick={handleOpenViewSettings}
+            icon="settings"
+            title="Open view visibility settings"
+            data-tour-id="toolbar-view-settings"
+          />
+        </div>
 
         <ToolbarDivider />
 
         <ToolbarButton onClick={onOpenCredits} icon="info" title="View project credits">
           Credits
         </ToolbarButton>
+        <ToolbarButton
+          onClick={onReplayTutorial}
+          icon="circle-question-mark"
+          title="Replay guided tutorial"
+          data-tour-id="toolbar-tutorial-replay"
+        />
       </div>
 
-      <div className="flex items-center gap-2" data-tour-id="toolbar-actions">
+      <div className="flex items-center gap-2">
         <ToolbarButton
           onClick={onToggleRealmPresets}
           icon="layers"
           title="Open realm presets"
           isActive={isRealmPresetsOpen}
+          data-tour-id="toolbar-presets-button"
         >
           Presets
         </ToolbarButton>
@@ -297,17 +316,30 @@ export function Toolbar({
           style={{ display: 'none' }}
           aria-hidden="true"
         />
+        <div className="flex items-center gap-2" data-tour-id="toolbar-realm-files">
+          <ToolbarButton
+            onClick={() => fileInputRef.current?.click()}
+            icon="upload"
+            title="Import from JSON Realm file"
+            data-tour-id="toolbar-import-realm"
+          >
+            Import Realm Data
+          </ToolbarButton>
+          <ToolbarButton
+            onClick={onExportJson}
+            icon="download"
+            title="Export as JSON Realm file"
+            data-tour-id="toolbar-export-realm"
+          >
+            Export Realm Data
+          </ToolbarButton>
+        </div>
         <ToolbarButton
-          onClick={() => fileInputRef.current?.click()}
-          icon="upload"
-          title="Import from JSON Realm file"
+          onClick={onExportPng}
+          icon="image-down"
+          title="Export as PNG image"
+          data-tour-id="toolbar-export-png"
         >
-          Import Realm Data
-        </ToolbarButton>
-        <ToolbarButton onClick={onExportJson} icon="download" title="Export as JSON Realm file">
-          Export Realm Data
-        </ToolbarButton>
-        <ToolbarButton onClick={onExportPng} icon="image-down" title="Export as PNG image">
           Export Realm PNG
         </ToolbarButton>
       </div>

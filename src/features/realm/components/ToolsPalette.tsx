@@ -24,13 +24,21 @@ interface ToolButtonProps {
   shortcutKey?: string;
   isActive: boolean;
   onClick: () => void;
+  dataTourId?: string;
 }
 
 /**
  * A reusable button component for the tools palette.
  */
 // FIX: Changed to React.FC to correctly type as a component, resolving key prop errors.
-const ToolButton: React.FC<ToolButtonProps> = ({ icon, label, shortcutKey, isActive, onClick }) => (
+const ToolButton: React.FC<ToolButtonProps> = ({
+  icon,
+  label,
+  shortcutKey,
+  isActive,
+  onClick,
+  dataTourId,
+}) => (
   <button
     onClick={onClick}
     className={`p-3 rounded-lg transition-colors duration-150 ${
@@ -42,6 +50,7 @@ const ToolButton: React.FC<ToolButtonProps> = ({ icon, label, shortcutKey, isAct
     title={shortcutKey ? `${label} (${shortcutKey})` : label}
     aria-keyshortcuts={shortcutKey}
     aria-pressed={isActive}
+    data-tour-id={dataTourId}
   >
     <Icon name={icon} className="w-6 h-6" />
   </button>
@@ -72,6 +81,7 @@ export function ToolsPalette({ activeTool, setActiveTool }: ToolsPaletteProps) {
           shortcutKey={tool.shortcutKey}
           isActive={activeTool === tool.id}
           onClick={() => setActiveTool(tool.id)}
+          dataTourId={`tool-${tool.id}-button`}
         />
       ))}
     </div>

@@ -135,7 +135,7 @@ export function TerrainPainterSidebar({
   return (
     <aside
       className="w-80 bg-realm-canvas-backdrop border-l border-border-panel-divider p-4 flex flex-col"
-      data-tour-id="terrain-sidebar"
+      data-tour-id="sidebar-terrain"
     >
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Terrain Painter</h2>

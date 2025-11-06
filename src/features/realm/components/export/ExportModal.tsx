@@ -107,6 +107,7 @@ export function ExportModal({
       aria-modal="true"
       aria-labelledby="export-modal-title"
       onMouseDown={handleBackdropMouseDown}
+      data-tour-id="export-modal"
     >
       <div className="relative w-full max-w-5xl rounded-lg border border-border-panel-divider bg-realm-map-viewport shadow-xl">
         <button

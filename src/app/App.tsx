@@ -260,6 +260,7 @@ export default function App() {
   const [activeColorPresetId, setActiveColorPresetId] = useState<string>(DEFAULT_COLOR_PRESET_ID);
   const presetSnapshotRef = useRef<RealmPresetSnapshot | null>(null);
   const tutorialInitialToolRef = useRef<Tool | null>(null);
+  const tutorialInitialSelectionRef = useRef<Hex | null>(null);
   const [isTutorialOpen, setIsTutorialOpen] = useState(false);
   const [areShortcutTipsCollapsed, setAreShortcutTipsCollapsed] = useState<boolean>(() => {
     if (typeof window === 'undefined' || !window.localStorage) {
@@ -337,8 +338,9 @@ export default function App() {
       return;
     }
     tutorialInitialToolRef.current = activeTool;
+    tutorialInitialSelectionRef.current = selectedHex;
     setIsTutorialOpen(true);
-  }, [activeTool, isCreditsCheckComplete, isCreditsOpen]);
+  }, [activeTool, isCreditsCheckComplete, isCreditsOpen, selectedHex]);
 
   const [realmShape, setRealmShape] = useState<'hex' | 'square'>('square');
   const [realmRadius, setRealmRadius] = useState<number>(DEFAULT_GRID_SIZE);
@@ -792,25 +794,6 @@ export default function App() {
     }
   }, [isRealmPresetsOpen, handleDismissRealmPresets, handleOpenRealmPresets]);
 
-  const tutorialActionHandlers = useMemo(
-    () => ({
-      setActiveTool: (tool: Tool) => {
-        setActiveTool(tool);
-      },
-      openRealmPresets: () => {
-        if (!isRealmPresetsOpen) {
-          handleOpenRealmPresets();
-        }
-      },
-      closeRealmPresets: () => {
-        if (isRealmPresetsOpen) {
-          handleDismissRealmPresets();
-        }
-      },
-    }),
-    [handleDismissRealmPresets, handleOpenRealmPresets, isRealmPresetsOpen, setActiveTool]
-  );
-
   const handleTutorialDismiss = useCallback(
     (_outcome: 'completed' | 'skipped') => {
       if (typeof window !== 'undefined' && window.sessionStorage) {
@@ -824,12 +807,28 @@ export default function App() {
       if (tutorialInitialToolRef.current) {
         setActiveTool(tutorialInitialToolRef.current);
       }
+      if (tutorialInitialSelectionRef.current) {
+        setSelectedHex(tutorialInitialSelectionRef.current);
+      } else {
+        setSelectedHex(null);
+      }
       tutorialInitialToolRef.current = null;
+      tutorialInitialSelectionRef.current = null;
       if (isRealmPresetsOpen) {
         handleDismissRealmPresets();
       }
+      if (isExportModalOpen) {
+        setIsExportModalOpen(false);
+      }
     },
-    [handleDismissRealmPresets, isRealmPresetsOpen, setActiveTool]
+    [
+      handleDismissRealmPresets,
+      isExportModalOpen,
+      isRealmPresetsOpen,
+      setActiveTool,
+      setIsExportModalOpen,
+      setSelectedHex,
+    ]
   );
 
   /**
@@ -1379,19 +1378,19 @@ export default function App() {
     realmWidth,
     realmHeight,
     generationOptions,
-      tileSets,
-      terrainColors,
-      viewOptions,
-      exportSettings,
-      mythMarkerFillColor,
-      mythMarkerBorderColor,
-      mythMarkerBorderWidth,
-      seatOfPowerIconColor,
-      seatOfPowerBackdropColor,
-      poiIconColor,
-      poiBackdropColor,
-      barrierColor,
-      featureFlags,
+    tileSets,
+    terrainColors,
+    viewOptions,
+    exportSettings,
+    mythMarkerFillColor,
+    mythMarkerBorderColor,
+    mythMarkerBorderWidth,
+    seatOfPowerIconColor,
+    seatOfPowerBackdropColor,
+    poiIconColor,
+    poiBackdropColor,
+    barrierColor,
+    featureFlags,
   ]);
 
   const handleExportJson = useCallback(() => {
@@ -1402,6 +1401,7 @@ export default function App() {
     }
     exportRealmAsJson(exportPayload);
   }, [buildRealmExportData, showMessage]);
+
   const handleExportPng = useCallback(() => {
     setExportSettings((prev) => ({
       ...prev,
@@ -1418,6 +1418,86 @@ export default function App() {
     viewOptions.showGrid,
     viewOptions.showIconSpray,
     viewOptions.showTerrainIcons,
+  ]);
+
+  const handleTutorialSelectFirstHex = useCallback(() => {
+    if (!realm || realm.hexes.length === 0) {
+      return;
+    }
+    const firstHex = realm.hexes[0];
+    setSelectedHex(firstHex);
+  }, [realm, setSelectedHex]);
+
+  const tutorialActionHandlers = useMemo(
+    () => ({
+      setActiveTool: (tool: Tool) => {
+        setActiveTool(tool);
+      },
+      openRealmPresets: () => {
+        if (!isRealmPresetsOpen) {
+          handleOpenRealmPresets();
+        }
+      },
+      closeRealmPresets: () => {
+        if (isRealmPresetsOpen) {
+          handleDismissRealmPresets();
+        }
+      },
+      openExportModal: () => {
+        if (!isExportModalOpen) {
+          handleExportPng();
+        }
+      },
+      closeExportModal: () => {
+        if (isExportModalOpen) {
+          setIsExportModalOpen(false);
+        }
+      },
+      selectFirstHex: () => {
+        handleTutorialSelectFirstHex();
+      },
+    }),
+    [
+      handleDismissRealmPresets,
+      handleExportPng,
+      handleTutorialSelectFirstHex,
+      handleOpenRealmPresets,
+      isExportModalOpen,
+      isRealmPresetsOpen,
+      setActiveTool,
+      setIsExportModalOpen,
+    ]
+  );
+
+  const handleReplayTutorial = useCallback(() => {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      try {
+        window.sessionStorage.removeItem(TUTORIAL_SESSION_KEY);
+      } catch (error) {
+        console.warn('Failed to reset tutorial preference', error);
+      }
+    }
+    tutorialInitialToolRef.current = activeTool;
+    if (isRealmPresetsOpen) {
+      handleDismissRealmPresets();
+    }
+    if (isExportModalOpen) {
+      setIsExportModalOpen(false);
+    }
+    if (isCreditsOpen) {
+      setIsCreditsOpen(false);
+    }
+    tutorialInitialSelectionRef.current = selectedHex;
+    setIsTutorialOpen(true);
+  }, [
+    activeTool,
+    handleDismissRealmPresets,
+    isCreditsOpen,
+    isExportModalOpen,
+    isRealmPresetsOpen,
+    selectedHex,
+    setIsCreditsOpen,
+    setIsExportModalOpen,
   ]);
 
   const handleConfirmExport = useCallback(
@@ -1836,6 +1916,7 @@ export default function App() {
         featureFlags={featureFlags}
         setFeatureFlags={setFeatureFlags}
         onOpenCredits={() => setIsCreditsOpen(true)}
+        onReplayTutorial={handleReplayTutorial}
         onToggleRealmPresets={handleToggleRealmPresets}
         isRealmPresetsOpen={isRealmPresetsOpen}
         colorSettings={colorSettingsHandlers}

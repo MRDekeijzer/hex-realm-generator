@@ -81,7 +81,10 @@ export function MythSidebar({
   const formattedBorderWidth = mythMarkerBorderWidth.toFixed(2).replace(/\.?0+$/, '');
 
   return (
-    <aside className="w-80 bg-realm-canvas-backdrop border-l border-border-panel-divider p-4 flex flex-col">
+    <aside
+      className="w-80 bg-realm-canvas-backdrop border-l border-border-panel-divider p-4 flex flex-col"
+      data-tour-id="sidebar-myth"
+    >
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Myth Tool</h2>
         <button

@@ -36,7 +36,10 @@ export function BarrierPainterSidebar({
   const isCustomColor = barrierColor !== DEFAULT_BARRIER_COLOR;
 
   return (
-    <aside className="w-80 bg-realm-canvas-backdrop border-l border-border-panel-divider p-4 flex flex-col">
+    <aside
+      className="w-80 bg-realm-canvas-backdrop border-l border-border-panel-divider p-4 flex flex-col"
+      data-tour-id="sidebar-barrier"
+    >
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Barrier Painter</h2>
         <button

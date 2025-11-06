@@ -148,7 +148,10 @@ export function SelectionSidebar({
 }: SelectionSidebarProps) {
   if (!selectedHex) {
     return (
-      <aside className="w-80 bg-realm-canvas-backdrop border-l border-border-panel-divider p-4 flex h-full flex-col justify-center gap-4">
+      <aside
+        className="w-80 bg-realm-canvas-backdrop border-l border-border-panel-divider p-4 flex h-full flex-col justify-center gap-4"
+        data-tour-id="sidebar-select"
+      >
         <div className="flex flex-col items-center text-center gap-2">
           <Icon name="mouse-pointer-2" className="w-16 h-16 text-realm-command-panel-hover" />
           <h2 className="text-xl font-bold">Select a Hex</h2>
@@ -231,7 +234,10 @@ export function SelectionSidebar({
     realm && selectedHex.q === realm.seatOfPower.q && selectedHex.r === realm.seatOfPower.r;
 
   return (
-    <aside className="w-80 bg-realm-canvas-backdrop border-l border-border-panel-divider p-4 flex flex-col">
+    <aside
+      className="w-80 bg-realm-canvas-backdrop border-l border-border-panel-divider p-4 flex flex-col"
+      data-tour-id="sidebar-select"
+    >
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">
           Hex (<span className="font-decorative text-[1.1em]">{selectedHex.q}</span>,{' '}
