@@ -10,8 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/MRDekeijzer/hex-realm-generator/blob/main/LICENSE">
-    <img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg"
-         alt="License">
+    <img src="https://img.shields.io/badge/license-GNU%20GPLv3-blue.svg" alt="License">
   </a>
   <a href="https://github.com/MRDekeijzer/hex-realm-generator/releases">
     <img src="https://img.shields.io/badge/version-1.0-brightgreen.svg"
